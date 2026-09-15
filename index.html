@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Executive Wealth · Command Center</title>
+<title>Executive Wealth · Personal Finance</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -276,15 +276,12 @@ svg.lucide { display: block; }
 .desktop-sidebar.collapsed .nav-section-header > span,
 .desktop-sidebar.collapsed .nav-section-header > .nav-section-icon { display: none !important; }
 .desktop-sidebar.collapsed .nav-section-header { justify-content: center; padding: .35rem .5rem; }
-.desktop-sidebar.collapsed .nav-section-body { max-height: 9999px !important; } /* Keep items visible when collapsed */
+.desktop-sidebar.collapsed .nav-section-body { max-height: 9999px !important; }
 .desktop-sidebar.collapsed .nav-item { justify-content: center; padding: .65rem .5rem; gap: 0; }
 .desktop-sidebar.collapsed .nav-item .nav-badge { position: absolute; top: 2px; right: 4px; margin: 0; min-width: 1.05rem; height: 1.05rem; padding: 0 .25rem; font-size: .55rem; line-height: 1.05rem; text-align: center; }
 .desktop-sidebar.collapsed .nav-item.active::before { display: none; }
 .desktop-sidebar.collapsed .sidebar-header-row { justify-content: center; padding-left: 0; padding-right: 0; }
 .desktop-sidebar.collapsed .sidebar-collapse-btn i { transform: rotate(180deg); }
-.desktop-sidebar.collapsed .sidebar-footer-btns { flex-direction: column; }
-.desktop-sidebar.collapsed .sidebar-footer-btns .btn { padding: .55rem; }
-.desktop-sidebar.collapsed .sidebar-footer-btns .btn span { display: none; }
 .desktop-sidebar.collapsed .sidebar-ledger-btn span { display: none; }
 .desktop-sidebar.collapsed .sidebar-ledger-btn { justify-content: center; padding: .6rem; }
 .desktop-sidebar.collapsed .sidebar-ledger-btn > i:last-child { display: none; }
@@ -375,6 +372,169 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
 .settings-toolbar .mini-btn:hover { border-color: var(--border-hover); color: var(--text-1); }
 .settings-count-badge { font-size: .6rem; font-weight: 800; color: var(--text-4); padding: .2rem .5rem; background: var(--surface-3); border: 1px solid var(--border); border-radius: 9999px; }
 .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+
+/* ===== Settings split layout ===== */
+.settings-shell { display: flex; gap: 1.25rem; align-items: flex-start; }
+.settings-nav { flex-shrink: 0; width: 15rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: .4rem; position: sticky; top: 0; max-height: calc(100dvh - 8.5rem); overflow-y: auto; }
+.settings-nav-item { display: flex; align-items: center; gap: .65rem; width: 100%; padding: .6rem .7rem; border-radius: var(--radius-sm); font-size: .78rem; font-weight: 600; color: var(--text-3); background: transparent; border: none; cursor: pointer; text-align: left; transition: background-color .15s ease, color .15s ease; -webkit-tap-highlight-color: transparent; }
+.settings-nav-item:hover { background: var(--surface-2); color: var(--text-1); }
+.settings-nav-item.active { background: rgba(139,92,246,.10); color: #6D28D9; font-weight: 700; }
+html.dark .settings-nav-item.active { color: #C4B5FD; }
+.settings-nav-item .sn-chevron { margin-left: auto; opacity: 0; transition: opacity .15s ease; flex-shrink: 0; }
+.settings-nav-item.active .sn-chevron { opacity: 1; }
+.settings-content { flex-grow: 1; min-width: 0; }
+.settings-pane { display: none; }
+.settings-pane.active { display: block; animation: fadeInUp .25s cubic-bezier(.4,0,.2,1) both; }
+ /* ===== Mobile Settings Selector (dropdown + bottom sheet) ===== */
+.settings-mobile-selector { display: none; }
+
+@media (max-width: 900px) {
+  .settings-shell { flex-direction: column; gap: 1rem; }
+  .settings-nav { display: none !important; }
+
+  .settings-mobile-selector {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    background: var(--app-bg);
+    padding-bottom: .5rem;
+    margin: -.25rem 0 0;
+  }
+
+  .sms-trigger {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    width: 100%;
+    padding: .85rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+  .sms-trigger:active { background: var(--surface-2); border-color: var(--border-hover); }
+
+  .sms-icon {
+    width: 38px; height: 38px;
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(139,92,246,.10);
+    border: 1px solid rgba(139,92,246,.22);
+    color: #6D28D9;
+    flex-shrink: 0;
+  }
+  html.dark .sms-icon { color: #C4B5FD; }
+
+  .sms-text { min-width: 0; flex-grow: 1; text-align: left; }
+  .sms-label { font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--text-4); display: block; line-height: 1.2; }
+  .sms-value { font-size: .85rem; font-weight: 800; color: var(--text-1); display: block; margin-top: 2px; line-height: 1.2; }
+  .sms-chevron { color: var(--text-4); flex-shrink: 0; transition: transform .25s cubic-bezier(.4,0,.2,1); }
+  .sms-trigger.open .sms-chevron { transform: rotate(180deg); }
+
+  /* Bottom sheet */
+  .sms-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 2500;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .sms-sheet.open { pointer-events: auto; }
+
+  .sms-sheet-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(15,23,42,.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity .22s ease;
+  }
+  .sms-sheet.open .sms-sheet-backdrop { opacity: 1; }
+
+  .sms-sheet-panel {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    max-height: 82vh;
+    background: var(--surface);
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    border: 1px solid var(--border-strong);
+    border-bottom: none;
+    box-shadow: 0 -20px 60px -12px rgba(15,23,42,.25);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  html.dark .sms-sheet-panel { box-shadow: 0 -20px 60px -12px rgba(0,0,0,.6); }
+  .sms-sheet.open .sms-sheet-panel { transform: translateY(0); }
+
+  .sms-sheet-handle {
+    width: 40px; height: 4px;
+    border-radius: 9999px;
+    background: var(--border-hover);
+    margin: 10px auto 4px;
+    flex-shrink: 0;
+  }
+  .sms-sheet-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 18px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sms-sheet-header h3 { font-size: .875rem; font-weight: 800; color: var(--text-1); }
+
+  .sms-sheet-body {
+    padding: 10px 10px 18px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-grow: 1;
+  }
+
+  .sms-option {
+    display: flex; align-items: center; gap: .75rem;
+    width: 100%;
+    padding: .8rem .85rem;
+    border-radius: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    color: var(--text-2);
+    font-size: .82rem;
+    font-weight: 600;
+    transition: background-color .15s ease, color .15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sms-option:hover, .sms-option:active { background: var(--surface-2); color: var(--text-1); }
+  .sms-option.active { background: rgba(139,92,246,.12); color: #6D28D9; font-weight: 700; }
+  html.dark .sms-option.active { color: #C4B5FD; }
+
+  .sms-opt-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface-3);
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+  .sms-option.active .sms-opt-icon {
+    background: rgba(139,92,246,.18);
+    color: #6D28D9;
+  }
+  html.dark .sms-option.active .sms-opt-icon { color: #C4B5FD; }
+
+  .sms-option .sms-check { margin-left: auto; opacity: 0; flex-shrink: 0; color: #6D28D9; transition: opacity .15s ease; }
+  html.dark .sms-option .sms-check { color: #C4B5FD; }
+  .sms-option.active .sms-check { opacity: 1; }
+}
 </style>
 </head>
 <body>
@@ -391,7 +551,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
   <div class="cmd-panel" role="dialog" aria-modal="true">
     <div class="flex items-center gap-3 px-4">
       <i data-lucide="search" class="w-4 h-4 shrink-0" style="color: var(--text-4);"></i>
-      <input id="cmdInput" class="cmd-input" placeholder="Search tabs, accounts, actions…" autocomplete="off" spellcheck="false">
+      <input id="cmdInput" class="cmd-input" placeholder="Search pages, accounts, actions…" autocomplete="off" spellcheck="false">
       <span class="kbd shrink-0">ESC</span>
     </div>
     <div id="cmdList" class="cmd-list scroll"></div>
@@ -429,7 +589,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           </div>
           <div class="min-w-0 sidebar-brand-text">
             <h1 class="text-[12px] font-extrabold tracking-tight leading-tight" style="color: var(--text-1);">Executive Wealth</h1>
-            <p class="text-[9.5px] font-semibold leading-tight" style="color: var(--text-4);">Command Center</p>
+            <p class="text-[9.5px] font-semibold leading-tight" style="color: var(--text-4);">Personal Finance</p>
           </div>
         </div>
         <div class="flex items-center gap-0.5 shrink-0">
@@ -450,15 +610,15 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
       <nav class="p-3 overflow-y-auto scroll flex-grow">
         <div class="nav-section" data-section="overview">
           <button class="nav-section-header" onclick="toggleNavSection(this)">
-            <span>Overview</span>
+            <span>Main</span>
             <i data-lucide="chevron-down" class="nav-section-icon"></i>
           </button>
           <div class="nav-section-body">
-            <button onclick="switchMainTab(event,'tab-dashboard')" class="nav-item active" title="Command Dashboard"><i data-lucide="gauge" class="w-4 h-4 shrink-0"></i><span class="truncate">Command Dashboard</span></button>
-            <button onclick="switchMainTab(event,'tab-overview')" class="nav-item" title="Executive Summary"><i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i><span class="truncate">Executive Summary</span></button>
+            <button onclick="switchMainTab(event,'tab-dashboard')" class="nav-item active" title="Dashboard"><i data-lucide="gauge" class="w-4 h-4 shrink-0"></i><span class="truncate">Dashboard</span></button>
+            <button onclick="switchMainTab(event,'tab-overview')" class="nav-item" title="Portfolio Overview"><i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i><span class="truncate">Portfolio Overview</span></button>
             <button onclick="switchMainTab(event,'tab-accounts')" class="nav-item" title="Accounts"><i data-lucide="wallet" class="w-4 h-4 shrink-0"></i><span class="truncate">Accounts</span><span id="navAccountsBadge" class="nav-badge">0</span></button>
             <button onclick="switchMainTab(event,'tab-transactions')" class="nav-item" title="Transactions"><i data-lucide="arrow-left-right" class="w-4 h-4 shrink-0"></i><span class="truncate">Transactions</span><span id="navTxBadge" class="nav-badge">0</span></button>
-            <button onclick="switchMainTab(event,'tab-allocation')" class="nav-item" title="Asset Allocation"><i data-lucide="pie-chart" class="w-4 h-4 shrink-0"></i><span class="truncate">Asset Allocation</span></button>
+            <button onclick="switchMainTab(event,'tab-allocation')" class="nav-item" title="Investment Mix"><i data-lucide="pie-chart" class="w-4 h-4 shrink-0"></i><span class="truncate">Investment Mix</span></button>
           </div>
         </div>
 
@@ -468,9 +628,9 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
             <i data-lucide="chevron-down" class="nav-section-icon"></i>
           </button>
           <div class="nav-section-body">
-            <button onclick="switchMainTab(event,'tab-tax')" class="nav-item" title="Tax & Contributions"><i data-lucide="shield-check" class="w-4 h-4 shrink-0"></i><span class="truncate">Tax &amp; Contributions</span></button>
-            <button onclick="switchMainTab(event,'tab-hub')" class="nav-item" title="Strategic Hub"><i data-lucide="sparkles" class="w-4 h-4 shrink-0"></i><span class="truncate">Strategic Hub</span></button>
-            <button onclick="switchMainTab(event,'tab-projections')" class="nav-item" title="Projections"><i data-lucide="line-chart" class="w-4 h-4 shrink-0"></i><span class="truncate">Projections</span></button>
+            <button onclick="switchMainTab(event,'tab-tax')" class="nav-item" title="Tax Savings"><i data-lucide="shield-check" class="w-4 h-4 shrink-0"></i><span class="truncate">Tax Savings</span></button>
+            <button onclick="switchMainTab(event,'tab-hub')" class="nav-item" title="Financial Tools"><i data-lucide="sparkles" class="w-4 h-4 shrink-0"></i><span class="truncate">Financial Tools</span></button>
+            <button onclick="switchMainTab(event,'tab-projections')" class="nav-item" title="Future Planning"><i data-lucide="line-chart" class="w-4 h-4 shrink-0"></i><span class="truncate">Future Planning</span></button>
           </div>
         </div>
 
@@ -480,17 +640,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
             <i data-lucide="chevron-down" class="nav-section-icon"></i>
           </button>
           <div class="nav-section-body">
-            <button onclick="switchMainTab(event,'tab-expenses')" class="nav-item" title="Expense Tracker"><i data-lucide="receipt" class="w-4 h-4 shrink-0"></i><span class="truncate">Expense Tracker</span></button>
-          </div>
-        </div>
-
-        <div class="nav-section" data-section="system">
-          <button class="nav-section-header" onclick="toggleNavSection(this)">
-            <span>System</span>
-            <i data-lucide="chevron-down" class="nav-section-icon"></i>
-          </button>
-          <div class="nav-section-body">
-            <button onclick="switchMainTab(event,'tab-settings')" class="nav-item" title="Settings"><i data-lucide="settings-2" class="w-4 h-4 shrink-0"></i><span class="truncate">Settings</span></button>
+            <button onclick="switchMainTab(event,'tab-expenses')" class="nav-item" title="Spending"><i data-lucide="receipt" class="w-4 h-4 shrink-0"></i><span class="truncate">Spending</span></button>
           </div>
         </div>
       </nav>
@@ -501,10 +651,6 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
         <input type="checkbox" id="taxHaircutToggle" onchange="updateDashboard()" class="rounded" style="accent-color: var(--accent);">
         <span>Apply Tax Haircuts</span>
       </label>
-      <div class="sidebar-footer-btns grid grid-cols-2 gap-2">
-        <button id="themeToggleBtn" onclick="toggleThemeMode()" class="btn btn-ghost justify-center"><i data-lucide="moon" class="w-3.5 h-3.5"></i> <span>Dark</span></button>
-        <button id="masterPrivacyBtn" onclick="toggleMasterPrivacy()" class="btn btn-ghost justify-center"><i data-lucide="eye-off" class="w-3.5 h-3.5"></i> <span>Hide</span></button>
-      </div>
       <button onclick="toggleLedgerDrawer()" class="sidebar-ledger-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.24);">
         <span class="flex items-center gap-2"><i data-lucide="database" class="w-3.5 h-3.5"></i><span>Portfolio Ledger</span></span>
         <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i>
@@ -528,7 +674,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
               </div>
             </div>
           </div>
-          <button class="profile-popover-item" onclick="switchMainTab(null,'tab-settings',true); closeProfileMenu();">
+          <button class="profile-popover-item" onclick="openSettingsSection('profile'); closeProfileMenu();">
             <i data-lucide="user-circle-2" class="w-4 h-4"></i><span>Profile &amp; Settings</span>
           </button>
           <button class="profile-popover-item" onclick="toggleThemeMode()">
@@ -560,7 +706,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
         <div class="hidden lg:flex items-center gap-2 min-w-0">
           <span class="text-[10.5px] font-bold uppercase tracking-widest" style="color: var(--text-4);">Workspace</span>
           <i data-lucide="chevron-right" class="w-3.5 h-3.5" style="color: var(--text-4);"></i>
-          <span id="breadcrumbLabel" class="text-xs font-semibold truncate" style="color: var(--text-2);">Command Dashboard</span>
+          <span id="breadcrumbLabel" class="text-xs font-semibold truncate" style="color: var(--text-2);">Dashboard</span>
         </div>
         <div class="flex items-center gap-2 ml-auto">
           <div class="relative hidden sm:block">
@@ -619,8 +765,8 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
             <i data-lucide="gauge" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i>
           </span>
           <div class="min-w-0">
-            <h2 id="activeTabHeading" class="text-base lg:text-lg font-extrabold tracking-tight truncate" style="color: var(--text-1);">Command Dashboard</h2>
-            <p id="activeTabSubtitle" class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Your personalized financial overview</p>
+            <h2 id="activeTabHeading" class="text-base lg:text-lg font-extrabold tracking-tight truncate" style="color: var(--text-1);">Dashboard</h2>
+            <p id="activeTabSubtitle" class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Your financial snapshot at a glance</p>
           </div>
         </div>
         <div id="activeRangeDisplay" class="hidden lg:flex items-center gap-2 text-[11px] font-semibold" style="color: var(--text-4);">
@@ -635,7 +781,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
         <div class="surface p-3 lg:p-4 flex flex-wrap items-center gap-3">
           <div class="flex items-center gap-3 min-w-0 flex-grow">
             <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(139,92,246,.10); border:1px solid rgba(139,92,246,.22);"><i data-lucide="layout-grid" class="w-4 h-4" style="color:#6D28D9;"></i></span>
-            <div class="min-w-0"><h3 class="text-sm font-extrabold tracking-tight truncate" style="color: var(--text-1);">Your Command Dashboard</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Reorder, hide, and add widgets · drag cards to rearrange</p></div>
+            <div class="min-w-0"><h3 class="text-sm font-extrabold tracking-tight truncate" style="color: var(--text-1);">Your Dashboard</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Reorder, hide, and add widgets · drag cards to rearrange</p></div>
           </div>
           <div class="flex items-center gap-2 shrink-0">
             <button id="dashCustomizeBtn" onclick="dashToggleCustomize()" class="btn btn-ghost"><i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i><span>Customize</span></button>
@@ -667,7 +813,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           <div class="collapsible-header mb-5" onclick="toggleCollapse(this)">
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">📈</span>
-              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Portfolio Trajectory</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Net worth growth across all tracked years</p></div>
+              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Wealth Growth Over Time</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Net worth growth across all tracked years</p></div>
             </div>
             <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
           </div>
@@ -677,7 +823,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           <div class="collapsible-header mb-5" onclick="toggleCollapse(this)">
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">📊</span>
-              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Multi-Year Performance Ledger</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Year-over-year balance, contribution and return detail</p></div>
+              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Year-by-Year Performance</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Year-over-year balance, contribution and return detail</p></div>
             </div>
             <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
           </div>
@@ -699,7 +845,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           <div class="lg:col-span-3 surface p-6 relative overflow-hidden">
             <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(600px 200px at 0% 0%, rgba(139,92,246,.08), transparent 60%);"></div>
             <div class="relative">
-              <span class="text-[11px] font-extrabold uppercase tracking-widest" style="color: var(--text-4);">Total Net Worth</span>
+              <span class="text-[11px] font-extrabold uppercase tracking-widest" style="color: var(--text-4);">Your Net Worth</span>
               <div id="accountsNetWorth" class="privacy-target text-4xl lg:text-5xl font-extrabold tracking-tight mt-1 mb-1" style="color: var(--text-1);">$0</div>
               <div id="accountsNetWorthSub" class="text-xs font-semibold mb-5" style="color: var(--text-4);">Across 0 accounts</div>
               <div class="space-y-3">
@@ -719,7 +865,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
             </div>
           </div>
           <div class="lg:col-span-2 surface p-5">
-            <div class="mb-3"><h3 class="text-sm font-bold" style="color: var(--text-1);">Where Your Money Lives</h3><p class="text-[10px] font-semibold" style="color: var(--text-4);">Asset &amp; liability breakdown by account type</p></div>
+            <div class="mb-3"><h3 class="text-sm font-bold" style="color: var(--text-1);">Money Breakdown</h3><p class="text-[10px] font-semibold" style="color: var(--text-4);">Asset &amp; liability breakdown by account type</p></div>
             <div class="grid grid-cols-2 gap-3">
               <div class="h-40 relative flex justify-center items-center">
                 <canvas id="accountsTypeChart"></canvas>
@@ -745,7 +891,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           <div class="flex items-center gap-3 min-w-0">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(139,92,246,.10); border: 1px solid rgba(139,92,246,.22);"><i data-lucide="link-2" class="w-5 h-5" style="color: #6D28D9;"></i></div>
             <div class="min-w-0">
-              <div class="flex items-center gap-2 flex-wrap"><span class="text-xs font-bold" style="color: var(--text-1);">Plaid Connection</span><span id="plaidStatusBadge" class="badge badge-slate">--</span></div>
+              <div class="flex items-center gap-2 flex-wrap"><span class="text-xs font-bold" style="color: var(--text-1);">Bank Connection</span><span id="plaidStatusBadge" class="badge badge-slate">--</span></div>
               <p id="accountsLastSync" class="text-[11px] font-semibold" style="color: var(--text-4);">Never synced</p>
             </div>
           </div>
@@ -782,7 +928,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 text-lg" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">🔄</span>
               <div class="min-w-0">
-                <h3 class="text-sm font-bold tracking-tight flex items-center gap-2 flex-wrap" style="color: var(--text-1);">Plaid Transactions<span id="txSyncBadge" class="badge badge-slate">--</span></h3>
+                <h3 class="text-sm font-bold tracking-tight flex items-center gap-2 flex-wrap" style="color: var(--text-1);">Recent Transactions<span id="txSyncBadge" class="badge badge-slate">--</span></h3>
                 <p id="txLastSync" class="text-[11px] font-semibold" style="color: var(--text-4);">Never synced</p>
               </div>
             </div>
@@ -857,7 +1003,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
             <div class="collapsible-header mb-5" onclick="toggleCollapse(this)">
               <div class="flex items-center gap-3 min-w-0">
                 <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">🥧</span>
-                <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Current Asset Mix</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Live allocation across all wrappers</p></div>
+                <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Your Investment Mix</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Live allocation across all accounts</p></div>
               </div>
               <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
             </div>
@@ -867,7 +1013,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
             <div class="collapsible-header mb-5" onclick="toggleCollapse(this)">
               <div class="flex items-center gap-3 min-w-0">
                 <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">🧬</span>
-                <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Allocation Evolution</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Stacked history by asset class</p></div>
+                <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">How Your Mix Changed</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Stacked history by asset class</p></div>
               </div>
               <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
             </div>
@@ -878,7 +1024,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           <div class="collapsible-header mb-5" onclick="toggleCollapse(this)">
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">🗂️</span>
-              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Account Trajectory &amp; Performance Basis</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Per-account growth, basis and yearly gain</p></div>
+              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Account Growth &amp; Performance</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Per-account growth, basis and yearly gain</p></div>
             </div>
             <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
           </div>
@@ -888,7 +1034,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           <div class="collapsible-header pb-4" style="border-bottom: 1px solid var(--border);" onclick="toggleCollapse(this)">
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">⚖️</span>
-              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Rebalancing Planner</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Drift detection and cross-account trade generation</p></div>
+              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Portfolio Rebalancing</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Drift detection and cross-account trade generation</p></div>
             </div>
             <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
           </div>
@@ -916,7 +1062,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
               <pre id="actionPlanSummaryText" class="text-xs font-mono whitespace-pre-wrap leading-relaxed p-4 rounded-xl scroll max-h-48 overflow-y-auto" style="background: var(--app-bg); border: 1px solid var(--border); color: var(--text-2);">Calculating actions...</pre>
             </div>
             <div class="rounded-xl p-4 space-y-4" style="background: var(--surface-2); border: 1px solid var(--border);">
-              <div class="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-widest" style="color: var(--text-2);"><i data-lucide="calculator" class="w-4 h-4" style="color: #6D28D9;"></i><span>Performance Fee Drag &amp; Liquidity</span></div>
+              <div class="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-widest" style="color: var(--text-2);"><i data-lucide="calculator" class="w-4 h-4" style="color: #6D28D9;"></i><span>Fees &amp; Liquidity</span></div>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div><label class="field-label">Expense Ratio (%)</label><input type="number" step="0.01" id="rebalExpenseRatio" value="0.15" oninput="renderRebalancer()" class="input text-right font-mono"></div>
                 <div><label class="field-label">Idle Cash (<span class="currency-prefix">$</span>)</label><input type="number" id="rebalIdleCash" value="5000" oninput="renderRebalancer()" class="input text-right font-mono"></div>
@@ -935,7 +1081,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           <div class="collapsible-header mb-5" onclick="toggleCollapse(this)">
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">🧾</span>
-              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Prorated IRS Goal Tracker (<span id="limitYearText">2026</span>)</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Pacing evaluated against elapsed months</p></div>
+              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Contribution Goals (<span id="limitYearText">2026</span>)</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Pacing evaluated against elapsed months</p></div>
             </div>
             <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
           </div>
@@ -960,7 +1106,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           <div class="collapsible-header mb-5" onclick="toggleCollapse(this)">
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">🏛️</span>
-              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Tax Wrapper Location Buckets</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Exposure across exempt, deferred, taxable and special wrappers</p></div>
+              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Account Types</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Exposure across tax-exempt, deferred, taxable and special accounts</p></div>
             </div>
             <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
           </div>
@@ -973,7 +1119,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           <div class="collapsible-header pb-4" style="border-bottom: 1px solid var(--border);" onclick="toggleCollapse(this)">
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(236,72,153,.10); color: #BE185D; border: 1px solid rgba(236,72,153,.20);">📋</span>
-              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Instant Paystub Calculator</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Minimal-input take-home pay modelling</p></div>
+              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Paycheck Calculator</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Minimal-input take-home pay modelling</p></div>
             </div>
             <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
           </div>
@@ -1014,7 +1160,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           <div class="collapsible-header pb-4" style="border-bottom: 1px solid var(--border);" onclick="toggleCollapse(this)">
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(59,130,246,.10); color: #1D4ED8; border: 1px solid rgba(59,130,246,.20);">✨</span>
-              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Texas &amp; Macro Investment Optimizer</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Tax arbitrage runway and tactical pillar alignment</p></div>
+              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Smart Investment Insights</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Tax arbitrage runway and tactical pillar alignment</p></div>
             </div>
             <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
           </div>
@@ -1033,7 +1179,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           <div class="collapsible-header mb-5" onclick="toggleCollapse(this)">
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">🚀</span>
-              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Compound Wealth Growth Engine</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Long-horizon projections with real purchasing power</p></div>
+              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Growth Projections</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Long-horizon projections with real purchasing power</p></div>
             </div>
             <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
           </div>
@@ -1092,7 +1238,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
             <div class="collapsible-header mb-4" onclick="toggleCollapse(this)">
               <div class="flex items-center gap-3 min-w-0">
                 <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(236,72,153,.10); color: #BE185D; border: 1px solid rgba(236,72,153,.20);">🔥</span>
-                <h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">FIRE Target</h3>
+                <h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Financial Freedom Goal</h3>
               </div>
               <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
             </div>
@@ -1111,7 +1257,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
             <div class="collapsible-header mb-4" onclick="toggleCollapse(this)">
               <div class="flex items-center gap-3 min-w-0">
                 <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">🛟</span>
-                <h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Emergency Liquidity</h3>
+                <h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Emergency Fund</h3>
               </div>
               <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
             </div>
@@ -1132,7 +1278,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
             <div class="collapsible-header mb-4" onclick="toggleCollapse(this)">
               <div class="flex items-center gap-3 min-w-0">
                 <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(59,130,246,.10); color: #1D4ED8; border: 1px solid rgba(59,130,246,.20);">🎈</span>
-                <h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Inflation Simulator</h3>
+                <h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Inflation Calculator</h3>
               </div>
               <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
             </div>
@@ -1239,7 +1385,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
           <div class="collapsible-header pb-4" style="border-bottom: 1px solid var(--border);" onclick="toggleCollapse(this)">
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">💳</span>
-              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Payment Accounts &amp; Credit Cards</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Utilisation, pending balance and available credit</p></div>
+              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Cards &amp; Payment Accounts</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Utilisation, pending balance and available credit</p></div>
             </div>
             <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
           </div>
@@ -1276,7 +1422,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
             <div class="collapsible-header pb-4" style="border-bottom: 1px solid var(--border);" onclick="toggleCollapse(this)">
               <div class="flex items-center gap-3 min-w-0">
                 <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">🥧</span>
-                <h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Category Distribution</h3>
+                <h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Spending by Category</h3>
               </div>
               <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
             </div>
@@ -1289,7 +1435,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
             <div class="collapsible-header pb-4" style="border-bottom: 1px solid var(--border);" onclick="toggleCollapse(this)">
               <div class="flex items-center gap-3 min-w-0">
                 <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(236,72,153,.10); color: #BE185D; border: 1px solid rgba(236,72,153,.20);">🔁</span>
-                <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Recurring Subscriptions &amp; Bill Audit</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Every auto-renewing charge in one place</p></div>
+                <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate" style="color: var(--text-1);">Subscriptions</h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Every auto-renewing charge in one place</p></div>
               </div>
               <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
             </div>
@@ -1301,329 +1447,407 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
         </div>
       </div>
 
-      <!-- SETTINGS TAB -->
+      <!-- ============ SETTINGS TAB ============ -->
       <div id="tab-settings" class="main-tab-content space-y-5 hidden">
-        <div class="settings-grid">
+        <div class="settings-shell">
+<div class="settings-mobile-selector">
+  <button class="sms-trigger" id="smsTrigger" onclick="openSettingsSheet()" aria-haspopup="listbox">
+    <span class="sms-icon" id="smsIcon"><i data-lucide="user-circle-2" class="w-4 h-4"></i></span>
+    <span class="sms-text">
+      <span class="sms-label">Settings Section</span>
+      <span class="sms-value" id="smsValue">Profile</span>
+    </span>
+    <i data-lucide="chevron-down" class="sms-chevron w-4 h-4"></i>
+  </button>
+</div>
 
-          <div class="settings-card settings-card-lg">
-            <div class="settings-card-header">
-              <div class="settings-card-icon"><i data-lucide="user-circle-2" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
-              <div>
-                <h3>Profile &amp; Identity</h3>
-                <p>Personal details shown across your workspace</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-4 mb-5">
-              <div class="settings-avatar-wrap">
-                <div id="settingsAvatar" class="settings-avatar">EW</div>
-                <label class="settings-avatar-upload" title="Upload avatar">
-                  <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-                  <input type="file" accept="image/*" class="hidden" onchange="uploadProfileAvatar(event)">
-                </label>
-              </div>
-              <div class="min-w-0 flex-grow">
-                <div id="settingsProfileName" class="text-sm font-extrabold truncate" style="color: var(--text-1);">Executive User</div>
-                <div id="settingsProfileEmail" class="text-[11px] truncate" style="color: var(--text-4);">you@example.com</div>
-                <button onclick="resetProfileAvatar()" class="text-[10px] font-semibold mt-1" style="color:#BE123C;">Remove avatar</button>
-              </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div><label class="field-label">Full Name</label><input type="text" id="setName" class="input" placeholder="e.g. Alex Morgan"></div>
-              <div><label class="field-label">Email</label><input type="email" id="setEmail" class="input" placeholder="you@example.com"></div>
-              <div><label class="field-label">Phone</label><input type="tel" id="setPhone" class="input" placeholder="+1 (555) 000-0000"></div>
-              <div><label class="field-label">Time Zone</label>
-                <select id="setTimezone" class="input">
-                  <option value="UTC">UTC</option>
-                  <option value="America/New_York">America / New York</option>
-                  <option value="America/Chicago">America / Chicago</option>
-                  <option value="America/Denver">America / Denver</option>
-                  <option value="America/Los_Angeles">America / Los Angeles</option>
-                  <option value="Europe/London">Europe / London</option>
-                  <option value="Europe/Berlin">Europe / Berlin</option>
-                  <option value="Asia/Kolkata">Asia / Kolkata</option>
-                  <option value="Asia/Tokyo">Asia / Tokyo</option>
-                  <option value="Australia/Sydney">Australia / Sydney</option>
-                </select>
-              </div>
-            </div>
-            <div class="flex justify-end gap-2 pt-4 mt-4" style="border-top: 1px solid var(--border);">
-              <button onclick="loadSettingsUI()" class="btn btn-ghost">Reset</button>
-              <button onclick="saveProfileSettings()" class="btn btn-primary"><i data-lucide="check" class="w-3.5 h-3.5"></i> Save Profile</button>
-            </div>
-          </div>
+<div id="settingsSheet" class="sms-sheet">
+  <div class="sms-sheet-backdrop" onclick="closeSettingsSheet()"></div>
+  <div class="sms-sheet-panel">
+    <div class="sms-sheet-handle"></div>
+    <div class="sms-sheet-header">
+      <h3>Settings</h3>
+      <button onclick="closeSettingsSheet()" class="btn-icon btn-ghost"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <div class="sms-sheet-body scroll" id="smsBody"></div>
+  </div>
+</div>
+          <aside class="settings-nav" id="settingsNav">
+            <button class="settings-nav-item active" data-settings-section="profile" onclick="switchSettingsSection('profile')">
+              <i data-lucide="user-circle-2" class="w-4 h-4"></i><span>Profile</span>
+              <i data-lucide="chevron-right" class="sn-chevron w-3.5 h-3.5"></i>
+            </button>
+            <button class="settings-nav-item" data-settings-section="appearance" onclick="switchSettingsSection('appearance')">
+              <i data-lucide="palette" class="w-4 h-4"></i><span>Appearance</span>
+              <i data-lucide="chevron-right" class="sn-chevron w-3.5 h-3.5"></i>
+            </button>
+            <button class="settings-nav-item" data-settings-section="categories" onclick="switchSettingsSection('categories')">
+              <i data-lucide="tags" class="w-4 h-4"></i><span>Categories</span>
+              <i data-lucide="chevron-right" class="sn-chevron w-3.5 h-3.5"></i>
+            </button>
+            <button class="settings-nav-item" data-settings-section="privacy" onclick="switchSettingsSection('privacy')">
+              <i data-lucide="shield-check" class="w-4 h-4"></i><span>Privacy</span>
+              <i data-lucide="chevron-right" class="sn-chevron w-3.5 h-3.5"></i>
+            </button>
+            <button class="settings-nav-item" data-settings-section="notifications" onclick="switchSettingsSection('notifications')">
+              <i data-lucide="bell" class="w-4 h-4"></i><span>Notifications</span>
+              <i data-lucide="chevron-right" class="sn-chevron w-3.5 h-3.5"></i>
+            </button>
+            <button class="settings-nav-item" data-settings-section="data" onclick="switchSettingsSection('data')">
+              <i data-lucide="database" class="w-4 h-4"></i><span>Data</span>
+              <i data-lucide="chevron-right" class="sn-chevron w-3.5 h-3.5"></i>
+            </button>
+            <button class="settings-nav-item" data-settings-section="signin" onclick="switchSettingsSection('signin')">
+              <i data-lucide="log-in" class="w-4 h-4"></i><span>Login</span>
+              <i data-lucide="chevron-right" class="sn-chevron w-3.5 h-3.5"></i>
+            </button>
+            <button class="settings-nav-item" data-settings-section="about" onclick="switchSettingsSection('about')">
+              <i data-lucide="info" class="w-4 h-4"></i><span>About</span>
+              <i data-lucide="chevron-right" class="sn-chevron w-3.5 h-3.5"></i>
+            </button>
+          </aside>
 
-          <div class="settings-card settings-card-md">
-            <div class="settings-card-header">
-              <div class="settings-card-icon"><i data-lucide="palette" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
-              <div>
-                <h3>Appearance</h3>
-                <p>Theme, accent colour &amp; layout density</p>
-              </div>
-            </div>
-            <div class="settings-row">
-              <div>
-                <div class="settings-row-label">Dark Mode</div>
-                <div class="settings-row-desc">Switch between light and dark theme</div>
-              </div>
-              <div class="settings-row-control">
-                <label class="switch"><input type="checkbox" id="setDarkMode" onchange="toggleThemeMode()"><span class="slider"></span></label>
-              </div>
-            </div>
-            <div class="settings-row">
-              <div>
-                <div class="settings-row-label">Collapse Sidebar by Default</div>
-                <div class="settings-row-desc">Auto-collapse left navigation on load</div>
-              </div>
-              <div class="settings-row-control">
-                <label class="switch"><input type="checkbox" id="setSidebarCollapsed" onchange="saveAppearanceSettings()"><span class="slider"></span></label>
-              </div>
-            </div>
-            <div class="settings-row">
-              <div>
-                <div class="settings-row-label">Compact Density</div>
-                <div class="settings-row-desc">Tighter spacing in tables and cards</div>
-              </div>
-              <div class="settings-row-control">
-                <label class="switch"><input type="checkbox" id="setCompactDensity" onchange="saveAppearanceSettings()"><span class="slider"></span></label>
-              </div>
-            </div>
-            <div class="settings-row" style="border-bottom:none;padding-bottom:.25rem;">
-              <div>
-                <div class="settings-row-label">Accent Colour</div>
-                <div class="settings-row-desc">Primary colour for buttons and highlights</div>
-              </div>
-            </div>
-            <div class="flex flex-wrap gap-2 pt-1 pb-2" id="accentSwatchRow"></div>
-          </div>
+          <div class="settings-content">
 
-          <!-- Categories & Preferences -->
-          <div class="settings-card">
-            <div class="settings-card-header">
-              <div class="settings-card-icon"><i data-lucide="tags" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
-              <div class="flex-grow min-w-0">
-                <h3>Categories &amp; Preferences</h3>
-                <p>Drag to reorder · toggle visibility · add, edit or delete categories</p>
-              </div>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <div>
-                <div class="flex items-center justify-between mb-2.5 gap-2 flex-wrap">
+            <!-- Profile -->
+            <div class="settings-pane active" data-pane="profile">
+              <div class="settings-card">
+                <div class="settings-card-header">
+                  <div class="settings-card-icon"><i data-lucide="user-circle-2" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
                   <div>
-                    <div class="text-[11px] font-extrabold uppercase tracking-widest" style="color: var(--text-4);">Portfolio Categories</div>
-                    <div class="text-[10px] mt-0.5 flex items-center gap-2" style="color: var(--text-4);">
-                      <span id="portfolioCountBadge" class="settings-count-badge">0 of 0 visible</span>
-                    </div>
-                  </div>
-                  <div class="flex gap-1.5">
-                    <button onclick="bulkToggleVisibility('portfolio', true)" class="mini-btn" title="Show all"><i data-lucide="eye" class="w-3 h-3"></i></button>
-                    <button onclick="bulkToggleVisibility('portfolio', false)" class="mini-btn" title="Hide all"><i data-lucide="eye-off" class="w-3 h-3"></i></button>
-                    <button onclick="resetCategoryOrder('portfolio')" class="mini-btn" title="Reset order"><i data-lucide="rotate-ccw" class="w-3 h-3"></i></button>
-                    <button onclick="openPortfolioCategoryModal()" class="btn btn-primary !py-1.5 !px-3 !text-[11px]"><i data-lucide="plus" class="w-3 h-3"></i> Add</button>
+                    <h3>Your Profile</h3>
+                    <p>Personal details shown across your workspace</p>
                   </div>
                 </div>
-                <div class="settings-toolbar">
-                  <div class="search-wrap">
-                    <i data-lucide="search"></i>
-                    <input type="text" id="portfolioCatSearch" placeholder="Search portfolio categories…" oninput="renderSettingsCategoryLists()">
+                <div class="flex items-center gap-4 mb-5">
+                  <div class="settings-avatar-wrap">
+                    <div id="settingsAvatar" class="settings-avatar">EW</div>
+                    <label class="settings-avatar-upload" title="Upload avatar">
+                      <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                      <input type="file" accept="image/*" class="hidden" onchange="uploadProfileAvatar(event)">
+                    </label>
+                  </div>
+                  <div class="min-w-0 flex-grow">
+                    <div id="settingsProfileName" class="text-sm font-extrabold truncate" style="color: var(--text-1);">Executive User</div>
+                    <div id="settingsProfileEmail" class="text-[11px] truncate" style="color: var(--text-4);">you@example.com</div>
+                    <button onclick="resetProfileAvatar()" class="text-[10px] font-semibold mt-1" style="color:#BE123C;">Remove avatar</button>
                   </div>
                 </div>
-                <div id="portfolioCategoriesList" class="space-y-0.5 max-h-[28rem] overflow-y-auto scroll pr-1"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div><label class="field-label">Full Name</label><input type="text" id="setName" class="input" placeholder="e.g. Alex Morgan"></div>
+                  <div><label class="field-label">Email</label><input type="email" id="setEmail" class="input" placeholder="you@example.com"></div>
+                  <div><label class="field-label">Phone</label><input type="tel" id="setPhone" class="input" placeholder="+1 (555) 000-0000"></div>
+                  <div><label class="field-label">Time Zone</label>
+                    <select id="setTimezone" class="input">
+                      <option value="UTC">UTC</option>
+                      <option value="America/New_York">America / New York</option>
+                      <option value="America/Chicago">America / Chicago</option>
+                      <option value="America/Denver">America / Denver</option>
+                      <option value="America/Los_Angeles">America / Los Angeles</option>
+                      <option value="Europe/London">Europe / London</option>
+                      <option value="Europe/Berlin">Europe / Berlin</option>
+                      <option value="Asia/Kolkata">Asia / Kolkata</option>
+                      <option value="Asia/Tokyo">Asia / Tokyo</option>
+                      <option value="Australia/Sydney">Australia / Sydney</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-4 mt-4" style="border-top: 1px solid var(--border);">
+                  <button onclick="loadSettingsUI()" class="btn btn-ghost">Reset</button>
+                  <button onclick="saveProfileSettings()" class="btn btn-primary"><i data-lucide="check" class="w-3.5 h-3.5"></i> Save Profile</button>
+                </div>
               </div>
-              <div>
-                <div class="flex items-center justify-between mb-2.5 gap-2 flex-wrap">
+            </div>
+
+            <!-- Appearance -->
+            <div class="settings-pane" data-pane="appearance">
+              <div class="settings-card">
+                <div class="settings-card-header">
+                  <div class="settings-card-icon"><i data-lucide="palette" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
                   <div>
-                    <div class="text-[11px] font-extrabold uppercase tracking-widest" style="color: var(--text-4);">Expense Categories</div>
-                    <div class="text-[10px] mt-0.5 flex items-center gap-2" style="color: var(--text-4);">
-                      <span id="expenseCountBadge" class="settings-count-badge">0 of 0 visible</span>
+                    <h3>Look &amp; Feel</h3>
+                    <p>Theme, accent colour &amp; layout density</p>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Dark Mode</div>
+                    <div class="settings-row-desc">Switch between light and dark theme</div>
+                  </div>
+                  <div class="settings-row-control">
+                    <label class="switch"><input type="checkbox" id="setDarkMode" onchange="toggleThemeMode()"><span class="slider"></span></label>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Collapse Sidebar by Default</div>
+                    <div class="settings-row-desc">Auto-collapse left navigation on load</div>
+                  </div>
+                  <div class="settings-row-control">
+                    <label class="switch"><input type="checkbox" id="setSidebarCollapsed" onchange="saveAppearanceSettings()"><span class="slider"></span></label>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Compact Density</div>
+                    <div class="settings-row-desc">Tighter spacing in tables and cards</div>
+                  </div>
+                  <div class="settings-row-control">
+                    <label class="switch"><input type="checkbox" id="setCompactDensity" onchange="saveAppearanceSettings()"><span class="slider"></span></label>
+                  </div>
+                </div>
+                <div class="settings-row" style="border-bottom:none;padding-bottom:.25rem;">
+                  <div>
+                    <div class="settings-row-label">Accent Colour</div>
+                    <div class="settings-row-desc">Primary colour for buttons and highlights</div>
+                  </div>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1 pb-2" id="accentSwatchRow"></div>
+              </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="settings-pane" data-pane="categories">
+              <div class="settings-card">
+                <div class="settings-card-header">
+                  <div class="settings-card-icon"><i data-lucide="tags" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
+                  <div class="flex-grow min-w-0">
+                    <h3>Categories</h3>
+                    <p>Drag to reorder · toggle visibility · add, edit or delete categories</p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                  <div>
+                    <div class="flex items-center justify-between mb-2.5 gap-2 flex-wrap">
+                      <div>
+                        <div class="text-[11px] font-extrabold uppercase tracking-widest" style="color: var(--text-4);">Portfolio Categories</div>
+                        <div class="text-[10px] mt-0.5 flex items-center gap-2" style="color: var(--text-4);">
+                          <span id="portfolioCountBadge" class="settings-count-badge">0 of 0 visible</span>
+                        </div>
+                      </div>
+                      <div class="flex gap-1.5">
+                        <button onclick="bulkToggleVisibility('portfolio', true)" class="mini-btn" title="Show all"><i data-lucide="eye" class="w-3 h-3"></i></button>
+                        <button onclick="bulkToggleVisibility('portfolio', false)" class="mini-btn" title="Hide all"><i data-lucide="eye-off" class="w-3 h-3"></i></button>
+                        <button onclick="resetCategoryOrder('portfolio')" class="mini-btn" title="Reset order"><i data-lucide="rotate-ccw" class="w-3 h-3"></i></button>
+                        <button onclick="openPortfolioCategoryModal()" class="btn btn-primary !py-1.5 !px-3 !text-[11px]"><i data-lucide="plus" class="w-3 h-3"></i> Add</button>
+                      </div>
                     </div>
+                    <div class="settings-toolbar">
+                      <div class="search-wrap">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="portfolioCatSearch" placeholder="Search portfolio categories…" oninput="renderSettingsCategoryLists()">
+                      </div>
+                    </div>
+                    <div id="portfolioCategoriesList" class="space-y-0.5 max-h-[28rem] overflow-y-auto scroll pr-1"></div>
                   </div>
-                  <div class="flex gap-1.5">
-                    <button onclick="bulkToggleVisibility('expense', true)" class="mini-btn" title="Show all"><i data-lucide="eye" class="w-3 h-3"></i></button>
-                    <button onclick="bulkToggleVisibility('expense', false)" class="mini-btn" title="Hide all"><i data-lucide="eye-off" class="w-3 h-3"></i></button>
-                    <button onclick="resetCategoryOrder('expense')" class="mini-btn" title="Reset order"><i data-lucide="rotate-ccw" class="w-3 h-3"></i></button>
-                    <button onclick="openSettingsAddCategory()" class="btn btn-primary !py-1.5 !px-3 !text-[11px]"><i data-lucide="plus" class="w-3 h-3"></i> Add</button>
+                  <div>
+                    <div class="flex items-center justify-between mb-2.5 gap-2 flex-wrap">
+                      <div>
+                        <div class="text-[11px] font-extrabold uppercase tracking-widest" style="color: var(--text-4);">Expense Categories</div>
+                        <div class="text-[10px] mt-0.5 flex items-center gap-2" style="color: var(--text-4);">
+                          <span id="expenseCountBadge" class="settings-count-badge">0 of 0 visible</span>
+                        </div>
+                      </div>
+                      <div class="flex gap-1.5">
+                        <button onclick="bulkToggleVisibility('expense', true)" class="mini-btn" title="Show all"><i data-lucide="eye" class="w-3 h-3"></i></button>
+                        <button onclick="bulkToggleVisibility('expense', false)" class="mini-btn" title="Hide all"><i data-lucide="eye-off" class="w-3 h-3"></i></button>
+                        <button onclick="resetCategoryOrder('expense')" class="mini-btn" title="Reset order"><i data-lucide="rotate-ccw" class="w-3 h-3"></i></button>
+                        <button onclick="openSettingsAddCategory()" class="btn btn-primary !py-1.5 !px-3 !text-[11px]"><i data-lucide="plus" class="w-3 h-3"></i> Add</button>
+                      </div>
+                    </div>
+                    <div class="settings-toolbar">
+                      <div class="search-wrap">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="expenseCatSearch" placeholder="Search expense categories…" oninput="renderSettingsCategoryLists()">
+                      </div>
+                    </div>
+                    <div id="expenseCategoriesList" class="space-y-0.5 max-h-[28rem] overflow-y-auto scroll pr-1"></div>
                   </div>
                 </div>
-                <div class="settings-toolbar">
-                  <div class="search-wrap">
-                    <i data-lucide="search"></i>
-                    <input type="text" id="expenseCatSearch" placeholder="Search expense categories…" oninput="renderSettingsCategoryLists()">
+              </div>
+            </div>
+
+            <!-- Privacy -->
+            <div class="settings-pane" data-pane="privacy">
+              <div class="settings-card">
+                <div class="settings-card-header">
+                  <div class="settings-card-icon"><i data-lucide="shield-check" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
+                  <div>
+                    <h3>Privacy</h3>
+                    <p>Local-only protections for your data</p>
                   </div>
                 </div>
-                <div id="expenseCategoriesList" class="space-y-0.5 max-h-[28rem] overflow-y-auto scroll pr-1"></div>
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Master Privacy Mode</div>
+                    <div class="settings-row-desc">Blur all sensitive numbers on load</div>
+                  </div>
+                  <div class="settings-row-control">
+                    <label class="switch"><input type="checkbox" id="setPrivacyDefault" onchange="saveSecuritySettings()"><span class="slider"></span></label>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">PIN Lock</div>
+                    <div class="settings-row-desc">Require a 4-digit PIN on app open</div>
+                  </div>
+                  <div class="settings-row-control">
+                    <label class="switch"><input type="checkbox" id="setPinEnabled" onchange="togglePinSetup()"><span class="slider"></span></label>
+                  </div>
+                </div>
+                <div id="pinSetupRow" class="hidden pt-3">
+                  <label class="field-label">4-Digit PIN</label>
+                  <input type="password" id="setPin" class="input pin-input" maxlength="4" inputmode="numeric" placeholder="••••">
+                  <div class="text-[10px] mt-2" style="color: var(--text-4);">PIN is stored in your browser only. It is not transmitted.</div>
+                </div>
+                <div class="settings-badge-danger mt-4 flex items-start gap-2">
+                  <i data-lucide="alert-triangle" class="w-3.5 h-3.5 shrink-0 mt-0.5"></i>
+                  <span>PIN lock is a deterrent, not encryption. Do not store highly sensitive data.</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Security -->
-          <div class="settings-card settings-card-md">
-            <div class="settings-card-header">
-              <div class="settings-card-icon"><i data-lucide="shield-check" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
-              <div>
-                <h3>Privacy &amp; Security</h3>
-                <p>Local-only protections for your data</p>
+            <!-- Notifications -->
+            <div class="settings-pane" data-pane="notifications">
+              <div class="settings-card">
+                <div class="settings-card-header">
+                  <div class="settings-card-icon"><i data-lucide="bell" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
+                  <div>
+                    <h3>Notifications</h3>
+                    <p>Toast duration and in-app alerts</p>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Toast Duration</div>
+                    <div class="settings-row-desc">How long notifications stay on screen</div>
+                  </div>
+                  <div class="settings-row-control">
+                    <select id="setToastDuration" onchange="saveNotificationSettings()" class="input !w-auto !py-1.5">
+                      <option value="2000">2 seconds</option>
+                      <option value="4000" selected>4 seconds</option>
+                      <option value="6000">6 seconds</option>
+                      <option value="10000">10 seconds</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Reduce Motion</div>
+                    <div class="settings-row-desc">Disable animations &amp; transitions</div>
+                  </div>
+                  <div class="settings-row-control">
+                    <label class="switch"><input type="checkbox" id="setReduceMotion" onchange="saveNotificationSettings()"><span class="slider"></span></label>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Play Notification Sound</div>
+                    <div class="settings-row-desc">Soft chime on success/error</div>
+                  </div>
+                  <div class="settings-row-control">
+                    <label class="switch"><input type="checkbox" id="setNotificationSound" onchange="saveNotificationSettings()"><span class="slider"></span></label>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="settings-row">
-              <div>
-                <div class="settings-row-label">Master Privacy Mode</div>
-                <div class="settings-row-desc">Blur all sensitive numbers on load</div>
-              </div>
-              <div class="settings-row-control">
-                <label class="switch"><input type="checkbox" id="setPrivacyDefault" onchange="saveSecuritySettings()"><span class="slider"></span></label>
-              </div>
-            </div>
-            <div class="settings-row">
-              <div>
-                <div class="settings-row-label">PIN Lock</div>
-                <div class="settings-row-desc">Require a 4-digit PIN on app open</div>
-              </div>
-              <div class="settings-row-control">
-                <label class="switch"><input type="checkbox" id="setPinEnabled" onchange="togglePinSetup()"><span class="slider"></span></label>
-              </div>
-            </div>
-            <div id="pinSetupRow" class="hidden pt-3">
-              <label class="field-label">4-Digit PIN</label>
-              <input type="password" id="setPin" class="input pin-input" maxlength="4" inputmode="numeric" placeholder="••••">
-              <div class="text-[10px] mt-2" style="color: var(--text-4);">PIN is stored in your browser only. It is not transmitted.</div>
-            </div>
-            <div class="settings-badge-danger mt-4 flex items-start gap-2">
-              <i data-lucide="alert-triangle" class="w-3.5 h-3.5 shrink-0 mt-0.5"></i>
-              <span>PIN lock is a deterrent, not encryption. Do not store highly sensitive data.</span>
-            </div>
-          </div>
 
-          <!-- Notifications -->
-          <div class="settings-card settings-card-md">
-            <div class="settings-card-header">
-              <div class="settings-card-icon"><i data-lucide="bell" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
-              <div>
-                <h3>Notifications</h3>
-                <p>Toast duration and in-app alerts</p>
+            <!-- Data -->
+            <div class="settings-pane" data-pane="data">
+              <div class="settings-card">
+                <div class="settings-card-header">
+                  <div class="settings-card-icon"><i data-lucide="database" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
+                  <div>
+                    <h3>Data &amp; Backup</h3>
+                    <p>Export, import, and manage your local data</p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="rounded-2xl p-4 space-y-2" style="background: var(--surface-2); border: 1px solid var(--border);">
+                    <div class="flex items-center gap-2"><i data-lucide="download" class="w-4 h-4" style="color:#6D28D9;"></i><span class="text-xs font-bold" style="color: var(--text-1);">Export All Data</span></div>
+                    <p class="text-[10px] leading-relaxed" style="color: var(--text-4);">Download portfolio, accounts, expenses and settings as a single JSON file.</p>
+                    <button onclick="exportAllData()" class="btn btn-ghost w-full justify-center !py-2"><i data-lucide="download" class="w-3.5 h-3.5"></i> Export Everything</button>
+                  </div>
+                  <div class="rounded-2xl p-4 space-y-2" style="background: var(--surface-2); border: 1px solid var(--border);">
+                    <div class="flex items-center gap-2"><i data-lucide="upload" class="w-4 h-4" style="color:#6D28D9;"></i><span class="text-xs font-bold" style="color: var(--text-1);">Import From Backup</span></div>
+                    <p class="text-[10px] leading-relaxed" style="color: var(--text-4);">Restore a previously exported JSON file. This will replace current data.</p>
+                    <button onclick="document.getElementById('importAllDataInput').click()" class="btn btn-ghost w-full justify-center !py-2"><i data-lucide="upload" class="w-3.5 h-3.5"></i> Import Backup</button>
+                    <input type="file" id="importAllDataInput" class="hidden" accept=".json" onchange="importAllData(event)">
+                  </div>
+                  <div class="rounded-2xl p-4 space-y-2" style="background: var(--surface-2); border: 1px solid var(--border);">
+                    <div class="flex items-center gap-2"><i data-lucide="trash-2" class="w-4 h-4" style="color:#BE123C;"></i><span class="text-xs font-bold" style="color: var(--text-1);">Clear Local Cache</span></div>
+                    <p class="text-[10px] leading-relaxed" style="color: var(--text-4);">Wipe browser cache only. Server JSON files remain intact.</p>
+                    <button onclick="clearLocalCache()" class="btn btn-danger w-full justify-center !py-2"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear Cache</button>
+                  </div>
+                  <div class="rounded-2xl p-4 space-y-2" style="background: var(--surface-2); border: 1px solid rgba(251,113,133,.32);">
+                    <div class="flex items-center gap-2"><i data-lucide="alert-octagon" class="w-4 h-4" style="color:#BE123C;"></i><span class="text-xs font-bold" style="color: var(--text-1);">Reset Everything</span></div>
+                    <p class="text-[10px] leading-relaxed" style="color: var(--text-4);">Full factory reset. This cannot be undone.</p>
+                    <button onclick="factoryReset()" class="btn btn-danger w-full justify-center !py-2"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Factory Reset</button>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="settings-row">
-              <div>
-                <div class="settings-row-label">Toast Duration</div>
-                <div class="settings-row-desc">How long notifications stay on screen</div>
-              </div>
-              <div class="settings-row-control">
-                <select id="setToastDuration" onchange="saveNotificationSettings()" class="input !w-auto !py-1.5">
-                  <option value="2000">2 seconds</option>
-                  <option value="4000" selected>4 seconds</option>
-                  <option value="6000">6 seconds</option>
-                  <option value="10000">10 seconds</option>
-                </select>
-              </div>
-            </div>
-            <div class="settings-row">
-              <div>
-                <div class="settings-row-label">Reduce Motion</div>
-                <div class="settings-row-desc">Disable animations &amp; transitions</div>
-              </div>
-              <div class="settings-row-control">
-                <label class="switch"><input type="checkbox" id="setReduceMotion" onchange="saveNotificationSettings()"><span class="slider"></span></label>
-              </div>
-            </div>
-            <div class="settings-row">
-              <div>
-                <div class="settings-row-label">Play Notification Sound</div>
-                <div class="settings-row-desc">Soft chime on success/error</div>
-              </div>
-              <div class="settings-row-control">
-                <label class="switch"><input type="checkbox" id="setNotificationSound" onchange="saveNotificationSettings()"><span class="slider"></span></label>
-              </div>
-            </div>
-          </div>
 
-          <!-- Data Management -->
-          <div class="settings-card settings-card-lg">
-            <div class="settings-card-header">
-              <div class="settings-card-icon"><i data-lucide="database" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
-              <div>
-                <h3>Data Management</h3>
-                <p>Export, import, and manage your local data</p>
+            <!-- Sign-in -->
+            <div class="settings-pane" data-pane="signin">
+              <div class="settings-card">
+                <div class="settings-card-header">
+                  <div class="settings-card-icon"><i data-lucide="log-in" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
+                  <div>
+                    <h3>Account &amp; Login</h3>
+                    <p>Demo credentials — update any time</p>
+                  </div>
+                </div>
+                <div class="space-y-3">
+                  <div><label class="field-label">Display Username</label><input type="text" id="setUsername" class="input" placeholder="e.g. alexmorgan"></div>
+                  <div><label class="field-label">Current Password</label><input type="password" class="input" placeholder="••••••••" disabled></div>
+                  <div><label class="field-label">New Password</label><input type="password" id="setNewPassword" class="input" placeholder="Leave blank to keep current"></div>
+                  <div class="flex justify-between items-center pt-2">
+                    <label class="flex items-center gap-2 cursor-pointer text-[11px] font-semibold" style="color: var(--text-2);">
+                      <input type="checkbox" id="setRememberMe" style="accent-color: var(--accent);"> Remember this device
+                    </label>
+                    <button onclick="saveSignInSettings()" class="btn btn-primary !py-2"><i data-lucide="check" class="w-3.5 h-3.5"></i> Update</button>
+                  </div>
+                  <div class="rounded-xl p-3 text-[10px] leading-relaxed mt-2" style="background: var(--surface-2); border: 1px dashed var(--border-strong); color: var(--text-4);">
+                    Credentials are stored locally for demo purposes only.
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="rounded-2xl p-4 space-y-2" style="background: var(--surface-2); border: 1px solid var(--border);">
-                <div class="flex items-center gap-2"><i data-lucide="download" class="w-4 h-4" style="color:#6D28D9;"></i><span class="text-xs font-bold" style="color: var(--text-1);">Export All Data</span></div>
-                <p class="text-[10px] leading-relaxed" style="color: var(--text-4);">Download portfolio, accounts, expenses and settings as a single JSON file.</p>
-                <button onclick="exportAllData()" class="btn btn-ghost w-full justify-center !py-2"><i data-lucide="download" class="w-3.5 h-3.5"></i> Export Everything</button>
-              </div>
-              <div class="rounded-2xl p-4 space-y-2" style="background: var(--surface-2); border: 1px solid var(--border);">
-                <div class="flex items-center gap-2"><i data-lucide="upload" class="w-4 h-4" style="color:#6D28D9;"></i><span class="text-xs font-bold" style="color: var(--text-1);">Import From Backup</span></div>
-                <p class="text-[10px] leading-relaxed" style="color: var(--text-4);">Restore a previously exported JSON file. This will replace current data.</p>
-                <button onclick="document.getElementById('importAllDataInput').click()" class="btn btn-ghost w-full justify-center !py-2"><i data-lucide="upload" class="w-3.5 h-3.5"></i> Import Backup</button>
-                <input type="file" id="importAllDataInput" class="hidden" accept=".json" onchange="importAllData(event)">
-              </div>
-              <div class="rounded-2xl p-4 space-y-2" style="background: var(--surface-2); border: 1px solid var(--border);">
-                <div class="flex items-center gap-2"><i data-lucide="trash-2" class="w-4 h-4" style="color:#BE123C;"></i><span class="text-xs font-bold" style="color: var(--text-1);">Clear Local Cache</span></div>
-                <p class="text-[10px] leading-relaxed" style="color: var(--text-4);">Wipe browser cache only. Server JSON files remain intact.</p>
-                <button onclick="clearLocalCache()" class="btn btn-danger w-full justify-center !py-2"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear Cache</button>
-              </div>
-              <div class="rounded-2xl p-4 space-y-2" style="background: var(--surface-2); border: 1px solid rgba(251,113,133,.32);">
-                <div class="flex items-center gap-2"><i data-lucide="alert-octagon" class="w-4 h-4" style="color:#BE123C;"></i><span class="text-xs font-bold" style="color: var(--text-1);">Reset Everything</span></div>
-                <p class="text-[10px] leading-relaxed" style="color: var(--text-4);">Full factory reset. This cannot be undone.</p>
-                <button onclick="factoryReset()" class="btn btn-danger w-full justify-center !py-2"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Factory Reset</button>
-              </div>
-            </div>
-          </div>
 
-          <!-- Sign-in & Session -->
-          <div class="settings-card settings-card-md">
-            <div class="settings-card-header">
-              <div class="settings-card-icon"><i data-lucide="log-in" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
-              <div>
-                <h3>Sign-in &amp; Session</h3>
-                <p>Demo credentials — update any time</p>
+            <!-- About -->
+            <div class="settings-pane" data-pane="about">
+              <div class="settings-card">
+                <div class="settings-card-header">
+                  <div class="settings-card-icon"><i data-lucide="info" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
+                  <div>
+                    <h3>About</h3>
+                    <p>Version &amp; shortcuts</p>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-row-label">Version</div>
+                  <div class="settings-row-control text-xs font-mono" style="color: var(--text-3);">v4.2.0 · Obsidian</div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-row-label">Build</div>
+                  <div class="settings-row-control text-xs font-mono" style="color: var(--text-3);">2026.02</div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-row-label">Quick Jump</div>
+                  <div class="settings-row-control"><span class="kbd">⌘K</span> <span class="kbd">/</span></div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-row-label">Collapse Sidebar</div>
+                  <div class="settings-row-control text-xs" style="color: var(--text-3);">Chevron in sidebar header</div>
+                </div>
+                <div class="pt-4 text-center text-[10px] leading-relaxed" style="color: var(--text-4);">
+                  <div class="font-bold mb-1" style="color: var(--text-2);">Educational use only</div>
+                  Not a licensed financial advisor. Investing involves risk.
+                </div>
               </div>
             </div>
-            <div class="space-y-3">
-              <div><label class="field-label">Display Username</label><input type="text" id="setUsername" class="input" placeholder="e.g. alexmorgan"></div>
-              <div><label class="field-label">Current Password</label><input type="password" class="input" placeholder="••••••••" disabled></div>
-              <div><label class="field-label">New Password</label><input type="password" id="setNewPassword" class="input" placeholder="Leave blank to keep current"></div>
-              <div class="flex justify-between items-center pt-2">
-                <label class="flex items-center gap-2 cursor-pointer text-[11px] font-semibold" style="color: var(--text-2);">
-                  <input type="checkbox" id="setRememberMe" style="accent-color: var(--accent);"> Remember this device
-                </label>
-                <button onclick="saveSignInSettings()" class="btn btn-primary !py-2"><i data-lucide="check" class="w-3.5 h-3.5"></i> Update</button>
-              </div>
-              <div class="rounded-xl p-3 text-[10px] leading-relaxed mt-2" style="background: var(--surface-2); border: 1px dashed var(--border-strong); color: var(--text-4);">
-                Credentials are stored locally for demo purposes only.
-              </div>
-            </div>
-          </div>
 
-          <!-- About -->
-          <div class="settings-card settings-card-md">
-            <div class="settings-card-header">
-              <div class="settings-card-icon"><i data-lucide="info" class="w-4.5 h-4.5" style="width:18px;height:18px;"></i></div>
-              <div>
-                <h3>About</h3>
-                <p>Version &amp; shortcuts</p>
-              </div>
-            </div>
-            <div class="settings-row">
-              <div class="settings-row-label">Version</div>
-              <div class="settings-row-control text-xs font-mono" style="color: var(--text-3);">v4.2.0 · Obsidian</div>
-            </div>
-            <div class="settings-row">
-              <div class="settings-row-label">Build</div>
-              <div class="settings-row-control text-xs font-mono" style="color: var(--text-3);">2026.02</div>
-            </div>
-            <div class="settings-row">
-              <div class="settings-row-label">Quick Jump</div>
-              <div class="settings-row-control"><span class="kbd">⌘K</span> <span class="kbd">/</span></div>
-            </div>
-            <div class="settings-row">
-              <div class="settings-row-label">Collapse Sidebar</div>
-              <div class="settings-row-control text-xs" style="color: var(--text-3);">Chevron in sidebar header</div>
-            </div>
-            <div class="pt-4 text-center text-[10px] leading-relaxed" style="color: var(--text-4);">
-              <div class="font-bold mb-1" style="color: var(--text-2);">Educational use only</div>
-              Not a licensed financial advisor. Investing involves risk.
-            </div>
           </div>
         </div>
       </div>
@@ -1729,7 +1953,7 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
       <input type="hidden" id="txEditId" value="">
       <div><label class="field-label">Expense Amount (<span class="currency-prefix">$</span>) *</label><input type="number" id="txAmount" required inputmode="decimal" class="input !text-sm text-right font-mono" placeholder="0.00"></div>
       <div><label class="field-label">Merchant / Description *</label><input type="text" id="txDescription" required class="input" placeholder="Merchant name"></div>
-      <div><label class="field-label">Payment Card / Account *</label><select id="txCardSelect" required class="input"></select></div>
+      <div><label class="field-label">Payment Card / Account</label><select id="txCardSelect" class="input"></select></div>
       <div><div class="flex justify-between items-center mb-1.5"><label class="field-label !mb-0">Category *</label><button type="button" onclick="toggleCategoryModal()" class="text-[11px] font-semibold hover:underline" style="color: #6D28D9;">+ Add Custom Category</button></div><select id="txCategorySelect" required class="input"></select></div>
       <div><label class="field-label">Transaction Date *</label><input type="date" id="txDate" required class="input"></div>
       <div class="flex items-center gap-2.5 pt-2"><input type="checkbox" id="txIsRecurring" style="accent-color: var(--accent);"><label for="txIsRecurring" class="text-xs font-semibold" style="color: var(--text-2);">Flag as Recurring Subscription</label></div>
@@ -1857,6 +2081,7 @@ function expenseEmoji(cat) { if (!cat) return '🧾'; if (cat.emoji) return cat.
 /* ==========================================================================
    TOAST
    ========================================================================== */
+let _audioCtx = null;
 function toast(message, type = 'success', duration) {
   const host = document.getElementById('toastHost'); if (!host) return;
   const dur = duration || appSettings.notifications.toastDuration || 4000;
@@ -1878,7 +2103,13 @@ function toast(message, type = 'success', duration) {
 }
 function playNotificationSound(type) {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!_audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      _audioCtx = new AC();
+    }
+    if (_audioCtx.state === 'suspended') _audioCtx.resume();
+    const ctx = _audioCtx;
     const osc = ctx.createOscillator(); const gain = ctx.createGain();
     osc.connect(gain); gain.connect(ctx.destination);
     osc.frequency.value = type === 'error' ? 220 : type === 'warning' ? 440 : 660;
@@ -1920,6 +2151,81 @@ function restoreNavSections() {
       if (states[sec.dataset.section]) sec.classList.add('collapsed');
     });
   } catch(_) {}
+}
+
+/* ==========================================================================
+   SETTINGS SECTION SWITCHER (with mobile dropdown + bottom sheet)
+   ========================================================================== */
+let currentSettingsSection = 'profile';
+let _pendingSettingsSection = null;
+
+const SETTINGS_SECTIONS_META = [
+  { id: 'profile',       label: 'Profile',        icon: 'user-circle-2' },
+  { id: 'appearance',    label: 'Appearance',     icon: 'palette' },
+  { id: 'categories',    label: 'Categories',     icon: 'tags' },
+  { id: 'privacy',       label: 'Privacy',        icon: 'shield-check' },
+  { id: 'notifications', label: 'Notifications',  icon: 'bell' },
+  { id: 'data',          label: 'Data',           icon: 'database' },
+  { id: 'signin',        label: 'Login',          icon: 'log-in' },
+  { id: 'about',         label: 'About',          icon: 'info' }
+];
+
+function switchSettingsSection(sectionId) {
+  currentSettingsSection = sectionId || 'profile';
+  document.querySelectorAll('.settings-nav-item').forEach(el =>
+    el.classList.toggle('active', el.dataset.settingsSection === currentSettingsSection));
+  document.querySelectorAll('.settings-pane').forEach(el =>
+    el.classList.toggle('active', el.dataset.pane === currentSettingsSection));
+  updateMobileSettingsTrigger();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function openSettingsSection(section) {
+  _pendingSettingsSection = section || 'profile';
+  switchMainTab(null, 'tab-settings', true);
+}
+
+/* ----- Mobile settings dropdown + sheet ----- */
+function updateMobileSettingsTrigger() {
+  const meta = SETTINGS_SECTIONS_META.find(s => s.id === currentSettingsSection) || SETTINGS_SECTIONS_META[0];
+  const valEl = document.getElementById('smsValue');
+  const iconEl = document.getElementById('smsIcon');
+  if (valEl) valEl.textContent = meta.label;
+  if (iconEl) iconEl.innerHTML = `<i data-lucide="${meta.icon}" class="w-4 h-4"></i>`;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function renderSettingsSheetOptions() {
+  const body = document.getElementById('smsBody');
+  if (!body) return;
+  body.innerHTML = SETTINGS_SECTIONS_META.map(sec => `
+    <button class="sms-option ${sec.id === currentSettingsSection ? 'active' : ''}" onclick="pickSettingsSection('${sec.id}')" role="option">
+      <span class="sms-opt-icon"><i data-lucide="${sec.icon}" class="w-4 h-4"></i></span>
+      <span>${sec.label}</span>
+      <i data-lucide="check" class="sms-check w-4 h-4"></i>
+    </button>
+  `).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function openSettingsSheet() {
+  renderSettingsSheetOptions();
+  document.getElementById('settingsSheet')?.classList.add('open');
+  document.getElementById('smsTrigger')?.classList.add('open');
+}
+
+function closeSettingsSheet() {
+  document.getElementById('settingsSheet')?.classList.remove('open');
+  document.getElementById('smsTrigger')?.classList.remove('open');
+}
+
+function pickSettingsSection(id) {
+  switchSettingsSection(id);
+  closeSettingsSheet();
+}
+function openSettingsSection(section) {
+  _pendingSettingsSection = section || 'profile';
+  switchMainTab(null, 'tab-settings', true);
 }
 
 /* ==========================================================================
@@ -1999,10 +2305,8 @@ function persistAppSettings() { try { localStorage.setItem(SETTINGS_STORAGE_KEY,
 function applyAppSettingsOnLoad() {
   if (appSettings.appearance.darkMode) {
     document.documentElement.classList.add('dark'); document.documentElement.classList.remove('light');
-    const btn = document.getElementById('themeToggleBtn'); if (btn) btn.innerHTML = `<i data-lucide="sun" class="w-3.5 h-3.5"></i> <span>Light</span>`;
   } else {
     document.documentElement.classList.remove('dark'); document.documentElement.classList.add('light');
-    const btn = document.getElementById('themeToggleBtn'); if (btn) btn.innerHTML = `<i data-lucide="moon" class="w-3.5 h-3.5"></i> <span>Dark</span>`;
   }
   if (appSettings.appearance.accent) applyAccentColor(appSettings.appearance.accent);
   if (appSettings.appearance.sidebarCollapsed) document.getElementById('desktopSidebar')?.classList.add('collapsed');
@@ -2012,7 +2316,6 @@ function applyAppSettingsOnLoad() {
 }
 function applyAccentColor(hex) {
   document.documentElement.style.setProperty('--accent', hex);
-  // Derive secondary subtly by rotating hue slightly
   try {
     const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
     document.documentElement.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
@@ -2068,7 +2371,7 @@ function saveAppearanceSettings() {
 function saveSecuritySettings() {
   appSettings.security.privacyDefault = !!document.getElementById('setPrivacyDefault')?.checked;
   persistAppSettings();
-  toast('Security preferences saved.', 'success');
+  toast('Privacy preferences saved.', 'success');
 }
 function saveNotificationSettings() {
   appSettings.notifications.toastDuration = parseInt(document.getElementById('setToastDuration')?.value || '4000');
@@ -2082,7 +2385,7 @@ function saveSignInSettings() {
   appSettings.signIn.remember = !!document.getElementById('setRememberMe')?.checked;
   const np = document.getElementById('setNewPassword');
   if (np && np.value) { np.value = ''; toast('Password updated (locally).', 'success'); }
-  else toast('Sign-in preferences saved.', 'success');
+  else toast('Login preferences saved.', 'success');
   persistAppSettings();
 }
 function togglePinSetup() {
@@ -2148,7 +2451,6 @@ function renderSettingsCategoryList(kind) {
     return ia - ib;
   });
   const filtered = search ? ordered.filter(c => (c.label || '').toLowerCase().includes(search) || (c.key || c.id || '').toLowerCase().includes(search)) : ordered;
-  // Update count badge
   const badgeId = kind === 'portfolio' ? 'portfolioCountBadge' : 'expenseCountBadge';
   const badge = document.getElementById(badgeId);
   if (badge) { const visCount = ordered.filter(c => !hidden.includes(c.key || c.id)).length; badge.textContent = `${visCount} of ${ordered.length} visible`; }
@@ -2251,7 +2553,6 @@ function propagateCategoryChanges(kind) {
   if (typeof renderExpenseDashboard === 'function') renderExpenseDashboard();
   if (typeof populateFormDropdowns === 'function') populateFormDropdowns();
   if (typeof renderExpenseChart === 'function') renderExpenseChart();
-  // Refresh visible charts with hidden filters
   try { renderCharts(portfolioData.find(d => d.year === (document.getElementById('yearFilter')?.value || '2026')) || portfolioData[portfolioData.length-1]); } catch(_) {}
 }
 function editSettingsCategory(kind, id) {
@@ -2287,7 +2588,6 @@ function deleteSettingsCategory(kind, id) {
     if (customTargets[id] !== undefined) delete customTargets[id];
     appSettings.hiddenCategories.portfolio = (appSettings.hiddenCategories.portfolio||[]).filter(k => k !== id);
     appSettings.categoryOrder.portfolio = (appSettings.categoryOrder.portfolio||[]).filter(k => k !== id);
-    // Remove mappings referring to this category
     [...(accountsStore.linked||[]), ...(accountsStore.manual||[])].forEach(a => { if (a.mapping && a.mapping.portfolioKey === id) delete a.mapping; });
     persistAppSettings();
     try { saveData(); } catch(_) {}
@@ -2349,6 +2649,8 @@ function openCategoryModal() { openPortfolioCategoryModal(); }
 function closeCategoryModal() {
   document.getElementById('portfolioCategoryModal').classList.add('hidden');
   _editingPortfolioKey = null;
+  const keyEl = document.getElementById('newPortKey');
+  if (keyEl) keyEl.disabled = false;
 }
 function savePortfolioCategory() {
   const keyRaw = document.getElementById('newPortKey').value.trim().toLowerCase();
@@ -2389,7 +2691,7 @@ function savePortfolioCategory() {
   propagateCategoryChanges('portfolio');
 }
 
-/* Expense category CRUD (updated for emoji) */
+/* Expense category CRUD */
 function openSettingsAddCategory() {
   document.getElementById('editCatId').value = '';
   document.getElementById('newCatName').value = '';
@@ -2505,16 +2807,16 @@ function factoryReset() {
    TAB NAV
    ========================================================================== */
 const TAB_TITLES = {
-  'tab-dashboard': { title: 'Command Dashboard', sub: 'Your personalized financial overview', icon: 'gauge' },
-  'tab-overview': { title: 'Executive Summary', sub: 'Real-time wealth analytics & execution engine', icon: 'sparkles' },
-  'tab-accounts': { title: 'Accounts & Connections', sub: 'Linked institutions, manual accounts, and ledger mappings', icon: 'wallet' },
-  'tab-transactions': { title: 'Plaid Transactions', sub: 'Synced activity with smart categorization', icon: 'arrow-left-right' },
-  'tab-allocation': { title: 'Asset Allocation & Rebalancing', sub: 'Drift detection and cross-account trade plans', icon: 'pie-chart' },
-  'tab-tax': { title: 'Tax & Contribution Tracker', sub: 'IRS pacing and wrapper location buckets', icon: 'shield-check' },
-  'tab-hub': { title: 'Strategic Hub', sub: 'Paystub modelling and macro optimizers', icon: 'sparkles' },
-  'tab-projections': { title: 'Advanced Projections', sub: 'Compound growth, FIRE, and inflation modeling', icon: 'line-chart' },
-  'tab-expenses': { title: 'Expense Tracker', sub: 'Budgets, subscriptions and burn-rate pacing', icon: 'receipt' },
-  'tab-settings': { title: 'Settings', sub: 'Profile, appearance, categories and data preferences', icon: 'settings-2' }
+  'tab-dashboard': { title: 'Dashboard', sub: 'Your financial snapshot at a glance', icon: 'gauge' },
+  'tab-overview': { title: 'Portfolio Overview', sub: 'Track your wealth growth over time', icon: 'sparkles' },
+  'tab-accounts': { title: 'Accounts', sub: 'Bank, investment, and credit accounts in one place', icon: 'wallet' },
+  'tab-transactions': { title: 'Transactions', sub: 'Recent activity from your linked accounts', icon: 'arrow-left-right' },
+  'tab-allocation': { title: 'Investment Mix', sub: 'See how your money is invested', icon: 'pie-chart' },
+  'tab-tax': { title: 'Tax Savings', sub: 'Track your retirement contributions', icon: 'shield-check' },
+  'tab-hub': { title: 'Financial Tools', sub: 'Paycheck calculator and smart insights', icon: 'sparkles' },
+  'tab-projections': { title: 'Future Planning', sub: 'See where your money could grow', icon: 'line-chart' },
+  'tab-expenses': { title: 'Spending', sub: 'Budgets, subscriptions, and burn rate', icon: 'receipt' },
+  'tab-settings': { title: 'Settings', sub: 'Profile, appearance, and preferences', icon: 'settings-2' }
 };
 let currentTabId = 'tab-dashboard';
 function updateTabHeading(tabId) {
@@ -2552,7 +2854,12 @@ function switchMainTab(event, tabId, scrollTop = false) {
   else if (tabId === 'tab-accounts') renderAccounts();
   else if (tabId === 'tab-transactions') renderTransactions();
   else if (tabId === 'tab-expenses') { if (!expenseStore.transactions || expenseStore.transactions.length === 0) loadExpenseDataFromJSON(); else renderExpenseDashboard(); }
-  else if (tabId === 'tab-settings') { loadSettingsUI(); }
+  else if (tabId === 'tab-settings') {
+    loadSettingsUI();
+    const targetSection = _pendingSettingsSection || 'profile';
+    _pendingSettingsSection = null;
+    switchSettingsSection(targetSection);
+  }
   applyPrivacyState(); updateFilterCountBadges();
 }
 function switchPaySection(secId) {
@@ -2574,10 +2881,9 @@ function switchDataTab(event, tabName) {
 function toggleMasterPrivacy() { isMasterHidden = !isMasterHidden; applyPrivacyState(); }
 function toggleCardPrivacy(elementId) { document.getElementById(elementId)?.classList.toggle('privacy-masked'); }
 function applyPrivacyState() {
-  const masterBtn = document.getElementById('masterPrivacyBtn');
   const allTargets = document.querySelectorAll('.privacy-target, td:not(:first-child)');
-  if (isMasterHidden) { allTargets.forEach(el => el.classList.add('privacy-masked')); if (masterBtn) masterBtn.innerHTML = `<i data-lucide="eye" class="w-3.5 h-3.5"></i> <span>Show</span>`; }
-  else { allTargets.forEach(el => el.classList.remove('privacy-masked')); if (masterBtn) masterBtn.innerHTML = `<i data-lucide="eye-off" class="w-3.5 h-3.5"></i> <span>Hide</span>`; }
+  if (isMasterHidden) { allTargets.forEach(el => el.classList.add('privacy-masked')); }
+  else { allTargets.forEach(el => el.classList.remove('privacy-masked')); }
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 function updateDriftLabel(val) { const label = document.getElementById('driftToleranceVal'); if (label) label.innerText = `${parseFloat(val).toFixed(1)}%`; }
@@ -2587,9 +2893,8 @@ function updateDriftLabel(val) { const label = document.getElementById('driftTol
    ========================================================================== */
 function toggleThemeMode() {
   const html = document.documentElement; const isDark = html.classList.contains('dark');
-  const themeBtn = document.getElementById('themeToggleBtn');
-  if (isDark) { html.classList.remove('dark'); html.classList.add('light'); if (themeBtn) themeBtn.innerHTML = `<i data-lucide="moon" class="w-3.5 h-3.5"></i> <span>Dark</span>`; appSettings.appearance.darkMode = false; }
-  else { html.classList.add('dark'); html.classList.remove('light'); if (themeBtn) themeBtn.innerHTML = `<i data-lucide="sun" class="w-3.5 h-3.5"></i> <span>Light</span>`; appSettings.appearance.darkMode = true; }
+  if (isDark) { html.classList.remove('dark'); html.classList.add('light'); appSettings.appearance.darkMode = false; }
+  else { html.classList.add('dark'); html.classList.remove('light'); appSettings.appearance.darkMode = true; }
   persistAppSettings();
   const setDark = document.getElementById('setDarkMode'); if (setDark) setDark.checked = html.classList.contains('dark');
   if (Chart.defaults.scale) Chart.defaults.scale.grid.color = getChartGridColor();
@@ -2868,17 +3173,17 @@ function updateFilterCountBadges() {
 let cmdItems = []; let cmdSelectedIdx = 0;
 function buildCommandItems() {
   const items = [];
-  Object.entries(TAB_TITLES).forEach(([id, meta]) => { items.push({ id: 'tab-' + id, label: meta.title, sub: meta.sub, icon: meta.icon, type: 'Navigate', action: () => switchMainTab(null, id, true) }); });
+  Object.entries(TAB_TITLES).forEach(([id, meta]) => { items.push({ id: 'cmd-' + id, label: meta.title, sub: meta.sub, icon: meta.icon, type: 'Navigate', action: () => switchMainTab(null, id, true) }); });
   items.push(
     { id: 'act-ledger', label: 'Open Portfolio Ledger', sub: 'Edit years, categories, balances', icon: 'database', type: 'Actions', action: () => toggleLedgerDrawer() },
     { id: 'act-add-expense', label: 'Log New Expense', sub: 'Add a transaction quickly', icon: 'plus-circle', type: 'Actions', action: () => { switchMainTab(null, 'tab-expenses', true); setTimeout(() => openTransactionDrawer(), 200); } },
     { id: 'act-add-account', label: 'Add Account Manually', sub: 'Hand-track an asset or liability', icon: 'wallet', type: 'Actions', action: () => { switchMainTab(null, 'tab-accounts', true); setTimeout(() => openAddAccountModal(), 200); } },
-    { id: 'act-add-port-cat', label: 'Add Portfolio Category', sub: 'Create a new asset wrapper', icon: 'tags', type: 'Actions', action: () => { switchMainTab(null, 'tab-settings', true); setTimeout(() => openPortfolioCategoryModal(), 250); } },
+    { id: 'act-add-port-cat', label: 'Add Portfolio Category', sub: 'Create a new asset wrapper', icon: 'tags', type: 'Actions', action: () => { openSettingsSection('categories'); setTimeout(() => openPortfolioCategoryModal(), 250); } },
     { id: 'act-plaid-sync', label: 'Run Plaid Sync', sub: 'Simulate a fresh sync of accounts + transactions', icon: 'refresh-cw', type: 'Actions', action: () => runPlaidDemoSync() },
     { id: 'act-theme', label: 'Toggle Theme', sub: 'Switch dark / light appearance', icon: 'sun-moon', type: 'Actions', action: () => toggleThemeMode() },
     { id: 'act-privacy', label: 'Toggle Privacy Mode', sub: 'Blur sensitive numbers', icon: 'eye-off', type: 'Actions', action: () => toggleMasterPrivacy() },
     { id: 'act-sidebar', label: 'Toggle Sidebar Collapse', sub: 'Expand or collapse the navigation', icon: 'panel-left', type: 'Actions', action: () => toggleSidebarCollapse() },
-    { id: 'act-settings', label: 'Open Settings', sub: 'Profile, appearance, categories', icon: 'settings-2', type: 'Actions', action: () => switchMainTab(null, 'tab-settings', true) },
+    { id: 'act-settings', label: 'Open Settings', sub: 'Profile, appearance, categories', icon: 'settings-2', type: 'Actions', action: () => openSettingsSection('profile') },
     { id: 'act-date-all', label: 'Date Range: All Time', sub: 'Reset global filter', icon: 'infinity', type: 'Actions', action: () => setGlobalDateRange('all') },
     { id: 'act-date-ytd', label: 'Date Range: Year to Date', sub: 'Filter to current year', icon: 'calendar', type: 'Actions', action: () => setGlobalDateRange('ytd') },
     { id: 'act-date-30d', label: 'Date Range: Last 30 Days', sub: 'Rolling month view', icon: 'clock', type: 'Actions', action: () => setGlobalDateRange('30d') }
@@ -2918,7 +3223,7 @@ document.getElementById('cmdInput')?.addEventListener('keydown', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openCommandPalette(); }
-  if (e.key === 'Escape') { closeCommandPalette(); closeDatePopover(); closeFilterSheet(); closeProfileMenu(); }
+if (e.key === 'Escape') { closeCommandPalette(); closeDatePopover(); closeFilterSheet(); closeProfileMenu(); closeSettingsSheet(); }
   if (e.key === '/' && !e.metaKey && !e.ctrlKey && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') { e.preventDefault(); openCommandPalette(); }
 });
 
@@ -2958,7 +3263,7 @@ function updateNavBadges() {
 }
 
 /* ==========================================================================
-   DASHBOARD WIDGETS (abbreviated - unchanged from original)
+   DASHBOARD WIDGETS
    ========================================================================== */
 const DASH_STORAGE_KEY = 'dash_layout_v1';
 const DASH_WIDGET_DEFS = {
@@ -3057,8 +3362,11 @@ function dwRecent() {
   return `<div class="space-y-1">${list.map(tx => { const cat = expenseStore.categories.find(c=>c.id===tx._categoryId) || {label:'Uncategorized',color:'#71717A'}; return `<div class="flex items-center gap-2 py-1"><span class="text-base shrink-0">${expenseEmoji(cat)}</span><div class="min-w-0 flex-grow"><div class="text-[11px] font-bold truncate" style="color:var(--text-1);">${tx._description}</div><div class="text-[9px] font-mono" style="color:var(--text-4);">${tx._date}</div></div><div class="privacy-target text-[11px] font-extrabold font-mono shrink-0" style="color: #BE123C;">${formatCurrency(tx._amount)}</div></div>`; }).join('')}</div>`;
 }
 function dwFire() {
-  const target = parseFloat(document.getElementById('fireTargetVal')?.innerText?.replace(/[^0-9.-]/g,'')) || 0;
-  const current = unifiedStore.startingBal; const pct = target > 0 ? Math.min(100, (current/target)*100) : 0;
+  const exp = parseFloat(document.getElementById('fireAnnualExpenses')?.value) || 0;
+  const swr = parseFloat(document.getElementById('fireWithdrawalRate')?.value) || 4.0;
+  const target = swr > 0 ? exp / (swr / 100) : 0;
+  const current = unifiedStore.startingBal;
+  const pct = target > 0 ? Math.min(100, (current / target) * 100) : 0;
   return `<div class="space-y-3"><div class="privacy-target text-2xl font-extrabold" style="color:var(--text-1);">${formatCurrency(current,0)}</div><div class="text-[10px] font-bold" style="color:var(--text-4);">of ${formatCurrency(target,0)} target</div><div class="h-2 rounded-full overflow-hidden" style="background: var(--surface-3);"><div style="width:${pct}%; height:100%; background: linear-gradient(90deg, var(--accent-2), #DB2777); transition: width .4s;"></div></div><div class="flex items-center justify-between text-[11px] font-bold"><span style="color:#BE185D;">${pct.toFixed(1)}%</span><span style="color:var(--text-3);">${current >= target ? '✓ Target met' : 'In progress'}</span></div></div>`;
 }
 function dwContrib() {
@@ -3109,7 +3417,7 @@ function dwYoY() {
 function dwHub() {
   const data = portfolioData.find(d => d.year === (document.getElementById('yearFilter')?.value || '2026'));
   const salary = data?.salary || 0; const netEst = salary * 0.72;
-  return `<div class="space-y-2"><div><div class="text-[9px] font-extrabold uppercase tracking-wider" style="color:var(--text-4);">Gross Salary</div><div class="privacy-target text-base font-extrabold" style="color:var(--text-1);">${formatCurrency(salary,0)}</div></div><div><div class="text-[9px] font-extrabold uppercase tracking-wider" style="color:var(--text-4);">Est. Net Take-Home</div><div class="privacy-target text-base font-extrabold" style="color:#059669;">${formatCurrency(netEst,0)}</div></div><div class="text-[10px]" style="color:var(--text-4);">Full breakdown in Strategic Hub.</div></div>`;
+  return `<div class="space-y-2"><div><div class="text-[9px] font-extrabold uppercase tracking-wider" style="color:var(--text-4);">Gross Salary</div><div class="privacy-target text-base font-extrabold" style="color:var(--text-1);">${formatCurrency(salary,0)}</div></div><div><div class="text-[9px] font-extrabold uppercase tracking-wider" style="color:var(--text-4);">Est. Net Take-Home</div><div class="privacy-target text-base font-extrabold" style="color:#059669;">${formatCurrency(netEst,0)}</div></div><div class="text-[10px]" style="color:var(--text-4);">Full breakdown in Financial Tools.</div></div>`;
 }
 function dashAfterRender() { if (document.getElementById('dashGrowthChart')) dashRenderGrowthChart(); if (document.getElementById('dashAllocChart')) dashRenderAllocChart(); if (document.getElementById('dashProjChart')) dashRenderProjChart(); }
 let _dashGrowthChart, _dashAllocChart, _dashProjChart;
@@ -3146,7 +3454,7 @@ function dashDrop(e) { if (!dashCustomizeMode || !_dashDragSrc) return; e.preven
 function dashDragEnd(e) { document.querySelectorAll('.dash-widget').forEach(el => el.classList.remove('dragging','drag-over')); _dashDragSrc = null; }
 
 /* ==========================================================================
-   CORE FINANCE FUNCTIONS (unchanged)
+   CORE FINANCE FUNCTIONS
    ========================================================================== */
 function getTotalBal(data) {
   if (!data || !data.balances) return 0;
@@ -3168,7 +3476,9 @@ function getTotalContri(data) {
   return Object.entries(data.contri || {}).reduce((sum, [k,v]) => hidden.includes(k) ? sum : sum + Number(v), 0);
 }
 function updateDashboard() {
-  const selectedYear = document.getElementById('yearFilter').value;
+  const yearFilter = document.getElementById('yearFilter');
+  if (!yearFilter) return;
+  const selectedYear = yearFilter.value;
   const yearIndex = portfolioData.findIndex(d => d.year === selectedYear);
   const yearData = portfolioData[yearIndex]; const prevData = yearIndex > 0 ? portfolioData[yearIndex - 1] : null;
   if (yearData) {
@@ -3198,7 +3508,7 @@ function updateDefaultLimitsForYear(year) {
   if (document.getElementById('limit529')) document.getElementById('limit529').value = donor529 === 'joint' ? base.c529Joint : base.c529Single;
 }
 function renderIRSProgress() {
-  const selectedYear = document.getElementById('yearFilter').value;
+  const selectedYear = document.getElementById('yearFilter')?.value;
   const data = portfolioData.find(d => d.year === selectedYear); if (!data) return;
   if (document.getElementById('limitYearText')) document.getElementById('limitYearText').innerText = selectedYear;
   const currentDate = new Date(); const currentYear = currentDate.getFullYear().toString();
@@ -3353,7 +3663,7 @@ function calculateEmergencyFund() {
   const exp = parseFloat(document.getElementById('efMonthlyExp')?.value) || 0;
   const targetMonths = parseInt(document.getElementById('efTargetMonths')?.value) || 6;
   const requiredFund = exp * targetMonths;
-  const activeYear = document.getElementById('yearFilter').value;
+  const activeYear = document.getElementById('yearFilter')?.value;
   const activeData = portfolioData.find(d => d.year === activeYear) || portfolioData[portfolioData.length - 1];
   const actualCash = activeData ? (activeData.balances.cd || 0) : 0;
   const et = document.getElementById('efTargetVal'); if (et) et.innerText = formatCurrency(requiredFund, 0);
@@ -3376,8 +3686,9 @@ function calculateInflation() {
   const ist = document.getElementById('infSummaryText'); if (ist) ist.innerText = `In ${years} yrs, ${formatCurrency(currentBal, 0)} has the purchasing power of ${formatCurrency(discountedValue, 0)} today.`;
 }
 function renderTaxBuckets() {
-  const activeYear = document.getElementById('yearFilter').value;
+  const activeYear = document.getElementById('yearFilter')?.value;
   const data = portfolioData.find(d => d.year === activeYear) || portfolioData[portfolioData.length - 1];
+  if (!data || !data.balances) return;
   const hidden = appSettings.hiddenCategories.portfolio || [];
   const visibleCats = categoriesConfig.filter(c => !hidden.includes(c.key));
   const total = getTotalBal(data);
@@ -3393,7 +3704,7 @@ function renderTaxBuckets() {
   }
 }
 function renderStrategicHub() {
-  const activeYear = document.getElementById('yearFilter').value;
+  const activeYear = document.getElementById('yearFilter')?.value;
   const activeData = portfolioData.find(d => d.year === activeYear) || portfolioData[portfolioData.length - 1];
   const salary = activeData ? (activeData.salary || 0) : 0;
   const totalPortfolio = getTotalBal(activeData);
@@ -3411,12 +3722,12 @@ function renderStrategicHub() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 function calculatePaystub() {
-  const selectedYear = document.getElementById('yearFilter').value;
+  const selectedYear = document.getElementById('yearFilter')?.value;
   const data = portfolioData.find(d => d.year === selectedYear) || portfolioData[portfolioData.length - 1];
   const frequencyCount = parseInt(document.getElementById('payFrequency')?.value) || 26;
   const filingStatus = document.getElementById('paystubFilingStatus')?.value || 'single';
   const manualSalaryInput = parseFloat(document.getElementById('payCustomSalary')?.value);
-  const annualSalary = !isNaN(manualSalaryInput) ? manualSalaryInput : (data.salary || 185000);
+  const annualSalary = !isNaN(manualSalaryInput) ? manualSalaryInput : (data?.salary || 185000);
   const grossPeriod = annualSalary / frequencyCount;
   let totalPreTaxPeriod = 0; let preTaxReceiptItems = [];
   preTaxConfig.forEach(item => {
@@ -3469,8 +3780,13 @@ function calculatePaystub() {
 function handleTargetInput(catKey, val) { customTargets[catKey] = parseFloat(val) || 0; renderRebalancer(); }
 function renderRebalancer() {
   const tbody = document.getElementById('rebalanceTableBody'); if (!tbody) return;
-  const activeYear = document.getElementById('yearFilter').value;
+  const activeYear = document.getElementById('yearFilter')?.value;
   const activeData = portfolioData.find(d => d.year === activeYear) || portfolioData[portfolioData.length - 1];
+  if (!activeData || !activeData.balances) {
+    tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-xs" style="color: var(--text-4);">No portfolio data available yet.</td></tr>`;
+    const summaryTextEl = document.getElementById('actionPlanSummaryText'); if (summaryTextEl) summaryTextEl.innerText = 'Awaiting portfolio data…';
+    return;
+  }
   const hidden = appSettings.hiddenCategories.portfolio || [];
   const visibleCats = categoriesConfig.filter(c => !hidden.includes(c.key));
   const total = getTotalBal(activeData);
@@ -3533,10 +3849,11 @@ function renderCharts(selectedData) {
   if (historyCanvas) { const historyDatasets = visibleCats.map(cat => ({ label: cat.label, data: portfolioData.map(d => d.balances ? (d.balances[cat.key] || 0) : 0), backgroundColor: cat.color, borderRadius: 4 })); historyChart = new Chart(historyCanvas, { type: 'bar', data: { labels: years, datasets: historyDatasets }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, ticks: { callback: (v) => getCurrencySymbol() + (v / 1000).toFixed(0) + 'k' } } }, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, padding: 10, usePointStyle: true, pointStyle: 'circle' } } } } }); }
 }
 function renderMiniCharts() {
-  const selectedYear = document.getElementById('yearFilter').value;
+  const selectedYear = document.getElementById('yearFilter')?.value;
   const selectedYearIdx = portfolioData.findIndex(d => d.year === selectedYear);
   const activeData = portfolioData[selectedYearIdx] || portfolioData[portfolioData.length - 1];
   const prevData = selectedYearIdx > 0 ? portfolioData[selectedYearIdx - 1] : null;
+  if (!activeData) return;
   const years = portfolioData.map(d => d.year);
   const hidden = appSettings.hiddenCategories.portfolio || [];
   categoriesConfig.forEach(cat => {
@@ -3924,8 +4241,12 @@ function renderSubscriptions(filteredTx) {
   });
 }
 function populateFormDropdowns() {
-  const cardSelect = document.getElementById('txCardSelect'); const catSelect = document.getElementById('txCategorySelect');
-  if (cardSelect) cardSelect.innerHTML = expenseStore.cards.map(c => `<option value="${c.id}">${c.name} (••${c.masked})</option>`).join('');
+  const cardSelect = document.getElementById('txCardSelect');
+  const catSelect = document.getElementById('txCategorySelect');
+  if (cardSelect) {
+    const cashOpt = `<option value="">Cash / Unassigned</option>`;
+    cardSelect.innerHTML = cashOpt + (expenseStore.cards || []).map(c => `<option value="${c.id}">${c.name} (••${c.masked})</option>`).join('');
+  }
   if (catSelect) catSelect.innerHTML = expenseStore.categories.map(c => `<option value="${c.id}">${expenseEmoji(c)} ${c.label}</option>`).join('');
 }
 function toggleInlineBudgetEdit() { const display = document.getElementById('expBudgetDisplay'); const editContainer = document.getElementById('expBudgetEditContainer'); if (display && editContainer) { display.classList.toggle('hidden'); editContainer.classList.toggle('hidden'); } }
@@ -3935,7 +4256,7 @@ function closeTransactionDrawer() { document.getElementById('expTransactionDrawe
 function handleTransactionSubmit(e) {
   e.preventDefault(); const editId = document.getElementById('txEditId').value;
   const amount = parseFloat(document.getElementById('txAmount').value); const description = document.getElementById('txDescription').value;
-  const cardId = document.getElementById('txCardSelect').value; const categoryId = document.getElementById('txCategorySelect').value;
+  const cardId = document.getElementById('txCardSelect').value || null; const categoryId = document.getElementById('txCategorySelect').value;
   const date = document.getElementById('txDate').value; const isRecurring = document.getElementById('txIsRecurring').checked;
   if (editId) { const idx = expenseStore.transactions.findIndex(t => t.id === editId); if (idx !== -1) expenseStore.transactions[idx] = { id: editId, amount, description, cardId, categoryId, date, isRecurring }; }
   else expenseStore.transactions.push({ id: 'tx_' + Date.now(), amount, description, cardId, categoryId, date, isRecurring });
@@ -3944,7 +4265,7 @@ function handleTransactionSubmit(e) {
 function editTransaction(txId) {
   const tx = expenseStore.transactions.find(t => t.id === txId); if (!tx) return;
   document.getElementById('txEditId').value = tx.id; document.getElementById('txAmount').value = tx.amount;
-  document.getElementById('txDescription').value = tx.description; document.getElementById('txCardSelect').value = tx.cardId;
+  document.getElementById('txDescription').value = tx.description; document.getElementById('txCardSelect').value = tx.cardId || '';
   document.getElementById('txCategorySelect').value = tx.categoryId; document.getElementById('txDate').value = tx.date;
   document.getElementById('txIsRecurring').checked = tx.isRecurring;
   document.getElementById('expDrawerTitle').innerText = "Edit Expense Entry";
@@ -4495,7 +4816,13 @@ window.onload = function() {
   if (customEnd) customEnd.value = today.toISOString().split('T')[0];
   loadDataFromJSON(); loadExpenseDataFromJSON(); loadAccountsData();
   autoCollapseMobileSections(); updateDateRangeUI(); restoreNavSections();
-  setTimeout(() => { switchMainTab(null, 'tab-dashboard'); loadSettingsUI(); updateSidebarProfile(); }, 120);
+  setTimeout(() => {
+    switchMainTab(null, 'tab-dashboard');
+    loadSettingsUI();
+    updateSidebarProfile();
+    switchSettingsSection('profile');
+    updateMobileSettingsTrigger();
+  }, 120);
   updateFilterCountBadges();
   const cb = document.getElementById('sidebarCollapseBtn');
   if (cb) cb.classList.toggle('hidden', window.innerWidth < 1024);
