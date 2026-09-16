@@ -407,39 +407,143 @@ html.dark .settings-nav-item.active { color: #C4B5FD; }
 .settings-mobile-selector { display: none; }
 
 @media (max-width: 900px) {
-  .settings-shell { flex-direction: column; gap: 1rem; }
+  /* --- Fix: full-width stack (was shrunk by align-items: flex-start) --- */
+  .settings-shell {
+    flex-direction: column;
+    align-items: stretch;      /* ← key fix: forces children to full width */
+    gap: .85rem;
+    width: 100%;
+  }
   .settings-nav { display: none !important; }
-  .settings-mobile-selector { display: block; position: sticky; top: 0; z-index: 15; background: var(--app-bg); padding-bottom: .5rem; margin: -.25rem 0 0; }
-  .sms-trigger { display: flex; align-items: center; gap: .75rem; width: 100%; padding: .85rem 1rem; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); cursor: pointer; text-align: left; -webkit-tap-highlight-color: transparent; transition: border-color .15s ease, background-color .15s ease; }
-  .sms-trigger:active { background: var(--surface-2); border-color: var(--border-hover); }
-  .sms-icon { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(139,92,246,.10); border: 1px solid rgba(139,92,246,.22); color: #6D28D9; flex-shrink: 0; }
+
+    .settings-mobile-selector {
+    display: block;
+    width: 100%;
+    margin: 0 0 .85rem 0;
+  }
+
+  /* ===== Settings trigger — mirrors .wb-trigger exactly ===== */
+  .sms-trigger {
+    display: flex; align-items: center; gap: .75rem;
+    width: 100%; padding: .8rem .9rem;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    cursor: pointer; text-align: left;
+    -webkit-tap-highlight-color: transparent;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+  .sms-trigger:active {
+    background: var(--surface-2);
+    border-color: var(--border-hover);
+  }
+  .sms-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, rgba(139,92,246,.14), rgba(236,72,153,.10));
+    border: 1px solid rgba(139,92,246,.26);
+    color: #6D28D9; flex-shrink: 0;
+  }
   html.dark .sms-icon { color: #C4B5FD; }
-  .sms-text { min-width: 0; flex-grow: 1; text-align: left; }
-  .sms-label { font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--text-4); display: block; line-height: 1.2; }
-  .sms-value { font-size: .85rem; font-weight: 800; color: var(--text-1); display: block; margin-top: 2px; line-height: 1.2; }
-  .sms-chevron { color: var(--text-4); flex-shrink: 0; transition: transform .25s cubic-bezier(.4,0,.2,1); }
+  .sms-text {
+    min-width: 0; flex-grow: 1; text-align: left;
+  }
+  .sms-label {
+    display: block; font-size: .6rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: .12em;
+    color: var(--text-4); line-height: 1.2;
+  }
+  .sms-value {
+    display: block; font-size: .9rem; font-weight: 800;
+    color: var(--text-1); margin-top: 2px; line-height: 1.2;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .sms-chevron {
+    color: var(--text-4); flex-shrink: 0;
+    transition: transform .25s cubic-bezier(.4,0,.2,1);
+  }
   .sms-trigger.open .sms-chevron { transform: rotate(180deg); }
-  .sms-sheet { position: fixed; inset: 0; z-index: 2500; display: flex; align-items: flex-end; justify-content: center; pointer-events: none; }
+
+  /* ===== Settings bottom sheet — mirrors .wb-sheet exactly ===== */
+  .sms-sheet {
+    position: fixed; inset: 0; z-index: 2500;
+    display: flex; align-items: flex-end; justify-content: center;
+    pointer-events: none;
+  }
   .sms-sheet.open { pointer-events: auto; }
-  .sms-sheet-backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity .22s ease; }
+  .sms-sheet-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(15,23,42,.5);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    opacity: 0; transition: opacity .22s ease;
+  }
   .sms-sheet.open .sms-sheet-backdrop { opacity: 1; }
-  .sms-sheet-panel { position: relative; width: 100%; max-width: 640px; max-height: 82vh; background: var(--surface); border-top-left-radius: 22px; border-top-right-radius: 22px; border: 1px solid var(--border-strong); border-bottom: none; box-shadow: 0 -20px 60px -12px rgba(15,23,42,.25); display: flex; flex-direction: column; transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1); padding-bottom: env(safe-area-inset-bottom); }
-  html.dark .sms-sheet-panel { box-shadow: 0 -20px 60px -12px rgba(0,0,0,.6); }
+  .sms-sheet-panel {
+    position: relative; width: 100%; max-width: 640px; max-height: 82vh;
+    background: var(--surface);
+    border-top-left-radius: 22px; border-top-right-radius: 22px;
+    border: 1px solid var(--border-strong); border-bottom: none;
+    box-shadow: 0 -20px 60px -12px rgba(15,23,42,.25);
+    display: flex; flex-direction: column;
+    transform: translateY(100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  html.dark .sms-sheet-panel {
+    box-shadow: 0 -20px 60px -12px rgba(0,0,0,.6);
+  }
   .sms-sheet.open .sms-sheet-panel { transform: translateY(0); }
-  .sms-sheet-handle { width: 40px; height: 4px; border-radius: 9999px; background: var(--border-hover); margin: 10px auto 4px; flex-shrink: 0; }
-  .sms-sheet-header { display: flex; align-items: center; justify-content: space-between; padding: 6px 18px 12px; border-bottom: 1px solid var(--border); }
-  .sms-sheet-header h3 { font-size: .875rem; font-weight: 800; color: var(--text-1); }
-  .sms-sheet-body { padding: 10px 10px 18px; overflow-y: auto; -webkit-overflow-scrolling: touch; flex-grow: 1; }
-  .sms-option { display: flex; align-items: center; gap: .75rem; width: 100%; padding: .8rem .85rem; border-radius: 12px; background: transparent; border: none; cursor: pointer; text-align: left; color: var(--text-2); font-size: .82rem; font-weight: 600; transition: background-color .15s ease, color .15s ease; -webkit-tap-highlight-color: transparent; }
-  .sms-option:hover, .sms-option:active { background: var(--surface-2); color: var(--text-1); }
-  .sms-option.active { background: rgba(139,92,246,.12); color: #6D28D9; font-weight: 700; }
+  .sms-sheet-handle {
+    width: 40px; height: 4px; border-radius: 9999px;
+    background: var(--border-hover); margin: 10px auto 4px; flex-shrink: 0;
+  }
+  .sms-sheet-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 18px 12px; border-bottom: 1px solid var(--border);
+  }
+  .sms-sheet-header h3 {
+    font-size: .875rem; font-weight: 800; color: var(--text-1);
+  }
+  .sms-sheet-body {
+    padding: 10px 10px 18px; overflow-y: auto;
+    -webkit-overflow-scrolling: touch; flex-grow: 1;
+  }
+
+  /* ===== Settings options — mirrors .wb-option exactly ===== */
+  .sms-option {
+    display: flex; align-items: center; gap: .75rem;
+    width: 100%; padding: .85rem .9rem; border-radius: 12px;
+    background: transparent; border: none; cursor: pointer;
+    text-align: left; color: var(--text-2);
+    font-size: .82rem; font-weight: 600;
+    transition: background-color .15s ease, color .15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sms-option:hover, .sms-option:active {
+    background: var(--surface-2); color: var(--text-1);
+  }
+  .sms-option.active {
+    background: rgba(139,92,246,.12); color: #6D28D9; font-weight: 700;
+  }
   html.dark .sms-option.active { color: #C4B5FD; }
-  .sms-opt-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--surface-3); color: var(--text-3); flex-shrink: 0; }
-  .sms-option.active .sms-opt-icon { background: rgba(139,92,246,.18); color: #6D28D9; }
+  .sms-opt-icon {
+    width: 38px; height: 38px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface-3); color: var(--text-3); flex-shrink: 0;
+  }
+  .sms-option.active .sms-opt-icon {
+    background: rgba(139,92,246,.18); color: #6D28D9;
+  }
   html.dark .sms-option.active .sms-opt-icon { color: #C4B5FD; }
-  .sms-option .sms-check { margin-left: auto; opacity: 0; flex-shrink: 0; color: #6D28D9; transition: opacity .15s ease; }
+  .sms-option .sms-check {
+    margin-left: auto; opacity: 0; flex-shrink: 0;
+    color: #6D28D9; transition: opacity .15s ease;
+  }
   html.dark .sms-option .sms-check { color: #C4B5FD; }
   .sms-option.active .sms-check { opacity: 1; }
+
+  /* Ensure the settings content stretches full width on mobile */
+  .settings-content { width: 100%; }
 }
 /* ===== Ledger improvements ===== */
 .ledger-table { table-layout: auto; }
@@ -538,6 +642,207 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
 .wb-slider-row .wb-slider-label { font-size: .7rem; font-weight: 700; color: var(--text-3); display: flex; align-items: center; gap: 6px; }
 .wb-slider-row .wb-slider-val { font-size: .78rem; font-weight: 800; color: var(--text-1); font-family: 'JetBrains Mono', monospace; }
 .wb-slider-row input[type="range"] { grid-column: 1 / -1; }
+
+/* ====================================================
+   Wealth Blueprint — Mobile tool selector (replaces scroll tabs)
+   ==================================================== */
+.wb-mobile-selector { display: none; }
+
+.wb-trigger {
+  display: flex; align-items: center; gap: .75rem;
+  width: 100%; padding: .8rem .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  cursor: pointer; text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.wb-trigger:active { background: var(--surface-2); border-color: var(--border-hover); }
+.wb-trigger-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, rgba(139,92,246,.14), rgba(236,72,153,.10));
+  border: 1px solid rgba(139,92,246,.26);
+  color: #6D28D9; flex-shrink: 0;
+}
+html.dark .wb-trigger-icon { color: #C4B5FD; }
+.wb-trigger-text { min-width: 0; flex-grow: 1; text-align: left; }
+.wb-trigger-label {
+  display: block; font-size: .6rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .12em;
+  color: var(--text-4); line-height: 1.2;
+}
+.wb-trigger-value {
+  display: block; font-size: .9rem; font-weight: 800;
+  color: var(--text-1); margin-top: 2px; line-height: 1.2;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wb-trigger-chevron {
+  color: var(--text-4); flex-shrink: 0;
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+}
+.wb-trigger.open .wb-trigger-chevron { transform: rotate(180deg); }
+
+.wb-sheet {
+  position: fixed; inset: 0; z-index: 2500;
+  display: flex; align-items: flex-end; justify-content: center;
+  pointer-events: none;
+}
+.wb-sheet.open { pointer-events: auto; }
+.wb-sheet-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(15,23,42,.5);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity .22s ease;
+}
+.wb-sheet.open .wb-sheet-backdrop { opacity: 1; }
+.wb-sheet-panel {
+  position: relative; width: 100%; max-width: 640px; max-height: 82vh;
+  background: var(--surface);
+  border-top-left-radius: 22px; border-top-right-radius: 22px;
+  border: 1px solid var(--border-strong); border-bottom: none;
+  box-shadow: 0 -20px 60px -12px rgba(15,23,42,.25);
+  display: flex; flex-direction: column;
+  transform: translateY(100%);
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+html.dark .wb-sheet-panel { box-shadow: 0 -20px 60px -12px rgba(0,0,0,.6); }
+.wb-sheet.open .wb-sheet-panel { transform: translateY(0); }
+.wb-sheet-handle {
+  width: 40px; height: 4px; border-radius: 9999px;
+  background: var(--border-hover); margin: 10px auto 4px; flex-shrink: 0;
+}
+.wb-sheet-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 18px 12px; border-bottom: 1px solid var(--border);
+}
+.wb-sheet-header h3 { font-size: .875rem; font-weight: 800; color: var(--text-1); }
+.wb-sheet-body {
+  padding: 10px 10px 18px; overflow-y: auto;
+  -webkit-overflow-scrolling: touch; flex-grow: 1;
+}
+.wb-option {
+  display: flex; align-items: center; gap: .75rem;
+  width: 100%; padding: .85rem .9rem; border-radius: 12px;
+  background: transparent; border: none; cursor: pointer;
+  text-align: left; color: var(--text-2);
+  font-size: .82rem; font-weight: 600;
+  transition: background-color .15s ease, color .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.wb-option:hover, .wb-option:active { background: var(--surface-2); color: var(--text-1); }
+.wb-option.active { background: rgba(139,92,246,.12); color: #6D28D9; font-weight: 700; }
+html.dark .wb-option.active { color: #C4B5FD; }
+.wb-opt-icon {
+  width: 38px; height: 38px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-3); color: var(--text-3); flex-shrink: 0;
+}
+.wb-option.active .wb-opt-icon {
+  background: rgba(139,92,246,.18); color: #6D28D9;
+}
+html.dark .wb-option.active .wb-opt-icon { color: #C4B5FD; }
+.wb-opt-body { min-width: 0; flex-grow: 1; }
+.wb-opt-title { display: block; font-size: .85rem; font-weight: 700; color: inherit; line-height: 1.2; }
+.wb-opt-desc {
+  display: block; font-size: .65rem; font-weight: 500;
+  color: var(--text-4); margin-top: 3px; line-height: 1.3;
+}
+.wb-opt-check {
+  margin-left: auto; opacity: 0; flex-shrink: 0;
+  color: #6D28D9; transition: opacity .15s ease;
+}
+html.dark .wb-opt-check { color: #C4B5FD; }
+.wb-option.active .wb-opt-check { opacity: 1; }
+
+@media (max-width: 900px) {
+  .wb-tabs { display: none !important; }
+  .wb-mobile-selector { display: block; }
+}
+@media (min-width: 901px) {
+  .wb-mobile-selector { display: none !important; }
+  .wb-sheet { display: none !important; }
+}
+
+/* ====================================================
+   Enhanced interactive sliders (touch-friendly)
+   ==================================================== */
+.slider-hero {
+  width: 100%; height: 8px; border-radius: 9999px;
+  appearance: none; -webkit-appearance: none;
+  background: linear-gradient(to right, rgba(139,92,246,.28), rgba(236,72,153,.18));
+  outline: none; cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.slider-hero::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(139,92,246,.45), 0 0 0 4px rgba(139,92,246,.10);
+  border: 3px solid #fff;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+html.dark .slider-hero::-webkit-slider-thumb { border-color: #18181B; }
+.slider-hero::-webkit-slider-thumb:hover { transform: scale(1.1); }
+.slider-hero:active::-webkit-slider-thumb,
+.slider-hero:focus::-webkit-slider-thumb {
+  transform: scale(1.18);
+  box-shadow: 0 3px 14px rgba(139,92,246,.55), 0 0 0 8px rgba(139,92,246,.16);
+}
+.slider-hero::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(139,92,246,.45);
+  border: 3px solid #fff;
+}
+html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
+.slider-hero::-moz-range-track {
+  height: 8px; border-radius: 9999px; background: var(--surface-3);
+}
+
+@media (max-width: 768px) {
+  .slider-hero { height: 12px; border-radius: 9999px; }
+  .slider-hero::-webkit-slider-thumb {
+    width: 30px; height: 30px;
+    border-width: 4px;
+    box-shadow: 0 3px 14px rgba(139,92,246,.5), 0 0 0 6px rgba(139,92,246,.12);
+  }
+  .slider-hero::-moz-range-thumb { width: 30px; height: 30px; border-width: 4px; }
+}
+
+.wb-slider-val-input {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .82rem;
+  font-weight: 800;
+  color: var(--text-1);
+  text-align: right;
+  width: 10ch;
+  outline: none;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+  transition: border-color .15s, background-color .15s, box-shadow .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.wb-slider-val-input:hover { border-color: var(--border-strong); background: var(--surface); }
+.wb-slider-val-input:focus {
+  border-color: var(--accent); background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(139,92,246,.15);
+}
+.wb-slider-val-input::-webkit-outer-spin-button,
+.wb-slider-val-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+@media (max-width: 768px) {
+  .wb-slider-val-input { font-size: 16px; padding: 6px 10px; width: 11ch; }
+}
 </style>
 </head>
 <body>
@@ -1129,8 +1434,35 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
       <!-- ============ WEALTH BLUEPRINT (responsive top tab strip) ============ -->
       <div id="tab-blueprint" class="main-tab-content space-y-5 hidden">
 
-        <!-- Top tab strip (works on desktop + mobile) -->
+        <!-- Top tab strip — desktop only -->
         <div class="wb-tabs" id="wbTabs"></div>
+
+        <!-- Mobile tool picker trigger -->
+        <div class="wb-mobile-selector">
+          <button class="wb-trigger" id="wbTrigger" onclick="openWbSheet()" aria-haspopup="listbox">
+            <span class="wb-trigger-icon" id="wbTriggerIcon"><i data-lucide="receipt" class="w-4 h-4"></i></span>
+            <span class="wb-trigger-text">
+              <span class="wb-trigger-label">Selected Tool</span>
+              <span class="wb-trigger-value" id="wbTriggerValue">Paycheck Calculator</span>
+            </span>
+            <i data-lucide="chevron-down" class="wb-trigger-chevron w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Mobile tool picker bottom sheet -->
+        <div id="wbSheet" class="wb-sheet">
+          <div class="wb-sheet-backdrop" onclick="closeWbSheet()"></div>
+          <div class="wb-sheet-panel">
+            <div class="wb-sheet-handle"></div>
+            <div class="wb-sheet-header">
+              <h3>Blueprint Tools</h3>
+              <button onclick="closeWbSheet()" class="btn-icon btn-ghost" aria-label="Close">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div class="wb-sheet-body" id="wbSheetBody"></div>
+          </div>
+        </div>
 
         <div class="wb-content">
           <!-- Tool: Paycheck Calculator -->
@@ -1165,18 +1497,45 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
                     </div>
                     <label class="switch"><input type="checkbox" id="payOverrideToggle" onchange="togglePaycheckOverride()"><span class="slider"></span></label>
                   </div>
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+
+                  <!-- Salary slider (full width — best for touch) -->
+                  <div class="wb-slider-row">
+                    <label class="wb-slider-label" for="payCustomSalary">
+                      <i data-lucide="banknote" class="w-3.5 h-3.5"></i> Annual Gross Salary
+                    </label>
+                    <input type="number" id="payCustomSalary" value="185000" step="10000" min="0"
+                           class="wb-slider-val-input"
+                           oninput="syncInputToSlider('payCustomSalarySlider','payCustomSalary'); calculatePaystub();">
+                    <input type="range" id="payCustomSalarySlider" min="0" max="2000000" step="10000" value="185000"
+                           class="slider-hero"
+                           oninput="syncSliderToInput('payCustomSalarySlider','payCustomSalary'); calculatePaystub();">
+                  </div>
+                  <p id="paySalarySource" class="text-[10px] -mt-1" style="color: var(--text-4);">From global profile</p>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
-                      <label for="payCustomSalary" class="field-label flex items-center justify-between gap-1" style="color: #BE185D;">
-                        <span>Annual Gross Salary (<span class="currency-prefix">$</span>)</span>
-                      </label>
-                      <input type="number" id="payCustomSalary" value="185000" oninput="calculatePaystub()" class="input text-right font-mono">
-                      <p id="paySalarySource" class="text-[10px] mt-1" style="color: var(--text-4);">From global profile</p>
+                      <label for="payFrequency" class="field-label">Pay Frequency</label>
+                      <select id="payFrequency" onchange="calculatePaystub()" class="input">
+                        <option value="26" selected>Bi-Weekly (26)</option>
+                        <option value="24">Semi-Monthly (24)</option>
+                        <option value="12">Monthly (12)</option>
+                      </select>
                     </div>
-                    <div><label for="payFrequency" class="field-label">Pay Frequency</label><select id="payFrequency" onchange="calculatePaystub()" class="input"><option value="26" selected>Bi-Weekly (26)</option><option value="24">Semi-Monthly (24)</option><option value="12">Monthly (12)</option></select></div>
-                    <div><label for="paystubFilingStatus" class="field-label">Filing Status</label><select id="paystubFilingStatus" onchange="calculatePaystub()" class="input"><option value="single">Single</option><option value="mfj" selected>Married Filing Jointly</option></select></div>
-                    <div><label for="manualStateTaxRate" class="field-label">State Tax Rate (%)</label><input type="number" step="0.1" id="manualStateTaxRate" value="0.0" oninput="calculatePaystub()" class="input text-right font-mono"></div>
-                    <div><label for="manualLocalTaxRate" class="field-label">Local Tax Rate (%)</label><input type="number" step="0.1" id="manualLocalTaxRate" value="0.0" oninput="calculatePaystub()" class="input text-right font-mono"></div>
+                    <div>
+                      <label for="paystubFilingStatus" class="field-label">Filing Status</label>
+                      <select id="paystubFilingStatus" onchange="calculatePaystub()" class="input">
+                        <option value="single">Single</option>
+                        <option value="mfj" selected>Married Filing Jointly</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="manualStateTaxRate" class="field-label">State Tax Rate (%)</label>
+                      <input type="number" step="0.1" id="manualStateTaxRate" value="0.0" oninput="calculatePaystub()" class="input text-right font-mono">
+                    </div>
+                    <div>
+                      <label for="manualLocalTaxRate" class="field-label">Local Tax Rate (%)</label>
+                      <input type="number" step="0.1" id="manualLocalTaxRate" value="0.0" oninput="calculatePaystub()" class="input text-right font-mono">
+                    </div>
                   </div>
                 </div>
                 <div id="pay-sec-pre" class="paystub-section-panel hidden rounded-2xl p-4" style="background: var(--surface-2); border: 1px solid var(--border);"><div id="preTaxDeductionsList" class="space-y-2"></div></div>
@@ -1299,9 +1658,31 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
                 </div>
                 <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
               </div>
-              <div class="collapsible-content space-y-3">
-                <div><label class="field-label">Annual Expenses (<span class="currency-prefix">$</span>)</label><input type="number" id="fireAnnualExpenses" value="60000" oninput="propagateUnifiedDataStore()" class="input text-right font-mono"></div>
-                <div><label class="field-label">Safe Withdrawal Rate (%)</label><input type="number" step="0.1" id="fireWithdrawalRate" value="4.0" oninput="propagateUnifiedDataStore()" class="input text-right font-mono"></div>
+              <div class="collapsible-content space-y-4">
+                <div class="wb-slider-row">
+                  <label class="wb-slider-label" for="fireAnnualExpenses">
+                    <i data-lucide="receipt" class="w-3.5 h-3.5"></i> Annual Expenses
+                  </label>
+                  <input type="number" id="fireAnnualExpenses" value="60000" step="10000" min="0"
+                         class="wb-slider-val-input"
+                         oninput="syncInputToSlider('fireAnnualExpensesSlider','fireAnnualExpenses'); propagateUnifiedDataStore();">
+                  <input type="range" id="fireAnnualExpensesSlider" min="0" max="500000" step="10000" value="60000"
+                         class="slider-hero"
+                         oninput="syncSliderToInput('fireAnnualExpensesSlider','fireAnnualExpenses'); propagateUnifiedDataStore();">
+                </div>
+
+                <div class="wb-slider-row">
+                  <label class="wb-slider-label" for="fireWithdrawalRate">
+                    <i data-lucide="percent" class="w-3.5 h-3.5"></i> Safe Withdrawal Rate
+                  </label>
+                  <input type="number" id="fireWithdrawalRate" value="4.0" step="0.1" min="0" max="12"
+                         class="wb-slider-val-input"
+                         oninput="syncInputToSlider('fireWithdrawalRateSlider','fireWithdrawalRate'); propagateUnifiedDataStore();">
+                  <input type="range" id="fireWithdrawalRateSlider" min="0" max="12" step="0.1" value="4.0"
+                         class="slider-hero"
+                         oninput="syncSliderToInput('fireWithdrawalRateSlider','fireWithdrawalRate'); propagateUnifiedDataStore();">
+                </div>
+
                 <div class="p-4 rounded-2xl space-y-3" style="background: var(--surface-2); border: 1px solid var(--border);">
                   <div><span class="text-[10px] font-extrabold uppercase tracking-wider" style="color: #BE185D;">Required Target Corpus</span><div id="fireTargetVal" class="privacy-target text-lg font-extrabold" style="color: var(--text-1);">$0</div></div>
                   <div class="space-y-1.5"><div class="flex justify-between text-[10px] font-bold"><span style="color: var(--text-4);">Target Progress</span><span id="fireGaugePct" style="color: #BE185D;">0%</span></div><div class="progress"><div id="fireGaugeBar" style="width:0%;background: linear-gradient(90deg, var(--accent-2), #DB2777);"></div></div></div>
@@ -1322,9 +1703,28 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
                 </div>
                 <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
               </div>
-              <div class="collapsible-content space-y-3">
-                <div><label class="field-label">Monthly Expenses (<span class="currency-prefix">$</span>)</label><input type="number" id="efMonthlyExp" value="5000" oninput="propagateUnifiedDataStore()" class="input text-right font-mono"></div>
-                <div><label class="field-label">Runway Target</label><select id="efTargetMonths" onchange="propagateUnifiedDataStore()" class="input"><option value="3">3 Months</option><option value="6" selected>6 Months</option><option value="12">12 Months</option></select></div>
+              <div class="collapsible-content space-y-4">
+                <div class="wb-slider-row">
+                  <label class="wb-slider-label" for="efMonthlyExp">
+                    <i data-lucide="receipt" class="w-3.5 h-3.5"></i> Monthly Expenses
+                  </label>
+                  <input type="number" id="efMonthlyExp" value="5000" step="500" min="0"
+                         class="wb-slider-val-input"
+                         oninput="syncInputToSlider('efMonthlyExpSlider','efMonthlyExp'); propagateUnifiedDataStore();">
+                  <input type="range" id="efMonthlyExpSlider" min="0" max="50000" step="500" value="5000"
+                         class="slider-hero"
+                         oninput="syncSliderToInput('efMonthlyExpSlider','efMonthlyExp'); propagateUnifiedDataStore();">
+                </div>
+
+                <div>
+                  <label class="field-label">Runway Target</label>
+                  <select id="efTargetMonths" onchange="propagateUnifiedDataStore()" class="input">
+                    <option value="3">3 Months</option>
+                    <option value="6" selected>6 Months</option>
+                    <option value="12">12 Months</option>
+                  </select>
+                </div>
+
                 <div class="p-4 rounded-2xl space-y-2" style="background: var(--surface-2); border: 1px solid var(--border);">
                   <div class="flex justify-between items-start gap-2">
                     <div><span class="text-[10px] font-extrabold uppercase tracking-wider" style="color: #6D28D9;">Cash Target Required</span><div id="efTargetVal" class="privacy-target text-lg font-extrabold" style="color: var(--text-1);">$0</div></div>
@@ -2403,7 +2803,10 @@ function autoCollapseMobileSections() {
   const isMobile = window.innerWidth <= 768;
   document.querySelectorAll('.collapsible-container').forEach(container => {
     if (container.closest('#expMonthlyGroupedContainer')) return;
-    if (isMobile) container.classList.add('collapsed'); else container.classList.remove('collapsed');
+    // Never auto-collapse Blueprint tool panes — keep tools instantly usable on mobile
+    if (container.closest('.wb-pane')) return;
+    if (isMobile) container.classList.add('collapsed');
+    else container.classList.remove('collapsed');
   });
 }
 function toggleAllSections(expand = true) {
@@ -2441,15 +2844,17 @@ let currentWbTool = 'paycheck';
 
 function renderWbTabs() {
   const host = document.getElementById('wbTabs');
-  if (!host) return;
-  host.innerHTML = WB_TOOLS_FLAT.map(t => `
-    <button class="wb-tab ${t.id === currentWbTool ? 'active' : ''}"
-            data-wb-tool="${t.id}"
-            onclick="switchWbTool('${t.id}')"
-            title="${t.desc}">
-      <i data-lucide="${t.icon}"></i>
-      <span>${t.label}</span>
-    </button>`).join('');
+  if (host) {
+    host.innerHTML = WB_TOOLS_FLAT.map(t => `
+      <button class="wb-tab ${t.id === currentWbTool ? 'active' : ''}"
+              data-wb-tool="${t.id}"
+              onclick="switchWbTool('${t.id}')"
+              title="${t.desc}">
+        <i data-lucide="${t.icon}"></i>
+        <span>${t.label}</span>
+      </button>`).join('');
+  }
+  updateWbTrigger();
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
@@ -2461,6 +2866,10 @@ function switchWbTool(toolId) {
     el.classList.toggle('active', el.dataset.wbTool === toolId));
   document.querySelectorAll('.wb-pane').forEach(el =>
     el.classList.toggle('active', el.dataset.wbPane === toolId));
+
+  // Refresh trigger + sliders so values are always current
+  updateWbTrigger();
+  initAllToolSliders();
 
   if (toolId === 'projections') updateProjections();
   if (toolId === 'inflation')   { syncInflationSliders('input'); propagateUnifiedDataStore(); }
@@ -2476,6 +2885,101 @@ function switchWbTool(toolId) {
   if (active) setTimeout(() =>
     active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }), 60);
 }
+
+/* ==========================================================================
+   WEALTH BLUEPRINT — Mobile tool picker (bottom sheet)
+   ========================================================================== */
+function openWbSheet() {
+  renderWbSheetOptions();
+  document.getElementById('wbSheet')?.classList.add('open');
+  document.getElementById('wbTrigger')?.classList.add('open');
+}
+function closeWbSheet() {
+  document.getElementById('wbSheet')?.classList.remove('open');
+  document.getElementById('wbTrigger')?.classList.remove('open');
+}
+function renderWbSheetOptions() {
+  const body = document.getElementById('wbSheetBody');
+  if (!body) return;
+  body.innerHTML = WB_TOOLS_FLAT.map(t => `
+    <button class="wb-option ${t.id === currentWbTool ? 'active' : ''}"
+            onclick="pickWbTool('${t.id}')" role="option">
+      <span class="wb-opt-icon"><i data-lucide="${t.icon}" class="w-4 h-4"></i></span>
+      <span class="wb-opt-body">
+        <span class="wb-opt-title">${t.label}</span>
+        <span class="wb-opt-desc">${t.desc}</span>
+      </span>
+      <i data-lucide="check" class="wb-opt-check w-4 h-4"></i>
+    </button>`).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+function pickWbTool(id) {
+  switchWbTool(id);
+  closeWbSheet();
+}
+function updateWbTrigger() {
+  const meta = WB_TOOLS_FLAT.find(t => t.id === currentWbTool) || WB_TOOLS_FLAT[0];
+  const valEl = document.getElementById('wbTriggerValue');
+  const iconEl = document.getElementById('wbTriggerIcon');
+  if (valEl) valEl.textContent = meta.label;
+  if (iconEl) iconEl.innerHTML = `<i data-lucide="${meta.icon}" class="w-4 h-4"></i>`;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/* ==========================================================================
+   Reusable slider <-> input sync helpers
+   ========================================================================== */
+function syncSliderToInput(sliderId, inputId) {
+  const slider = document.getElementById(sliderId);
+  const input  = document.getElementById(inputId);
+  if (!slider || !input) return;
+  input.value = slider.value;
+}
+function syncInputToSlider(sliderId, inputId) {
+  const slider = document.getElementById(sliderId);
+  const input  = document.getElementById(inputId);
+  if (!slider || !input) return;
+  const v = parseFloat(input.value) || 0;
+  slider.value = v;
+}
+function initAllToolSliders() {
+  const pairs = [
+    ['payCustomSalarySlider',    'payCustomSalary'],
+    ['fireAnnualExpensesSlider', 'fireAnnualExpenses'],
+    ['fireWithdrawalRateSlider', 'fireWithdrawalRate'],
+    ['efMonthlyExpSlider',       'efMonthlyExp']
+  ];
+  pairs.forEach(([sId, iId]) => {
+    const slider = document.getElementById(sId);
+    const input  = document.getElementById(iId);
+    if (!slider || !input) return;
+    const v = parseFloat(input.value) || 0;
+    slider.value = v;
+  });
+}
+
+/* Close the Blueprint picker when ESC is pressed */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeWbSheet();
+});
+
+/* Keep slider values in sync when global income is saved or paycheck override toggles */
+(function hookSliderSyncPoints() {
+  const origToggle = window.togglePaycheckOverride;
+  if (typeof origToggle === 'function') {
+    window.togglePaycheckOverride = function() {
+      origToggle.apply(this, arguments);
+      syncInputToSlider('payCustomSalarySlider', 'payCustomSalary');
+    };
+  }
+  const origClear = window.clearPaycheckOverride;
+  if (typeof origClear === 'function') {
+    window.clearPaycheckOverride = function() {
+      origClear.apply(this, arguments);
+      syncInputToSlider('payCustomSalarySlider', 'payCustomSalary');
+    };
+  }
+})();
 
 /* ==========================================================================
    SETTINGS SECTION SWITCHER
@@ -2721,6 +3225,7 @@ function saveIncomeSettings() {
   const fsEl = document.getElementById('paystubFilingStatus'); if (fsEl) fsEl.value = appSettings.income.filingStatus;
   const freqEl = document.getElementById('payFrequency'); if (freqEl) freqEl.value = String(appSettings.income.payFrequency);
   updateSalarySourceLabel();
+  syncInputToSlider('payCustomSalarySlider', 'payCustomSalary');
   if (typeof calculatePaystub === 'function') calculatePaystub();
   toast('Income profile saved.', 'success');
 }
@@ -3462,7 +3967,8 @@ function initDashboard() {
   renderChartToggles();
   renderWbTabs();
   updateSalarySourceLabel();
-  setCompoundingFreq(compoundingFrequency); // restore compounding button state
+  setCompoundingFreq(compoundingFrequency);
+  initAllToolSliders();
 }
 function updateNavBadges() {
   const acctBadge = document.getElementById('navAccountsBadge'); const txBadge = document.getElementById('navTxBadge');
@@ -3701,6 +4207,7 @@ function updateDashboard() {
       updateDefaultLimitsForYear(selectedYear); lastSelectedYear = selectedYear;
       const paySalaryEl = document.getElementById('payCustomSalary');
       if (paySalaryEl && tempSalaryOverride.paycheck === null) paySalaryEl.value = getEffectiveAnnualIncome() || yearData.salary || 185000;
+      initAllToolSliders();
     }
     renderIRSProgress(); renderCharts(yearData); renderMiniCharts();
     if (!unifiedStore.isUserOverridden) {
@@ -3716,7 +4223,6 @@ function updateDashboard() {
 }
 function propagateUnifiedDataStore() { updateProjections(); calculateFIRE(); calculateEmergencyFund(); calculateInflation(); applyPrivacyState(); }
 
-/* --- Missing function #1: real-time slider propagation --- */
 function syncProjectionsAndPropagate() {
   const startEl   = document.getElementById('projStartingBal');
   const monthlyEl = document.getElementById('projMonthlyContri');
@@ -3730,7 +4236,6 @@ function syncProjectionsAndPropagate() {
   propagateUnifiedDataStore();
 }
 
-/* --- Missing function #2: compounding frequency switcher --- */
 function setCompoundingFreq(freq) {
   compoundingFrequency = freq;
   const btnMap = { daily: 'btnFreqDaily', monthly: 'btnFreqMonthly', yearly: 'btnFreqYearly' };
@@ -4058,6 +4563,7 @@ function togglePaycheckOverride() {
     if (input) input.value = globalIncome;
   }
   updateSalarySourceLabel();
+  syncInputToSlider('payCustomSalarySlider', 'payCustomSalary');
   calculatePaystub();
 }
 function clearPaycheckOverride() {
@@ -4068,6 +4574,7 @@ function clearPaycheckOverride() {
   if (input) input.value = getEffectiveAnnualIncome();
   document.getElementById('simSalaryBannerPaycheck')?.classList.add('hidden');
   updateSalarySourceLabel();
+  syncInputToSlider('payCustomSalarySlider', 'payCustomSalary');
   calculatePaystub();
 }
 function handleTargetInput(catKey, val) { customTargets[catKey] = parseFloat(val) || 0; renderRebalancer(); }
@@ -4116,13 +4623,39 @@ function renderRebalancer() {
   const feeDragEl = document.getElementById('annualFeeDragVal'); if (feeDragEl) feeDragEl.innerText = `${formatCurrency(annualFeeDrag, 0)} / yr`;
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
+/* ==========================================================================
+   Portfolio Overview — Year-by-Year table (newest year first)
+   ========================================================================== */
 function renderComparisonTable() {
-  const tbody = document.querySelector("#comparisonTable tbody"); if (!tbody) return; tbody.innerHTML = "";
-  portfolioData.forEach((row, i) => {
-    const endBal = getTotalBal(row); const contri = getTotalContri(row);
-    const begBal = i > 0 ? getTotalBal(portfolioData[i-1]) : 0; const returns = getDynamicReturns(i);
-    tbody.innerHTML += `<tr class="transition-all"><td class="py-3 px-4 font-bold" style="color: var(--text-1);" data-label="Year">${row.year}</td><td class="py-3 px-4 text-right font-mono" style="color: var(--text-2);" data-label="Beg. Balance"><span>${formatCurrency(begBal, 0)}</span></td><td class="py-3 px-4 font-bold text-right font-mono" style="color: #6D28D9;" data-label="End Balance"><span>${formatCurrency(endBal, 0)}</span></td><td class="py-3 px-4 text-right font-mono" style="color: var(--text-4);" data-label="YoY Growth"><span>--</span></td><td class="py-3 px-4 text-right font-mono" style="color: var(--text-2);" data-label="Total Contri"><span>${formatCurrency(contri, 0)}</span></td><td class="py-3 px-4 text-right font-mono" style="color: var(--text-4);" data-label="YoY Contri"><span>--</span></td><td class="py-3 px-4 font-bold text-right font-mono" style="color: ${returns.amount >= 0 ? '#059669' : '#BE123C'};" data-label="Return ($)"><span>${formatCurrency(returns.amount, 0)}</span></td><td class="py-3 px-4 font-bold text-right font-mono" style="color: ${returns.pct >= 0 ? '#059669' : '#BE123C'};" data-label="Return (%)"><span>${returns.pct}%</span></td></tr>`;
+  const tbody = document.querySelector("#comparisonTable tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  // Pair each row with its original index (needed by getDynamicReturns / prev-year lookup)
+  const indexed = portfolioData.map((row, i) => ({ row, i }));
+
+  // Sort by year descending — latest year on top
+  indexed.sort((a, b) => parseInt(b.row.year, 10) - parseInt(a.row.year, 10));
+
+  indexed.forEach(({ row, i }) => {
+    const endBal  = getTotalBal(row);
+    const contri  = getTotalContri(row);
+    const begBal  = i > 0 ? getTotalBal(portfolioData[i - 1]) : 0;
+    const returns = getDynamicReturns(i);
+
+    tbody.innerHTML += `
+      <tr class="transition-all">
+        <td class="py-3 px-4 font-bold" style="color: var(--text-1);" data-label="Year">${row.year}</td>
+        <td class="py-3 px-4 text-right font-mono" style="color: var(--text-2);" data-label="Beg. Balance"><span>${formatCurrency(begBal, 0)}</span></td>
+        <td class="py-3 px-4 font-bold text-right font-mono" style="color: #6D28D9;" data-label="End Balance"><span>${formatCurrency(endBal, 0)}</span></td>
+        <td class="py-3 px-4 text-right font-mono" style="color: var(--text-4);" data-label="YoY Growth"><span>--</span></td>
+        <td class="py-3 px-4 text-right font-mono" style="color: var(--text-2);" data-label="Total Contri"><span>${formatCurrency(contri, 0)}</span></td>
+        <td class="py-3 px-4 text-right font-mono" style="color: var(--text-4);" data-label="YoY Contri"><span>--</span></td>
+        <td class="py-3 px-4 font-bold text-right font-mono" style="color: ${returns.amount >= 0 ? '#059669' : '#BE123C'};" data-label="Return ($)"><span>${formatCurrency(returns.amount, 0)}</span></td>
+        <td class="py-3 px-4 font-bold text-right font-mono" style="color: ${returns.pct >= 0 ? '#059669' : '#BE123C'};" data-label="Return (%)"><span>${returns.pct}%</span></td>
+      </tr>`;
   });
+
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 function renderCharts(selectedData) {
@@ -5133,6 +5666,7 @@ window.onload = function() {
     switchWbTool(currentWbTool);
     updateSalarySourceLabel();
     setCompoundingFreq(compoundingFrequency);
+    initAllToolSliders();
   }, 120);
   updateFilterCountBadges();
   const cb = document.getElementById('sidebarCollapseBtn');
