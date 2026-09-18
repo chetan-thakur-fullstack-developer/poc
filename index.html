@@ -129,13 +129,18 @@ html.dark .cmd-item.selected { color: #C4B5FD; }
 html.dark .cmd-item.selected .cmd-icon { color: #C4B5FD; }
 .cmd-item .cmd-kbd { margin-left: auto; font-size: .6rem; font-weight: 700; padding: .12rem .4rem; border-radius: 5px; background: var(--surface-3); color: var(--text-4); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; }
 .cmd-section-label { padding: .6rem .7rem .3rem; font-size: .6rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text-4); }
-.popover { position: absolute; top: calc(100% + 8px); right: 0; min-width: 260px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md); box-shadow: var(--shadow-lift); padding: .4rem; z-index: 900; opacity: 0; pointer-events: none; transform: translateY(-6px); transition: opacity .18s ease, transform .18s ease; }
+.popover { position: absolute; top: calc(100% + 8px); right: 0; min-width: 260px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md); box-shadow: var(--shadow-lift); padding: .4rem; z-index: 950; opacity: 0; pointer-events: none; transform: translateY(-6px); transition: opacity .18s ease, transform .18s ease; }
 .popover.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
 .popover-item { display: flex; align-items: center; gap: .6rem; padding: .5rem .65rem; border-radius: var(--radius-sm); font-size: .75rem; font-weight: 600; color: var(--text-2); cursor: pointer; border: none; background: transparent; width: 100%; text-align: left; transition: background-color .12s ease, color .12s ease; }
 .popover-item:hover { background: var(--surface-2); color: var(--text-1); }
 .popover-item.active { background: rgba(139,92,246,.14); color: #6D28D9; }
 html.dark .popover-item.active { color: #C4B5FD; }
 .popover-left { right: auto; left: 0; }
+/* FIX: never push the page horizontally; keep popovers inside the viewport */
+body, html { overflow-x: hidden; }
+.popover { max-width: calc(100vw - 24px); z-index: 950; }
+/* Ensure popovers inside collapsible sections are not clipped */
+.collapsible-content:has(.popover.open) { overflow: visible !important; }
 table { border-collapse: collapse; }
 table thead th { font-size: .6rem; letter-spacing: .08em; font-weight: 800; text-transform: uppercase; color: var(--text-4); }
 table tbody td { font-variant-numeric: tabular-nums; }
@@ -1709,7 +1714,7 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
               <button onclick="setTxSourceFilter('manual')" class="chip" data-source="manual"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Manual</button>
               <button onclick="setTxSourceFilter('plaid')" class="chip" data-source="plaid"><i data-lucide="link" class="w-3.5 h-3.5"></i> Plaid</button>
               <span id="txSourceCount" class="text-[10px] font-bold ml-1" style="color: var(--text-4);"></span>
-              <div class="relative ml-auto">
+              <div class="relative">
                 <button id="expLocalDateChip" onclick="toggleExpLocalDatePopover(event)" class="chip !py-2 !px-3"><i data-lucide="calendar-range" class="w-3.5 h-3.5"></i><span id="expLocalDateLabel">All Time</span><i data-lucide="chevron-down" class="w-3 h-3"></i></button>
                 <div id="expLocalDatePopover" class="popover popover-left">
                   <div class="px-2 pt-1 pb-2">
@@ -3527,8 +3532,24 @@ function updateDateRangeUI() {
   const label = document.getElementById('dateRangeLabel'); if (label) label.innerText = globalDateRange.label;
   document.querySelectorAll('#datePopover .popover-item').forEach(el => { el.classList.toggle('active', el.dataset.preset === globalDateRange.preset); });
 }
-function toggleDatePopover(e) { if (e) e.stopPropagation(); document.getElementById('datePopover')?.classList.toggle('open'); }
-function closeDatePopover() { document.getElementById('datePopover')?.classList.remove('open'); }
+/* Helper: temporarily unlock overflow on a collapsible-content that contains an open popover */
+function _togglePopoverOverflow(pop, opening) {
+  if (!pop) return;
+  const cc = pop.closest('.collapsible-content');
+  if (cc) cc.style.overflow = opening ? 'visible' : '';
+}
+function toggleDatePopover(e) {
+  if (e) e.stopPropagation();
+  const pop = document.getElementById('datePopover');
+  const opening = !pop?.classList.contains('open');
+  pop?.classList.toggle('open');
+  _togglePopoverOverflow(pop, opening);
+}
+function closeDatePopover() {
+  const pop = document.getElementById('datePopover');
+  pop?.classList.remove('open');
+  _togglePopoverOverflow(pop, false);
+}
 function applyCustomDateRange() {
   const s = document.getElementById('customRangeStart').value; const e = document.getElementById('customRangeEnd').value;
   if (!s || !e) { toast('Please pick both start and end dates.', 'warning'); return; }
@@ -3537,7 +3558,7 @@ function applyCustomDateRange() {
 }
 document.addEventListener('click', (e) => {
   const pop = document.getElementById('datePopover'); const chip = document.getElementById('dateRangeChip');
-  if (pop && pop.classList.contains('open') && !pop.contains(e.target) && chip && !chip.contains(e.target)) pop.classList.remove('open');
+  if (pop && pop.classList.contains('open') && !pop.contains(e.target) && chip && !chip.contains(e.target)) { pop.classList.remove('open'); _togglePopoverOverflow(pop, false); }
 });
 
 function getTxLocalDateBounds() {
@@ -3561,8 +3582,18 @@ function isDateInTxLocalRange(dateStr) {
   const bounds = getTxLocalDateBounds(); if (!bounds.start || !bounds.end) return true;
   const d = new Date(dateStr + 'T12:00:00'); return d >= bounds.start && d <= bounds.end;
 }
-function toggleTxLocalDatePopover(e) { if (e) e.stopPropagation(); document.getElementById('txLocalDatePopover')?.classList.toggle('open'); }
-function closeTxLocalDatePopover() { document.getElementById('txLocalDatePopover')?.classList.remove('open'); }
+function toggleTxLocalDatePopover(e) {
+  if (e) e.stopPropagation();
+  const pop = document.getElementById('txLocalDatePopover');
+  const opening = !pop?.classList.contains('open');
+  pop?.classList.toggle('open');
+  _togglePopoverOverflow(pop, opening);
+}
+function closeTxLocalDatePopover() {
+  const pop = document.getElementById('txLocalDatePopover');
+  pop?.classList.remove('open');
+  _togglePopoverOverflow(pop, false);
+}
 function setTxLocalDateRange(preset, customStart, customEnd) {
   txLocalDateRange.preset = preset;
   if (preset === 'custom') {
@@ -3588,7 +3619,7 @@ function updateTxLocalDateUI() {
 }
 document.addEventListener('click', (e) => {
   const pop = document.getElementById('txLocalDatePopover'); const chip = document.getElementById('txLocalDateChip');
-  if (pop && pop.classList.contains('open') && !pop.contains(e.target) && chip && !chip.contains(e.target)) pop.classList.remove('open');
+  if (pop && pop.classList.contains('open') && !pop.contains(e.target) && chip && !chip.contains(e.target)) { pop.classList.remove('open'); _togglePopoverOverflow(pop, false); }
 });
 
 /* ============================================================
@@ -3615,8 +3646,18 @@ function isDateInExpLocalRange(dateStr) {
   const bounds = getExpLocalDateBounds(); if (!bounds.start || !bounds.end) return true;
   const d = new Date(dateStr + 'T12:00:00'); return d >= bounds.start && d <= bounds.end;
 }
-function toggleExpLocalDatePopover(e) { if (e) e.stopPropagation(); document.getElementById('expLocalDatePopover')?.classList.toggle('open'); }
-function closeExpLocalDatePopover() { document.getElementById('expLocalDatePopover')?.classList.remove('open'); }
+function toggleExpLocalDatePopover(e) {
+  if (e) e.stopPropagation();
+  const pop = document.getElementById('expLocalDatePopover');
+  const opening = !pop?.classList.contains('open');
+  pop?.classList.toggle('open');
+  _togglePopoverOverflow(pop, opening);
+}
+function closeExpLocalDatePopover() {
+  const pop = document.getElementById('expLocalDatePopover');
+  pop?.classList.remove('open');
+  _togglePopoverOverflow(pop, false);
+}
 function setExpLocalDateRange(preset, customStart, customEnd, silent) {
   expLocalDateRange.preset = preset;
   if (preset === 'custom') {
@@ -3655,7 +3696,7 @@ function applyExpSheetCustom() {
 }
 document.addEventListener('click', (e) => {
   const pop = document.getElementById('expLocalDatePopover'); const chip = document.getElementById('expLocalDateChip');
-  if (pop && pop.classList.contains('open') && !pop.contains(e.target) && chip && !chip.contains(e.target)) pop.classList.remove('open');
+  if (pop && pop.classList.contains('open') && !pop.contains(e.target) && chip && !chip.contains(e.target)) { pop.classList.remove('open'); _togglePopoverOverflow(pop, false); }
 });
 
 async function changeActiveCurrency(newCurrency) {
@@ -3677,12 +3718,15 @@ function openFilterSheet(kind) {
     body.innerHTML = `<div class="filter-sheet-section"><span class="filter-sheet-label">Show</span><div class="filter-sheet-options">${[['all','All','layers'],['assets','Assets','trending-up'],['liabilities','Liabilities','trending-down'],['linked','Linked','link'],['manual','Manual','pencil'],['unmapped','Unmapped','alert-circle']].map(([k,label,icon]) => `<button class="filter-option ${accountsFilter===k?'active':''}" data-value="${k}" onclick="pickAccountsFilter('${k}')"><i data-lucide="${icon}"></i> ${label}</button>`).join('')}</div></div>`;
   } else if (kind === 'plaid-tx') {
     title.innerText = 'Filter Transactions'; const accts = allAccounts();
+    const s = txLocalDateRange.preset === 'custom' && txLocalDateRange.start ? txLocalDateRange.start.toISOString().slice(0,10) : '';
+    const e2 = txLocalDateRange.preset === 'custom' && txLocalDateRange.end   ? txLocalDateRange.end.toISOString().slice(0,10)   : '';
     body.innerHTML = `
       <div class="filter-sheet-section"><span class="filter-sheet-label">Search</span><div class="filter-sheet-input-wrap"><input type="text" class="input" id="fsPlaidSearch" placeholder="Merchant or amount…" value="${(document.getElementById('txSearchInput')?.value||'').replace(/"/g,'&quot;')}" oninput="syncSheetSearch(this.value, 'plaid')"></div></div>
       <div class="filter-sheet-section"><span class="filter-sheet-label">Account</span><select class="input" id="fsPlaidAccount" onchange="pickPlaidAccount(this.value)"><option value="">All accounts</option>${accts.map(a => `<option value="${a.id}" ${(document.getElementById('txAccountFilter')?.value||'')===a.id?'selected':''}>${a.name} (••${a.mask||'—'})</option>`).join('')}</select></div>
       <div class="filter-sheet-section"><span class="filter-sheet-label">Category</span><select class="input" id="fsPlaidCategory" onchange="pickPlaidCategory(this.value)"><option value="">All categories</option><option value="__uncat__" ${(document.getElementById('txCategoryFilter')?.value||'')==='__uncat__'?'selected':''}>⚠️ Uncategorized</option>${expenseStore.categories.map(c => `<option value="${c.id}" ${(document.getElementById('txCategoryFilter')?.value||'')===c.id?'selected':''}>${expenseEmoji(c)} ${c.label}</option>`).join('')}</select></div>
       <div class="filter-sheet-section"><span class="filter-sheet-label">Status</span><div class="filter-sheet-options"><button class="filter-option ${document.getElementById('txPendingOnly')?.checked?'active':''}" id="fsPendingOpt" onclick="pickPlaidPending()"><i data-lucide="clock"></i> Pending only</button></div></div>
-      <div class="filter-sheet-section"><span class="filter-sheet-label">Date range</span><div class="filter-sheet-options">${[['all','Any'],['ytd','YTD'],['mtd','MTD'],['7d','7d'],['30d','30d'],['90d','90d'],['12m','12m'],['ly','Last Yr']].map(([k,label]) => `<button class="filter-option ${txLocalDateRange.preset===k?'active':''}" data-value="${k}" onclick="pickPlaidDatePreset('${k}')">${label}</button>`).join('')}</div></div>`;
+      <div class="filter-sheet-section"><span class="filter-sheet-label">Date range</span><div class="filter-sheet-options">${[['all','Any'],['ytd','YTD'],['mtd','MTD'],['7d','7d'],['30d','30d'],['90d','90d'],['12m','12m'],['ly','Last Yr']].map(([k,label]) => `<button class="filter-option ${txLocalDateRange.preset===k?'active':''}" data-value="${k}" onclick="pickPlaidDatePreset('${k}')">${label}</button>`).join('')}</div></div>
+      <div class="filter-sheet-section"><span class="filter-sheet-label">Custom range</span><div class="filter-sheet-input-wrap"><input type="date" class="input" id="fsPlaidStart" value="${s}"><span style="color:var(--text-4);">→</span><input type="date" class="input" id="fsPlaidEnd" value="${e2}"></div><button class="btn btn-primary w-full !py-2 mt-2" onclick="applyPlaidSheetCustom()">Apply custom range</button></div>`;
   } else if (kind === 'exp-tx') {
     title.innerText = 'Filter Transactions';
     const s = expLocalDateRange.preset === 'custom' && expLocalDateRange.start ? expLocalDateRange.start.toISOString().slice(0,10) : '';
@@ -3727,6 +3771,14 @@ function pickPlaidAccount(v) { const el = document.getElementById('txAccountFilt
 function pickPlaidCategory(v) { const el = document.getElementById('txCategoryFilter'); if (el) el.value = v; renderTransactions(); updateFilterCountBadges(); }
 function pickPlaidPending() { const el = document.getElementById('txPendingOnly'); if (!el) return; el.checked = !el.checked; const opt = document.getElementById('fsPendingOpt'); if (opt) opt.classList.toggle('active', el.checked); renderTransactions(); updateFilterCountBadges(); }
 function pickPlaidDatePreset(v) { setTxLocalDateRange(v); if (document.getElementById('filterSheet')?.classList.contains('open')) openFilterSheet('plaid-tx'); }
+function applyPlaidSheetCustom() {
+  const s = document.getElementById('fsPlaidStart')?.value;
+  const e = document.getElementById('fsPlaidEnd')?.value;
+  if (!s || !e) { toast('Please pick both start and end dates.', 'warning'); return; }
+  if (new Date(s) > new Date(e)) { toast('Start date must be before end date.', 'error'); return; }
+  setTxLocalDateRange('custom', s, e);
+  if (document.getElementById('filterSheet')?.classList.contains('open')) openFilterSheet('plaid-tx');
+}
 function syncSheetSearch(v, kind) { if (kind === 'plaid') { const el = document.getElementById('txSearchInput'); if (el) el.value = v; const elM = document.getElementById('txSearchInputMobile'); if (elM && elM.value !== v) elM.value = v; renderTransactions(); } }
 function syncMobileSearch(kind) { const v = document.getElementById('txSearchInputMobile')?.value || ''; const el = document.getElementById('txSearchInput'); if (el) el.value = v; renderTransactions(); }
 function updateFilterCountBadges() {
