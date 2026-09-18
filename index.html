@@ -18,13 +18,13 @@ tailwind.config = {
 </script>
 <style>
 :root {
-  --app-bg: #08080A; --app-bg-2: #0C0C10; --surface: #101013; --surface-2: #141418; --surface-3: #1A1A1F;
-  --border: rgba(255,255,255,0.06); --border-strong: rgba(255,255,255,0.10); --border-hover: rgba(255,255,255,0.16);
-  --text-1: #FAFAFA; --text-2: #B4B4BC; --text-3: #85858F; --text-4: #62626B;
-  --accent: #8B5CF6; --accent-2: #EC4899; --accent-3: #3B82F6;
-  --success: #34D399; --warn: #FBBF24; --danger: #FB7185;
-  --shadow-soft: 0 1px 2px rgba(0,0,0,.35); --shadow-lift: 0 10px 34px -14px rgba(0,0,0,.7);
-  --chart-grid: rgba(255,255,255,0.05); --chart-bar: #26262B;
+  --app-bg: #0B1120; --app-bg-2: #0F172A; --surface: #111C2E; --surface-2: #172033; --surface-3: #1E293B;
+  --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.12); --border-hover: rgba(255,255,255,0.18);
+  --text-1: #F8FAFC; --text-2: #94A3B8; --text-3: #64748B; --text-4: #475569;
+  --accent: #10B981; --accent-2: #059669; --accent-3: #3B82F6;
+  --success: #10B981; --warn: #F59E0B; --danger: #FB7185;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.5); --shadow-lift: 0 10px 34px -14px rgba(0,0,0,.8);
+  --chart-grid: rgba(255,255,255,0.06); --chart-bar: #1E293B;
   --radius-lg: 14px; --radius-md: 10px; --radius-sm: 8px;
 }
 html.light {
@@ -36,7 +36,7 @@ html.light {
 }
 *, *::before, *::after { box-sizing: border-box; }
 html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background: var(--app-bg); color: var(--text-1); font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; transition: background-color .25s ease, color .25s ease; }
-body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; background: radial-gradient(1100px 550px at 12% -8%, rgba(139,92,246,.08), transparent 55%), radial-gradient(800px 450px at 100% 0%, rgba(236,72,153,.05), transparent 55%); }
+body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; background: radial-gradient(1100px 550px at 12% -8%, rgba(16,185,129,.08), transparent 55%), radial-gradient(800px 450px at 100% 0%, rgba(16,185,129,.05), transparent 55%); }
 html.light body::before { background: radial-gradient(1100px 550px at 12% -8%, rgba(139,92,246,.10), transparent 55%), radial-gradient(800px 450px at 100% 0%, rgba(236,72,153,.06), transparent 55%); }
 h1, h2, h3, h4 { letter-spacing: -0.02em; }
 .num, .value, .font-mono, [id^="kpi"], [id^="proj"], [id^="exp"], .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
@@ -53,7 +53,7 @@ h1, h2, h3, h4 { letter-spacing: -0.02em; }
 html.light .glass { background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.96)); }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; padding: .5rem .85rem; border-radius: var(--radius-sm); font-size: .75rem; font-weight: 700; line-height: 1; border: 1px solid transparent; cursor: pointer; transition: all .15s ease; white-space: nowrap; color: var(--text-1); -webkit-tap-highlight-color: transparent; }
 .btn:active { transform: scale(.97); }
-.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; box-shadow: 0 4px 14px -6px rgba(139,92,246,.5); }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-text, #fff); box-shadow: 0 4px 14px -6px rgba(16,185,129,.5); }
 .btn-primary:hover { box-shadow: 0 6px 20px -8px rgba(139,92,246,.65); }
 .btn-ghost { background: var(--surface-2); border-color: var(--border-strong); color: var(--text-1); }
 html.light .btn-ghost { background: #FFFFFF; }
@@ -73,11 +73,13 @@ html.dark .chip.active { color: #C4B5FD; }
 .badge-amber { background: rgba(251,191,36,.14); color: #B45309; border: 1px solid rgba(251,191,36,.3); }
 .badge-rose { background: rgba(251,113,133,.14); color: #BE123C; border: 1px solid rgba(251,113,133,.3); }
 .badge-slate { background: var(--surface-3); color: var(--text-3); border: 1px solid var(--border); }
+.badge-blue { background: rgba(59,130,246,.14); color: #1D4ED8; border: 1px solid rgba(59,130,246,.3); }
 html.dark .badge-violet { color: #C4B5FD; }
 html.dark .badge-pink { color: #F9A8D4; }
 html.dark .badge-emerald { color: #6EE7B7; }
 html.dark .badge-amber { color: #FCD34D; }
 html.dark .badge-rose { color: #FDA4AF; }
+html.dark .badge-blue { color: #93C5FD; }
 .input, select.input, textarea.input { width: 100%; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: .5rem .7rem; font-size: .75rem; color: var(--text-1); font-weight: 600; outline: none; transition: border-color .15s, box-shadow .15s; }
 .input::placeholder { color: var(--text-4); font-weight: 500; }
 .input:focus, select.input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139,92,246,.15); }
@@ -99,30 +101,13 @@ html.dark .nav-item.active .nav-badge { color: #C4B5FD; }
 .seg-item.active { background: var(--surface); color: var(--text-1); box-shadow: 0 1px 4px -1px rgba(15,23,42,.14); font-weight: 800; }
 html.dark .seg-item.active { box-shadow: 0 1px 4px -1px rgba(0,0,0,.4); }
 
-/* ============ Collapsible sections (clear affordance) ============ */
 .collapsible-container { transition: all .25s ease; }
-.collapsible-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  cursor: pointer;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  padding: 6px 8px;
-  margin: -6px -8px;
-  border-radius: 10px;
-  transition: background-color .15s ease;
-}
-.collapsible-header:hover  { background: var(--surface-2); }
+.collapsible-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; padding: 6px 8px; margin: -6px -8px; border-radius: 10px; transition: background-color .15s ease; }
+.collapsible-header:hover { background: var(--surface-2); }
 .collapsible-header:active { background: var(--surface-3); }
 .collapsible-header > * { min-width: 0; }
 .collapsible-header > .collapsible-icon { flex-shrink: 0; margin-left: auto; }
-.collapsible-icon {
-  transition: transform .3s cubic-bezier(.4,0,.2,1), color .15s ease;
-  flex-shrink: 0;
-  color: var(--text-3);
-}
+.collapsible-icon { transition: transform .3s cubic-bezier(.4,0,.2,1), color .15s ease; flex-shrink: 0; color: var(--text-3); }
 .collapsible-header:hover .collapsible-icon { color: var(--text-1); }
 .collapsible-content { overflow: hidden; transition: max-height .4s cubic-bezier(.4,0,.2,1), opacity .3s ease; max-height: 8000px; opacity: 1; }
 .collapsed .collapsible-content { max-height: 0 !important; opacity: 0 !important; padding: 0 !important; margin: 0 !important; border: none !important; }
@@ -197,7 +182,7 @@ html.dark .account-row:hover { background-color: rgba(255,255,255,0.02); }
 .skeleton { animation: shimmer 1.6s ease-in-out infinite; }
 .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
 @media (max-width: 1024px) {
-  aside.desktop-sidebar { position: fixed; left: 0; top: 0; height: 100dvh; width: 290px; z-index: 1001; transform: translateX(-100%); transition: transform .3s cubic-bezier(.4,0,.2,1); overflow-y: auto; overflow-x: hidden; }
+  aside.desktop-sidebar { position: fixed; left: 0; top: 0; height: 100dvh; width: 290px; z-index: 1001; transform: translateX(-100%); transition: transform .3s cubic-bezier(.4,0,.2,1); overflow: hidden; }
   aside.desktop-sidebar.mobile-open { transform: translateX(0); }
 }
 @media (max-width: 768px) {
@@ -216,10 +201,10 @@ input[type="range"] { accent-color: var(--accent); }
 input[type="color"] { padding: 2px; height: 34px; background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); cursor: pointer; width: 100%; }
 .dash-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: .9rem; }
 .dash-widget { grid-column: span 12; min-width: 0; }
-.dash-widget[data-size="sm"]   { grid-column: span 3; }
-.dash-widget[data-size="md"]   { grid-column: span 4; }
-.dash-widget[data-size="lg"]   { grid-column: span 6; }
-.dash-widget[data-size="xl"]   { grid-column: span 8; }
+.dash-widget[data-size="sm"] { grid-column: span 3; }
+.dash-widget[data-size="md"] { grid-column: span 4; }
+.dash-widget[data-size="lg"] { grid-column: span 6; }
+.dash-widget[data-size="xl"] { grid-column: span 8; }
 .dash-widget[data-size="full"] { grid-column: span 12; }
 @media (max-width: 1024px) { .dash-grid { grid-template-columns: repeat(6, minmax(0,1fr)); } .dash-widget[data-size="sm"], .dash-widget[data-size="md"] { grid-column: span 3; } .dash-widget[data-size="lg"], .dash-widget[data-size="xl"] { grid-column: span 6; } }
 @media (max-width: 640px) { .dash-grid { grid-template-columns: 1fr; } .dash-widget { grid-column: 1 / -1 !important; } }
@@ -258,11 +243,6 @@ html.dark .mobile-day-header .day-total { color: var(--danger); }
   .mobile-filter-bar .mfb-btn.active { border-color: var(--accent); color: #6D28D9; background: rgba(139,92,246,.10); }
   html.dark .mobile-filter-bar .mfb-btn.active { color: #C4B5FD; }
   .mobile-filter-bar .mfb-btn .mfb-count { display: inline-flex; align-items: center; justify-content: center; min-width: 1.05rem; height: 1.05rem; padding: 0 .3rem; border-radius: 9999px; background: var(--accent); color: #fff; font-size: .6rem; font-weight: 800; }
-  .mfb-active-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .mfb-active-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 9999px; background: rgba(139,92,246,.12); border: 1px solid rgba(139,92,246,.3); color: #6D28D9; font-size: .68rem; font-weight: 700; }
-  html.dark .mfb-active-chip { color: #C4B5FD; }
-  .mfb-active-chip button { color: inherit; opacity: .7; }
-  .mfb-active-chip button:hover { opacity: 1; }
 }
 .filter-sheet { position: fixed; inset: 0; z-index: 2400; display: flex; align-items: flex-end; justify-content: center; pointer-events: none; }
 .filter-sheet.open { pointer-events: auto; }
@@ -392,7 +372,6 @@ html.dark .cat-item .cat-action-btn.danger:hover { color: #FDA4AF; }
 .settings-count-badge { font-size: .6rem; font-weight: 800; color: var(--text-4); padding: .2rem .5rem; background: var(--surface-3); border: 1px solid var(--border); border-radius: 9999px; }
 .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 
-/* ===== Settings split layout ===== */
 .settings-shell { display: flex; gap: 1.25rem; align-items: flex-start; }
 .settings-nav { flex-shrink: 0; width: 15rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: .4rem; position: sticky; top: 0; max-height: calc(100dvh - 8.5rem); overflow-y: auto; }
 .settings-nav-item { display: flex; align-items: center; gap: .65rem; width: 100%; padding: .6rem .7rem; border-radius: var(--radius-sm); font-size: .78rem; font-weight: 600; color: var(--text-3); background: transparent; border: none; cursor: pointer; text-align: left; transition: background-color .15s ease, color .15s ease; -webkit-tap-highlight-color: transparent; }
@@ -407,145 +386,41 @@ html.dark .settings-nav-item.active { color: #C4B5FD; }
 .settings-mobile-selector { display: none; }
 
 @media (max-width: 900px) {
-  /* --- Fix: full-width stack (was shrunk by align-items: flex-start) --- */
-  .settings-shell {
-    flex-direction: column;
-    align-items: stretch;      /* ← key fix: forces children to full width */
-    gap: .85rem;
-    width: 100%;
-  }
+  .settings-shell { flex-direction: column; align-items: stretch; gap: .85rem; width: 100%; }
   .settings-nav { display: none !important; }
-
-    .settings-mobile-selector {
-    display: block;
-    width: 100%;
-    margin: 0 0 .85rem 0;
-  }
-
-  /* ===== Settings trigger — mirrors .wb-trigger exactly ===== */
-  .sms-trigger {
-    display: flex; align-items: center; gap: .75rem;
-    width: 100%; padding: .8rem .9rem;
-    background: var(--surface);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-lg);
-    cursor: pointer; text-align: left;
-    -webkit-tap-highlight-color: transparent;
-    transition: border-color .15s ease, background-color .15s ease;
-  }
-  .sms-trigger:active {
-    background: var(--surface-2);
-    border-color: var(--border-hover);
-  }
-  .sms-icon {
-    width: 40px; height: 40px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, rgba(139,92,246,.14), rgba(236,72,153,.10));
-    border: 1px solid rgba(139,92,246,.26);
-    color: #6D28D9; flex-shrink: 0;
-  }
+  .settings-mobile-selector { display: block; width: 100%; margin: 0 0 .85rem 0; }
+  .sms-trigger { display: flex; align-items: center; gap: .75rem; width: 100%; padding: .8rem .9rem; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); cursor: pointer; text-align: left; -webkit-tap-highlight-color: transparent; transition: border-color .15s ease, background-color .15s ease; }
+  .sms-trigger:active { background: var(--surface-2); border-color: var(--border-hover); }
+  .sms-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(139,92,246,.14), rgba(236,72,153,.10)); border: 1px solid rgba(139,92,246,.26); color: #6D28D9; flex-shrink: 0; }
   html.dark .sms-icon { color: #C4B5FD; }
-  .sms-text {
-    min-width: 0; flex-grow: 1; text-align: left;
-  }
-  .sms-label {
-    display: block; font-size: .6rem; font-weight: 800;
-    text-transform: uppercase; letter-spacing: .12em;
-    color: var(--text-4); line-height: 1.2;
-  }
-  .sms-value {
-    display: block; font-size: .9rem; font-weight: 800;
-    color: var(--text-1); margin-top: 2px; line-height: 1.2;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .sms-chevron {
-    color: var(--text-4); flex-shrink: 0;
-    transition: transform .25s cubic-bezier(.4,0,.2,1);
-  }
+  .sms-text { min-width: 0; flex-grow: 1; text-align: left; }
+  .sms-label { display: block; font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--text-4); line-height: 1.2; }
+  .sms-value { display: block; font-size: .9rem; font-weight: 800; color: var(--text-1); margin-top: 2px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sms-chevron { color: var(--text-4); flex-shrink: 0; transition: transform .25s cubic-bezier(.4,0,.2,1); }
   .sms-trigger.open .sms-chevron { transform: rotate(180deg); }
-
-  /* ===== Settings bottom sheet — mirrors .wb-sheet exactly ===== */
-  .sms-sheet {
-    position: fixed; inset: 0; z-index: 2500;
-    display: flex; align-items: flex-end; justify-content: center;
-    pointer-events: none;
-  }
+  .sms-sheet { position: fixed; inset: 0; z-index: 2500; display: flex; align-items: flex-end; justify-content: center; pointer-events: none; }
   .sms-sheet.open { pointer-events: auto; }
-  .sms-sheet-backdrop {
-    position: absolute; inset: 0;
-    background: rgba(15,23,42,.5);
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    opacity: 0; transition: opacity .22s ease;
-  }
+  .sms-sheet-backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity .22s ease; }
   .sms-sheet.open .sms-sheet-backdrop { opacity: 1; }
-  .sms-sheet-panel {
-    position: relative; width: 100%; max-width: 640px; max-height: 82vh;
-    background: var(--surface);
-    border-top-left-radius: 22px; border-top-right-radius: 22px;
-    border: 1px solid var(--border-strong); border-bottom: none;
-    box-shadow: 0 -20px 60px -12px rgba(15,23,42,.25);
-    display: flex; flex-direction: column;
-    transform: translateY(100%);
-    transition: transform .3s cubic-bezier(.4,0,.2,1);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  html.dark .sms-sheet-panel {
-    box-shadow: 0 -20px 60px -12px rgba(0,0,0,.6);
-  }
+  .sms-sheet-panel { position: relative; width: 100%; max-width: 640px; max-height: 82vh; background: var(--surface); border-top-left-radius: 22px; border-top-right-radius: 22px; border: 1px solid var(--border-strong); border-bottom: none; box-shadow: 0 -20px 60px -12px rgba(15,23,42,.25); display: flex; flex-direction: column; transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1); padding-bottom: env(safe-area-inset-bottom); }
+  html.dark .sms-sheet-panel { box-shadow: 0 -20px 60px -12px rgba(0,0,0,.6); }
   .sms-sheet.open .sms-sheet-panel { transform: translateY(0); }
-  .sms-sheet-handle {
-    width: 40px; height: 4px; border-radius: 9999px;
-    background: var(--border-hover); margin: 10px auto 4px; flex-shrink: 0;
-  }
-  .sms-sheet-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 6px 18px 12px; border-bottom: 1px solid var(--border);
-  }
-  .sms-sheet-header h3 {
-    font-size: .875rem; font-weight: 800; color: var(--text-1);
-  }
-  .sms-sheet-body {
-    padding: 10px 10px 18px; overflow-y: auto;
-    -webkit-overflow-scrolling: touch; flex-grow: 1;
-  }
-
-  /* ===== Settings options — mirrors .wb-option exactly ===== */
-  .sms-option {
-    display: flex; align-items: center; gap: .75rem;
-    width: 100%; padding: .85rem .9rem; border-radius: 12px;
-    background: transparent; border: none; cursor: pointer;
-    text-align: left; color: var(--text-2);
-    font-size: .82rem; font-weight: 600;
-    transition: background-color .15s ease, color .15s ease;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .sms-option:hover, .sms-option:active {
-    background: var(--surface-2); color: var(--text-1);
-  }
-  .sms-option.active {
-    background: rgba(139,92,246,.12); color: #6D28D9; font-weight: 700;
-  }
+  .sms-sheet-handle { width: 40px; height: 4px; border-radius: 9999px; background: var(--border-hover); margin: 10px auto 4px; flex-shrink: 0; }
+  .sms-sheet-header { display: flex; align-items: center; justify-content: space-between; padding: 6px 18px 12px; border-bottom: 1px solid var(--border); }
+  .sms-sheet-header h3 { font-size: .875rem; font-weight: 800; color: var(--text-1); }
+  .sms-sheet-body { padding: 10px 10px 18px; overflow-y: auto; -webkit-overflow-scrolling: touch; flex-grow: 1; }
+  .sms-option { display: flex; align-items: center; gap: .75rem; width: 100%; padding: .85rem .9rem; border-radius: 12px; background: transparent; border: none; cursor: pointer; text-align: left; color: var(--text-2); font-size: .82rem; font-weight: 600; transition: background-color .15s ease, color .15s ease; -webkit-tap-highlight-color: transparent; }
+  .sms-option:hover, .sms-option:active { background: var(--surface-2); color: var(--text-1); }
+  .sms-option.active { background: rgba(139,92,246,.12); color: #6D28D9; font-weight: 700; }
   html.dark .sms-option.active { color: #C4B5FD; }
-  .sms-opt-icon {
-    width: 38px; height: 38px; border-radius: 11px;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--surface-3); color: var(--text-3); flex-shrink: 0;
-  }
-  .sms-option.active .sms-opt-icon {
-    background: rgba(139,92,246,.18); color: #6D28D9;
-  }
+  .sms-opt-icon { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: var(--surface-3); color: var(--text-3); flex-shrink: 0; }
+  .sms-option.active .sms-opt-icon { background: rgba(139,92,246,.18); color: #6D28D9; }
   html.dark .sms-option.active .sms-opt-icon { color: #C4B5FD; }
-  .sms-option .sms-check {
-    margin-left: auto; opacity: 0; flex-shrink: 0;
-    color: #6D28D9; transition: opacity .15s ease;
-  }
+  .sms-option .sms-check { margin-left: auto; opacity: 0; flex-shrink: 0; color: #6D28D9; transition: opacity .15s ease; }
   html.dark .sms-option .sms-check { color: #C4B5FD; }
   .sms-option.active .sms-check { opacity: 1; }
-
-  /* Ensure the settings content stretches full width on mobile */
   .settings-content { width: 100%; }
 }
-/* ===== Ledger improvements ===== */
 .ledger-table { table-layout: auto; }
 .ledger-table thead th:first-child,
 .ledger-table tbody td:first-child { position: sticky; left: 0; z-index: 6; background: var(--surface); }
@@ -564,7 +439,6 @@ html.dark .ledger-table tbody tr:hover td { background-color: rgba(139,92,246,.0
   .ledger-table tbody td:first-child { position: static; }
 }
 
-/* ============ Chart type toggle ============ */
 .chart-type-toggle { display: inline-flex; align-items: center; padding: 2px; gap: 1px; background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: 8px; }
 .chart-type-btn { padding: .32rem .5rem; font-size: .65rem; font-weight: 700; border-radius: 6px; color: var(--text-3); background: transparent; border: none; cursor: pointer; transition: all .15s ease; display: inline-flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
 .chart-type-btn:hover { color: var(--text-1); background: var(--surface-3); }
@@ -572,60 +446,18 @@ html.dark .ledger-table tbody tr:hover td { background-color: rgba(139,92,246,.0
 html.dark .chart-type-btn.active { color: #C4B5FD; box-shadow: 0 1px 3px rgba(0,0,0,.4); }
 .chart-header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
-/* ====================================================
-   Wealth Blueprint — responsive top tab strip
-   ==================================================== */
-.wb-tabs {
-  display: flex;
-  gap: 4px;
-  padding: 5px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
+.wb-tabs { display: flex; gap: 4px; padding: 5px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .wb-tabs::-webkit-scrollbar { display: none; }
-
-.wb-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 14px;
-  border-radius: 10px;
-  border: none;
-  background: transparent;
-  color: var(--text-3);
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
-  -webkit-tap-highlight-color: transparent;
-}
+.wb-tab { display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; border-radius: 10px; border: none; background: transparent; color: var(--text-3); font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background-color .15s ease, color .15s ease, box-shadow .15s ease; -webkit-tap-highlight-color: transparent; }
 .wb-tab:hover  { background: var(--surface-2); color: var(--text-1); }
-.wb-tab.active {
-  background: linear-gradient(135deg, rgba(139,92,246,.16), rgba(236,72,153,.12));
-  color: #6D28D9;
-  font-weight: 700;
-  box-shadow: 0 1px 3px rgba(139,92,246,.12);
-}
+.wb-tab.active { background: linear-gradient(135deg, rgba(139,92,246,.16), rgba(236,72,153,.12)); color: #6D28D9; font-weight: 700; box-shadow: 0 1px 3px rgba(139,92,246,.12); }
 html.dark .wb-tab.active { color: #C4B5FD; }
 .wb-tab svg { width: 15px; height: 15px; flex-shrink: 0; }
-
-/* On desktop, six compact tabs split the width evenly. */
-@media (min-width: 901px) {
-  .wb-tab { flex: 1; justify-content: center; }
-}
-
+@media (min-width: 901px) { .wb-tab { flex: 1; justify-content: center; } }
 .wb-content { min-width: 0; }
 .wb-pane          { display: none; }
 .wb-pane.active   { display: block; animation: fadeInUp .25s cubic-bezier(.4,0,.2,1) both; }
 
-/* ============ Simulated salary badges & slider enhancements ============ */
 .sim-salary-badge { display: inline-flex; align-items: center; gap: .3rem; padding: .18rem .5rem; border-radius: 9999px; font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; background: rgba(251,191,36,.18); color: #B45309; border: 1px solid rgba(251,191,36,.42); white-space: nowrap; }
 html.dark .sim-salary-badge { color: #FCD34D; }
 
@@ -643,117 +475,39 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
 .wb-slider-row .wb-slider-val { font-size: .78rem; font-weight: 800; color: var(--text-1); font-family: 'JetBrains Mono', monospace; }
 .wb-slider-row input[type="range"] { grid-column: 1 / -1; }
 
-/* ====================================================
-   Wealth Blueprint — Mobile tool selector (replaces scroll tabs)
-   ==================================================== */
 .wb-mobile-selector { display: none; }
-
-.wb-trigger {
-  display: flex; align-items: center; gap: .75rem;
-  width: 100%; padding: .8rem .9rem;
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-lg);
-  cursor: pointer; text-align: left;
-  -webkit-tap-highlight-color: transparent;
-  transition: border-color .15s ease, background-color .15s ease;
-}
+.wb-trigger { display: flex; align-items: center; gap: .75rem; width: 100%; padding: .8rem .9rem; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); cursor: pointer; text-align: left; -webkit-tap-highlight-color: transparent; transition: border-color .15s ease, background-color .15s ease; }
 .wb-trigger:active { background: var(--surface-2); border-color: var(--border-hover); }
-.wb-trigger-icon {
-  width: 40px; height: 40px; border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, rgba(139,92,246,.14), rgba(236,72,153,.10));
-  border: 1px solid rgba(139,92,246,.26);
-  color: #6D28D9; flex-shrink: 0;
-}
+.wb-trigger-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(139,92,246,.14), rgba(236,72,153,.10)); border: 1px solid rgba(139,92,246,.26); color: #6D28D9; flex-shrink: 0; }
 html.dark .wb-trigger-icon { color: #C4B5FD; }
 .wb-trigger-text { min-width: 0; flex-grow: 1; text-align: left; }
-.wb-trigger-label {
-  display: block; font-size: .6rem; font-weight: 800;
-  text-transform: uppercase; letter-spacing: .12em;
-  color: var(--text-4); line-height: 1.2;
-}
-.wb-trigger-value {
-  display: block; font-size: .9rem; font-weight: 800;
-  color: var(--text-1); margin-top: 2px; line-height: 1.2;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.wb-trigger-chevron {
-  color: var(--text-4); flex-shrink: 0;
-  transition: transform .25s cubic-bezier(.4,0,.2,1);
-}
+.wb-trigger-label { display: block; font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--text-4); line-height: 1.2; }
+.wb-trigger-value { display: block; font-size: .9rem; font-weight: 800; color: var(--text-1); margin-top: 2px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wb-trigger-chevron { color: var(--text-4); flex-shrink: 0; transition: transform .25s cubic-bezier(.4,0,.2,1); }
 .wb-trigger.open .wb-trigger-chevron { transform: rotate(180deg); }
 
-.wb-sheet {
-  position: fixed; inset: 0; z-index: 2500;
-  display: flex; align-items: flex-end; justify-content: center;
-  pointer-events: none;
-}
+.wb-sheet { position: fixed; inset: 0; z-index: 2500; display: flex; align-items: flex-end; justify-content: center; pointer-events: none; }
 .wb-sheet.open { pointer-events: auto; }
-.wb-sheet-backdrop {
-  position: absolute; inset: 0;
-  background: rgba(15,23,42,.5);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  opacity: 0; transition: opacity .22s ease;
-}
+.wb-sheet-backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity .22s ease; }
 .wb-sheet.open .wb-sheet-backdrop { opacity: 1; }
-.wb-sheet-panel {
-  position: relative; width: 100%; max-width: 640px; max-height: 82vh;
-  background: var(--surface);
-  border-top-left-radius: 22px; border-top-right-radius: 22px;
-  border: 1px solid var(--border-strong); border-bottom: none;
-  box-shadow: 0 -20px 60px -12px rgba(15,23,42,.25);
-  display: flex; flex-direction: column;
-  transform: translateY(100%);
-  transition: transform .3s cubic-bezier(.4,0,.2,1);
-  padding-bottom: env(safe-area-inset-bottom);
-}
+.wb-sheet-panel { position: relative; width: 100%; max-width: 640px; max-height: 82vh; background: var(--surface); border-top-left-radius: 22px; border-top-right-radius: 22px; border: 1px solid var(--border-strong); border-bottom: none; box-shadow: 0 -20px 60px -12px rgba(15,23,42,.25); display: flex; flex-direction: column; transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1); padding-bottom: env(safe-area-inset-bottom); }
 html.dark .wb-sheet-panel { box-shadow: 0 -20px 60px -12px rgba(0,0,0,.6); }
 .wb-sheet.open .wb-sheet-panel { transform: translateY(0); }
-.wb-sheet-handle {
-  width: 40px; height: 4px; border-radius: 9999px;
-  background: var(--border-hover); margin: 10px auto 4px; flex-shrink: 0;
-}
-.wb-sheet-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 6px 18px 12px; border-bottom: 1px solid var(--border);
-}
+.wb-sheet-handle { width: 40px; height: 4px; border-radius: 9999px; background: var(--border-hover); margin: 10px auto 4px; flex-shrink: 0; }
+.wb-sheet-header { display: flex; align-items: center; justify-content: space-between; padding: 6px 18px 12px; border-bottom: 1px solid var(--border); }
 .wb-sheet-header h3 { font-size: .875rem; font-weight: 800; color: var(--text-1); }
-.wb-sheet-body {
-  padding: 10px 10px 18px; overflow-y: auto;
-  -webkit-overflow-scrolling: touch; flex-grow: 1;
-}
-.wb-option {
-  display: flex; align-items: center; gap: .75rem;
-  width: 100%; padding: .85rem .9rem; border-radius: 12px;
-  background: transparent; border: none; cursor: pointer;
-  text-align: left; color: var(--text-2);
-  font-size: .82rem; font-weight: 600;
-  transition: background-color .15s ease, color .15s ease;
-  -webkit-tap-highlight-color: transparent;
-}
+.wb-sheet-body { padding: 10px 10px 18px; overflow-y: auto; -webkit-overflow-scrolling: touch; flex-grow: 1; }
+.wb-option { display: flex; align-items: center; gap: .75rem; width: 100%; padding: .85rem .9rem; border-radius: 12px; background: transparent; border: none; cursor: pointer; text-align: left; color: var(--text-2); font-size: .82rem; font-weight: 600; transition: background-color .15s ease, color .15s ease; -webkit-tap-highlight-color: transparent; }
 .wb-option:hover, .wb-option:active { background: var(--surface-2); color: var(--text-1); }
 .wb-option.active { background: rgba(139,92,246,.12); color: #6D28D9; font-weight: 700; }
 html.dark .wb-option.active { color: #C4B5FD; }
-.wb-opt-icon {
-  width: 38px; height: 38px; border-radius: 11px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--surface-3); color: var(--text-3); flex-shrink: 0;
-}
-.wb-option.active .wb-opt-icon {
-  background: rgba(139,92,246,.18); color: #6D28D9;
-}
+.wb-opt-icon { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: var(--surface-3); color: var(--text-3); flex-shrink: 0; }
+.wb-option.active .wb-opt-icon { background: rgba(139,92,246,.18); color: #6D28D9; }
 html.dark .wb-option.active .wb-opt-icon { color: #C4B5FD; }
 .wb-opt-body { min-width: 0; flex-grow: 1; }
 .wb-opt-title { display: block; font-size: .85rem; font-weight: 700; color: inherit; line-height: 1.2; }
-.wb-opt-desc {
-  display: block; font-size: .65rem; font-weight: 500;
-  color: var(--text-4); margin-top: 3px; line-height: 1.3;
-}
-.wb-opt-check {
-  margin-left: auto; opacity: 0; flex-shrink: 0;
-  color: #6D28D9; transition: opacity .15s ease;
-}
+.wb-opt-desc { display: block; font-size: .65rem; font-weight: 500; color: var(--text-4); margin-top: 3px; line-height: 1.3; }
+.wb-opt-check { margin-left: auto; opacity: 0; flex-shrink: 0; color: #6D28D9; transition: opacity .15s ease; }
 html.dark .wb-opt-check { color: #C4B5FD; }
 .wb-option.active .wb-opt-check { opacity: 1; }
 
@@ -766,80 +520,26 @@ html.dark .wb-opt-check { color: #C4B5FD; }
   .wb-sheet { display: none !important; }
 }
 
-/* ====================================================
-   Enhanced interactive sliders (touch-friendly)
-   ==================================================== */
-.slider-hero {
-  width: 100%; height: 8px; border-radius: 9999px;
-  appearance: none; -webkit-appearance: none;
-  background: linear-gradient(to right, rgba(139,92,246,.28), rgba(236,72,153,.18));
-  outline: none; cursor: pointer;
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-}
-.slider-hero::-webkit-slider-thumb {
-  -webkit-appearance: none; appearance: none;
-  width: 22px; height: 22px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  cursor: pointer;
-  box-shadow: 0 2px 10px rgba(139,92,246,.45), 0 0 0 4px rgba(139,92,246,.10);
-  border: 3px solid #fff;
-  transition: transform .12s ease, box-shadow .12s ease;
-}
+.slider-hero { width: 100%; height: 8px; border-radius: 9999px; appearance: none; -webkit-appearance: none; background: linear-gradient(to right, rgba(139,92,246,.28), rgba(236,72,153,.18)); outline: none; cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.slider-hero::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); cursor: pointer; box-shadow: 0 2px 10px rgba(139,92,246,.45), 0 0 0 4px rgba(139,92,246,.10); border: 3px solid #fff; transition: transform .12s ease, box-shadow .12s ease; }
 html.dark .slider-hero::-webkit-slider-thumb { border-color: #18181B; }
 .slider-hero::-webkit-slider-thumb:hover { transform: scale(1.1); }
 .slider-hero:active::-webkit-slider-thumb,
-.slider-hero:focus::-webkit-slider-thumb {
-  transform: scale(1.18);
-  box-shadow: 0 3px 14px rgba(139,92,246,.55), 0 0 0 8px rgba(139,92,246,.16);
-}
-.slider-hero::-moz-range-thumb {
-  width: 22px; height: 22px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  cursor: pointer;
-  box-shadow: 0 2px 10px rgba(139,92,246,.45);
-  border: 3px solid #fff;
-}
+.slider-hero:focus::-webkit-slider-thumb { transform: scale(1.18); box-shadow: 0 3px 14px rgba(139,92,246,.55), 0 0 0 8px rgba(139,92,246,.16); }
+.slider-hero::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); cursor: pointer; box-shadow: 0 2px 10px rgba(139,92,246,.45); border: 3px solid #fff; }
 html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
-.slider-hero::-moz-range-track {
-  height: 8px; border-radius: 9999px; background: var(--surface-3);
-}
-
+.slider-hero::-moz-range-track { height: 8px; border-radius: 9999px; background: var(--surface-3); }
 @media (max-width: 768px) {
   .slider-hero { height: 12px; border-radius: 9999px; }
-  .slider-hero::-webkit-slider-thumb {
-    width: 30px; height: 30px;
-    border-width: 4px;
-    box-shadow: 0 3px 14px rgba(139,92,246,.5), 0 0 0 6px rgba(139,92,246,.12);
-  }
+  .slider-hero::-webkit-slider-thumb { width: 30px; height: 30px; border-width: 4px; box-shadow: 0 3px 14px rgba(139,92,246,.5), 0 0 0 6px rgba(139,92,246,.12); }
   .slider-hero::-moz-range-thumb { width: 30px; height: 30px; border-width: 4px; }
 }
 
-.wb-slider-val-input {
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  padding: 4px 8px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .82rem;
-  font-weight: 800;
-  color: var(--text-1);
-  text-align: right;
-  width: 10ch;
-  outline: none;
-  font-variant-numeric: tabular-nums;
-  -moz-appearance: textfield;
-  transition: border-color .15s, background-color .15s, box-shadow .15s;
-  -webkit-tap-highlight-color: transparent;
-}
+.wb-slider-val-input { background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 4px 8px; font-family: 'JetBrains Mono', monospace; font-size: .82rem; font-weight: 800; color: var(--text-1); text-align: right; width: 10ch; outline: none; font-variant-numeric: tabular-nums; -moz-appearance: textfield; transition: border-color .15s, background-color .15s, box-shadow .15s; -webkit-tap-highlight-color: transparent; }
 .wb-slider-val-input:hover { border-color: var(--border-strong); background: var(--surface); }
-.wb-slider-val-input:focus {
-  border-color: var(--accent); background: var(--surface);
-  box-shadow: 0 0 0 3px rgba(139,92,246,.15);
-}
+.wb-slider-val-input:focus { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px rgba(139,92,246,.15); }
 .wb-slider-val-input::-webkit-outer-spin-button,
 .wb-slider-val-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
 @media (max-width: 768px) {
   .wb-slider-val-input { font-size: 16px; padding: 6px 10px; width: 11ch; }
 }
@@ -888,8 +588,7 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
 
 <div class="h-full w-full flex overflow-hidden relative z-[1]">
 
-  <aside id="desktopSidebar" class="desktop-sidebar shrink-0 flex flex-col z-[1002] overflow-y-auto scroll" style="background: var(--app-bg-2); border-right: 1px solid var(--border); width: 17rem;">
-    <div class="sidebar-header-row h-14 flex items-center justify-between px-4 shrink-0 sticky top-0 z-10" style="background: var(--app-bg-2); border-bottom: 1px solid var(--border);">
+<aside id="desktopSidebar" class="desktop-sidebar shrink-0 flex flex-col z-[1002] overflow-hidden" style="background: var(--app-bg-2); border-right: 1px solid var(--border); width: 17rem; height: 100%;">    <div class="sidebar-header-row h-14 flex items-center justify-between px-4 shrink-0 sticky top-0 z-10" style="background: var(--app-bg-2); border-bottom: 1px solid var(--border);">
       <div class="flex items-center gap-2.5 min-w-0">
         <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, var(--accent), var(--accent-2));">
           <i data-lucide="gem" class="text-white" style="width:16px;height:16px;"></i>
@@ -907,8 +606,8 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
       </div>
     </div>
 
-    <div class="flex flex-col flex-grow">
-      <div class="px-3 pt-3 shrink-0 sidebar-quickjump">
+<div class="flex flex-col flex-grow min-h-0">
+        <div class="px-3 pt-3 shrink-0 sidebar-quickjump">
         <button onclick="openCommandPalette()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all" style="background: var(--surface); border: 1px solid var(--border-strong); color: var(--text-3);">
           <i data-lucide="search" class="w-3.5 h-3.5"></i>
           <span class="flex-grow text-left">Quick jump…</span>
@@ -916,8 +615,8 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
         </button>
       </div>
 
-      <nav class="p-3 flex-grow">
-        <div class="nav-section" data-section="overview">
+<nav class="p-3 flex-grow min-h-0 overflow-y-auto scroll">
+          <div class="nav-section" data-section="overview">
           <button class="nav-section-header" onclick="toggleNavSection(this)">
             <span>Main</span>
             <i data-lucide="chevron-down" class="nav-section-icon"></i>
@@ -938,6 +637,8 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
           </button>
           <div class="nav-section-body">
             <button onclick="switchMainTab(event,'tab-tax')" class="nav-item" title="Tax Savings"><i data-lucide="shield-check" class="w-4 h-4 shrink-0"></i><span class="truncate">Tax Savings</span></button>
+            <button onclick="switchMainTab(event,'tab-goals')" class="nav-item" title="Savings Goals"><i data-lucide="target" class="w-4 h-4 shrink-0"></i><span class="truncate">Savings Goals</span></button>
+            <button onclick="switchMainTab(event,'tab-credit')" class="nav-item" title="Credit Health"><i data-lucide="gauge-circle" class="w-4 h-4 shrink-0"></i><span class="truncate">Credit Health</span></button>
             <button onclick="switchMainTab(event,'tab-blueprint')" class="nav-item" title="Wealth Blueprint"><i data-lucide="compass" class="w-4 h-4 shrink-0"></i><span class="truncate">Wealth Blueprint</span></button>
           </div>
         </div>
@@ -954,14 +655,14 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
       </nav>
 
       <div class="p-3 space-y-2 shrink-0" style="border-top: 1px solid var(--border);">
-        <label class="sidebar-footer-full flex items-center gap-2.5 cursor-pointer text-xs font-semibold px-3 py-2 rounded-lg transition-all" style="background: var(--surface); border: 1px solid var(--border-strong); color: var(--text-2);">
+        <!-- <label class="sidebar-footer-full flex items-center gap-2.5 cursor-pointer text-xs font-semibold px-3 py-2 rounded-lg transition-all" style="background: var(--surface); border: 1px solid var(--border-strong); color: var(--text-2);">
           <input type="checkbox" id="taxHaircutToggle" onchange="updateDashboard()" class="rounded" style="accent-color: var(--accent);">
           <span>Apply Tax Haircuts</span>
-        </label>
-        <button onclick="toggleLedgerDrawer()" class="sidebar-ledger-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.24);">
+        </label> -->
+        <!-- <button onclick="toggleLedgerDrawer()" class="sidebar-ledger-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.24);">
           <span class="flex items-center gap-2"><i data-lucide="database" class="w-3.5 h-3.5"></i><span>Portfolio Ledger</span></span>
           <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i>
-        </button>
+        </button> -->
         <div class="relative" id="sidebarProfileWrap">
           <button id="sidebarProfileTrigger" class="sidebar-profile-trigger" onclick="toggleProfileMenu(event)">
             <div class="profile-avatar" id="sidebarProfileAvatar">EW</div>
@@ -1431,13 +1132,144 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
         </div>
       </div>
 
+      <!-- ============ SAVINGS GOALS TAB ============ -->
+      <div id="tab-goals" class="main-tab-content space-y-5 hidden">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+          <div class="surface p-4"><div class="text-[10px] font-extrabold uppercase tracking-wider mb-1" style="color:var(--text-4);">Total Goal Value</div><div id="goalKpiTarget" class="privacy-target text-lg font-extrabold">$0</div></div>
+          <div class="surface p-4"><div class="text-[10px] font-extrabold uppercase tracking-wider mb-1" style="color:var(--text-4);">Total Saved</div><div id="goalKpiSaved" class="privacy-target text-lg font-extrabold" style="color:#059669;">$0</div></div>
+          <div class="surface p-4"><div class="text-[10px] font-extrabold uppercase tracking-wider mb-1" style="color:var(--text-4);">Monthly Contributions</div><div id="goalKpiMonthly" class="privacy-target text-lg font-extrabold" style="color:#6D28D9;">$0</div></div>
+          <div class="surface p-4"><div class="text-[10px] font-extrabold uppercase tracking-wider mb-1" style="color:var(--text-4);">Shared Goals</div><div id="goalKpiShared" class="text-lg font-extrabold">0</div></div>
+        </div>
+
+        <div class="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h3 class="text-sm font-extrabold tracking-tight" style="color:var(--text-1);">Your Goals</h3>
+            <p class="text-[11px] font-semibold mt-0.5" style="color:var(--text-4);">Contribute, adjust pacing, and celebrate milestones</p>
+          </div>
+          <button onclick="openNewGoalModal()" class="btn btn-primary"><i data-lucide="plus" class="w-3.5 h-3.5"></i> New Goal</button>
+        </div>
+
+        <div id="goalsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+        <div class="surface p-5 lg:p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color:#6D28D9; border:1px solid rgba(139,92,246,.20);">✨</span>
+            <div>
+              <h3 class="text-sm font-extrabold tracking-tight" style="color:var(--text-1);">Goal Templates</h3>
+              <p class="text-[11px] font-semibold" style="color:var(--text-4);">Pre-built goals with suggested amounts &amp; timelines</p>
+            </div>
+          </div>
+          <div id="goalTemplatesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </div>
+      </div>
+
+      <!-- ============ CREDIT HEALTH TAB ============ -->
+      <div id="tab-credit" class="main-tab-content space-y-5 hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="lg:col-span-2 surface p-5 lg:p-6">
+            <div class="flex items-center justify-between gap-3 mb-5 flex-wrap">
+              <div>
+                <h3 class="text-sm font-extrabold tracking-tight" style="color:var(--text-1);">Credit Score</h3>
+                <p class="text-[11px] font-semibold mt-0.5" style="color:var(--text-4);">VantageScore 3.0 · Updated 2 days ago</p>
+              </div>
+              <span class="badge badge-emerald">On Track</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-6">
+              <div class="relative shrink-0" style="width: 240px; height: 140px;">
+                <canvas id="creditScoreGauge"></canvas>
+                <div class="absolute inset-0 flex flex-col items-center justify-end pb-3 pointer-events-none">
+                  <div id="creditScoreValue" class="text-4xl font-extrabold tracking-tight" style="color:#059669;">0</div>
+                  <div id="creditScoreLabel" class="text-[10px] font-bold mt-0.5" style="color:var(--text-4);">out of 850</div>
+                </div>
+              </div>
+              <div class="flex-grow min-w-[240px] space-y-4">
+                <div>
+                  <div class="flex justify-between text-[10px] font-extrabold uppercase tracking-wider mb-2">
+                    <span style="color:#BE123C;">Poor</span>
+                    <span style="color:#B45309;">Fair</span>
+                    <span style="color:#B45309;">Good</span>
+                    <span style="color:#1D4ED8;">Very Good</span>
+                    <span style="color:#059669;">Exceptional</span>
+                  </div>
+                  <div class="relative h-2.5 rounded-full" style="background: linear-gradient(90deg, #FB7185 0%, #FBBF24 25%, #FCD34D 45%, #60A5FA 65%, #34D399 85%);">
+                    <div id="creditScoreMarker" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md transition-all duration-700" style="background:#059669; left:0%; box-shadow: 0 2px 8px rgba(0,0,0,.35);"></div>
+                  </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3 pt-1">
+                  <div><div class="text-[10px] uppercase font-extrabold tracking-wider" style="color:var(--text-4);">Score Range</div><div class="text-xs font-bold" style="color:var(--text-1);">300 – 850</div></div>
+                  <div><div class="text-[10px] uppercase font-extrabold tracking-wider" style="color:var(--text-4);">30-Day Δ</div><div class="text-xs font-bold" style="color:#059669;">▲ +6 pts</div></div>
+                  <div><div class="text-[10px] uppercase font-extrabold tracking-wider" style="color:var(--text-4);">Percentile</div><div class="text-xs font-bold" style="color:var(--text-1);">72nd nationally</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="surface p-5 lg:p-6">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background: rgba(139,92,246,.10); color:#6D28D9; border:1px solid rgba(139,92,246,.20);"><i data-lucide="wand-2" class="w-4 h-4"></i></span>
+              <h3 class="text-sm font-extrabold tracking-tight" style="color:var(--text-1);">Score Simulator</h3>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <label class="field-label">What if I…</label>
+                <select id="creditSimAction" class="input">
+                  <option value="payoff">Pay off a credit card balance</option>
+                  <option value="newcard">Open a new credit card</option>
+                  <option value="close">Close my oldest account</option>
+                  <option value="inquiry">Apply for a mortgage</option>
+                </select>
+              </div>
+              <div id="creditSimAmtWrap">
+                <label class="field-label">Amount</label>
+                <input type="number" id="creditSimAmt" value="2000" step="500" class="input font-mono text-right">
+              </div>
+              <button onclick="runCreditSimulation()" class="btn btn-primary w-full !py-2.5">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Simulate impact
+              </button>
+              <div id="creditSimResult"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="lg:col-span-2 surface p-5 lg:p-6">
+            <h3 class="text-sm font-extrabold tracking-tight mb-4" style="color:var(--text-1);">Score Trend — Last 12 Months</h3>
+            <div class="h-56"><canvas id="creditTrendChart"></canvas></div>
+          </div>
+          <div class="surface p-5 lg:p-6">
+            <h3 class="text-sm font-extrabold tracking-tight mb-4" style="color:var(--text-1);">Recent Alerts</h3>
+            <div id="creditAlertsList" class="space-y-3"></div>
+          </div>
+        </div>
+
+        <div class="surface p-5 lg:p-6">
+          <div class="flex items-center gap-2 mb-5">
+            <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(139,92,246,.10); color:#6D28D9; border:1px solid rgba(139,92,246,.20);">📊</span>
+            <div>
+              <h3 class="text-sm font-extrabold tracking-tight" style="color:var(--text-1);">Credit Factor Breakdown</h3>
+              <p class="text-[11px] font-semibold" style="color:var(--text-4);">Weighted contributors to your score</p>
+            </div>
+          </div>
+          <div id="creditFactorsList" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5"></div>
+        </div>
+
+        <div class="surface p-5 lg:p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(236,72,153,.10); color:#BE185D; border:1px solid rgba(236,72,153,.20);">💡</span>
+            <div>
+              <h3 class="text-sm font-extrabold tracking-tight" style="color:var(--text-1);">Credit Builder Tips</h3>
+              <p class="text-[11px] font-semibold" style="color:var(--text-4);">Personalised actions to raise your score</p>
+            </div>
+          </div>
+          <div id="creditTipsList" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+        </div>
+      </div>
+
       <!-- ============ WEALTH BLUEPRINT (responsive top tab strip) ============ -->
       <div id="tab-blueprint" class="main-tab-content space-y-5 hidden">
 
-        <!-- Top tab strip — desktop only -->
         <div class="wb-tabs" id="wbTabs"></div>
 
-        <!-- Mobile tool picker trigger -->
         <div class="wb-mobile-selector">
           <button class="wb-trigger" id="wbTrigger" onclick="openWbSheet()" aria-haspopup="listbox">
             <span class="wb-trigger-icon" id="wbTriggerIcon"><i data-lucide="receipt" class="w-4 h-4"></i></span>
@@ -1449,7 +1281,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
           </button>
         </div>
 
-        <!-- Mobile tool picker bottom sheet -->
         <div id="wbSheet" class="wb-sheet">
           <div class="wb-sheet-backdrop" onclick="closeWbSheet()"></div>
           <div class="wb-sheet-panel">
@@ -1465,7 +1296,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
         </div>
 
         <div class="wb-content">
-          <!-- Tool: Paycheck Calculator -->
           <div class="wb-pane active" data-wb-pane="paycheck">
             <div class="collapsible-container surface p-5 lg:p-6 space-y-4">
               <div class="collapsible-header pb-4" style="border-bottom: 1px solid var(--border);" onclick="toggleCollapse(this)">
@@ -1498,7 +1328,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
                     <label class="switch"><input type="checkbox" id="payOverrideToggle" onchange="togglePaycheckOverride()"><span class="slider"></span></label>
                   </div>
 
-                  <!-- Salary slider (full width — best for touch) -->
                   <div class="wb-slider-row">
                     <label class="wb-slider-label" for="payCustomSalary">
                       <i data-lucide="banknote" class="w-3.5 h-3.5"></i> Annual Gross Salary
@@ -1557,7 +1386,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
             </div>
           </div>
 
-          <!-- Tool: Growth Projections -->
           <div class="wb-pane" data-wb-pane="projections">
             <div class="collapsible-container surface p-5 lg:p-6">
               <div class="collapsible-header mb-5" onclick="toggleCollapse(this)">
@@ -1648,7 +1476,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
             </div>
           </div>
 
-          <!-- Tool: Financial Freedom Goal -->
           <div class="wb-pane" data-wb-pane="fire">
             <div class="collapsible-container surface p-5 lg:p-6">
               <div class="collapsible-header mb-4" onclick="toggleCollapse(this)">
@@ -1693,7 +1520,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
             </div>
           </div>
 
-          <!-- Tool: Emergency Fund -->
           <div class="wb-pane" data-wb-pane="emergency">
             <div class="collapsible-container surface p-5 lg:p-6">
               <div class="collapsible-header mb-4" onclick="toggleCollapse(this)">
@@ -1737,7 +1563,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
             </div>
           </div>
 
-          <!-- Tool: Inflation Calculator -->
           <div class="wb-pane" data-wb-pane="inflation">
             <div class="collapsible-container surface p-5 lg:p-6">
               <div class="collapsible-header mb-4" onclick="toggleCollapse(this)">
@@ -1795,7 +1620,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
             </div>
           </div>
 
-          <!-- Tool: Smart Insights -->
           <div class="wb-pane" data-wb-pane="insights">
             <div class="collapsible-container surface p-5 lg:p-6 space-y-5">
               <div class="collapsible-header pb-4" style="border-bottom: 1px solid var(--border);" onclick="toggleCollapse(this)">
@@ -1817,7 +1641,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
         </div>
       </div>
 
-      <!-- Legacy containers retained hidden for compatibility -->
       <div id="tab-hub" class="main-tab-content space-y-5 hidden"></div>
       <div id="tab-projections" class="main-tab-content space-y-5 hidden"></div>
 
@@ -2041,7 +1864,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
           </aside>
 
           <div class="settings-content">
-            <!-- Profile -->
             <div class="settings-pane active" data-pane="profile">
               <div class="settings-card">
                 <div class="settings-card-header">
@@ -2091,7 +1913,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
               </div>
             </div>
 
-            <!-- Income & Salary Profile -->
             <div class="settings-pane" data-pane="income">
               <div class="settings-card">
                 <div class="settings-card-header">
@@ -2162,7 +1983,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
               </div>
             </div>
 
-            <!-- Appearance -->
             <div class="settings-pane" data-pane="appearance">
               <div class="settings-card">
                 <div class="settings-card-header">
@@ -2209,7 +2029,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
               </div>
             </div>
 
-            <!-- Categories -->
             <div class="settings-pane" data-pane="categories">
               <div class="settings-card">
                 <div class="settings-card-header">
@@ -2270,7 +2089,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
               </div>
             </div>
 
-            <!-- Privacy -->
             <div class="settings-pane" data-pane="privacy">
               <div class="settings-card">
                 <div class="settings-card-header">
@@ -2310,7 +2128,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
               </div>
             </div>
 
-            <!-- Notifications -->
             <div class="settings-pane" data-pane="notifications">
               <div class="settings-card">
                 <div class="settings-card-header">
@@ -2355,7 +2172,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
               </div>
             </div>
 
-            <!-- Data -->
             <div class="settings-pane" data-pane="data">
               <div class="settings-card">
                 <div class="settings-card-header">
@@ -2391,7 +2207,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
               </div>
             </div>
 
-            <!-- Sign-in -->
             <div class="settings-pane" data-pane="signin">
               <div class="settings-card">
                 <div class="settings-card-header">
@@ -2418,7 +2233,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
               </div>
             </div>
 
-            <!-- About -->
             <div class="settings-pane" data-pane="about">
               <div class="settings-card">
                 <div class="settings-card-header">
@@ -2466,9 +2280,9 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
 
     <nav class="mobile-nav lg:hidden">
       <button onclick="switchMainTab(event,'tab-dashboard')" class="nav-item active"><i data-lucide="gauge" class="w-5 h-5"></i><span>Home</span></button>
+      <button onclick="switchMainTab(event,'tab-goals')" class="nav-item"><i data-lucide="target" class="w-5 h-5"></i><span>Goals</span></button>
       <button onclick="switchMainTab(event,'tab-accounts')" class="nav-item"><i data-lucide="wallet" class="w-5 h-5"></i><span>Accounts</span></button>
-      <button onclick="switchMainTab(event,'tab-transactions')" class="nav-item"><i data-lucide="arrow-left-right" class="w-5 h-5"></i><span>Txns</span></button>
-      <button onclick="switchMainTab(event,'tab-blueprint')" class="nav-item"><i data-lucide="compass" class="w-5 h-5"></i><span>Blueprint</span></button>
+      <button onclick="switchMainTab(event,'tab-credit')" class="nav-item"><i data-lucide="gauge-circle" class="w-5 h-5"></i><span>Credit</span></button>
       <button onclick="switchMainTab(event,'tab-settings')" class="nav-item"><i data-lucide="settings-2" class="w-5 h-5"></i><span>More</span></button>
     </nav>
   </div>
@@ -2642,7 +2456,6 @@ let currentCurrency = "USD";
 const CURRENCY_CONFIG = { USD: { symbol: "$", code: "USD", locale: "en-US" }, EUR: { symbol: "€", code: "EUR", locale: "de-DE" }, GBP: { symbol: "£", code: "GBP", locale: "en-GB" }, INR: { symbol: "₹", code: "INR", locale: "en-IN" }, CAD: { symbol: "C$", code: "CAD", locale: "en-CA" }, AUD: { symbol: "A$", code: "AUD", locale: "en-AU" }, JPY: { symbol: "¥", code: "JPY", locale: "ja-JP" } };
 let txLocalDateRange = { preset: 'all', start: null, end: null, label: 'Any Date' };
 
-/* Chart type state */
 const chartTypeState = {
   growth: 'area',
   category: 'doughnut',
@@ -2702,7 +2515,6 @@ function setChartType(chartKey, type) {
   renderChartToggles();
 }
 
-/* Settings */
 const SETTINGS_STORAGE_KEY = 'app_settings_v2';
 const NAV_SECTIONS_STORAGE_KEY = 'nav_sections_state_v1';
 let appSettings = {
@@ -2722,9 +2534,6 @@ const ACCENT_PRESETS = [
   { name: 'Cyan', color: '#06B6D4' }, { name: 'Indigo', color: '#6366F1' }
 ];
 
-/* ==========================================================================
-   UTILS
-   ========================================================================== */
 function formatCurrency(amount, decimals = 2) {
   const config = CURRENCY_CONFIG[currentCurrency] || CURRENCY_CONFIG.USD;
   const num = Number(amount) || 0;
@@ -2754,9 +2563,6 @@ const EXPENSE_EMOJI_RULES = [
 function categoryEmoji(cat) { if (!cat) return '💼'; return cat.emoji || PORTFOLIO_EMOJI[cat.key] || '💼'; }
 function expenseEmoji(cat) { if (!cat) return '🧾'; if (cat.emoji) return cat.emoji; const label = (cat.label || '').toLowerCase(); for (const [needle, emoji] of EXPENSE_EMOJI_RULES) if (label.includes(needle)) return emoji; return '🧾'; }
 
-/* ==========================================================================
-   TOAST
-   ========================================================================== */
 let _audioCtx = null;
 function toast(message, type = 'success', duration) {
   const host = document.getElementById('toastHost'); if (!host) return;
@@ -2790,9 +2596,6 @@ function playNotificationSound(type) {
   } catch(_) {}
 }
 
-/* ==========================================================================
-   COLLAPSE HELPERS
-   ========================================================================== */
 function toggleCollapse(headerEl) {
   const e = window.event;
   if (e && e.target && e.target.closest('button, input, select, a, .chart-type-toggle')) return;
@@ -2803,7 +2606,6 @@ function autoCollapseMobileSections() {
   const isMobile = window.innerWidth <= 768;
   document.querySelectorAll('.collapsible-container').forEach(container => {
     if (container.closest('#expMonthlyGroupedContainer')) return;
-    // Never auto-collapse Blueprint tool panes — keep tools instantly usable on mobile
     if (container.closest('.wb-pane')) return;
     if (isMobile) container.classList.add('collapsed');
     else container.classList.remove('collapsed');
@@ -2829,9 +2631,6 @@ function restoreNavSections() {
   } catch(_) {}
 }
 
-/* ==========================================================================
-   WEALTH BLUEPRINT — responsive top tab strip
-   ========================================================================== */
 const WB_TOOLS_FLAT = [
   { id: 'paycheck',    label: 'Paycheck',    icon: 'receipt',       desc: 'Take-home pay' },
   { id: 'projections', label: 'Projections', icon: 'rocket',        desc: 'Growth projections' },
@@ -2867,7 +2666,6 @@ function switchWbTool(toolId) {
   document.querySelectorAll('.wb-pane').forEach(el =>
     el.classList.toggle('active', el.dataset.wbPane === toolId));
 
-  // Refresh trigger + sliders so values are always current
   updateWbTrigger();
   initAllToolSliders();
 
@@ -2886,9 +2684,6 @@ function switchWbTool(toolId) {
     active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }), 60);
 }
 
-/* ==========================================================================
-   WEALTH BLUEPRINT — Mobile tool picker (bottom sheet)
-   ========================================================================== */
 function openWbSheet() {
   renderWbSheetOptions();
   document.getElementById('wbSheet')?.classList.add('open');
@@ -2926,9 +2721,6 @@ function updateWbTrigger() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-/* ==========================================================================
-   Reusable slider <-> input sync helpers
-   ========================================================================== */
 function syncSliderToInput(sliderId, inputId) {
   const slider = document.getElementById(sliderId);
   const input  = document.getElementById(inputId);
@@ -2958,12 +2750,10 @@ function initAllToolSliders() {
   });
 }
 
-/* Close the Blueprint picker when ESC is pressed */
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeWbSheet();
 });
 
-/* Keep slider values in sync when global income is saved or paycheck override toggles */
 (function hookSliderSyncPoints() {
   const origToggle = window.togglePaycheckOverride;
   if (typeof origToggle === 'function') {
@@ -2981,9 +2771,6 @@ document.addEventListener('keydown', (e) => {
   }
 })();
 
-/* ==========================================================================
-   SETTINGS SECTION SWITCHER
-   ========================================================================== */
 let currentSettingsSection = 'profile';
 let _pendingSettingsSection = null;
 const SETTINGS_SECTIONS_META = [
@@ -3044,9 +2831,6 @@ function closeSettingsSheet() {
 }
 function pickSettingsSection(id) { switchSettingsSection(id); closeSettingsSheet(); }
 
-/* ==========================================================================
-   SIDEBAR COLLAPSE + PROFILE MENU
-   ========================================================================== */
 function toggleSidebarCollapse() {
   const aside = document.getElementById('desktopSidebar'); if (!aside) return;
   const willCollapse = !aside.classList.contains('collapsed');
@@ -3088,9 +2872,6 @@ function updateSidebarProfile() {
 }
 function signOutDemo() { if (!confirm('Sign out of the current session? Your local data will be preserved.')) return; closeProfileMenu(); toast('Signed out. Reload to start a fresh session.', 'info', 5000); }
 
-/* ==========================================================================
-   SETTINGS LOAD/SAVE
-   ========================================================================== */
 function loadAppSettings() {
   try {
     const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
@@ -3124,6 +2905,11 @@ function applyAccentColor(hex) {
   try {
     const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
     document.documentElement.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
+    // Auto-contrast: if the accent is bright (like mint green), use dark text.
+    // If it's dark (like deep purple), use white text.
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    const textColor = luminance > 0.6 ? '#04140E' : '#FFFFFF';
+    document.documentElement.style.setProperty('--accent-text', textColor);
   } catch(_) {}
 }
 function loadSettingsUI() {
@@ -3285,9 +3071,6 @@ function uploadProfileAvatar(ev) {
 }
 function resetProfileAvatar() { appSettings.profile.avatar = ''; persistAppSettings(); loadSettingsUI(); updateSidebarProfile(); toast('Avatar removed.', 'info'); }
 
-/* ==========================================================================
-   CATEGORY MANAGEMENT
-   ========================================================================== */
 let _catDragSrc = null;
 function renderSettingsCategoryLists() { renderSettingsCategoryList('portfolio'); renderSettingsCategoryList('expense'); }
 function renderSettingsCategoryList(kind) {
@@ -3485,12 +3268,9 @@ function editExpenseCategoryModal(catId) {
   document.getElementById('expCategoryModal').classList.remove('hidden');
 }
 
-/* ==========================================================================
-   DATA EXPORT / IMPORT / CLEAR
-   ========================================================================== */
 function exportAllData() {
   try {
-    const payload = { _meta: { version: '4.3.1', exportedAt: new Date().toISOString() }, settings: appSettings, portfolio: { categories: categoriesConfig, irsBaseLimits, defaultAccountData: portfolioData, currency: currentCurrency }, expenses: expenseStore, accounts: accountsStore, dateRange: globalDateRange, txLocalDateRange };
+    const payload = { _meta: { version: '4.3.1', exportedAt: new Date().toISOString() }, settings: appSettings, portfolio: { categories: categoriesConfig, irsBaseLimits, defaultAccountData: portfolioData, currency: currentCurrency }, expenses: expenseStore, accounts: accountsStore, dateRange: globalDateRange, txLocalDateRange, goals: DB.goals };
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
     const a = document.createElement('a'); a.href = dataStr;
     a.download = `executive-wealth-backup-${new Date().toISOString().split('T')[0]}.json`;
@@ -3514,6 +3294,7 @@ function importAllData(ev) {
       }
       if (parsed.expenses) { expenseStore = { ...expenseStore, ...parsed.expenses }; localStorage.setItem('expense_tracker_data', JSON.stringify(expenseStore)); }
       if (parsed.accounts) { accountsStore = { ...accountsStore, ...parsed.accounts }; localStorage.setItem('accounts_data', JSON.stringify(accountsStore)); }
+      if (parsed.goals) { DB.goals = parsed.goals; saveGoalsData(); }
       initDashboard(); loadSettingsUI();
       if (typeof renderExpenseDashboard === 'function') renderExpenseDashboard();
       if (typeof renderAccounts === 'function') renderAccounts();
@@ -3537,9 +3318,6 @@ function factoryReset() {
   try { localStorage.clear(); sessionStorage.clear(); toast('Factory reset complete. Reloading…', 'success'); setTimeout(() => location.reload(), 800); } catch(e) { toast('Reset failed.', 'error'); }
 }
 
-/* ==========================================================================
-   TAB NAV
-   ========================================================================== */
 const TAB_TITLES = {
   'tab-dashboard': { title: 'Dashboard', sub: 'Your financial snapshot at a glance', icon: 'gauge' },
   'tab-overview': { title: 'Portfolio Overview', sub: 'Track your wealth growth over time', icon: 'sparkles' },
@@ -3547,6 +3325,8 @@ const TAB_TITLES = {
   'tab-transactions': { title: 'Transactions', sub: 'Recent activity from your linked accounts', icon: 'arrow-left-right' },
   'tab-allocation': { title: 'Investment Mix', sub: 'See how your money is invested', icon: 'pie-chart' },
   'tab-tax': { title: 'Tax Savings', sub: 'Track your retirement contributions', icon: 'shield-check' },
+  'tab-goals': { title: 'Savings Goals', sub: 'Pace, contribute, and celebrate milestones', icon: 'target' },
+  'tab-credit': { title: 'Credit Health', sub: 'Monitor your score, factors, and simulator', icon: 'gauge-circle' },
   'tab-blueprint': { title: 'Wealth Blueprint', sub: 'Interactive workspace for your financial plan', icon: 'compass' },
   'tab-expenses': { title: 'Spending', sub: 'Budgets, subscriptions, and burn rate', icon: 'receipt' },
   'tab-settings': { title: 'Settings', sub: 'Profile, appearance, and preferences', icon: 'settings-2' }
@@ -3580,6 +3360,8 @@ function switchMainTab(event, tabId, scrollTop = false) {
   const aside = document.querySelector('aside.desktop-sidebar'); if (aside && aside.classList.contains('mobile-open')) toggleMobileMenu();
   if (scrollTop) { const ms = document.getElementById('mainScroll'); if (ms) ms.scrollTo({ top: 0, behavior: 'smooth' }); }
   if (tabId === 'tab-dashboard') dashRender();
+  else if (tabId === 'tab-goals') initGoalsTab();
+  else if (tabId === 'tab-credit') initCreditTab();
   else if (tabId === 'tab-blueprint') { switchWbTool(currentWbTool); renderChartToggles(); }
   else if (tabId === 'tab-tax') { renderIRSProgress(); renderTaxBuckets(); }
   else if (tabId === 'tab-allocation') renderRebalancer();
@@ -3626,9 +3408,6 @@ function applyPrivacyState() {
 }
 function updateDriftLabel(val) { const label = document.getElementById('driftToleranceVal'); if (label) label.innerText = `${parseFloat(val).toFixed(1)}%`; }
 
-/* ==========================================================================
-   THEME
-   ========================================================================== */
 function toggleThemeMode() {
   const html = document.documentElement; const isDark = html.classList.contains('dark');
   if (isDark) { html.classList.remove('dark'); html.classList.add('light'); appSettings.appearance.darkMode = false; }
@@ -3642,11 +3421,9 @@ function toggleThemeMode() {
   if (typeof renderAccounts === 'function') renderAccounts();
   if (typeof renderTransactions === 'function') renderTransactions();
   if (typeof dashRender === 'function') dashRender();
+  if (typeof initCreditTab === 'function' && currentTabId === 'tab-credit') initCreditTab();
 }
 
-/* ==========================================================================
-   PAYSTUB DEDUCTIONS HELPERS
-   ========================================================================== */
 function renderPreTaxInputs() {
   const container = document.getElementById('preTaxDeductionsList'); if (!container) return; container.innerHTML = '';
   preTaxConfig.forEach(item => {
@@ -3660,9 +3437,6 @@ function renderPostTaxInputs() {
   });
 }
 
-/* ==========================================================================
-   DATA STORES & CONFIG
-   ========================================================================== */
 let categoriesConfig = [
   { key: "k401", label: "401(k)", color: "#8B5CF6", type: "deferred" },
   { key: "roth", label: "Roth IRA", color: "#EC4899", type: "exempt" },
@@ -3808,13 +3582,11 @@ async function changeActiveCurrency(newCurrency) {
   if (typeof renderExpenseDashboard === 'function') renderExpenseDashboard();
   if (typeof renderAccounts === 'function') renderAccounts();
   if (typeof renderTransactions === 'function') renderTransactions();
+  if (typeof initGoalsTab === 'function' && currentTabId === 'tab-goals') initGoalsTab();
   try { await Promise.all([saveData(), saveExpenseStore(), saveAccountsStore()]); toast(`Currency updated to ${newCurrency}.`, 'success'); }
   catch (error) { console.error("Failed to sync currency:", error); toast("Local currency state updated.", "info"); }
 }
 
-/* ==========================================================================
-   FILTER SHEET
-   ========================================================================== */
 function openFilterSheet(kind) {
   const sheet = document.getElementById('filterSheet'); const title = document.getElementById('filterSheetTitle'); const body = document.getElementById('filterSheetBody'); if (!sheet || !body) return;
   if (kind === 'accounts') {
@@ -3882,9 +3654,6 @@ function updateFilterCountBadges() {
   const cardBtn = document.getElementById('cardsFilterBtn'); if (cardBtn) cardBtn.classList.toggle('active', cardCount > 0);
 }
 
-/* ==========================================================================
-   COMMAND PALETTE
-   ========================================================================== */
 let cmdItems = []; let cmdSelectedIdx = 0;
 function buildCommandItems() {
   const items = [];
@@ -3937,9 +3706,6 @@ document.addEventListener('keydown', (e) => {
   if (e.key === '/' && !e.metaKey && !e.ctrlKey && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') { e.preventDefault(); openCommandPalette(); }
 });
 
-/* ==========================================================================
-   DATA LOADING
-   ========================================================================== */
 async function loadDataFromJSON() {
   try {
     const cacheBuster = `?t=${new Date().getTime()}`;
@@ -3986,29 +3752,41 @@ function updateSalarySourceLabel() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-/* ==========================================================================
-   DASHBOARD WIDGETS
-   ========================================================================== */
-const DASH_STORAGE_KEY = 'dash_layout_v1';
+const DASH_STORAGE_KEY = 'dash_layout_v2';   // bumped → new default takes effect
 const DASH_WIDGET_DEFS = {
-  kpis: { label: 'Key Metrics', icon: 'activity', size: 'full', desc: 'Portfolio, contributions, returns' },
-  networth: { label: 'Net Worth', icon: 'wallet', size: 'md', desc: 'Assets minus liabilities' },
-  growth: { label: 'Portfolio Growth', icon: 'trending-up', size: 'xl', desc: 'Trajectory over time' },
-  allocation: { label: 'Asset Mix', icon: 'pie-chart', size: 'md', desc: 'Current allocation' },
-  accounts: { label: 'Top Accounts', icon: 'landmark', size: 'md', desc: 'Largest balances' },
-  spend: { label: 'Monthly Spend', icon: 'shopping-cart', size: 'md', desc: 'Budget pace' },
-  recent: { label: 'Recent Activity', icon: 'history', size: 'lg', desc: 'Latest transactions' },
-  fire: { label: 'FIRE Progress', icon: 'flame', size: 'md', desc: 'Target corpus progress' },
-  contrib: { label: 'Contribution Pace', icon: 'target', size: 'md', desc: 'IRS tracker' },
-  taxbuckets: { label: 'Tax Wrappers', icon: 'shield-check', size: 'md', desc: 'Exempt / deferred / taxable' },
-  categories: { label: 'Spend Categories', icon: 'tag', size: 'md', desc: 'Where money goes' },
-  projections: { label: 'Projections', icon: 'rocket', size: 'xl', desc: 'Compound growth snapshot' },
-  subs: { label: 'Subscriptions', icon: 'repeat', size: 'sm', desc: 'Recurring bills' },
-  ef: { label: 'Emergency Fund', icon: 'shield', size: 'sm', desc: 'Liquidity runway' },
-  yoy: { label: 'YoY Summary', icon: 'calendar-clock', size: 'lg', desc: 'Year over year changes' },
-  hub: { label: 'Paystub Snapshot', icon: 'receipt', size: 'md', desc: 'Take-home estimate' }
+  kpis:        { label: 'Key Metrics',       icon: 'activity',       size: 'full', desc: 'Portfolio, contributions, returns' },
+  networth:    { label: 'Net Worth',         icon: 'wallet',         size: 'md',   desc: 'Assets minus liabilities' },
+  growth:      { label: 'Portfolio Growth',  icon: 'trending-up',    size: 'xl',   desc: 'Trajectory over time' },
+  allocation:  { label: 'Asset Mix',         icon: 'pie-chart',      size: 'md',   desc: 'Current allocation' },
+  accounts:    { label: 'Top Accounts',      icon: 'landmark',       size: 'md',   desc: 'Largest balances' },
+  spend:       { label: 'Monthly Spend',     icon: 'shopping-cart',  size: 'md',   desc: 'Budget pace' },
+  recent:      { label: 'Recent Activity',   icon: 'history',        size: 'lg',   desc: 'Latest transactions' },
+  fire:        { label: 'FIRE Progress',     icon: 'flame',          size: 'md',   desc: 'Target corpus progress' },
+  contrib:     { label: 'Contribution Pace', icon: 'target',         size: 'md',   desc: 'IRS tracker' },
+  taxbuckets:  { label: 'Tax Wrappers',      icon: 'shield-check',   size: 'md',   desc: 'Exempt / deferred / taxable' },
+  categories:  { label: 'Spend Categories',  icon: 'tag',            size: 'md',   desc: 'Where money goes' },
+  projections: { label: 'Projections',       icon: 'rocket',         size: 'xl',   desc: 'Compound growth snapshot' },
+  subs:        { label: 'Subscriptions',     icon: 'repeat',         size: 'md',   desc: 'Recurring bills' },
+  ef:          { label: 'Emergency Fund',    icon: 'shield',         size: 'md',   desc: 'Liquidity runway' },
+  yoy:         { label: 'YoY Summary',       icon: 'calendar-clock', size: 'lg',   desc: 'Year over year changes' },
+  hub:         { label: 'Paystub Snapshot',  icon: 'receipt',        size: 'md',   desc: 'Take-home estimate' }
 };
-const DASH_DEFAULT_LAYOUT = ['kpis','networth','growth','fire','spend','allocation','recent','contrib','taxbuckets','categories','subs','ef'];
+const DASH_DEFAULT_LAYOUT = [
+  // Row 1 — headline KPIs (12)
+  'kpis',
+  // Row 2 — primary visual (8) + net worth (4)
+  'growth', 'networth',
+  // Row 3 — three equal stat cards (4+4+4)
+  'allocation', 'spend', 'fire',
+  // Row 4 — two half-width panels (6+6)
+  'recent', 'yoy',
+  // Row 5 — three equal trackers (4+4+4)
+  'contrib', 'taxbuckets', 'categories',
+  // Row 6 — big projection (8) + accounts (4)
+  'projections', 'accounts',
+  // Row 7 — three equal small cards (4+4+4)
+  'subs', 'ef', 'hub'
+];
 let dashLayout = [...DASH_DEFAULT_LAYOUT]; let dashHidden = []; let dashCustomizeMode = false;
 function dashInitLayout() {
   try { const saved = localStorage.getItem(DASH_STORAGE_KEY); if (saved) { const parsed = JSON.parse(saved); if (Array.isArray(parsed.layout) && parsed.layout.length) dashLayout = parsed.layout.filter(k => DASH_WIDGET_DEFS[k]); if (Array.isArray(parsed.hidden)) dashHidden = parsed.hidden.filter(k => DASH_WIDGET_DEFS[k]); } }
@@ -4180,9 +3958,6 @@ function dashDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
 function dashDrop(e) { if (!dashCustomizeMode || !_dashDragSrc) return; e.preventDefault(); const target = e.currentTarget.dataset.widget; const src = _dashDragSrc; e.currentTarget.classList.remove('drag-over'); if (!target || target === src) return; const i = dashLayout.indexOf(src); const j = dashLayout.indexOf(target); if (i < 0 || j < 0) return; dashLayout.splice(i, 1); dashLayout.splice(j, 0, src); dashSaveLayout(); dashRender(); }
 function dashDragEnd(e) { document.querySelectorAll('.dash-widget').forEach(el => el.classList.remove('dragging','drag-over')); _dashDragSrc = null; }
 
-/* ==========================================================================
-   CORE FINANCE FUNCTIONS
-   ========================================================================== */
 function getTotalBal(data) {
   if (!data || !data.balances) return 0;
   const applyHaircuts = document.getElementById('taxHaircutToggle')?.checked || false;
@@ -4227,11 +4002,9 @@ function syncProjectionsAndPropagate() {
   const startEl   = document.getElementById('projStartingBal');
   const monthlyEl = document.getElementById('projMonthlyContri');
   const annualEl  = document.getElementById('projAnnualReturn');
-
   if (startEl)   unifiedStore.startingBal   = parseFloat(startEl.value)   || 0;
   if (monthlyEl) unifiedStore.monthlyContri = parseFloat(monthlyEl.value) || 0;
   if (annualEl)  unifiedStore.annualReturn  = parseFloat(annualEl.value)  || 0;
-
   unifiedStore.isUserOverridden = true;
   propagateUnifiedDataStore();
 }
@@ -4623,26 +4396,17 @@ function renderRebalancer() {
   const feeDragEl = document.getElementById('annualFeeDragVal'); if (feeDragEl) feeDragEl.innerText = `${formatCurrency(annualFeeDrag, 0)} / yr`;
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
-/* ==========================================================================
-   Portfolio Overview — Year-by-Year table (newest year first)
-   ========================================================================== */
 function renderComparisonTable() {
   const tbody = document.querySelector("#comparisonTable tbody");
   if (!tbody) return;
   tbody.innerHTML = "";
-
-  // Pair each row with its original index (needed by getDynamicReturns / prev-year lookup)
   const indexed = portfolioData.map((row, i) => ({ row, i }));
-
-  // Sort by year descending — latest year on top
   indexed.sort((a, b) => parseInt(b.row.year, 10) - parseInt(a.row.year, 10));
-
   indexed.forEach(({ row, i }) => {
     const endBal  = getTotalBal(row);
     const contri  = getTotalContri(row);
     const begBal  = i > 0 ? getTotalBal(portfolioData[i - 1]) : 0;
     const returns = getDynamicReturns(i);
-
     tbody.innerHTML += `
       <tr class="transition-all">
         <td class="py-3 px-4 font-bold" style="color: var(--text-1);" data-label="Year">${row.year}</td>
@@ -4655,7 +4419,6 @@ function renderComparisonTable() {
         <td class="py-3 px-4 font-bold text-right font-mono" style="color: ${returns.pct >= 0 ? '#059669' : '#BE123C'};" data-label="Return (%)"><span>${returns.pct}%</span></td>
       </tr>`;
   });
-
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 function renderCharts(selectedData) {
@@ -4832,9 +4595,6 @@ function importJSON(event) {
   reader.readAsText(file);
 }
 
-/* ==========================================================================
-   EXPENSES
-   ========================================================================== */
 let expenseStore = { selectedCurrency: "USD", monthlyBudget: 0, categories: [], cards: [], transactions: [] };
 let expCategoryChartInstance = null;
 let expenseDataSource = "none";
@@ -5174,9 +4934,6 @@ function parseAndImportCSV(csvText) {
   populateFormDropdowns(); saveExpenseStore(); toast(`Successfully imported ${newTransactions.length} transactions from CSV!`, "success");
 }
 
-/* ==========================================================================
-   ACCOUNTS
-   ========================================================================== */
 const PLAID_CONFIG = { CLIENT_ID: 'YOUR_PLAID_CLIENT_ID', SECRET: 'YOUR_PLAID_SECRET', ENV: 'sandbox', DEMO_MODE: true };
 const ACCOUNT_TYPES = [
   { value: 'checking', label: 'Checking', emoji: '🏦', liability: false }, { value: 'savings', label: 'Savings', emoji: '💰', liability: false },
@@ -5402,9 +5159,6 @@ function applyAccountMappings() {
   if (updatedCount > 0) { localStorage.setItem('categoryPortfolioData', JSON.stringify(portfolioData)); buildDynamicTableHeaders(); renderTables(); renderComparisonTable(); updateDashboard(); toast(`Ledger updated from ${all.length} linked account${all.length === 1 ? '' : 's'}.`, 'success'); }
 }
 
-/* ==========================================================================
-   PLAID CATEGORIZATION
-   ========================================================================== */
 const PLAID_CATEGORIES = [
   { primary: 'INCOME', label: 'Income', emoji: '💰', categoryLabel: 'Income', color: '#10B981' },
   { primary: 'TRANSFER_IN', label: 'Transfer In', emoji: '📥', categoryLabel: 'Transfers', color: '#06B6D4' },
@@ -5631,8 +5385,556 @@ function renderExpTxMobileList(list) {
 }
 
 /* ==========================================================================
-   BOOT
+   SAVINGS GOALS + CREDIT HEALTH  — NEW FEATURES
    ========================================================================== */
+
+/* --- Safe namespace + missing helpers (File 1 didn't define these) --- */
+window.DB = window.DB || {};
+
+if (typeof window.esc !== 'function') {
+  window.esc = function(s) {
+    return String(s).replace(/[&<>"']/g, function(c) {
+      return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c];
+    });
+  };
+}
+
+if (typeof window.monthsUntil !== 'function') {
+  window.monthsUntil = function(dateStr) {
+    const t = new Date(dateStr);
+    const now = new Date();
+    return Math.max(0, (t.getFullYear() - now.getFullYear()) * 12 + (t.getMonth() - now.getMonth()));
+  };
+}
+if (!DB.goals) {
+  DB.goals = [
+    { id: 'g1', name: 'Japan Trip',           icon: '✈️', target: 8000,  saved: 3200,  date: (() => { const d = new Date(); d.setMonth(d.getMonth() + 18); return d.toISOString().slice(0,10); })(), monthly: 445,  color: '#3B82F6', cat: 'Travel',    shared: true  },
+    { id: 'g2', name: 'Emergency Fund',       icon: '🛡️', target: 45000, saved: 22000, date: (() => { const d = new Date(); d.setMonth(d.getMonth() + 21); return d.toISOString().slice(0,10); })(), monthly: 1200, color: '#10B981', cat: 'Emergency', shared: true  },
+    { id: 'g3', name: 'Home Renovation',      icon: '🏠', target: 60000, saved: 18500, date: (() => { const d = new Date(); d.setMonth(d.getMonth() + 28); return d.toISOString().slice(0,10); })(), monthly: 1500, color: '#8B5CF6', cat: 'Home',      shared: false },
+    { id: 'g4', name: 'Maldives Anniversary', icon: '🏝️', target: 15000, saved: 4200,  date: (() => { const d = new Date(); d.setMonth(d.getMonth() + 15); return d.toISOString().slice(0,10); })(), monthly: 600,  color: '#F59E0B', cat: 'Travel',    shared: true  },
+  ];
+}
+if (!DB.goalTemplates) {
+  DB.goalTemplates = [
+    { name: 'Emergency Fund',    icon: '🛡️', amount: 45000,  months: 24,  cat: 'Emergency' },
+    { name: 'Home Down Payment', icon: '🏡', amount: 120000, months: 60,  cat: 'Home' },
+    { name: 'New Car',           icon: '🚗', amount: 45000,  months: 36,  cat: 'Auto' },
+    { name: 'Dream Vacation',    icon: '🏝️', amount: 12000,  months: 18,  cat: 'Travel' },
+    { name: 'Wedding',           icon: '💍', amount: 55000,  months: 30,  cat: 'Life Event' },
+    { name: 'College Fund',      icon: '🎓', amount: 150000, months: 120, cat: 'Education' },
+  ];
+}
+if (!DB.credit) {
+  DB.credit = {
+    score: 782,
+    bureau: 'VantageScore 3.0 · TransUnion',
+    updated: '2 days ago',
+    history12: [742, 745, 751, 748, 756, 761, 758, 764, 769, 771, 776, 782],
+    factors: [
+      { name: 'Payment history',    value: 99,  weight: 35, rating: 'Exceptional', color: '#10B981', detail: '142 of 143 payments on time' },
+      { name: 'Credit utilization', value: 8,   weight: 30, rating: 'Very Good',   color: '#3B82F6', detail: '8% of $100,000 limit used' },
+      { name: 'Age of credit',      value: 9.2, weight: 15, rating: 'Very Good',   color: '#8B5CF6', detail: '9 yrs 2 mo average age' },
+      { name: 'New inquiries',      value: 1,   weight: 10, rating: 'Good',        color: '#F59E0B', detail: '1 inquiry in last 12 months' },
+      { name: 'Credit mix',         value: 6,   weight: 10, rating: 'Very Good',   color: '#22D3EE', detail: '6 account types' },
+    ],
+    alerts: [
+      { t: 'Score increased 6 points', s: 'Utilization dropped below 10%', when: '2 days ago', type: 'success' },
+      { t: 'New inquiry detected',     s: 'Synchrony Bank — soft pull',    when: '3 weeks ago', type: 'warning' },
+      { t: 'Utilization change',       s: 'Chase Sapphire reported $1,240', when: '1 month ago', type: 'info' },
+    ],
+    tips: [
+      { icon: '💳', title: 'Reduce utilization below 6%', desc: 'Pay $2,000 toward Chase Sapphire to reach 6% utilization. Estimated +8 point lift.' },
+      { icon: '🔒', title: 'Keep oldest account open',    desc: 'Your 14-year-old card anchors your credit age. Avoid closing it.' },
+      { icon: '⏱️', title: 'Space out inquiries',          desc: 'Wait 6+ months before your next credit application to let inquiries age off.' },
+    ],
+  };
+}
+
+function saveGoalsData() { try { localStorage.setItem('savings_goals_v1', JSON.stringify(DB.goals)); } catch(_){} }
+function loadGoalsData() {
+  try { const raw = localStorage.getItem('savings_goals_v1'); if (raw) { const parsed = JSON.parse(raw); if (Array.isArray(parsed) && parsed.length) DB.goals = parsed; } } catch(_){}
+}
+
+function goalRequiredMonthly(g) {
+  const months = Math.max(1, monthsUntil(g.date));
+  return Math.max(0, (g.target - g.saved) / months);
+}
+function goalProjectedDate(g) {
+  const remaining = Math.max(0, g.target - g.saved);
+  if (g.monthly <= 0) return null;
+  const months = Math.ceil(remaining / g.monthly);
+  const d = new Date(); d.setMonth(d.getMonth() + months); return d;
+}
+function goalPacing(g) {
+  const req = goalRequiredMonthly(g);
+  if (g.saved >= g.target)      return { label: 'Complete',  cls: 'badge-emerald', color: '#059669' };
+  if (g.monthly >= req * 1.05)  return { label: 'Ahead',     cls: 'badge-emerald', color: '#059669' };
+  if (g.monthly >= req * 0.95)  return { label: 'On Track',  cls: 'badge-violet',  color: '#6D28D9' };
+  return                                { label: 'Behind',    cls: 'badge-amber',   color: '#B45309' };
+}
+function monthsUntil(dateStr) {
+  const t = new Date(dateStr);
+  const now = new Date();
+  return Math.max(0, (t.getFullYear() - now.getFullYear()) * 12 + (t.getMonth() - now.getMonth()));
+}
+
+function initGoalsTab() {
+  loadGoalsData();
+  const totalTarget = DB.goals.reduce((s,g) => s + g.target, 0);
+  const totalSaved  = DB.goals.reduce((s,g) => s + g.saved, 0);
+  const totalMonthly = DB.goals.reduce((s,g) => s + (g.monthly || 0), 0);
+  const sharedCount = DB.goals.filter(g => g.shared).length;
+
+  const tEl = document.getElementById('goalKpiTarget'); if (tEl) tEl.innerText = formatCurrency(totalTarget, 0);
+  const sEl = document.getElementById('goalKpiSaved');  if (sEl) sEl.innerText = formatCurrency(totalSaved, 0);
+  const mEl = document.getElementById('goalKpiMonthly');if (mEl) mEl.innerText = formatCurrency(totalMonthly, 0);
+  const shEl = document.getElementById('goalKpiShared');if (shEl) shEl.innerText = sharedCount;
+
+  const grid = document.getElementById('goalsGrid');
+  if (grid) {
+    if (DB.goals.length === 0) {
+      grid.innerHTML = `<div class="col-span-full surface p-10 text-center"><div class="w-14 h-14 mx-auto mb-3 rounded-2xl flex items-center justify-center" style="background:var(--surface-3);"><i data-lucide="target" class="w-7 h-7" style="color:var(--text-4);"></i></div><h4 class="text-sm font-bold mb-1" style="color:var(--text-2);">No goals yet</h4><p class="text-xs mb-4" style="color:var(--text-4);">Create your first savings goal to start tracking progress.</p><button onclick="openNewGoalModal()" class="btn btn-primary"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Create Goal</button></div>`;
+    } else {
+      grid.innerHTML = DB.goals.map(g => {
+        const p = Math.max(0, Math.min(100, (g.saved / g.target) * 100));
+        const req = goalRequiredMonthly(g);
+        const pace = goalPacing(g);
+        const proj = goalProjectedDate(g);
+        const R = 24, C = 2 * Math.PI * R;
+        return `<div class="surface surface-interactive p-4 flex flex-col gap-3">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0" style="background:${g.color}18; border:1px solid ${g.color}33;">${g.icon}</div>
+            <div class="flex-grow min-w-0">
+              <div class="text-xs font-extrabold truncate" style="color:var(--text-1);">${esc(g.name)}</div>
+              <div class="text-[10px]" style="color:var(--text-4);">${esc(g.cat)}</div>
+            </div>
+            <div class="relative w-14 h-14 shrink-0">
+              <svg width="56" height="56" style="transform:rotate(-90deg);">
+                <circle cx="28" cy="28" r="${R}" fill="none" stroke="var(--surface-3)" stroke-width="5"/>
+                <circle cx="28" cy="28" r="${R}" fill="none" stroke="${g.color}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - p / 100)}"/>
+              </svg>
+              <span class="absolute inset-0 grid place-items-center text-[11px] font-extrabold" style="color:var(--text-1);">${p.toFixed(0)}%</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-baseline">
+            <span class="text-lg font-extrabold privacy-target" style="color:var(--text-1);">${formatCurrency(g.saved, 0)}</span>
+            <span class="text-[11px]" style="color:var(--text-4);">of ${formatCurrency(g.target, 0)}</span>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="badge ${pace.cls}">${pace.label}</span>
+            ${g.shared ? '<span class="badge badge-violet">👥 Shared</span>' : ''}
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[11px]">
+            <div class="rounded-lg p-2" style="background:var(--surface-2);">
+              <div class="text-[9px] uppercase tracking-wider font-extrabold" style="color:var(--text-4);">Required/mo</div>
+              <div class="font-bold privacy-target" style="color:var(--text-1);">${formatCurrency(req, 0)}</div>
+            </div>
+            <div class="rounded-lg p-2" style="background:var(--surface-2);">
+              <div class="text-[9px] uppercase tracking-wider font-extrabold" style="color:var(--text-4);">Your/mo</div>
+              <div class="font-bold privacy-target" style="color:${g.monthly >= req ? '#059669' : '#B45309'};">${formatCurrency(g.monthly, 0)}</div>
+            </div>
+          </div>
+          <div class="text-[10px]" style="color:var(--text-4);">
+            ${proj ? `Projected complete <b style="color:var(--text-2);">${proj.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</b>` : 'Set a monthly contribution to project completion'}
+          </div>
+          <div class="flex gap-2 pt-1">
+            <button onclick="contributeToGoal('${g.id}')" class="btn btn-primary !py-1.5 !text-[11px] flex-grow"><i data-lucide="plus-circle" class="w-3 h-3"></i> Contribute</button>
+            <button onclick="celebrateGoal('${g.id}')" class="btn btn-ghost !py-1.5 !text-[11px]" title="Celebrate"><i data-lucide="party-popper" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  const tmplGrid = document.getElementById('goalTemplatesGrid');
+  if (tmplGrid) {
+    tmplGrid.innerHTML = DB.goalTemplates.map(t => {
+      const monthly = Math.round(t.amount / t.months);
+      return `<div class="rounded-xl p-4 flex items-center gap-3" style="background:var(--surface-2); border:1px solid var(--border);">
+        <div class="text-2xl shrink-0">${t.icon}</div>
+        <div class="flex-grow min-w-0">
+          <div class="text-xs font-bold truncate" style="color:var(--text-1);">${esc(t.name)}</div>
+          <div class="text-[10px]" style="color:var(--text-4);">${formatCurrency(t.amount, 0)} over ${t.months} months</div>
+          <div class="text-[10px] font-semibold mt-0.5" style="color:#6D28D9;">${formatCurrency(monthly, 0)}/mo</div>
+        </div>
+        <button onclick="applyGoalTemplate('${esc(t.name).replace(/'/g, "\\'")}')" class="btn btn-ghost !py-1.5 !text-[11px]">Use</button>
+      </div>`;
+    }).join('');
+  }
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  applyPrivacyState();
+}
+
+function openNewGoalModal() {
+  const wrap = document.createElement('div');
+  wrap.className = 'fixed inset-0 z-[2200] flex items-center justify-center p-4';
+  wrap.style.cssText = 'background: rgba(15,23,42,.5); backdrop-filter: blur(8px);';
+  wrap.innerHTML = `
+    <div class="surface p-6 max-w-md w-full space-y-4" style="box-shadow: var(--shadow-lift);">
+      <div class="flex justify-between items-center pb-3" style="border-bottom: 1px solid var(--border);">
+        <h3 class="text-sm font-extrabold" style="color:var(--text-1);">Create a Savings Goal</h3>
+        <button onclick="this.closest('.fixed').remove()" class="btn-icon btn-ghost"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="space-y-3">
+        <div><label class="field-label">Goal name *</label><input type="text" id="newGoalName" class="input" placeholder="e.g. Japan Trip"></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="field-label">Target amount *</label><input type="number" id="newGoalTarget" class="input font-mono text-right" value="8000" step="500"></div>
+          <div><label class="field-label">Target date *</label><input type="date" id="newGoalDate" class="input"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="field-label">Category</label>
+            <select id="newGoalCat" class="input">
+              <option>Travel</option><option>Emergency</option><option>Home</option><option>Auto</option>
+              <option>Education</option><option>Life Event</option><option>Custom</option>
+            </select>
+          </div>
+          <div><label class="field-label">Icon</label><input type="text" id="newGoalIcon" class="input text-center" value="🎯" maxlength="4"></div>
+        </div>
+        <div id="newGoalCalc" class="rounded-xl p-3 text-[11px]" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-3);"></div>
+        <label class="flex items-center gap-2.5 cursor-pointer text-xs font-semibold p-2.5 rounded-lg" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-2);">
+          <input type="checkbox" id="newGoalShared" style="accent-color: var(--accent);">
+          <span>👥 Shared with household</span>
+        </label>
+      </div>
+      <div class="flex justify-end gap-2 pt-3" style="border-top: 1px solid var(--border);">
+        <button onclick="this.closest('.fixed').remove()" class="btn btn-ghost">Cancel</button>
+<button onclick="saveNewGoal(this)" class="btn btn-primary"><i data-lucide="check" class="w-3.5 h-3.5"></i> Create Goal</button>      </div>
+    </div>`;
+  document.body.appendChild(wrap);
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  const d = new Date(); d.setMonth(d.getMonth() + 18);
+  document.getElementById('newGoalDate').value = d.toISOString().slice(0,10);
+
+  const calc = () => {
+    const target = parseFloat(document.getElementById('newGoalTarget')?.value) || 0;
+    const dateStr = document.getElementById('newGoalDate')?.value;
+    const months = Math.max(1, monthsUntil(dateStr));
+    const req = target / months;
+    const calcEl = document.getElementById('newGoalCalc');
+    if (calcEl) calcEl.innerHTML = `Time to goal: <b style="color:var(--text-1);">${months} months</b> · Required monthly: <b style="color:#6D28D9;">${formatCurrency(req, 0)}</b>`;
+  };
+  ['newGoalTarget','newGoalDate'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.addEventListener('input', calc);
+  });
+  calc();
+}
+
+function saveNewGoal(triggerEl) {
+  const name = document.getElementById('newGoalName')?.value?.trim();
+  const target = parseFloat(document.getElementById('newGoalTarget')?.value) || 0;
+  const dateStr = document.getElementById('newGoalDate')?.value;
+  const cat = document.getElementById('newGoalCat')?.value || 'Custom';
+  const icon = document.getElementById('newGoalIcon')?.value?.trim() || '🎯';
+  const shared = !!document.getElementById('newGoalShared')?.checked;
+  if (!name || target <= 0 || !dateStr) { toast('Please fill in name, target, and date.', 'warning'); return; }
+  const months = Math.max(1, monthsUntil(dateStr));
+  const colors = ['#3B82F6','#10B981','#8B5CF6','#F59E0B','#EC4899','#06B6D4','#6366F1'];
+  DB.goals.push({
+    id: 'g_' + Date.now(),
+    name, icon, target, saved: 0, date: dateStr,
+    monthly: Math.round(target / months),
+    color: colors[DB.goals.length % colors.length],
+    cat, shared,
+  });
+  saveGoalsData();
+  // Close the modal reliably
+  if (triggerEl && triggerEl.closest) {
+    triggerEl.closest('.fixed')?.remove();
+  } else {
+    document.querySelectorAll('.fixed.inset-0').forEach(el => {
+      if (el.querySelector('#newGoalName')) el.remove();
+    });
+  }
+  initGoalsTab();
+  toast(`Goal "${name}" created!`, 'success');
+}
+
+function contributeToGoal(id) {
+  const g = DB.goals.find(x => x.id === id); if (!g) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'fixed inset-0 z-[2200] flex items-center justify-center p-4';
+  wrap.style.cssText = 'background: rgba(15,23,42,.5); backdrop-filter: blur(8px);';
+  wrap.innerHTML = `
+    <div class="surface p-6 max-w-sm w-full space-y-4" style="box-shadow: var(--shadow-lift);">
+      <div class="flex justify-between items-center pb-3" style="border-bottom: 1px solid var(--border);">
+        <h3 class="text-sm font-extrabold" style="color:var(--text-1);">Contribute to ${esc(g.name)}</h3>
+        <button onclick="this.closest('.fixed').remove()" class="btn-icon btn-ghost"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="rounded-xl p-3" style="background:var(--surface-2); border:1px solid var(--border);">
+        <div class="text-[10px] uppercase font-extrabold tracking-wider" style="color:var(--text-4);">Current progress</div>
+        <div class="flex justify-between items-baseline mt-1">
+          <span class="privacy-target font-extrabold text-lg" style="color:var(--text-1);">${formatCurrency(g.saved, 0)}</span>
+          <span class="text-[11px]" style="color:var(--text-4);">of ${formatCurrency(g.target, 0)}</span>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Contribution amount</label>
+        <input type="number" id="contribAmount" class="input font-mono text-right" value="500" step="50">
+      </div>
+      <div class="flex flex-wrap gap-1.5">
+        ${[100,250,500,1000,2500].map(v => `<button onclick="document.getElementById('contribAmount').value=${v}" class="chip !py-1.5 !text-[11px]">${formatCurrency(v,0)}</button>`).join('')}
+      </div>
+      <div class="flex justify-end gap-2 pt-3" style="border-top: 1px solid var(--border);">
+        <button onclick="this.closest('.fixed').remove()" class="btn btn-ghost">Cancel</button>
+<button onclick="applyGoalContribution('${g.id}', this)" class="btn btn-primary"><i data-lucide="check" class="w-3.5 h-3.5"></i> Add</button>      </div>
+    </div>`;
+  document.body.appendChild(wrap);
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  setTimeout(() => document.getElementById('contribAmount')?.focus(), 60);
+}
+
+function applyGoalContribution(id, triggerEl) {
+  const g = DB.goals.find(x => x.id === id); if (!g) return;
+  const amt = parseFloat(document.getElementById('contribAmount')?.value) || 0;
+  if (amt <= 0) { toast('Enter a positive amount.', 'warning'); return; }
+  const before = (g.saved / g.target) * 100;
+  g.saved = Math.min(g.target, g.saved + amt);
+  const after = (g.saved / g.target) * 100;
+  saveGoalsData();
+  // Close the modal reliably — walk up from the clicked button
+  if (triggerEl && triggerEl.closest) {
+    triggerEl.closest('.fixed')?.remove();
+  } else {
+    document.querySelectorAll('.fixed.inset-0').forEach(el => {
+      if (el.querySelector('#contribAmount')) el.remove();
+    });
+  }
+  initGoalsTab();
+  const crossed = [25,50,75,100].find(m => before < m && after >= m);
+  if (crossed) { toast(`🎉 ${g.name} hit ${crossed}%!`, 'success'); }
+  else { toast(`${formatCurrency(amt,0)} added to ${g.name}`, 'success'); }
+}
+
+function celebrateGoal(id) {
+  toast('Milestone celebrated! 🎉', 'success');
+}
+
+function applyGoalTemplate(name) {
+  const t = DB.goalTemplates.find(x => x.name === name); if (!t) return;
+  const d = new Date(); d.setMonth(d.getMonth() + t.months);
+  const colors = ['#3B82F6','#10B981','#8B5CF6','#F59E0B','#EC4899','#06B6D4'];
+  DB.goals.push({
+    id: 'g_' + Date.now(),
+    name: t.name, icon: t.icon, target: t.amount, saved: 0,
+    date: d.toISOString().slice(0,10),
+    monthly: Math.round(t.amount / t.months),
+    color: colors[DB.goals.length % colors.length],
+    cat: t.cat, shared: false,
+  });
+  saveGoalsData();
+  initGoalsTab();
+  toast(`Template "${name}" added to your goals`, 'success');
+}
+
+let _creditScoreGaugeChart = null;
+let _creditTrendChart = null;
+
+function initCreditTab() {
+  const c = DB.credit;
+
+  const vEl = document.getElementById('creditScoreValue'); if (vEl) vEl.textContent = c.score;
+  const lEl = document.getElementById('creditScoreLabel');
+  if (lEl) {
+    const bands = [
+      { max: 579, label: 'Poor' },
+      { max: 669, label: 'Fair' },
+      { max: 739, label: 'Good' },
+      { max: 799, label: 'Very Good' },
+      { max: 850, label: 'Exceptional' },
+    ];
+    const band = bands.find(b => c.score <= b.max) || bands[bands.length-1];
+    lEl.textContent = `of 850 · ${band.label}`;
+  }
+
+  const gaugeCanvas = document.getElementById('creditScoreGauge');
+  if (gaugeCanvas) {
+    if (_creditScoreGaugeChart) { try { _creditScoreGaugeChart.destroy(); } catch(_){} }
+    const frac = Math.min(1, Math.max(0, c.score / 850));
+    const trackColor = getComputedStyle(document.documentElement).getPropertyValue('--surface-3').trim() || '#E5E7EB';
+    _creditScoreGaugeChart = new Chart(gaugeCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Score', 'Remaining'],
+        datasets: [{
+          data: [frac, 1 - frac],
+          backgroundColor: ['#10B981', trackColor],
+          borderWidth: 0,
+          circumference: 180,
+          rotation: 270,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        cutout: '76%',
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        animation: { animateRotate: true, duration: 900 },
+      }
+    });
+  }
+
+  const marker = document.getElementById('creditScoreMarker');
+  if (marker) {
+    const pct = Math.max(0, Math.min(100, ((c.score - 300) / (850 - 300)) * 100));
+    marker.style.left = pct + '%';
+  }
+
+  const trendCanvas = document.getElementById('creditTrendChart');
+  if (trendCanvas) {
+    if (_creditTrendChart) { try { _creditTrendChart.destroy(); } catch(_){} }
+    const labels = c.history12.map((_, i) => {
+      const d = new Date(); d.setMonth(d.getMonth() - (11 - i));
+      return d.toLocaleDateString('en-US', { month: 'short' });
+    });
+    const gradient = trendCanvas.getContext('2d').createLinearGradient(0, 0, 0, 220);
+    gradient.addColorStop(0, 'rgba(139, 92, 246, 0.28)');
+    gradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
+    _creditTrendChart = new Chart(trendCanvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Credit Score',
+          data: c.history12,
+          borderColor: '#8B5CF6',
+          backgroundColor: gradient,
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: '#8B5CF6',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: '#0B1220', padding: 10, cornerRadius: 8, displayColors: false,
+            callbacks: { label: ctx => `${ctx.parsed.y} pts` } }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: {
+            grid: { color: getChartGridColor() },
+            suggestedMin: 700, suggestedMax: 800,
+            ticks: { callback: v => v }
+          }
+        }
+      }
+    });
+  }
+
+  const alertsEl = document.getElementById('creditAlertsList');
+  if (alertsEl) {
+    alertsEl.innerHTML = c.alerts.map(a => {
+      const cls = a.type === 'success' ? 'badge-emerald' : a.type === 'warning' ? 'badge-amber' : 'badge-violet';
+      const ico = a.type === 'success' ? 'trending-up' : a.type === 'warning' ? 'alert-triangle' : 'info';
+      return `<div class="flex gap-3 py-2.5" style="border-bottom:1px solid var(--border);">
+        <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${cls}"><i data-lucide="${ico}" class="w-3.5 h-3.5"></i></span>
+        <div class="min-w-0">
+          <div class="text-xs font-bold" style="color:var(--text-1);">${esc(a.t)}</div>
+          <div class="text-[10px] mt-0.5" style="color:var(--text-4);">${esc(a.s)} · ${esc(a.when)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const factorsEl = document.getElementById('creditFactorsList');
+  if (factorsEl) {
+    factorsEl.innerHTML = c.factors.map(f => {
+      const ratio = f.name === 'Credit utilization'
+        ? Math.max(0, 100 - f.value)
+        : Math.min(100, (f.value / (f.name === 'Age of credit' ? 15 : f.name === 'New inquiries' ? 5 : f.name === 'Credit mix' ? 8 : 100)) * 100);
+      const rCls = f.rating === 'Exceptional' ? 'badge-emerald' : f.rating === 'Very Good' ? 'badge-blue' : 'badge-amber';
+      const displayVal = f.name === 'Age of credit' ? `${f.value} yrs`
+                       : f.name === 'New inquiries' ? f.value
+                       : f.name === 'Credit mix' ? `${f.value} types`
+                       : `${f.value}%`;
+      return `<div>
+        <div class="flex items-center justify-between mb-1.5">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold" style="color:var(--text-1);">${esc(f.name)}</span>
+            <span class="text-[10px] font-bold" style="color:var(--text-4);">${f.weight}% of score</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="badge ${rCls}">${f.rating}</span>
+            <span class="text-xs font-extrabold privacy-target" style="color:var(--text-1);">${displayVal}</span>
+          </div>
+        </div>
+        <div class="progress" style="height:6px;"><div style="width:${ratio}%; background:${f.color};"></div></div>
+        <div class="text-[10px] mt-1.5" style="color:var(--text-4);">${esc(f.detail)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const tipsEl = document.getElementById('creditTipsList');
+  if (tipsEl) {
+    tipsEl.innerHTML = c.tips.map(t => `
+      <div class="rounded-xl p-4" style="background:var(--surface-2); border:1px solid var(--border);">
+        <div class="flex items-start gap-3">
+          <span class="text-lg shrink-0">${t.icon}</span>
+          <div class="min-w-0">
+            <div class="text-xs font-bold" style="color:var(--text-1);">${esc(t.title)}</div>
+            <div class="text-[11px] mt-1 leading-relaxed" style="color:var(--text-4);">${esc(t.desc)}</div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  const sel = document.getElementById('creditSimAction');
+  const amtWrap = document.getElementById('creditSimAmtWrap');
+  if (sel && amtWrap && !sel.dataset.bound) {
+    sel.dataset.bound = '1';
+    sel.addEventListener('change', () => {
+      amtWrap.style.display = sel.value === 'payoff' ? 'block' : 'none';
+    });
+  }
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  applyPrivacyState();
+}
+
+function runCreditSimulation() {
+  const action = document.getElementById('creditSimAction')?.value || 'payoff';
+  const amt = parseFloat(document.getElementById('creditSimAmt')?.value) || 0;
+  const base = DB.credit.score;
+  let delta = 0, explain = '';
+
+  if (action === 'payoff') {
+    const drop = amt / 100000 * 100;
+    delta = Math.round(Math.min(22, drop * 1.9));
+    explain = `Paying ${formatCurrency(amt, 0)} toward revolving balances lowers utilization by approximately ${drop.toFixed(1)} percentage points.`;
+  } else if (action === 'newcard') {
+    delta = -9; explain = 'A new account adds a hard inquiry and lowers your average account age.';
+  } else if (action === 'close') {
+    delta = -21; explain = 'Closing your oldest account reduces average credit age and total available credit.';
+  } else if (action === 'inquiry') {
+    delta = -7; explain = 'A mortgage pre-approval triggers one hard inquiry (rate-shopping within 45 days counts once).';
+  }
+
+  const projected = Math.max(300, Math.min(850, base + delta));
+  const resultEl = document.getElementById('creditSimResult');
+  if (!resultEl) return;
+  const pos = delta >= 0;
+  resultEl.innerHTML = `
+    <div class="rounded-xl p-4" style="background:${pos ? 'rgba(5,150,105,.08)' : 'rgba(190,18,60,.08)'}; border:1px solid ${pos ? 'rgba(5,150,105,.32)' : 'rgba(190,18,60,.32)'};">
+      <div class="text-center">
+        <div class="text-[10px] font-extrabold uppercase tracking-wider" style="color:var(--text-4);">Projected Score</div>
+        <div class="text-3xl font-extrabold mt-0.5" style="color:${pos ? '#059669' : '#BE123C'};">${projected}</div>
+        <div class="text-xs font-bold" style="color:${pos ? '#059669' : '#BE123C'};">${pos ? '▲' : '▼'} ${Math.abs(delta)} points</div>
+      </div>
+      <div class="text-[10px] mt-3 leading-relaxed" style="color:var(--text-3);">${explain}</div>
+    </div>`;
+  toast('Score simulation complete', 'success', 1800);
+}
+
+(function bootNewFeatures() {
+  loadGoalsData();
+})();
+
 window.onload = function() {
   loadAppSettings();
   applyAppSettingsOnLoad();
@@ -5676,6 +5978,21 @@ window.addEventListener('resize', () => {
   autoCollapseMobileSections();
   const cb = document.getElementById('sidebarCollapseBtn');
   if (cb) cb.classList.toggle('hidden', window.innerWidth < 1024);
+});
+/* Robust dismissal for dynamically-created goal modals */
+document.addEventListener('click', function (e) {
+  // Click on backdrop (the .fixed wrapper itself, not any child)
+  if (e.target.classList && e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
+    if (e.target.querySelector('#contribAmount') || e.target.querySelector('#newGoalName')) {
+      e.target.remove();
+    }
+  }
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Escape') return;
+  document.querySelectorAll('.fixed.inset-0').forEach(el => {
+    if (el.querySelector('#contribAmount') || el.querySelector('#newGoalName')) el.remove();
+  });
 });
 </script>
 </body>
