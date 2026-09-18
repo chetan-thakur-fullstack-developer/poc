@@ -655,14 +655,6 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
       </nav>
 
       <div class="p-3 space-y-2 shrink-0" style="border-top: 1px solid var(--border);">
-        <!-- <label class="sidebar-footer-full flex items-center gap-2.5 cursor-pointer text-xs font-semibold px-3 py-2 rounded-lg transition-all" style="background: var(--surface); border: 1px solid var(--border-strong); color: var(--text-2);">
-          <input type="checkbox" id="taxHaircutToggle" onchange="updateDashboard()" class="rounded" style="accent-color: var(--accent);">
-          <span>Apply Tax Haircuts</span>
-        </label> -->
-        <!-- <button onclick="toggleLedgerDrawer()" class="sidebar-ledger-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.24);">
-          <span class="flex items-center gap-2"><i data-lucide="database" class="w-3.5 h-3.5"></i><span>Portfolio Ledger</span></span>
-          <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i>
-        </button> -->
         <div class="relative" id="sidebarProfileWrap">
           <button id="sidebarProfileTrigger" class="sidebar-profile-trigger" onclick="toggleProfileMenu(event)">
             <div class="profile-avatar" id="sidebarProfileAvatar">EW</div>
@@ -940,7 +932,7 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 text-lg" style="background: rgba(139,92,246,.10); color: #6D28D9; border: 1px solid rgba(139,92,246,.20);">🔄</span>
               <div class="min-w-0">
-                <h3 class="text-sm font-bold tracking-tight flex items-center gap-2 flex-wrap" style="color: var(--text-1);">Recent Transactions<span id="txSyncBadge" class="badge badge-slate">--</span></h3>
+                <h3 class="text-sm font-bold tracking-tight flex items-center gap-2 flex-wrap" style="color: var(--text-1);">Recent Transactions<span id="txSyncBadge" class="badge badge-slate">--</span><span id="txRangeBadge" class="badge badge-blue">Any Date</span></h3>
                 <p id="txLastSync" class="text-[11px] font-semibold" style="color: var(--text-4);">Never synced</p>
               </div>
             </div>
@@ -1699,7 +1691,7 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
           <div class="collapsible-header pb-4" style="border-bottom: 1px solid var(--border);" onclick="toggleCollapse(this)">
             <div class="flex items-center gap-3 min-w-0">
               <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm" style="background: rgba(236,72,153,.10); color: #BE185D; border: 1px solid rgba(236,72,153,.20);">🧾</span>
-              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate flex items-center gap-2 flex-wrap" style="color: var(--text-1);">Transaction History<span id="expDataSourceBadge" class="badge badge-slate">--</span></h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Grouped by year and month, newest first</p></div>
+              <div class="min-w-0"><h3 class="text-sm font-bold tracking-tight truncate flex items-center gap-2 flex-wrap" style="color: var(--text-1);">Transaction History<span id="expDataSourceBadge" class="badge badge-slate">--</span><span id="expRangeBadge" class="badge badge-blue">All Time</span></h3><p class="text-[11px] font-semibold truncate" style="color: var(--text-4);">Grouped by year and month, newest first</p></div>
             </div>
             <i data-lucide="chevron-down" class="collapsible-icon w-4 h-4" style="color: var(--text-4);"></i>
           </div>
@@ -1717,6 +1709,28 @@ html.dark .slider-hero::-moz-range-thumb { border-color: #18181B; }
               <button onclick="setTxSourceFilter('manual')" class="chip" data-source="manual"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Manual</button>
               <button onclick="setTxSourceFilter('plaid')" class="chip" data-source="plaid"><i data-lucide="link" class="w-3.5 h-3.5"></i> Plaid</button>
               <span id="txSourceCount" class="text-[10px] font-bold ml-1" style="color: var(--text-4);"></span>
+              <div class="relative ml-auto">
+                <button id="expLocalDateChip" onclick="toggleExpLocalDatePopover(event)" class="chip !py-2 !px-3"><i data-lucide="calendar-range" class="w-3.5 h-3.5"></i><span id="expLocalDateLabel">All Time</span><i data-lucide="chevron-down" class="w-3 h-3"></i></button>
+                <div id="expLocalDatePopover" class="popover popover-left">
+                  <div class="px-2 pt-1 pb-2">
+                    <p class="text-[10px] font-extrabold uppercase tracking-widest mb-2 px-2" style="color: var(--text-4);">Quick Ranges</p>
+                    <button class="popover-item" data-preset="all" onclick="setExpLocalDateRange('all')"><i data-lucide="infinity" class="w-3.5 h-3.5"></i> All Time</button>
+                    <button class="popover-item" data-preset="ytd" onclick="setExpLocalDateRange('ytd')"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> Year to Date</button>
+                    <button class="popover-item" data-preset="mtd" onclick="setExpLocalDateRange('mtd')"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i> Month to Date</button>
+                    <button class="popover-item" data-preset="7d" onclick="setExpLocalDateRange('7d')"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Last 7 Days</button>
+                    <button class="popover-item" data-preset="30d" onclick="setExpLocalDateRange('30d')"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Last 30 Days</button>
+                    <button class="popover-item" data-preset="90d" onclick="setExpLocalDateRange('90d')"><i data-lucide="history" class="w-3.5 h-3.5"></i> Last 90 Days</button>
+                    <button class="popover-item" data-preset="12m" onclick="setExpLocalDateRange('12m')"><i data-lucide="calendar-clock" class="w-3.5 h-3.5"></i> Last 12 Months</button>
+                    <button class="popover-item" data-preset="ly" onclick="setExpLocalDateRange('ly')"><i data-lucide="calendar-x" class="w-3.5 h-3.5"></i> Last Year</button>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="p-2 space-y-2">
+                    <p class="text-[10px] font-extrabold uppercase tracking-widest px-1" style="color: var(--text-4);">Custom Range</p>
+                    <div class="flex items-center gap-2"><input type="date" id="expLocalDateStart" class="input !py-1.5 !text-[11px]"><span style="color: var(--text-4);">→</span><input type="date" id="expLocalDateEnd" class="input !py-1.5 !text-[11px]"></div>
+                    <div class="flex gap-2"><button onclick="applyExpLocalCustomDate()" class="btn btn-primary flex-grow !py-2">Apply</button><button onclick="clearExpLocalDateRange()" class="btn btn-ghost !py-2"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="mobile-filter-bar">
               <button class="mfb-btn flex-grow justify-center" id="expTxFilterBtn" onclick="openFilterSheet('exp-tx')">
@@ -2455,6 +2469,7 @@ const CARD_ISSUER_META = { VISA: { short: 'VISA' }, MASTERCARD: { short: 'MC' },
 let currentCurrency = "USD";
 const CURRENCY_CONFIG = { USD: { symbol: "$", code: "USD", locale: "en-US" }, EUR: { symbol: "€", code: "EUR", locale: "de-DE" }, GBP: { symbol: "£", code: "GBP", locale: "en-GB" }, INR: { symbol: "₹", code: "INR", locale: "en-IN" }, CAD: { symbol: "C$", code: "CAD", locale: "en-CA" }, AUD: { symbol: "A$", code: "AUD", locale: "en-AU" }, JPY: { symbol: "¥", code: "JPY", locale: "ja-JP" } };
 let txLocalDateRange = { preset: 'all', start: null, end: null, label: 'Any Date' };
+let expLocalDateRange = { preset: 'all', start: null, end: null, label: 'All Time' };
 
 const chartTypeState = {
   growth: 'area',
@@ -2905,8 +2920,6 @@ function applyAccentColor(hex) {
   try {
     const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
     document.documentElement.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
-    // Auto-contrast: if the accent is bright (like mint green), use dark text.
-    // If it's dark (like deep purple), use white text.
     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
     const textColor = luminance > 0.6 ? '#04140E' : '#FFFFFF';
     document.documentElement.style.setProperty('--accent-text', textColor);
@@ -3270,7 +3283,7 @@ function editExpenseCategoryModal(catId) {
 
 function exportAllData() {
   try {
-    const payload = { _meta: { version: '4.3.1', exportedAt: new Date().toISOString() }, settings: appSettings, portfolio: { categories: categoriesConfig, irsBaseLimits, defaultAccountData: portfolioData, currency: currentCurrency }, expenses: expenseStore, accounts: accountsStore, dateRange: globalDateRange, txLocalDateRange, goals: DB.goals };
+    const payload = { _meta: { version: '4.3.1', exportedAt: new Date().toISOString() }, settings: appSettings, portfolio: { categories: categoriesConfig, irsBaseLimits, defaultAccountData: portfolioData, currency: currentCurrency }, expenses: expenseStore, accounts: accountsStore, dateRange: globalDateRange, txLocalDateRange, expLocalDateRange, goals: DB.goals };
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
     const a = document.createElement('a'); a.href = dataStr;
     a.download = `executive-wealth-backup-${new Date().toISOString().split('T')[0]}.json`;
@@ -3358,7 +3371,9 @@ function switchMainTab(event, tabId, scrollTop = false) {
   document.querySelectorAll('.nav-item').forEach(btn => { const onclick = btn.getAttribute('onclick') || ''; if (onclick.includes(`'${tabId}'`)) btn.classList.add('active'); });
   if (event && event.currentTarget && event.currentTarget.classList.contains('nav-item')) event.currentTarget.classList.add('active');
   const aside = document.querySelector('aside.desktop-sidebar'); if (aside && aside.classList.contains('mobile-open')) toggleMobileMenu();
-  if (scrollTop) { const ms = document.getElementById('mainScroll'); if (ms) ms.scrollTo({ top: 0, behavior: 'smooth' }); }
+  // Always land at the top of the section when switching tabs
+  const mainScrollEl = document.getElementById('mainScroll');
+  if (mainScrollEl) mainScrollEl.scrollTop = 0;
   if (tabId === 'tab-dashboard') dashRender();
   else if (tabId === 'tab-goals') initGoalsTab();
   else if (tabId === 'tab-credit') initCreditTab();
@@ -3569,9 +3584,77 @@ function updateTxLocalDateUI() {
   if (label) label.innerText = txLocalDateRange.label;
   if (chip) chip.classList.toggle('active', txLocalDateRange.preset !== 'all');
   document.querySelectorAll('#txLocalDatePopover .popover-item').forEach(el => { el.classList.toggle('active', el.dataset.preset === txLocalDateRange.preset); });
+  const hdr = document.getElementById('txRangeBadge'); if (hdr) hdr.innerText = txLocalDateRange.label;
 }
 document.addEventListener('click', (e) => {
   const pop = document.getElementById('txLocalDatePopover'); const chip = document.getElementById('txLocalDateChip');
+  if (pop && pop.classList.contains('open') && !pop.contains(e.target) && chip && !chip.contains(e.target)) pop.classList.remove('open');
+});
+
+/* ============================================================
+   SPENDING-SECTION-LOCAL DATE RANGE  (independent from tx/global)
+   ============================================================ */
+function getExpLocalDateBounds() {
+  const now = new Date(); const y = now.getFullYear(); const m = now.getMonth();
+  const startOf = (dt) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+  const endOfDay = (dt) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 23, 59, 59, 999);
+  switch (expLocalDateRange.preset) {
+    case 'ytd': return { start: startOf(new Date(y, 0, 1)), end: endOfDay(now), label: 'YTD ' + y };
+    case 'mtd': return { start: startOf(new Date(y, m, 1)), end: endOfDay(now), label: 'MTD ' + now.toLocaleString('default',{month:'short'}) + ' ' + y };
+    case '7d':  { const s = new Date(now); s.setDate(s.getDate() - 6);  return { start: startOf(s), end: endOfDay(now), label: 'Last 7 Days' }; }
+    case '30d': { const s = new Date(now); s.setDate(s.getDate() - 29); return { start: startOf(s), end: endOfDay(now), label: 'Last 30 Days' }; }
+    case '90d': { const s = new Date(now); s.setDate(s.getDate() - 89); return { start: startOf(s), end: endOfDay(now), label: 'Last 90 Days' }; }
+    case '12m': { const s = new Date(now); s.setMonth(s.getMonth() - 12); return { start: startOf(s), end: endOfDay(now), label: 'Last 12 Months' }; }
+    case 'ly':  return { start: startOf(new Date(y - 1, 0, 1)), end: endOfDay(new Date(y - 1, 11, 31)), label: 'Last Year ' + (y - 1) };
+    case 'custom': return { start: expLocalDateRange.start, end: expLocalDateRange.end, label: expLocalDateRange.label };
+    default: return { start: null, end: null, label: 'All Time' };
+  }
+}
+function isDateInExpLocalRange(dateStr) {
+  if (expLocalDateRange.preset === 'all') return true;
+  const bounds = getExpLocalDateBounds(); if (!bounds.start || !bounds.end) return true;
+  const d = new Date(dateStr + 'T12:00:00'); return d >= bounds.start && d <= bounds.end;
+}
+function toggleExpLocalDatePopover(e) { if (e) e.stopPropagation(); document.getElementById('expLocalDatePopover')?.classList.toggle('open'); }
+function closeExpLocalDatePopover() { document.getElementById('expLocalDatePopover')?.classList.remove('open'); }
+function setExpLocalDateRange(preset, customStart, customEnd, silent) {
+  expLocalDateRange.preset = preset;
+  if (preset === 'custom') {
+    expLocalDateRange.start = customStart ? new Date(customStart + 'T00:00:00') : null;
+    expLocalDateRange.end   = customEnd   ? new Date(customEnd   + 'T23:59:59') : null;
+    expLocalDateRange.label = customStart && customEnd ? `${customStart} → ${customEnd}` : 'Custom';
+  } else { expLocalDateRange.label = getExpLocalDateBounds().label; }
+  updateExpLocalDateUI(); closeExpLocalDatePopover();
+  renderExpenseDashboard(); updateFilterCountBadges();
+  if (!silent) toast(`Spending range: ${expLocalDateRange.label}`, 'info', 2000);
+}
+function applyExpLocalCustomDate() {
+  const s = document.getElementById('expLocalDateStart')?.value; const e = document.getElementById('expLocalDateEnd')?.value;
+  if (!s || !e) { toast('Please pick both start and end dates.', 'warning'); return; }
+  if (new Date(s) > new Date(e)) { toast('Start date must be before end date.', 'error'); return; }
+  setExpLocalDateRange('custom', s, e);
+}
+function clearExpLocalDateRange() {
+  expLocalDateRange = { preset: 'all', start: null, end: null, label: 'All Time' };
+  updateExpLocalDateUI(); closeExpLocalDatePopover(); renderExpenseDashboard(); updateFilterCountBadges();
+}
+function updateExpLocalDateUI() {
+  const label = document.getElementById('expLocalDateLabel'); const chip = document.getElementById('expLocalDateChip');
+  if (label) label.innerText = expLocalDateRange.label;
+  if (chip)  chip.classList.toggle('active', expLocalDateRange.preset !== 'all');
+  document.querySelectorAll('#expLocalDatePopover .popover-item').forEach(el => { el.classList.toggle('active', el.dataset.preset === expLocalDateRange.preset); });
+  const hdr = document.getElementById('expRangeBadge'); if (hdr) hdr.innerText = expLocalDateRange.label;
+}
+function pickExpDatePreset(v) { setExpLocalDateRange(v, null, null, true); if (document.getElementById('filterSheet')?.classList.contains('open')) openFilterSheet('exp-tx'); }
+function applyExpSheetCustom() {
+  const s = document.getElementById('fsExpStart')?.value; const e = document.getElementById('fsExpEnd')?.value;
+  if (!s || !e) { toast('Please pick both start and end dates.', 'warning'); return; }
+  if (new Date(s) > new Date(e)) { toast('Start date must be before end date.', 'error'); return; }
+  setExpLocalDateRange('custom', s, e, true);
+  if (document.getElementById('filterSheet')?.classList.contains('open')) openFilterSheet('exp-tx');
+}
+document.addEventListener('click', (e) => {
+  const pop = document.getElementById('expLocalDatePopover'); const chip = document.getElementById('expLocalDateChip');
   if (pop && pop.classList.contains('open') && !pop.contains(e.target) && chip && !chip.contains(e.target)) pop.classList.remove('open');
 });
 
@@ -3602,7 +3685,12 @@ function openFilterSheet(kind) {
       <div class="filter-sheet-section"><span class="filter-sheet-label">Date range</span><div class="filter-sheet-options">${[['all','Any'],['ytd','YTD'],['mtd','MTD'],['7d','7d'],['30d','30d'],['90d','90d'],['12m','12m'],['ly','Last Yr']].map(([k,label]) => `<button class="filter-option ${txLocalDateRange.preset===k?'active':''}" data-value="${k}" onclick="pickPlaidDatePreset('${k}')">${label}</button>`).join('')}</div></div>`;
   } else if (kind === 'exp-tx') {
     title.innerText = 'Filter Transactions';
-    body.innerHTML = `<div class="filter-sheet-section"><span class="filter-sheet-label">Source</span><div class="filter-sheet-options">${[['all','All','layers'],['manual','Manual','pencil'],['plaid','Plaid','link']].map(([k,label,icon]) => `<button class="filter-option ${txSourceFilter===k?'active':''}" data-value="${k}" onclick="pickTxSource('${k}')"><i data-lucide="${icon}"></i> ${label}</button>`).join('')}</div></div>`;
+    const s = expLocalDateRange.preset === 'custom' && expLocalDateRange.start ? expLocalDateRange.start.toISOString().slice(0,10) : '';
+    const e2 = expLocalDateRange.preset === 'custom' && expLocalDateRange.end   ? expLocalDateRange.end.toISOString().slice(0,10)   : '';
+    body.innerHTML = `
+      <div class="filter-sheet-section"><span class="filter-sheet-label">Source</span><div class="filter-sheet-options">${[['all','All','layers'],['manual','Manual','pencil'],['plaid','Plaid','link']].map(([k,label,icon]) => `<button class="filter-option ${txSourceFilter===k?'active':''}" data-value="${k}" onclick="pickTxSource('${k}')"><i data-lucide="${icon}"></i> ${label}</button>`).join('')}</div></div>
+      <div class="filter-sheet-section"><span class="filter-sheet-label">Date range</span><div class="filter-sheet-options">${[['all','All Time'],['ytd','YTD'],['mtd','MTD'],['7d','Last 7d'],['30d','Last 30d'],['90d','Last 90d'],['12m','12 Months'],['ly','Last Year']].map(([k,label]) => `<button class="filter-option ${expLocalDateRange.preset===k?'active':''}" data-value="${k}" onclick="pickExpDatePreset('${k}')">${label}</button>`).join('')}</div></div>
+      <div class="filter-sheet-section"><span class="filter-sheet-label">Custom range</span><div class="filter-sheet-input-wrap"><input type="date" class="input" id="fsExpStart" value="${s}"><span style="color:var(--text-4);">→</span><input type="date" class="input" id="fsExpEnd" value="${e2}"></div><button class="btn btn-primary w-full !py-2 mt-2" onclick="applyExpSheetCustom()">Apply custom range</button></div>`;
   } else if (kind === 'cards') {
     title.innerText = 'Filter Cards';
     body.innerHTML = `<div class="filter-sheet-section"><span class="filter-sheet-label">Show</span><div class="filter-sheet-options">${[['all','All','layers'],['cards','Credit Cards','credit-card'],['debit','Debit / Bank','wallet'],['highutil','High Util.','alert-triangle'],['paid','Fully Paid','check-circle-2']].map(([k,label,icon]) => `<button class="filter-option ${cardsFilter===k?'active':''}" data-value="${k}" onclick="pickCardsFilter('${k}')"><i data-lucide="${icon}"></i> ${label}</button>`).join('')}</div></div>`;
@@ -3615,14 +3703,20 @@ function resetFilterSheet() {
   if (title.includes('Accounts')) { setAccountsFilter('all'); openFilterSheet('accounts'); }
   else if (title.includes('Cards')) { setCardsFilter('all'); openFilterSheet('cards'); }
   else if (title.includes('Transactions')) {
-    setTxSourceFilter('all');
-    const acct = document.getElementById('txAccountFilter'); if (acct) acct.value = '';
-    const cat = document.getElementById('txCategoryFilter'); if (cat) cat.value = '';
-    const pend = document.getElementById('txPendingOnly'); if (pend) pend.checked = false;
-    const s1 = document.getElementById('txSearchInput'); if (s1) s1.value = '';
-    const s2 = document.getElementById('txSearchInputMobile'); if (s2) s2.value = '';
-    clearTxLocalDateRange(); renderTransactions();
-    if (currentTabId === 'tab-transactions') openFilterSheet('plaid-tx'); else openFilterSheet('exp-tx');
+    if (currentTabId === 'tab-expenses') {
+      setTxSourceFilter('all');
+      clearExpLocalDateRange();
+      openFilterSheet('exp-tx');
+    } else {
+      setTxSourceFilter('all');
+      const acct = document.getElementById('txAccountFilter'); if (acct) acct.value = '';
+      const cat = document.getElementById('txCategoryFilter'); if (cat) cat.value = '';
+      const pend = document.getElementById('txPendingOnly'); if (pend) pend.checked = false;
+      const s1 = document.getElementById('txSearchInput'); if (s1) s1.value = '';
+      const s2 = document.getElementById('txSearchInputMobile'); if (s2) s2.value = '';
+      clearTxLocalDateRange();
+      openFilterSheet('plaid-tx');
+    }
   }
   updateFilterCountBadges();
 }
@@ -3646,7 +3740,7 @@ function updateFilterCountBadges() {
   if (txLocalDateRange.preset !== 'all') plaidCount++;
   const txBadge = document.getElementById('txFilterCount'); if (txBadge) { txBadge.classList.toggle('hidden', plaidCount === 0); txBadge.innerText = plaidCount; }
   const txBtn = document.getElementById('txFilterBtn'); if (txBtn) txBtn.classList.toggle('active', plaidCount > 0);
-  const expCount = txSourceFilter !== 'all' ? 1 : 0;
+  const expCount = (txSourceFilter !== 'all' ? 1 : 0) + (expLocalDateRange.preset !== 'all' ? 1 : 0);
   const expBadge = document.getElementById('expTxFilterCount'); if (expBadge) { expBadge.classList.toggle('hidden', expCount === 0); expBadge.innerText = expCount; }
   const expBtn = document.getElementById('expTxFilterBtn'); if (expBtn) expBtn.classList.toggle('active', expCount > 0);
   const cardCount = cardsFilter !== 'all' ? 1 : 0;
@@ -3702,7 +3796,7 @@ document.getElementById('cmdInput')?.addEventListener('keydown', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openCommandPalette(); }
-  if (e.key === 'Escape') { closeCommandPalette(); closeDatePopover(); closeFilterSheet(); closeProfileMenu(); closeSettingsSheet(); }
+  if (e.key === 'Escape') { closeCommandPalette(); closeDatePopover(); closeTxLocalDatePopover(); closeExpLocalDatePopover(); closeFilterSheet(); closeProfileMenu(); closeSettingsSheet(); }
   if (e.key === '/' && !e.metaKey && !e.ctrlKey && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') { e.preventDefault(); openCommandPalette(); }
 });
 
@@ -3727,7 +3821,7 @@ function initDashboard() {
   updateCurrencyLabels(); if (typeof lucide !== 'undefined') lucide.createIcons();
   buildDynamicTableHeaders(); buildDynamicMiniCards(); renderPreTaxInputs(); renderPostTaxInputs();
   renderTables(); renderComparisonTable(); updateDashboard();
-  switchPaySection('pay-sec-base'); updateDateRangeUI(); updateNavBadges();
+  switchPaySection('pay-sec-base'); updateDateRangeUI(); updateTxLocalDateUI(); updateExpLocalDateUI(); updateNavBadges();
   dashInitLayout(); dashRender(); updateFilterCountBadges();
   if (document.getElementById('portfolioCategoriesList')) renderSettingsCategoryLists();
   renderChartToggles();
@@ -3752,7 +3846,7 @@ function updateSalarySourceLabel() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-const DASH_STORAGE_KEY = 'dash_layout_v2';   // bumped → new default takes effect
+const DASH_STORAGE_KEY = 'dash_layout_v2';
 const DASH_WIDGET_DEFS = {
   kpis:        { label: 'Key Metrics',       icon: 'activity',       size: 'full', desc: 'Portfolio, contributions, returns' },
   networth:    { label: 'Net Worth',         icon: 'wallet',         size: 'md',   desc: 'Assets minus liabilities' },
@@ -3772,19 +3866,12 @@ const DASH_WIDGET_DEFS = {
   hub:         { label: 'Paystub Snapshot',  icon: 'receipt',        size: 'md',   desc: 'Take-home estimate' }
 };
 const DASH_DEFAULT_LAYOUT = [
-  // Row 1 — headline KPIs (12)
   'kpis',
-  // Row 2 — primary visual (8) + net worth (4)
   'growth', 'networth',
-  // Row 3 — three equal stat cards (4+4+4)
   'allocation', 'spend', 'fire',
-  // Row 4 — two half-width panels (6+6)
   'recent', 'yoy',
-  // Row 5 — three equal trackers (4+4+4)
   'contrib', 'taxbuckets', 'categories',
-  // Row 6 — big projection (8) + accounts (4)
   'projections', 'accounts',
-  // Row 7 — three equal small cards (4+4+4)
   'subs', 'ef', 'hub'
 ];
 let dashLayout = [...DASH_DEFAULT_LAYOUT]; let dashHidden = []; let dashCustomizeMode = false;
@@ -3831,10 +3918,32 @@ function dashWidgetBody(key) {
 }
 function dwKPIs() {
   const y = document.getElementById('yearFilter')?.value || '2026';
-  const idx = portfolioData.findIndex(d => d.year === y); const data = portfolioData[idx]; if (!data) return '';
-  const ret = getDynamicReturns(idx); const total = getTotalBal(data); const contri = getTotalContri(data);
-  let cumGain = 0; for (let i = 0; i <= idx; i++) cumGain += getDynamicReturns(i).amount;
-  return `<div class="grid grid-cols-2 lg:grid-cols-4 gap-3">${dashKpiTile('💼','Portfolio', formatCurrency(total,0), 'var(--text-1)')}${dashKpiTile('💰','Contributions', formatCurrency(contri,0), '#6D28D9')}${dashKpiTile('📈','Annual Return', formatCurrency(ret.amount,0), ret.amount>=0?'#059669':'#BE123C')}${dashKpiTile('🏆','Cumulative', formatCurrency(cumGain,0), cumGain>=0?'#059669':'#BE123C')}</div>`;
+  const idx = portfolioData.findIndex(d => d.year === y);
+  const data = portfolioData[idx];
+  if (!data) return '';
+  const ret     = getDynamicReturns(idx);
+  const total   = getTotalBal(data);
+  const contri  = getTotalContri(data);
+  let cumGain = 0;
+  let pctSum  = 0;
+  for (let i = 0; i <= idx; i++) {
+    const r = getDynamicReturns(i);
+    cumGain += r.amount;
+    pctSum  += r.pct;
+  }
+  const avgPct = idx >= 0 ? (pctSum / (idx + 1)) : 0;
+  const retColor = ret.amount >= 0 ? '#059669' : '#BE123C';
+  const cumColor = cumGain   >= 0 ? '#059669' : '#BE123C';
+  const pctColor = ret.pct   >= 0 ? '#059669' : '#BE123C';
+  const avgColor = avgPct    >= 0 ? '#DB2777' : '#BE123C';
+  return `<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+    ${dashKpiTile('💼','Portfolio',       formatCurrency(total,0),   'var(--text-1)')}
+    ${dashKpiTile('💰','Contributions',   formatCurrency(contri,0),  '#6D28D9')}
+    ${dashKpiTile('📈','Annual Return',   formatCurrency(ret.amount,0), retColor)}
+    ${dashKpiTile('🎯','Return %',        ret.pct + '%',             pctColor)}
+    ${dashKpiTile('🏆','Cumulative',      formatCurrency(cumGain,0), cumColor)}
+    ${dashKpiTile('📊','Avg Rate %',      avgPct.toFixed(2) + '%',   avgColor)}
+  </div>`;
 }
 function dwNetWorth() {
   const all = allAccounts();
@@ -3849,10 +3958,10 @@ function dwAccounts() {
   return `<div class="space-y-2">${all.map(a => { const meta = accountTypeMeta(a.type); const isL = meta.liability; const bal = Number(a.balance)||0; return `<div class="flex items-center gap-2.5 py-1"><span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0" style="background: ${(a.color||'#8B5CF6')}18; border: 1px solid ${(a.color||'#8B5CF6')}33;">${meta.emoji}</span><div class="min-w-0 flex-grow"><div class="text-xs font-bold truncate" style="color:var(--text-1);">${a.name}</div><div class="text-[10px] truncate" style="color:var(--text-4);">${a.institution||'—'}${a.mask?' ••'+a.mask:''}</div></div><div class="text-right shrink-0"><div class="privacy-target text-xs font-extrabold font-mono" style="color:${isL?'#BE123C':'#059669'};">${isL?'−':''}${formatCurrency(bal,0)}</div></div></div>`; }).join('')}</div>`;
 }
 function dwSpend() {
-  const filtered = getFilteredExpenseTransactions(); const totalSpent = filtered.reduce((sum, tx) => sum + (parseFloat(tx.amount)||0), 0);
+  const filtered = getFilteredExpenseTransactions('exp'); const totalSpent = filtered.reduce((sum, tx) => sum + (parseFloat(tx.amount)||0), 0);
   const budget = parseFloat(expenseStore.monthlyBudget) || 0; const pct = budget > 0 ? Math.min(100, (totalSpent/budget)*100) : 0;
   const color = pct > 85 ? '#BE123C' : pct >= 50 ? '#B45309' : '#059669';
-  return `<div class="space-y-3"><div class="privacy-target text-2xl font-extrabold tracking-tight" style="color:#BE123C;">${formatCurrency(totalSpent,0)}</div><div class="text-[10px] font-bold" style="color:var(--text-4);">of ${formatCurrency(budget,0)} monthly budget</div><div class="h-2 rounded-full overflow-hidden" style="background: var(--surface-3);"><div style="width:${pct}%; height:100%; background:${color}; transition: width .4s;"></div></div><div class="flex justify-between text-[10px] font-bold"><span style="color:var(--text-4);">${pct.toFixed(1)}% used</span><span style="color:var(--text-3);">${filtered.length} transactions</span></div></div>`;
+  return `<div class="space-y-3"><div class="privacy-target text-2xl font-extrabold tracking-tight" style="color:#BE123C;">${formatCurrency(totalSpent,0)}</div><div class="text-[10px] font-bold" style="color:var(--text-4);">of ${formatCurrency(budget,0)} monthly budget · ${expLocalDateRange.label}</div><div class="h-2 rounded-full overflow-hidden" style="background: var(--surface-3);"><div style="width:${pct}%; height:100%; background:${color}; transition: width .4s;"></div></div><div class="flex justify-between text-[10px] font-bold"><span style="color:var(--text-4);">${pct.toFixed(1)}% used</span><span style="color:var(--text-3);">${filtered.length} transactions</span></div></div>`;
 }
 function dwRecent() {
   const list = getUnifiedTransactions().sort((a,b)=> new Date(b._date)-new Date(a._date)).slice(0,6);
@@ -3886,13 +3995,13 @@ function dwTaxBuckets() {
 }
 function dwCategories() {
   const hidden = appSettings.hiddenCategories.expense || [];
-  const filtered = getFilteredExpenseTransactions();
+  const filtered = getFilteredExpenseTransactions('exp');
   const totals = expenseStore.categories.filter(cat => !hidden.includes(cat.id)).map(cat => ({ ...cat, total: filtered.filter(tx=>tx.categoryId===cat.id).reduce((s,tx)=>s+(parseFloat(tx.amount)||0),0) })).filter(c=>c.total>0).sort((a,b)=>b.total-a.total).slice(0,5);
   if (totals.length === 0) return `<div class="text-xs" style="color: var(--text-4);">No spend data yet.</div>`;
   return `<div class="space-y-2">${totals.map(c => `<div class="flex items-center gap-2"><span class="text-base shrink-0">${expenseEmoji(c)}</span><span class="text-[11px] font-bold truncate flex-grow" style="color:var(--text-2);">${c.label}</span><span class="privacy-target text-[11px] font-extrabold font-mono shrink-0" style="color:var(--text-1);">${formatCurrency(c.total,0)}</span></div>`).join('')}</div>`;
 }
 function dwSubs() {
-  const filtered = getFilteredExpenseTransactions(); const subs = filtered.filter(tx=>tx.isRecurring);
+  const filtered = getFilteredExpenseTransactions('exp'); const subs = filtered.filter(tx=>tx.isRecurring);
   const total = subs.reduce((s,tx)=>s+(parseFloat(tx.amount)||0),0);
   return `<div class="space-y-2"><div class="privacy-target text-xl font-extrabold" style="color:#6D28D9;">${formatCurrency(total,0)}</div><div class="text-[10px] font-bold" style="color:var(--text-4);">/ month across ${subs.length} subscriptions</div></div>`;
 }
@@ -4634,16 +4743,18 @@ async function saveExpenseStore() {
     if (putRes.ok) toast("expense_tracker_data.json committed to GitHub.", "success"); else { const errorData = await putRes.json(); toast(`Expense Commit Failed: ${errorData.message || putRes.statusText}`, "error"); }
   } catch (error) { console.error("Direct Expense Commit Error:", error); toast(`Failed to commit expenses: ${error.message}. Local changes kept.`, "error"); }
 }
-function getMergedExpenseList() {
+function getMergedExpenseList(rangeMode) {
+  const inRange = rangeMode === 'exp' ? isDateInExpLocalRange : isDateInRange;
   const manual = (expenseStore.transactions || []).map(tx => ({ id: tx.id, source: 'manual', date: tx.date, amount: Math.abs(parseFloat(tx.amount) || 0), description: tx.description || 'Expense', categoryId: tx.categoryId, cardId: tx.cardId || null, accountId: null, isRecurring: !!tx.isRecurring, isExpense: true }));
   const plaid = (accountsStore.plaidTransactions || []).map(tx => { const raw = parseFloat(tx.amount) || 0; return { id: tx.id, source: 'plaid', date: tx.date, amount: Math.abs(raw), description: tx.merchantName || tx.name || 'Transaction', categoryId: tx.categoryId, cardId: null, accountId: tx.accountId, isRecurring: false, isExpense: raw > 0 }; });
-  return [...manual, ...plaid].filter(tx => isDateInRange(tx.date));
+  return [...manual, ...plaid].filter(tx => inRange(tx.date));
 }
-function getFilteredExpenseTransactions() { return getMergedExpenseList().filter(tx => tx.isExpense); }
-function getUnifiedTransactions() {
+function getFilteredExpenseTransactions(rangeMode) { return getMergedExpenseList(rangeMode).filter(tx => tx.isExpense); }
+function getUnifiedTransactions(rangeMode) {
+  const inRange = rangeMode === 'exp' ? isDateInExpLocalRange : isDateInRange;
   const manual = (expenseStore.transactions || []).map(tx => ({ _source: 'manual', _id: tx.id, _date: tx.date, _amount: Math.abs(parseFloat(tx.amount) || 0), _description: tx.description || 'Expense', _categoryId: tx.categoryId, _cardId: tx.cardId, _isRecurring: !!tx.isRecurring, _pending: false, _raw: tx }));
   const plaid = (accountsStore.plaidTransactions || []).map(tx => ({ _source: 'plaid', _id: tx.id, _date: tx.date, _amount: Math.abs(parseFloat(tx.amount) || 0), _description: tx.merchantName || tx.name || 'Transaction', _categoryId: tx.categoryId, _accountLabel: `${tx.accountInstitution || '—'} ••${tx.accountMask || '—'}`, _plaidCategory: tx.plaidCategory, _categorySource: tx.categorySource, _pending: !!tx.pending, _isRecurring: false, _raw: tx }));
-  return [...manual, ...plaid].filter(tx => isDateInRange(tx._date));
+  return [...manual, ...plaid].filter(tx => inRange(tx._date));
 }
 function setTxSourceFilter(source) {
   txSourceFilter = source;
@@ -4652,7 +4763,8 @@ function setTxSourceFilter(source) {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 function renderExpenseDashboard() {
-  const filteredTx = getFilteredExpenseTransactions();
+  updateExpLocalDateUI();
+  const filteredTx = getFilteredExpenseTransactions('exp');
   const totalMonthlySpent = filteredTx.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
   const cardsCalculated = expenseStore.cards.map(card => { const totalCharges = filteredTx.filter(tx => tx.cardId === card.id).reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0); const pendingBalance = Math.max(0, totalCharges - (parseFloat(card.paid) || 0)); return { ...card, pendingBalance, totalCharges }; });
   const totalOutstandingCredit = cardsCalculated.reduce((sum, c) => sum + c.pendingBalance, 0);
@@ -4663,7 +4775,8 @@ function renderExpenseDashboard() {
   const ebi = document.getElementById('expBudgetInput'); if (ebi) ebi.value = budgetVal;
   const ebs = document.getElementById('expBudgetSubtext'); if (ebs) ebs.innerText = `Spent ${formatCurrency(totalMonthlySpent)} · Remaining ${formatCurrency(remainingBudget)}`;
   const ems = document.getElementById('expMetricSpent'); if (ems) ems.innerText = formatCurrency(totalMonthlySpent);
-  const emsp = document.getElementById('expMetricSpentPace'); if (emsp) emsp.innerText = `${spentPct.toFixed(1)}% of budget allocated`;
+  const emsp = document.getElementById('expMetricSpentPace'); if (emsp) emsp.innerText = `${spentPct.toFixed(1)}% of budget · ${expLocalDateRange.label}`;
+  const expRangeBadge = document.getElementById('expRangeBadge'); if (expRangeBadge) expRangeBadge.innerText = expLocalDateRange.label;
   const emcb = document.getElementById('expMetricCreditBal'); if (emcb) emcb.innerText = formatCurrency(totalOutstandingCredit);
   const emcp = document.getElementById('expMetricCreditPaid'); if (emcp) emcp.innerText = `Paid this cycle: ${formatCurrency(totalPaidThisCycle)}`;
   const budgetLeftEl = document.getElementById('expMetricBudgetLeft'); const budgetLeftSubEl = document.getElementById('expMetricBudgetLeftSub');
@@ -4676,7 +4789,7 @@ function renderExpenseDashboard() {
 }
 function setCardsFilter(filter) {
   cardsFilter = filter;
-  const filteredTx = getFilteredExpenseTransactions();
+  const filteredTx = getFilteredExpenseTransactions('exp');
   const cardsCalculated = expenseStore.cards.map(card => { const totalCharges = filteredTx.filter(tx => tx.cardId === card.id).reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0); const pendingBalance = Math.max(0, totalCharges - (parseFloat(card.paid) || 0)); return { ...card, pendingBalance, totalCharges }; });
   renderCardsGrouped(cardsCalculated); updateFilterCountBadges();
 }
@@ -4726,7 +4839,7 @@ function renderCardRow(card) {
 }
 function renderCategoryPacing(filteredTx) {
   const container = document.getElementById('expCategoryPacingList'); if (!container) return; container.innerHTML = "";
-  const txList = filteredTx || getFilteredExpenseTransactions();
+  const txList = filteredTx || getFilteredExpenseTransactions('exp');
   const hidden = appSettings.hiddenCategories.expense || [];
   expenseStore.categories.forEach(cat => {
     if (hidden.includes(cat.id)) return;
@@ -4739,7 +4852,7 @@ function renderCategoryPacing(filteredTx) {
 }
 function renderExpenseChart(filteredTx) {
   const canvas = document.getElementById('expCategoryChart'); const rankList = document.getElementById('expCategoryRankList'); if (!canvas) return;
-  const txList = filteredTx || getFilteredExpenseTransactions();
+  const txList = filteredTx || getFilteredExpenseTransactions('exp');
   const labels = []; const data = []; const colors = [];
   const hidden = appSettings.hiddenCategories.expense || [];
   const categoryTotals = expenseStore.categories.filter(cat => !hidden.includes(cat.id)).map(cat => { const total = txList.filter(tx => tx.categoryId === cat.id).reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0); return { ...cat, total }; }).sort((a, b) => b.total - a.total);
@@ -4761,10 +4874,10 @@ function renderExpenseChart(filteredTx) {
 function renderTransactionTable() {
   const container = document.getElementById('expMonthlyGroupedContainer'); if (!container) return;
   container.innerHTML = '';
-  let list = getUnifiedTransactions();
+  let list = getUnifiedTransactions('exp');
   if (txSourceFilter !== 'all') list = list.filter(tx => tx._source === txSourceFilter);
   const countEl = document.getElementById('txSourceCount');
-  if (countEl) { const manualCount = list.filter(t => t._source === 'manual').length; const plaidCount = list.filter(t => t._source === 'plaid').length; countEl.innerText = `${list.length} shown · ${manualCount} manual · ${plaidCount} plaid`; }
+  if (countEl) { const manualCount = list.filter(t => t._source === 'manual').length; const plaidCount = list.filter(t => t._source === 'plaid').length; countEl.innerText = `${list.length} shown · ${manualCount} manual · ${plaidCount} plaid · ${expLocalDateRange.label}`; }
   if (!list || list.length === 0) {
     container.innerHTML = `<div class="p-6 text-center text-xs font-semibold rounded-xl" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text-3);">No transactions match the current filter.${txSourceFilter === 'plaid' ? ' Sync via the Accounts tab to pull Plaid activity.' : ''}</div>`;
     renderExpTxMobileList([]); return;
@@ -4827,7 +4940,7 @@ function jumpToPlaidTx(txId) {
 }
 function renderSubscriptions(filteredTx) {
   const container = document.getElementById('expSubscriptionsGrid'); const metricVal = document.getElementById('expMetricSubs'); const metricCount = document.getElementById('expMetricSubCount'); if (!container) return;
-  const txList = filteredTx || getFilteredExpenseTransactions();
+  const txList = filteredTx || getFilteredExpenseTransactions('exp');
   const recurringTx = txList.filter(tx => tx.isRecurring);
   const totalSubMonthly = recurringTx.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
   if (metricVal) metricVal.innerText = `${formatCurrency(totalSubMonthly)} / mo`;
@@ -4893,7 +5006,7 @@ function editCardModal(cardId) {
 }
 function deleteCard(cardId) { if (confirm("Delete this card profile?")) { expenseStore.cards = expenseStore.cards.filter(c => c.id !== cardId); populateFormDropdowns(); saveExpenseStore(); } }
 function exportTransactionsCSV() {
-  const txList = getFilteredExpenseTransactions();
+  const txList = getFilteredExpenseTransactions('exp');
   let csvContent = "data:text/csv;charset=utf-8,ID,Date,Description,Category,Card,Amount,IsRecurring\n";
   txList.forEach(tx => { const cat = expenseStore.categories.find(c => c.id === tx.categoryId) || { label: "General" }; const card = expenseStore.cards.find(c => c.id === tx.cardId) || { name: "Card" }; csvContent += `"${tx.id}","${tx.date}","${tx.description}","${cat.label}","${card.name}",${tx.amount},${tx.isRecurring}\n`; });
   const encodedUri = encodeURI(csvContent); const link = document.createElement("a");
@@ -5290,16 +5403,18 @@ function renderTransactions() {
   const acctId = acctFilter?.value || ''; const catId = catFilter?.value || '';
   const pendingOnly = document.getElementById('txPendingOnly')?.checked || false;
   const filtered = allTxns.filter(tx => { if (!isDateInRange(tx.date)) return false; if (!isDateInTxLocalRange(tx.date)) return false; if (acctId && tx.accountId !== acctId) return false; if (catId === '__uncat__' && tx.categoryId) return false; if (catId && catId !== '__uncat__' && tx.categoryId !== catId) return false; if (pendingOnly && !tx.pending) return false; if (search) { const blob = `${tx.name} ${tx.merchantName} ${tx.amount}`.toLowerCase(); if (!blob.includes(search)) return false; } return true; });
-  const now = new Date(); const thisMonth = now.toISOString().slice(0, 7);
-  const thisMonthTxns = allTxns.filter(t => t.date.startsWith(thisMonth));
-  const spent = thisMonthTxns.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
-  const income = thisMonthTxns.filter(t => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
-  const net = income - spent; const pendingCount = allTxns.filter(t => t.pending).length; const uncatCount = allTxns.filter(t => !t.categoryId).length;
+  const spent = filtered.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
+  const income = filtered.filter(t => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
+  const net = income - spent;
+  const pendingCount = filtered.filter(t => t.pending).length;
+  const uncatCount = filtered.filter(t => !t.categoryId).length;
+  const rangeLabel = txLocalDateRange.label;
+  const txRangeBadgeEl = document.getElementById('txRangeBadge'); if (txRangeBadgeEl) txRangeBadgeEl.innerText = rangeLabel;
   if (statsBar) {
-    statsBar.innerHTML = `<div class="rounded-2xl p-4" style="background: var(--surface-2); border: 1px solid var(--border);"><div class="text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-1" style="color: var(--text-4);"><span>🛒</span> Spent This Month</div><div class="privacy-target text-lg font-extrabold" style="color: #BE123C;">${formatCurrency(spent, 0)}</div><div class="text-[10px] font-semibold mt-0.5" style="color: var(--text-4);">${thisMonthTxns.filter(t=>t.amount>0).length} outgoing</div></div>
-      <div class="rounded-2xl p-4" style="background: var(--surface-2); border: 1px solid var(--border);"><div class="text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-1" style="color: var(--text-4);"><span>💰</span> Income This Month</div><div class="privacy-target text-lg font-extrabold" style="color: #059669;">${formatCurrency(income, 0)}</div><div class="text-[10px] font-semibold mt-0.5" style="color: var(--text-4);">${thisMonthTxns.filter(t=>t.amount<0).length} incoming</div></div>
-      <div class="rounded-2xl p-4" style="background: var(--surface-2); border: 1px solid var(--border);"><div class="text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-1" style="color: var(--text-4);"><span>📊</span> Net This Month</div><div class="privacy-target text-lg font-extrabold" style="color: ${net >= 0 ? 'var(--text-1)' : '#BE123C'};">${formatCurrency(net, 0)}</div><div class="text-[10px] font-semibold mt-0.5" style="color: var(--text-4);">Across ${thisMonthTxns.length} transactions</div></div>
-      <div class="rounded-2xl p-4" style="background: var(--surface-2); border: 1px solid var(--border);"><div class="text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-1" style="color: var(--text-4);"><span>⚠️</span> Needs Review</div><div class="text-lg font-extrabold" style="color: ${uncatCount > 0 ? '#B45309' : 'var(--text-1)'};">${uncatCount}</div><div class="text-[10px] font-semibold mt-0.5" style="color: var(--text-4);">${pendingCount} pending</div></div>`;
+    statsBar.innerHTML = `<div class="rounded-2xl p-4" style="background: var(--surface-2); border: 1px solid var(--border);"><div class="text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-1" style="color: var(--text-4);"><span>🛒</span> Spent</div><div class="privacy-target text-lg font-extrabold" style="color: #BE123C;">${formatCurrency(spent, 0)}</div><div class="text-[10px] font-semibold mt-0.5" style="color: var(--text-4);">${filtered.filter(t=>t.amount>0).length} outgoing · ${rangeLabel}</div></div>
+      <div class="rounded-2xl p-4" style="background: var(--surface-2); border: 1px solid var(--border);"><div class="text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-1" style="color: var(--text-4);"><span>💰</span> Income</div><div class="privacy-target text-lg font-extrabold" style="color: #059669;">${formatCurrency(income, 0)}</div><div class="text-[10px] font-semibold mt-0.5" style="color: var(--text-4);">${filtered.filter(t=>t.amount<0).length} incoming · ${rangeLabel}</div></div>
+      <div class="rounded-2xl p-4" style="background: var(--surface-2); border: 1px solid var(--border);"><div class="text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-1" style="color: var(--text-4);"><span>📊</span> Net</div><div class="privacy-target text-lg font-extrabold" style="color: ${net >= 0 ? 'var(--text-1)' : '#BE123C'};">${formatCurrency(net, 0)}</div><div class="text-[10px] font-semibold mt-0.5" style="color: var(--text-4);">Across ${filtered.length} transactions · ${rangeLabel}</div></div>
+      <div class="rounded-2xl p-4" style="background: var(--surface-2); border: 1px solid var(--border);"><div class="text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-1" style="color: var(--text-4);"><span>⚠️</span> Needs Review</div><div class="text-lg font-extrabold" style="color: ${uncatCount > 0 ? '#B45309' : 'var(--text-1)'};">${uncatCount}</div><div class="text-[10px] font-semibold mt-0.5" style="color: var(--text-4);">${pendingCount} pending · ${rangeLabel}</div></div>`;
   }
   if (lastSyncEl) lastSyncEl.innerText = accountsStore.lastSync ? `Last synced: ${new Date(accountsStore.lastSync).toLocaleString()}` : 'Never synced';
   if (syncBadge) { syncBadge.innerText = `${filtered.length} / ${allTxns.length}`; syncBadge.className = "badge badge-violet"; }
@@ -5385,11 +5500,8 @@ function renderExpTxMobileList(list) {
 }
 
 /* ==========================================================================
-   SAVINGS GOALS + CREDIT HEALTH  — NEW FEATURES
+   SAVINGS GOALS + CREDIT HEALTH
    ========================================================================== */
-/* ============================================================
-   SAVINGS GOALS — Edit & Delete
-   ============================================================ */
 function openEditGoalModal(id) {
   const g = DB.goals.find(x => x.id === id);
   if (!g) { toast('Goal not found.', 'error'); return; }
@@ -5516,30 +5628,15 @@ function saveEditedGoal(id, triggerEl) {
   const color   = document.getElementById('editGoalColor')?.value || g.color;
   const shared  = !!document.getElementById('editGoalShared')?.checked;
 
-  if (!name || target <= 0 || !dateStr) {
-    toast('Please fill in name, target, and date.', 'warning');
-    return;
-  }
-  if (saved > target) {
-    toast('Saved amount cannot exceed the target.', 'warning');
-    return;
-  }
+  if (!name || target <= 0 || !dateStr) { toast('Please fill in name, target, and date.', 'warning'); return; }
+  if (saved > target) { toast('Saved amount cannot exceed the target.', 'warning'); return; }
 
-  g.name    = name;
-  g.target  = target;
-  g.saved   = Math.min(saved, target);
-  g.date    = dateStr;
-  g.monthly = monthly;
-  g.cat     = cat;
-  g.icon    = icon;
-  g.color   = color;
-  g.shared  = shared;
+  g.name = name; g.target = target; g.saved = Math.min(saved, target);
+  g.date = dateStr; g.monthly = monthly; g.cat = cat; g.icon = icon; g.color = color; g.shared = shared;
 
   saveGoalsData();
   if (triggerEl && triggerEl.closest) triggerEl.closest('.fixed')?.remove();
-  else document.querySelectorAll('.fixed.inset-0').forEach(el => {
-    if (el.querySelector('#editGoalName')) el.remove();
-  });
+  else document.querySelectorAll('.fixed.inset-0').forEach(el => { if (el.querySelector('#editGoalName')) el.remove(); });
 
   initGoalsTab();
   toast(`Goal "${name}" updated.`, 'success');
@@ -5548,38 +5645,21 @@ function saveEditedGoal(id, triggerEl) {
 function deleteGoal(id, triggerEl) {
   const g = DB.goals.find(x => x.id === id);
   if (!g) { toast('Goal not found.', 'error'); return; }
-
   if (!confirm(`Delete goal "${g.name}"?\n\nThis action cannot be undone.`)) return;
-
   DB.goals = DB.goals.filter(x => x.id !== id);
   saveGoalsData();
-
   if (triggerEl && triggerEl.closest) triggerEl.closest('.fixed')?.remove();
-  else document.querySelectorAll('.fixed.inset-0').forEach(el => {
-    if (el.querySelector('#editGoalName')) el.remove();
-  });
-
+  else document.querySelectorAll('.fixed.inset-0').forEach(el => { if (el.querySelector('#editGoalName')) el.remove(); });
   initGoalsTab();
   toast(`Goal "${g.name}" deleted.`, 'info');
 }
 
-/* --- Safe namespace + missing helpers (File 1 didn't define these) --- */
 window.DB = window.DB || {};
-
 if (typeof window.esc !== 'function') {
-  window.esc = function(s) {
-    return String(s).replace(/[&<>"']/g, function(c) {
-      return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c];
-    });
-  };
+  window.esc = function(s) { return String(s).replace(/[&<>"']/g, function(c) { return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]; }); };
 }
-
 if (typeof window.monthsUntil !== 'function') {
-  window.monthsUntil = function(dateStr) {
-    const t = new Date(dateStr);
-    const now = new Date();
-    return Math.max(0, (t.getFullYear() - now.getFullYear()) * 12 + (t.getMonth() - now.getMonth()));
-  };
+  window.monthsUntil = function(dateStr) { const t = new Date(dateStr); const now = new Date(); return Math.max(0, (t.getFullYear() - now.getFullYear()) * 12 + (t.getMonth() - now.getMonth())); };
 }
 if (!DB.goals) {
   DB.goals = [
@@ -5630,10 +5710,7 @@ function loadGoalsData() {
   try { const raw = localStorage.getItem('savings_goals_v1'); if (raw) { const parsed = JSON.parse(raw); if (Array.isArray(parsed) && parsed.length) DB.goals = parsed; } } catch(_){}
 }
 
-function goalRequiredMonthly(g) {
-  const months = Math.max(1, monthsUntil(g.date));
-  return Math.max(0, (g.target - g.saved) / months);
-}
+function goalRequiredMonthly(g) { const months = Math.max(1, monthsUntil(g.date)); return Math.max(0, (g.target - g.saved) / months); }
 function goalProjectedDate(g) {
   const remaining = Math.max(0, g.target - g.saved);
   if (g.monthly <= 0) return null;
@@ -5815,7 +5892,6 @@ function saveNewGoal(triggerEl) {
     cat, shared,
   });
   saveGoalsData();
-  // Close the modal reliably
   if (triggerEl && triggerEl.closest) {
     triggerEl.closest('.fixed')?.remove();
   } else {
@@ -5869,7 +5945,6 @@ function applyGoalContribution(id, triggerEl) {
   g.saved = Math.min(g.target, g.saved + amt);
   const after = (g.saved / g.target) * 100;
   saveGoalsData();
-  // Close the modal reliably — walk up from the clicked button
   if (triggerEl && triggerEl.closest) {
     triggerEl.closest('.fixed')?.remove();
   } else {
@@ -5883,9 +5958,7 @@ function applyGoalContribution(id, triggerEl) {
   else { toast(`${formatCurrency(amt,0)} added to ${g.name}`, 'success'); }
 }
 
-function celebrateGoal(id) {
-  toast('Milestone celebrated! 🎉', 'success');
-}
+function celebrateGoal(id) { toast('Milestone celebrated! 🎉', 'success'); }
 
 function applyGoalTemplate(name) {
   const t = DB.goalTemplates.find(x => x.name === name); if (!t) return;
@@ -5909,21 +5982,13 @@ let _creditTrendChart = null;
 
 function initCreditTab() {
   const c = DB.credit;
-
   const vEl = document.getElementById('creditScoreValue'); if (vEl) vEl.textContent = c.score;
   const lEl = document.getElementById('creditScoreLabel');
   if (lEl) {
-    const bands = [
-      { max: 579, label: 'Poor' },
-      { max: 669, label: 'Fair' },
-      { max: 739, label: 'Good' },
-      { max: 799, label: 'Very Good' },
-      { max: 850, label: 'Exceptional' },
-    ];
+    const bands = [ { max: 579, label: 'Poor' }, { max: 669, label: 'Fair' }, { max: 739, label: 'Good' }, { max: 799, label: 'Very Good' }, { max: 850, label: 'Exceptional' } ];
     const band = bands.find(b => c.score <= b.max) || bands[bands.length-1];
     lEl.textContent = `of 850 · ${band.label}`;
   }
-
   const gaugeCanvas = document.getElementById('creditScoreGauge');
   if (gaugeCanvas) {
     if (_creditScoreGaugeChart) { try { _creditScoreGaugeChart.destroy(); } catch(_){} }
@@ -5931,144 +5996,44 @@ function initCreditTab() {
     const trackColor = getComputedStyle(document.documentElement).getPropertyValue('--surface-3').trim() || '#E5E7EB';
     _creditScoreGaugeChart = new Chart(gaugeCanvas, {
       type: 'doughnut',
-      data: {
-        labels: ['Score', 'Remaining'],
-        datasets: [{
-          data: [frac, 1 - frac],
-          backgroundColor: ['#10B981', trackColor],
-          borderWidth: 0,
-          circumference: 180,
-          rotation: 270,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        cutout: '76%',
-        plugins: { legend: { display: false }, tooltip: { enabled: false } },
-        animation: { animateRotate: true, duration: 900 },
-      }
+      data: { labels: ['Score', 'Remaining'], datasets: [{ data: [frac, 1 - frac], backgroundColor: ['#10B981', trackColor], borderWidth: 0, circumference: 180, rotation: 270 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '76%', plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: { animateRotate: true, duration: 900 } }
     });
   }
-
   const marker = document.getElementById('creditScoreMarker');
-  if (marker) {
-    const pct = Math.max(0, Math.min(100, ((c.score - 300) / (850 - 300)) * 100));
-    marker.style.left = pct + '%';
-  }
-
+  if (marker) { const pct = Math.max(0, Math.min(100, ((c.score - 300) / (850 - 300)) * 100)); marker.style.left = pct + '%'; }
   const trendCanvas = document.getElementById('creditTrendChart');
   if (trendCanvas) {
     if (_creditTrendChart) { try { _creditTrendChart.destroy(); } catch(_){} }
-    const labels = c.history12.map((_, i) => {
-      const d = new Date(); d.setMonth(d.getMonth() - (11 - i));
-      return d.toLocaleDateString('en-US', { month: 'short' });
-    });
+    const labels = c.history12.map((_, i) => { const d = new Date(); d.setMonth(d.getMonth() - (11 - i)); return d.toLocaleDateString('en-US', { month: 'short' }); });
     const gradient = trendCanvas.getContext('2d').createLinearGradient(0, 0, 0, 220);
-    gradient.addColorStop(0, 'rgba(139, 92, 246, 0.28)');
-    gradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
+    gradient.addColorStop(0, 'rgba(139, 92, 246, 0.28)'); gradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
     _creditTrendChart = new Chart(trendCanvas, {
       type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Credit Score',
-          data: c.history12,
-          borderColor: '#8B5CF6',
-          backgroundColor: gradient,
-          fill: true,
-          tension: 0.35,
-          borderWidth: 2.5,
-          pointRadius: 3,
-          pointBackgroundColor: '#8B5CF6',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { backgroundColor: '#0B1220', padding: 10, cornerRadius: 8, displayColors: false,
-            callbacks: { label: ctx => `${ctx.parsed.y} pts` } }
-        },
-        scales: {
-          x: { grid: { display: false } },
-          y: {
-            grid: { color: getChartGridColor() },
-            suggestedMin: 700, suggestedMax: 800,
-            ticks: { callback: v => v }
-          }
-        }
-      }
+      data: { labels, datasets: [{ label: 'Credit Score', data: c.history12, borderColor: '#8B5CF6', backgroundColor: gradient, fill: true, tension: 0.35, borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: '#8B5CF6', pointBorderColor: '#fff', pointBorderWidth: 2 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0B1220', padding: 10, cornerRadius: 8, displayColors: false, callbacks: { label: ctx => `${ctx.parsed.y} pts` } } }, scales: { x: { grid: { display: false } }, y: { grid: { color: getChartGridColor() }, suggestedMin: 700, suggestedMax: 800, ticks: { callback: v => v } } } }
     });
   }
-
   const alertsEl = document.getElementById('creditAlertsList');
   if (alertsEl) {
-    alertsEl.innerHTML = c.alerts.map(a => {
-      const cls = a.type === 'success' ? 'badge-emerald' : a.type === 'warning' ? 'badge-amber' : 'badge-violet';
-      const ico = a.type === 'success' ? 'trending-up' : a.type === 'warning' ? 'alert-triangle' : 'info';
-      return `<div class="flex gap-3 py-2.5" style="border-bottom:1px solid var(--border);">
-        <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${cls}"><i data-lucide="${ico}" class="w-3.5 h-3.5"></i></span>
-        <div class="min-w-0">
-          <div class="text-xs font-bold" style="color:var(--text-1);">${esc(a.t)}</div>
-          <div class="text-[10px] mt-0.5" style="color:var(--text-4);">${esc(a.s)} · ${esc(a.when)}</div>
-        </div>
-      </div>`;
-    }).join('');
+    alertsEl.innerHTML = c.alerts.map(a => { const cls = a.type === 'success' ? 'badge-emerald' : a.type === 'warning' ? 'badge-amber' : 'badge-violet'; const ico = a.type === 'success' ? 'trending-up' : a.type === 'warning' ? 'alert-triangle' : 'info';
+      return `<div class="flex gap-3 py-2.5" style="border-bottom:1px solid var(--border);"><span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${cls}"><i data-lucide="${ico}" class="w-3.5 h-3.5"></i></span><div class="min-w-0"><div class="text-xs font-bold" style="color:var(--text-1);">${esc(a.t)}</div><div class="text-[10px] mt-0.5" style="color:var(--text-4);">${esc(a.s)} · ${esc(a.when)}</div></div></div>`; }).join('');
   }
-
   const factorsEl = document.getElementById('creditFactorsList');
   if (factorsEl) {
     factorsEl.innerHTML = c.factors.map(f => {
-      const ratio = f.name === 'Credit utilization'
-        ? Math.max(0, 100 - f.value)
-        : Math.min(100, (f.value / (f.name === 'Age of credit' ? 15 : f.name === 'New inquiries' ? 5 : f.name === 'Credit mix' ? 8 : 100)) * 100);
+      const ratio = f.name === 'Credit utilization' ? Math.max(0, 100 - f.value) : Math.min(100, (f.value / (f.name === 'Age of credit' ? 15 : f.name === 'New inquiries' ? 5 : f.name === 'Credit mix' ? 8 : 100)) * 100);
       const rCls = f.rating === 'Exceptional' ? 'badge-emerald' : f.rating === 'Very Good' ? 'badge-blue' : 'badge-amber';
-      const displayVal = f.name === 'Age of credit' ? `${f.value} yrs`
-                       : f.name === 'New inquiries' ? f.value
-                       : f.name === 'Credit mix' ? `${f.value} types`
-                       : `${f.value}%`;
-      return `<div>
-        <div class="flex items-center justify-between mb-1.5">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-bold" style="color:var(--text-1);">${esc(f.name)}</span>
-            <span class="text-[10px] font-bold" style="color:var(--text-4);">${f.weight}% of score</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="badge ${rCls}">${f.rating}</span>
-            <span class="text-xs font-extrabold privacy-target" style="color:var(--text-1);">${displayVal}</span>
-          </div>
-        </div>
-        <div class="progress" style="height:6px;"><div style="width:${ratio}%; background:${f.color};"></div></div>
-        <div class="text-[10px] mt-1.5" style="color:var(--text-4);">${esc(f.detail)}</div>
-      </div>`;
+      const displayVal = f.name === 'Age of credit' ? `${f.value} yrs` : f.name === 'New inquiries' ? f.value : f.name === 'Credit mix' ? `${f.value} types` : `${f.value}%`;
+      return `<div><div class="flex items-center justify-between mb-1.5"><div class="flex items-center gap-2"><span class="text-xs font-bold" style="color:var(--text-1);">${esc(f.name)}</span><span class="text-[10px] font-bold" style="color:var(--text-4);">${f.weight}% of score</span></div><div class="flex items-center gap-2"><span class="badge ${rCls}">${f.rating}</span><span class="text-xs font-extrabold privacy-target" style="color:var(--text-1);">${displayVal}</span></div></div><div class="progress" style="height:6px;"><div style="width:${ratio}%; background:${f.color};"></div></div><div class="text-[10px] mt-1.5" style="color:var(--text-4);">${esc(f.detail)}</div></div>`;
     }).join('');
   }
-
   const tipsEl = document.getElementById('creditTipsList');
   if (tipsEl) {
-    tipsEl.innerHTML = c.tips.map(t => `
-      <div class="rounded-xl p-4" style="background:var(--surface-2); border:1px solid var(--border);">
-        <div class="flex items-start gap-3">
-          <span class="text-lg shrink-0">${t.icon}</span>
-          <div class="min-w-0">
-            <div class="text-xs font-bold" style="color:var(--text-1);">${esc(t.title)}</div>
-            <div class="text-[11px] mt-1 leading-relaxed" style="color:var(--text-4);">${esc(t.desc)}</div>
-          </div>
-        </div>
-      </div>`).join('');
+    tipsEl.innerHTML = c.tips.map(t => `<div class="rounded-xl p-4" style="background:var(--surface-2); border:1px solid var(--border);"><div class="flex items-start gap-3"><span class="text-lg shrink-0">${t.icon}</span><div class="min-w-0"><div class="text-xs font-bold" style="color:var(--text-1);">${esc(t.title)}</div><div class="text-[11px] mt-1 leading-relaxed" style="color:var(--text-4);">${esc(t.desc)}</div></div></div></div>`).join('');
   }
-
-  const sel = document.getElementById('creditSimAction');
-  const amtWrap = document.getElementById('creditSimAmtWrap');
-  if (sel && amtWrap && !sel.dataset.bound) {
-    sel.dataset.bound = '1';
-    sel.addEventListener('change', () => {
-      amtWrap.style.display = sel.value === 'payoff' ? 'block' : 'none';
-    });
-  }
-
+  const sel = document.getElementById('creditSimAction'); const amtWrap = document.getElementById('creditSimAmtWrap');
+  if (sel && amtWrap && !sel.dataset.bound) { sel.dataset.bound = '1'; sel.addEventListener('change', () => { amtWrap.style.display = sel.value === 'payoff' ? 'block' : 'none'; }); }
   if (typeof lucide !== 'undefined') lucide.createIcons();
   applyPrivacyState();
 }
@@ -6078,38 +6043,18 @@ function runCreditSimulation() {
   const amt = parseFloat(document.getElementById('creditSimAmt')?.value) || 0;
   const base = DB.credit.score;
   let delta = 0, explain = '';
-
-  if (action === 'payoff') {
-    const drop = amt / 100000 * 100;
-    delta = Math.round(Math.min(22, drop * 1.9));
-    explain = `Paying ${formatCurrency(amt, 0)} toward revolving balances lowers utilization by approximately ${drop.toFixed(1)} percentage points.`;
-  } else if (action === 'newcard') {
-    delta = -9; explain = 'A new account adds a hard inquiry and lowers your average account age.';
-  } else if (action === 'close') {
-    delta = -21; explain = 'Closing your oldest account reduces average credit age and total available credit.';
-  } else if (action === 'inquiry') {
-    delta = -7; explain = 'A mortgage pre-approval triggers one hard inquiry (rate-shopping within 45 days counts once).';
-  }
-
+  if (action === 'payoff') { const drop = amt / 100000 * 100; delta = Math.round(Math.min(22, drop * 1.9)); explain = `Paying ${formatCurrency(amt, 0)} toward revolving balances lowers utilization by approximately ${drop.toFixed(1)} percentage points.`; }
+  else if (action === 'newcard') { delta = -9; explain = 'A new account adds a hard inquiry and lowers your average account age.'; }
+  else if (action === 'close') { delta = -21; explain = 'Closing your oldest account reduces average credit age and total available credit.'; }
+  else if (action === 'inquiry') { delta = -7; explain = 'A mortgage pre-approval triggers one hard inquiry (rate-shopping within 45 days counts once).'; }
   const projected = Math.max(300, Math.min(850, base + delta));
-  const resultEl = document.getElementById('creditSimResult');
-  if (!resultEl) return;
+  const resultEl = document.getElementById('creditSimResult'); if (!resultEl) return;
   const pos = delta >= 0;
-  resultEl.innerHTML = `
-    <div class="rounded-xl p-4" style="background:${pos ? 'rgba(5,150,105,.08)' : 'rgba(190,18,60,.08)'}; border:1px solid ${pos ? 'rgba(5,150,105,.32)' : 'rgba(190,18,60,.32)'};">
-      <div class="text-center">
-        <div class="text-[10px] font-extrabold uppercase tracking-wider" style="color:var(--text-4);">Projected Score</div>
-        <div class="text-3xl font-extrabold mt-0.5" style="color:${pos ? '#059669' : '#BE123C'};">${projected}</div>
-        <div class="text-xs font-bold" style="color:${pos ? '#059669' : '#BE123C'};">${pos ? '▲' : '▼'} ${Math.abs(delta)} points</div>
-      </div>
-      <div class="text-[10px] mt-3 leading-relaxed" style="color:var(--text-3);">${explain}</div>
-    </div>`;
+  resultEl.innerHTML = `<div class="rounded-xl p-4" style="background:${pos ? 'rgba(5,150,105,.08)' : 'rgba(190,18,60,.08)'}; border:1px solid ${pos ? 'rgba(5,150,105,.32)' : 'rgba(190,18,60,.32)'};"><div class="text-center"><div class="text-[10px] font-extrabold uppercase tracking-wider" style="color:var(--text-4);">Projected Score</div><div class="text-3xl font-extrabold mt-0.5" style="color:${pos ? '#059669' : '#BE123C'};">${projected}</div><div class="text-xs font-bold" style="color:${pos ? '#059669' : '#BE123C'};">${pos ? '▲' : '▼'} ${Math.abs(delta)} points</div></div><div class="text-[10px] mt-3 leading-relaxed" style="color:var(--text-3);">${explain}</div></div>`;
   toast('Score simulation complete', 'success', 1800);
 }
 
-(function bootNewFeatures() {
-  loadGoalsData();
-})();
+(function bootNewFeatures() { loadGoalsData(); })();
 
 window.onload = function() {
   loadAppSettings();
@@ -6119,8 +6064,11 @@ window.onload = function() {
   const today = new Date(); const monthAgo = new Date(); monthAgo.setMonth(monthAgo.getMonth() - 1);
   const customStart = document.getElementById('customRangeStart'); const customEnd = document.getElementById('customRangeEnd');
   const txLocalStart = document.getElementById('txLocalDateStart'); const txLocalEnd = document.getElementById('txLocalDateEnd');
+  const expLocalStart = document.getElementById('expLocalDateStart'); const expLocalEnd = document.getElementById('expLocalDateEnd');
   if (txLocalStart) txLocalStart.value = monthAgo.toISOString().split('T')[0];
   if (txLocalEnd) txLocalEnd.value = today.toISOString().split('T')[0];
+  if (expLocalStart) expLocalStart.value = monthAgo.toISOString().split('T')[0];
+  if (expLocalEnd) expLocalEnd.value = today.toISOString().split('T')[0];
   if (customStart) customStart.value = monthAgo.toISOString().split('T')[0];
   if (customEnd) customEnd.value = today.toISOString().split('T')[0];
 
@@ -6132,7 +6080,7 @@ window.onload = function() {
   if (fsEl) fsEl.value = appSettings.income.filingStatus || 'mfj';
 
   loadDataFromJSON(); loadExpenseDataFromJSON(); loadAccountsData();
-  autoCollapseMobileSections(); updateDateRangeUI(); restoreNavSections();
+  autoCollapseMobileSections(); updateDateRangeUI(); updateTxLocalDateUI(); updateExpLocalDateUI(); restoreNavSections();
   setTimeout(() => {
     switchMainTab(null, 'tab-dashboard');
     loadSettingsUI();
@@ -6155,12 +6103,9 @@ window.addEventListener('resize', () => {
   const cb = document.getElementById('sidebarCollapseBtn');
   if (cb) cb.classList.toggle('hidden', window.innerWidth < 1024);
 });
-/* Robust dismissal for dynamically-created goal modals */
 document.addEventListener('click', function (e) {
   if (e.target.classList && e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
-    if (e.target.querySelector('#contribAmount') ||
-        e.target.querySelector('#newGoalName') ||
-        e.target.querySelector('#editGoalName')) {
+    if (e.target.querySelector('#contribAmount') || e.target.querySelector('#newGoalName') || e.target.querySelector('#editGoalName')) {
       e.target.remove();
     }
   }
@@ -6168,9 +6113,7 @@ document.addEventListener('click', function (e) {
 document.addEventListener('keydown', function (e) {
   if (e.key !== 'Escape') return;
   document.querySelectorAll('.fixed.inset-0').forEach(el => {
-    if (el.querySelector('#contribAmount') ||
-        el.querySelector('#newGoalName') ||
-        el.querySelector('#editGoalName')) el.remove();
+    if (el.querySelector('#contribAmount') || el.querySelector('#newGoalName') || el.querySelector('#editGoalName')) el.remove();
   });
 });
 </script>
