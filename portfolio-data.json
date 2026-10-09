@@ -1,243 +1,48 @@
 {
   "selectedCurrency": "USD",
   "categories": [
-    {
-      "key": "k401",
-      "label": "401(k)",
-      "color": "#6366f1",
-      "type": "deferred"
-    },
-    {
-      "key": "roth",
-      "label": "Roth IRA",
-      "color": "#10b981",
-      "type": "exempt"
-    },
-    {
-      "key": "tradIra",
-      "label": "Trad IRA",
-      "color": "#f59e0b",
-      "type": "deferred"
-    },
-    {
-      "key": "hsa",
-      "label": "HSA",
-      "color": "#8b5cf6",
-      "type": "special"
-    },
-    {
-      "key": "espp",
-      "label": "ESPP",
-      "color": "#ec4899",
-      "type": "taxable"
-    },
-    {
-      "key": "cd",
-      "label": "CD / Cash",
-      "color": "#64748b",
-      "type": "taxable"
-    },
-    {
-      "key": "c529",
-      "label": "529",
-      "color": "#06b6d4",
-      "type": "special"
-    }
+    { "key": "k401",    "label": "401(k)",    "color": "#8B5CF6", "type": "deferred" },
+    { "key": "roth",    "label": "Roth IRA",  "color": "#EC4899", "type": "exempt"   },
+    { "key": "tradIra", "label": "Trad IRA",  "color": "#F59E0B", "type": "deferred" },
+    { "key": "hsa",     "label": "HSA",       "color": "#3B82F6", "type": "special"  },
+    { "key": "espp",    "label": "ESPP",      "color": "#A78BFA", "type": "taxable"  },
+    { "key": "cd",      "label": "CD / Cash", "color": "#71717A", "type": "taxable"  },
+    { "key": "c529",    "label": "529",       "color": "#06B6D4", "type": "special"  }
   ],
   "irsBaseLimits": {
-    "2023": {
-      "k401": 22500,
-      "ira": 6500,
-      "hsaSelf": 3850,
-      "hsaFamily": 7750,
-      "c529Single": 17000,
-      "c529Joint": 34000,
-      "k401Catch": 7500,
-      "iraCatch": 1000,
-      "hsaCatch": 1000
-    },
-    "2024": {
-      "k401": 23000,
-      "ira": 7000,
-      "hsaSelf": 4150,
-      "hsaFamily": 8300,
-      "c529Single": 18000,
-      "c529Joint": 36000,
-      "k401Catch": 7500,
-      "iraCatch": 1000,
-      "hsaCatch": 1000
-    },
-    "2025": {
-      "k401": 23500,
-      "ira": 7000,
-      "hsaSelf": 4300,
-      "hsaFamily": 8300,
-      "c529Single": 19000,
-      "c529Joint": 38000,
-      "k401Catch": 7500,
-      "iraCatch": 1000,
-      "hsaCatch": 1000
-    },
-    "2026": {
-      "k401": 24500,
-      "ira": 7500,
-      "hsaSelf": 4400,
-      "hsaFamily": 8750,
-      "c529Single": 19000,
-      "c529Joint": 38000,
-      "k401Catch": 8000,
-      "iraCatch": 1100,
-      "hsaCatch": 1000
-    }
+    "2023": { "k401": 22500, "ira": 6500, "hsaSelf": 3850, "hsaFamily": 7750, "c529Single": 17000, "c529Joint": 34000, "k401Catch": 7500, "iraCatch": 1000, "hsaCatch": 1000 },
+    "2024": { "k401": 23000, "ira": 7000, "hsaSelf": 4150, "hsaFamily": 8300, "c529Single": 18000, "c529Joint": 36000, "k401Catch": 7500, "iraCatch": 1000, "hsaCatch": 1000 },
+    "2025": { "k401": 23500, "ira": 7000, "hsaSelf": 4300, "hsaFamily": 8300, "c529Single": 19000, "c529Joint": 38000, "k401Catch": 7500, "iraCatch": 1000, "hsaCatch": 1000 },
+    "2026": { "k401": 24500, "ira": 7500, "hsaSelf": 4400, "hsaFamily": 8750, "c529Single": 19000, "c529Joint": 38000, "k401Catch": 8000, "iraCatch": 1100, "hsaCatch": 1000 }
   },
   "defaultAccountData": [
     {
       "year": "2023",
-      "salary": 160000,
-      "balances": {
-        "k401": 50574,
-        "roth": 15568,
-        "tradIra": 0,
-        "hsa": 0,
-        "espp": 0,
-        "cd": 0,
-        "c529": 0,
-        "Test": 0
-      },
-      "invested": {
-        "k401": 39148,
-        "roth": 13000,
-        "tradIra": 0,
-        "hsa": 0,
-        "espp": 0,
-        "cd": 0,
-        "c529": 0,
-        "Test": 0
-      },
-      "contri": {
-        "employer": 5935,
-        "user": 5935,
-        "rollover": 27277,
-        "cd": 0,
-        "roth": 6500,
-        "tradIra": 0,
-        "hsa": 0,
-        "espp": 0,
-        "c529": 0,
-        "Test": 0,
-        "k401": 0
-      }
+      "salary": 152000,
+      "balances": { "k401": 50574, "roth": 15568, "tradIra": 0, "hsa": 0, "espp": 0, "cd": 0, "c529": 0 },
+      "invested": { "k401": 41977.93, "roth": 13100, "tradIra": 0, "hsa": 0, "espp": 0, "cd": 0, "c529": 0 },
+      "contri":   { "employer": 5935.98, "user": 5935, "rollover": 27277.45, "k401": 5935, "roth": 6500, "tradIra": 0, "hsa": 0, "espp": 0, "cd": 0, "c529": 0 }
     },
     {
       "year": "2024",
-      "salary": 170000,
-      "balances": {
-        "k401": 77834,
-        "roth": 12392,
-        "tradIra": 0,
-        "hsa": 1100,
-        "espp": 5831,
-        "cd": 0,
-        "c529": 0,
-        "Test": 0
-      },
-      "invested": {
-        "k401": 52039,
-        "roth": 20000,
-        "tradIra": 0,
-        "hsa": 1000,
-        "espp": 5069,
-        "cd": 0,
-        "c529": 0,
-        "Test": 0
-      },
-      "contri": {
-        "employer": 6186,
-        "user": 6705,
-        "rollover": 0,
-        "cd": 0,
-        "roth": 7000,
-        "tradIra": 0,
-        "hsa": 0,
-        "espp": 5069,
-        "c529": 0,
-        "Test": 0,
-        "k401": 0
-      }
+      "salary": 168000,
+      "balances": { "k401": 77834, "roth": 12392, "tradIra": 0, "hsa": 1100, "espp": 5831, "cd": 0, "c529": 0 },
+      "invested": { "k401": 63465.40, "roth": 22568, "tradIra": 0, "hsa": 0, "espp": 5069, "cd": 0, "c529": 0 },
+      "contri":   { "employer": 6186.06, "user": 6705.34, "rollover": 0, "k401": 6705.34, "roth": 7000, "tradIra": 0, "hsa": 0, "espp": 5069, "cd": 0, "c529": 0 }
     },
     {
       "year": "2025",
-      "salary": 178000,
-      "balances": {
-        "k401": 108046,
-        "roth": 14017,
-        "tradIra": 9374,
-        "hsa": 8722,
-        "espp": 17080,
-        "cd": 17492,
-        "c529": 0,
-        "Test": 0
-      },
-      "invested": {
-        "k401": 65409,
-        "roth": 20000,
-        "tradIra": 7000,
-        "hsa": 9329,
-        "espp": 11998,
-        "cd": 17000,
-        "c529": 0,
-        "Test": 0
-      },
-      "contri": {
-        "employer": 6060,
-        "user": 7310,
-        "rollover": 0,
-        "cd": 17000,
-        "roth": 0,
-        "tradIra": 7000,
-        "hsa": 9329,
-        "espp": 6929,
-        "c529": 0,
-        "Test": 0,
-        "k401": 0
-      }
+      "salary": 182000,
+      "balances": { "k401": 108046, "roth": 14017, "tradIra": 9374, "hsa": 8722, "espp": 17080, "cd": 17492, "c529": 0 },
+      "invested": { "k401": 91204, "roth": 12392, "tradIra": 7000, "hsa": 10429, "espp": 12760, "cd": 17000, "c529": 0 },
+      "contri":   { "employer": 6060, "user": 7310, "rollover": 0, "k401": 7310, "roth": 0, "tradIra": 7000, "hsa": 9329, "espp": 6929, "cd": 17000, "c529": 0 }
     },
     {
       "year": "2026",
-      "salary": 185000,
-      "balances": {
-        "k401": 136638,
-        "roth": 14152,
-        "tradIra": 0,
-        "hsa": 6126,
-        "espp": 29467,
-        "cd": 6216,
-        "c529": 2887,
-        "Test": 0
-      },
-      "invested": {
-        "k401": 74015,
-        "roth": 20000,
-        "tradIra": 0,
-        "hsa": 6565,
-        "espp": 25819,
-        "cd": 6000,
-        "c529": 2700,
-        "Test": 0
-      },
-      "contri": {
-        "employer": 4303,
-        "user": 4303,
-        "rollover": 0,
-        "cd": -11000,
-        "roth": 0,
-        "tradIra": 0,
-        "hsa": 6565,
-        "espp": 13821,
-        "c529": 2700,
-        "Test": 0,
-        "k401": 0
-      }
+      "salary": 195000,
+      "balances": { "k401": 143517, "roth": 15739, "tradIra": 0, "hsa": 8432, "espp": 28915, "cd": 6236, "c529": 3178 },
+      "invested": { "k401": 117738, "roth": 14017, "tradIra": 9374, "hsa": 15287, "espp": 30901, "cd": 6492, "c529": 3000 },
+      "contri":   { "employer": 4846, "user": 4846, "rollover": 0, "k401": 4846, "roth": 0, "tradIra": 0, "hsa": 6565, "espp": 13821, "cd": -11000, "c529": 3000 }
     }
   ]
 }

@@ -1,0 +1,55 @@
+{
+  "institutions": [
+    {
+      "name": "Chase",
+      "accounts": [
+        { "name": "Total Checking",         "type": "checking",   "mask": "4821", "balance": 8420.55 },
+        { "name": "Premier Savings",        "type": "savings",    "mask": "3390", "balance": 21500.00 },
+        { "name": "Sapphire Credit Card",   "type": "credit",     "mask": "7712", "balance": 2384.19 }
+      ]
+    },
+    {
+      "name": "Fidelity",
+      "accounts": [
+        { "name": "Brokerage",              "type": "investment", "mask": "4402", "balance": 127340.88 },
+        { "name": "Roth IRA",               "type": "retirement", "mask": "9901", "balance": 58200.00 }
+      ]
+    },
+    {
+      "name": "Vanguard",
+      "accounts": [
+        { "name": "401(k)",                 "type": "retirement", "mask": "2210", "balance": 136638.00 }
+      ]
+    }
+  ],
+  "templates": [
+    { "name":"Starbucks",           "merchant":"Starbucks",           "amount":5.75,   "p":"FOOD_AND_DRINK",             "d":"FOOD_AND_DRINK_COFFEE",                       "hint":"checking" },
+    { "name":"Whole Foods Market",  "merchant":"Whole Foods",         "amount":87.43,  "p":"FOOD_AND_DRINK",             "d":"FOOD_AND_DRINK_GROCERIES",                    "hint":"checking" },
+    { "name":"Shell Gas Station",   "merchant":"Shell",               "amount":52.30,  "p":"TRANSPORTATION",             "d":"TRANSPORTATION_GAS",                          "hint":"checking" },
+    { "name":"Chipotle",            "merchant":"Chipotle",            "amount":14.85,  "p":"FOOD_AND_DRINK",             "d":"FOOD_AND_DRINK_FAST_FOOD",                    "hint":"checking" },
+    { "name":"Netflix",             "merchant":"Netflix",             "amount":15.99,  "p":"ENTERTAINMENT",              "d":"ENTERTAINMENT_STREAMING",                     "hint":"checking" },
+    { "name":"Verizon Wireless",    "merchant":"Verizon",             "amount":85.00,  "p":"RENT_AND_UTILITIES",         "d":"RENT_AND_UTILITIES_INTERNET_AND_CABLE",       "hint":"checking" },
+    { "name":"Uber",                "merchant":"Uber",                "amount":22.40,  "p":"TRANSPORTATION",             "d":"TRANSPORTATION_RIDE_SHARE",                   "hint":"checking" },
+    { "name":"Target",              "merchant":"Target",              "amount":143.62, "p":"GENERAL_MERCHANDISE",        "d":"GENERAL_MERCHANDISE_SUPERSTORES",             "hint":"checking" },
+    { "name":"Amazon.com",          "merchant":"Amazon",              "amount":68.99,  "p":"GENERAL_MERCHANDISE",        "d":"GENERAL_MERCHANDISE_ONLINE_MARKETPLACES",     "hint":"checking" },
+    { "name":"Walgreens",           "merchant":"Walgreens",           "amount":34.15,  "p":"MEDICAL",                    "d":"MEDICAL_PHARMACIES_AND_SUPPLEMENTS",          "hint":"checking" },
+    { "name":"Blue Bottle Coffee",  "merchant":"Blue Bottle",         "amount":7.25,   "p":"FOOD_AND_DRINK",             "d":"FOOD_AND_DRINK_COFFEE",                       "hint":"credit" },
+    { "name":"Trader Joe's",        "merchant":"Trader Joes",         "amount":62.18,  "p":"FOOD_AND_DRINK",             "d":"FOOD_AND_DRINK_GROCERIES",                    "hint":"credit" },
+    { "name":"Delta Air Lines",     "merchant":"Delta",               "amount":428.50, "p":"TRAVEL",                     "d":"TRAVEL_FLIGHTS",                              "hint":"credit" },
+    { "name":"Marriott Hotels",     "merchant":"Marriott",            "amount":312.00, "p":"TRAVEL",                     "d":"TRAVEL_LODGING",                              "hint":"credit" },
+    { "name":"Spotify",             "merchant":"Spotify",             "amount":11.99,  "p":"ENTERTAINMENT",              "d":"ENTERTAINMENT_MUSIC_AND_AUDIO",               "hint":"credit" },
+    { "name":"Nike",                "merchant":"Nike",                "amount":128.00, "p":"GENERAL_MERCHANDISE",        "d":"GENERAL_MERCHANDISE_CLOTHING_AND_ACCESSORIES","hint":"credit" },
+    { "name":"Sephora",             "merchant":"Sephora",             "amount":78.50,  "p":"PERSONAL_CARE",              "d":"PERSONAL_CARE_HAIR_AND_BEAUTY",               "hint":"credit" },
+    { "name":"AMC Theatres",        "merchant":"AMC",                 "amount":32.00,  "p":"ENTERTAINMENT",              "d":"ENTERTAINMENT_STREAMING",                     "hint":"credit" },
+    { "name":"Apple Store",         "merchant":"Apple",               "amount":249.00, "p":"GENERAL_MERCHANDISE",        "d":"GENERAL_MERCHANDISE_ELECTRONICS",             "hint":"credit" },
+    { "name":"Lyft",                "merchant":"Lyft",                "amount":18.75,  "p":"TRANSPORTATION",             "d":"TRANSPORTATION_RIDE_SHARE",                   "hint":"credit" },
+    { "name":"Dividend - VTI",      "merchant":"Vanguard Total Stock","amount":-142.80,"p":"INCOME",                     "d":"INCOME_DIVIDENDS",                            "hint":"investment" },
+    { "name":"Dividend - SCHD",     "merchant":"Schwab US Dividend",  "amount":-88.42, "p":"INCOME",                     "d":"INCOME_DIVIDENDS",                            "hint":"investment" },
+    { "name":"Interest Earned",     "merchant":"Fidelity Money Market","amount":-23.15,"p":"INCOME",                     "d":"INCOME_INTEREST_EARNED",                      "hint":"investment" },
+    { "name":"Contribution Transfer","merchant":"Bank Transfer",      "amount":-2000.00,"p":"TRANSFER_IN",               "d":"TRANSFER_IN_INVESTMENT_AND_RETIREMENT_FUNDS", "hint":"investment" },
+    { "name":"ACME Corp Payroll",   "merchant":"ACME Corp Payroll",   "amount":-3475.12,"p":"INCOME",                    "d":"INCOME_WAGES",                                "hint":"checking" },
+    { "name":"Interest - Savings",  "merchant":"Chase Interest",      "amount":-8.72,  "p":"INCOME",                     "d":"INCOME_INTEREST_EARNED",                      "hint":"savings" },
+    { "name":"Monthly Service Fee", "merchant":"Chase Fee",           "amount":12.00,  "p":"BANK_FEES",                  "d":"BANK_FEES_ATM_FEES",                          "hint":"checking" },
+    { "name":"Chase Card Payment",  "merchant":"Chase Card Autopay",  "amount":1500.00,"p":"LOAN_PAYMENTS",              "d":"LOAN_PAYMENTS_CREDIT_CARD_PAYMENT",           "hint":"checking" }
+  ]
+}
