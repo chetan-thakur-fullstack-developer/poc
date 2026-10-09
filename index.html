@@ -19679,6 +19679,313 @@ window.addEventListener('load', () => setTimeout(p8Boot, 1500));
 
 })();
 </script>
+<!-- ═══════════════════════════════════════════════════════════════
+     EW v4.5.1 — PHASE 8.1: TRIAL STRIP SELF-HEALING FIX
+     Runs standalone — does not depend on Phase 8 internals.
+     ═══════════════════════════════════════════════════════════════ -->
+<script id="ew-phase8-1-trial-strip-fix">
+(function(){
+'use strict';
+const LOG_PREFIX = '%c[EW P8.1]';
+const LOG_STYLE  = 'color:#8B5CF6;font-weight:700;';
+function log(...a){ console.log(LOG_PREFIX, LOG_STYLE, ...a); }
+function warn(...a){ console.warn(LOG_PREFIX, LOG_STYLE, ...a); }
 
+/* ─────────────────────────────────────────────────────────────
+   1. Read trial state directly from appSettings
+   ───────────────────────────────────────────────────────────── */
+function readTrialInfo(){
+  try{
+    let s = null;
+    try{ s = appSettings && appSettings.subscription; }catch(_){}
+    if(!s || !s.trial) return null;
+    const endsAt = new Date(s.trial.endsAt);
+    const now = new Date();
+    if(!endsAt || isNaN(endsAt)) return null;
+    if(now >= endsAt) return null;
+
+    const msLeft = endsAt - now;
+    const daysLeft  = Math.floor(msLeft / 86400000);
+    const hoursLeft = Math.floor((msLeft % 86400000) / 3600000);
+    const shortLabel =
+      daysLeft >= 2 ? `${daysLeft}d left` :
+      daysLeft === 1 ? '1d left' :
+      hoursLeft > 0 ? `${hoursLeft}h left` : '< 1h left';
+
+    return { plan: s.trial.plan || 'basic', endsAt, daysLeft, hoursLeft, shortLabel };
+  }catch(e){ warn('readTrialInfo error', e); return null; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2. Locate insertion point — many fallbacks
+   ───────────────────────────────────────────────────────────── */
+function findHeaderParent(){
+  const sels = [
+    '#appShell header.glass',
+    '#appShell header',
+    'header.glass',
+    '#appMain header',
+    '#appMain > div'
+  ];
+  for(const s of sels){
+    const el = document.querySelector(s);
+    if(el) return el;
+  }
+  return null;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   3. Build the strip once
+   ───────────────────────────────────────────────────────────── */
+function createStrip(){
+  const strip = document.createElement('div');
+  strip.id = 'trialStrip';
+  strip.setAttribute('role', 'status');
+  strip.setAttribute('aria-live', 'polite');
+  strip.innerHTML = `
+    <div class="trial-inner">
+      <span class="trial-dot" aria-hidden="true"></span>
+      <span id="trialStripText">Trial active</span>
+      <button type="button" class="trial-upgrade" id="trialStripUpgrade">
+        Upgrade now →
+      </button>
+    </div>`;
+  strip.querySelector('#trialStripUpgrade').addEventListener('click', () => {
+    const info = readTrialInfo();
+    const planId = info ? info.plan : 'basic';
+    if(typeof subConfirmUpgrade === 'function') subConfirmUpgrade(planId);
+  });
+  return strip;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   4. Render the strip — create if missing, show/hide by state
+   ───────────────────────────────────────────────────────────── */
+function renderStrip(){
+  let strip = document.getElementById('trialStrip');
+
+  if(!strip){
+    const parent = findHeaderParent();
+    if(!parent){ warn('No header parent found'); return false; }
+    strip = createStrip();
+    parent.insertBefore(strip, parent.firstChild);
+    log('Strip created and inserted into:', parent.tagName + (parent.id ? '#'+parent.id : ''));
+  }
+
+  if(!document.body.contains(strip)){
+    warn('Strip detached from DOM — re-inserting');
+    const parent = findHeaderParent();
+    if(parent) parent.insertBefore(strip, parent.firstChild);
+    else return false;
+  }
+
+  const info = readTrialInfo();
+
+  if(info){
+    strip.classList.add('show');
+    // Force styles with !important to guarantee visibility
+    strip.style.setProperty('height', '26px', 'important');
+    strip.style.setProperty('display', 'block', 'important');
+    strip.style.setProperty('overflow', 'hidden', 'important');
+    strip.style.setProperty('background',
+      'linear-gradient(90deg, #8B5CF6 0%, #EC4899 48%, #F59E0B 100%)', 'important');
+    strip.style.setProperty('background-size', '200% 100%', 'important');
+
+    const planName =
+      (typeof SUB_PLANS !== 'undefined' && SUB_PLANS[info.plan] && SUB_PLANS[info.plan].name)
+      || info.plan.toUpperCase();
+    const txt = document.getElementById('trialStripText');
+    if(txt) txt.textContent = `${planName} trial · ${info.shortLabel}`;
+    log('Strip shown —', planName, info.shortLabel);
+    return true;
+  } else {
+    strip.classList.remove('show');
+    strip.style.removeProperty('height');
+    strip.style.removeProperty('display');
+    return false;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   5. Update header chip + sidebar badge independently
+   ───────────────────────────────────────────────────────────── */
+function renderChipAndBadge(){
+  const info = readTrialInfo();
+
+  // Header plan chip
+  const chip = document.getElementById('headerPlanChip');
+  if(chip){
+    chip.classList.toggle('trial-active', !!info);
+    if(info){
+      chip.innerHTML =
+        `<span class="trial-chip-dot" aria-hidden="true"></span>` +
+        `<span id="headerPlanChipText">TRIAL · ${info.shortLabel}</span>`;
+      chip.title = `${info.plan.toUpperCase()} trial · ${info.daysLeft} day${info.daysLeft === 1 ? '' : 's'} remaining — click to upgrade`;
+      chip.onclick = (e) => {
+        if(e) e.preventDefault();
+        if(typeof subConfirmUpgrade === 'function') subConfirmUpgrade(info.plan);
+      };
+    }
+  }
+
+  // Sidebar profile badge
+  const trigger = document.getElementById('sidebarProfileTrigger');
+  if(trigger){
+    let badge = document.getElementById('sidebarTrialBadge');
+    if(!badge){
+      const textCol = trigger.querySelector('.profile-text');
+      if(textCol){
+        badge = document.createElement('span');
+        badge.id = 'sidebarTrialBadge';
+        textCol.appendChild(badge);
+      }
+    }
+    if(badge){
+      if(info){
+        badge.classList.add('show');
+        badge.textContent = `✦ Trial · ${info.shortLabel}`;
+      } else {
+        badge.classList.remove('show');
+        badge.textContent = '';
+      }
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   6. Master refresh
+   ───────────────────────────────────────────────────────────── */
+function refresh(){
+  renderStrip();
+  renderChipAndBadge();
+  try{ if(typeof lucide !== 'undefined') lucide.createIcons(); }catch(_){}
+}
+
+/* ─────────────────────────────────────────────────────────────
+   7. Hook every subscription mutation with our own refresh
+   ───────────────────────────────────────────────────────────── */
+function hookSubFns(){
+  const names = [
+    'subApplyUpgrade','subApplyDowngrade','subCancelDowngrade',
+    'subStartTrial','subEndTrial','subSimulateCycleEnd',
+    'demoSetPlan','demoStartTrial','resetSubscriptionDemo','setBilling'
+  ];
+  let n = 0;
+  names.forEach(name => {
+    const orig = window[name];
+    if(typeof orig !== 'function') return;
+    if(orig.__ewP81) return;
+    const wrapped = function(){
+      const r = orig.apply(this, arguments);
+      setTimeout(refresh, 60);
+      setTimeout(refresh, 300);
+      return r;
+    };
+    wrapped.__ewP81 = true;
+    window[name] = wrapped;
+    n++;
+  });
+  return n;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   8. Watch for the strip being removed
+   ───────────────────────────────────────────────────────────── */
+let _watcher = null;
+function startWatcher(){
+  if(_watcher) return;
+  const target = document.getElementById('appShell');
+  if(!target || typeof MutationObserver === 'undefined') return;
+  _watcher = new MutationObserver(() => {
+    const strip = document.getElementById('trialStrip');
+    if(!strip || !document.body.contains(strip)){
+      if(readTrialInfo()) refresh();
+    }
+  });
+  _watcher.observe(target, { childList: true, subtree: true });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   9. Debug helpers (exposed on window)
+   ───────────────────────────────────────────────────────────── */
+window.ewDebugTrial = function(){
+  const info  = readTrialInfo();
+  const strip = document.getElementById('trialStrip');
+  const header = findHeaderParent();
+  const out = {
+    trial_info: info,
+    subscription_plan: (typeof appSettings !== 'undefined' && appSettings.subscription)
+      ? appSettings.subscription.plan : '(undefined)',
+    subscription_trial: (typeof appSettings !== 'undefined' && appSettings.subscription)
+      ? appSettings.subscription.trial : null,
+    strip_exists:  !!strip,
+    strip_in_dom:  strip ? document.body.contains(strip) : false,
+    strip_classes: strip ? strip.className : null,
+    strip_height_px: strip ? Math.round(strip.getBoundingClientRect().height) : null,
+    strip_parent: strip ? strip.parentElement.tagName : null,
+    header_parent: header ? header.tagName + (header.id ? '#'+header.id : '') : null
+  };
+  console.table(out);
+  return out;
+};
+
+window.ewForceTrial = function(){
+  log('Forcing refresh…');
+  refresh();
+  return window.ewDebugTrial();
+};
+
+/* ─────────────────────────────────────────────────────────────
+   10. BOOT
+   ───────────────────────────────────────────────────────────── */
+function boot(){
+  log('Booting…');
+  const hooked = hookSubFns();
+  log('Hooked', hooked, 'subscription functions');
+
+  refresh();
+  startWatcher();
+
+  // Multiple delayed passes to catch late renders
+  [100, 500, 1500, 3500, 7000].forEach(t => setTimeout(refresh, t));
+
+  // Hook enterApp so the strip appears immediately after login
+  if(typeof window.enterApp === 'function' && !window.enterApp.__ewP81){
+    const _orig = window.enterApp;
+    const wrapped = function(){
+      const r = _orig.apply(this, arguments);
+      setTimeout(refresh, 50);
+      setTimeout(refresh, 500);
+      setTimeout(refresh, 2000);
+      return r;
+    };
+    wrapped.__ewP81 = true;
+    window.enterApp = wrapped;
+  }
+
+  // Refresh on tab switches
+  if(typeof window.switchMainTab === 'function' && !window.switchMainTab.__ewP81){
+    const _orig = window.switchMainTab;
+    const wrapped = function(){
+      const r = _orig.apply(this, arguments);
+      setTimeout(refresh, 120);
+      return r;
+    };
+    wrapped.__ewP81 = true;
+    window.switchMainTab = wrapped;
+  }
+
+  log('✅ Armed · use window.ewDebugTrial() to inspect, window.ewForceTrial() to refresh');
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', () => setTimeout(boot, 3200));
+} else {
+  setTimeout(boot, 3200);
+}
+window.addEventListener('load', () => setTimeout(boot, 2000));
+
+})();
+</script>
 </body>
 </html>
