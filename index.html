@@ -1913,12 +1913,12 @@ html.glass-theme input[type="date"]#mortStartInput::-webkit-calendar-picker-indi
     gap: 1.5rem;
   }
   .ps-controls {
-    position: sticky;
+    /* position: sticky;
     top: 5.5rem;
     max-height: calc(100dvh - 6.5rem);
     overflow-y: auto;
     overscroll-behavior: contain;
-    scrollbar-gutter: stable;
+    scrollbar-gutter: stable; */
   }
   /* The receipt no longer needs to be sticky — inputs are */
   .ps-receipt-wrap {
@@ -2070,6 +2070,692 @@ html.glass-theme #smartCatChips .chip.active { color: #C4B5FD; }
   font-size: 10px; font-weight: 700;
   color: var(--text-4);
   font-family: 'JetBrains Mono', monospace;
+}
+</style>
+<!-- ═══════════════════════════════════════════════════════════════
+     EXECUTIVE WEALTH v4.5.1 — PHASE 4 BOTTOM SHEET
+     ═══════════════════════════════════════════════════════════════ -->
+<style id="ew-phase4-styles">
+
+/* ─────────────────────────────────────────────────────────────
+   1. MOBILE — CONVERT THE RIGHT DRAWER INTO A BOTTOM SHEET
+   The JS still toggles `.translate-x-full` on open/close, so we
+   override the *visual* transform only on mobile.
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  #expTransactionDrawer {
+    /* Release the right-side geometry */
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: 92dvh !important;
+    border-left: none !important;
+    border-top: 1px solid var(--border-strong) !important;
+    border-top-left-radius: 22px !important;
+    border-top-right-radius: 22px !important;
+    box-shadow: 0 -20px 60px -12px rgba(15,23,42,.35) !important;
+    overflow: hidden !important;
+    /* Translate on Y axis instead of X */
+    transform: translateY(100%) !important;
+    transition: transform .32s cubic-bezier(.32,.72,0,1) !important;
+  }
+  #expTransactionDrawer:not(.translate-x-full) {
+    transform: translateY(0) !important;
+  }
+  /* Inner wrapper scrolls; outer stays fixed at 92dvh */
+  #expTransactionDrawer > div {
+    max-height: 92dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  /* Header sticks while content scrolls */
+  #expTransactionDrawer > div > .glass {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  /* Tighten form padding on mobile */
+  #expTxForm { padding: 1.1rem 1.15rem 1.5rem !important; }
+  #expTxForm .space-y-4 > * + * { margin-top: .85rem; }
+  /* Bigger amount field on mobile — the key data point */
+  #txAmount {
+    font-size: 1.25rem !important;
+    padding: .7rem .85rem !important;
+    height: 54px;
+  }
+  /* Bigger tap targets */
+  #expTxForm .input { min-height: 46px; }
+  #expTxForm select.input { min-height: 46px; }
+  #expTxForm .btn { min-height: 48px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2. BACKDROP (mobile only)
+   ───────────────────────────────────────────────────────────── */
+#expTxBackdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1599;
+  background: rgba(15,23,42,.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+#expTxBackdrop.show { opacity: 1; pointer-events: auto; }
+@media (max-width: 768px) { #expTxBackdrop { display: block; } }
+
+/* ─────────────────────────────────────────────────────────────
+   3. DRAG HANDLE (mobile only)
+   ───────────────────────────────────────────────────────────── */
+.ew-sheet-handle {
+  display: none;
+  width: 40px;
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--border-hover);
+  margin: 9px auto 3px;
+  flex-shrink: 0;
+  touch-action: none;
+  cursor: grab;
+}
+@media (max-width: 768px) { .ew-sheet-handle { display: block; } }
+
+/* ─────────────────────────────────────────────────────────────
+   4. DESKTOP — TIGHTEN THE RIGHT DRAWER
+   ───────────────────────────────────────────────────────────── */
+@media (min-width: 769px) {
+  #expTransactionDrawer {
+    /* Slightly narrower, more focused */
+    max-width: 26rem !important;
+  }
+  #expTransactionDrawer .glass {
+    padding: 1.05rem 1.25rem !important;
+  }
+  #expTxForm { padding: 1.35rem 1.25rem !important; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   5. QUICK AMOUNT CHIPS
+   ───────────────────────────────────────────────────────────── */
+#quickAmountChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+#quickAmountChips .qa-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .38rem .7rem;
+  border-radius: 9px;
+  font-size: 11.5px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+#quickAmountChips .qa-chip:hover {
+  background: var(--surface-3);
+  border-color: var(--border-hover);
+  color: var(--text-1);
+}
+#quickAmountChips .qa-chip:active { transform: scale(.96); }
+
+/* ─────────────────────────────────────────────────────────────
+   6. MERCHANT AUTOCOMPLETE HINT
+   ───────────────────────────────────────────────────────────── */
+#txDescription::placeholder { color: var(--text-4); }
+#txDescription[data-has-history="1"]::placeholder {
+  color: var(--text-3);
+  font-style: italic;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   7. FOCUS RING ON AMOUNT FIELD — feel snappy when autofocused
+   ───────────────────────────────────────────────────────────── */
+#txAmount:focus {
+  box-shadow: 0 0 0 3px rgba(139,92,246,.18) !important;
+  border-color: var(--accent) !important;
+}
+</style>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     EXECUTIVE WEALTH v4.5.1 — PHASE 5 POWER-USER LAYER
+     ═══════════════════════════════════════════════════════════════ -->
+<style id="ew-phase5-styles">
+
+/* ─────────────────────────────────────────────────────────────
+   1. ROW SELECTION VISUALS (comparison table)
+   ───────────────────────────────────────────────────────────── */
+.comparison-row { cursor: pointer; }
+.comparison-row input,
+.comparison-row button,
+.comparison-row select { cursor: auto; }
+
+.comparison-row.ew-p5-row-selected {
+  background:
+    linear-gradient(90deg, rgba(139,92,246,.09), rgba(139,92,246,.02)) !important;
+  box-shadow: inset 3px 0 0 #8B5CF6;
+}
+.comparison-row.ew-p5-row-selected td {
+  border-color: rgba(139,92,246,.15) !important;
+}
+.comparison-row.ew-p5-row-selected td.year-cell {
+  background:
+    linear-gradient(rgba(139,92,246,.12), rgba(139,92,246,.12)),
+    var(--surface) !important;
+}
+html.glass-theme .comparison-row.ew-p5-row-selected td.year-cell {
+  background:
+    linear-gradient(rgba(139,92,246,.14), rgba(139,92,246,.14)),
+    #0D111A !important;
+}
+
+/* Small hint pill that appears on row hover */
+.comparison-row::after {
+  content: 'Click to select';
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+}
+@media (hover: hover) and (min-width: 769px) {
+  .comparison-row:hover::after {
+    content: 'Click to select · ⌘-click for multi';
+    position: absolute;
+    top: 50%;
+    left: .4rem;
+    transform: translateY(-50%);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 9999px;
+    background: rgba(139,92,246,.10);
+    color: #8B5CF6;
+    opacity: 1;
+    transition: opacity .15s ease;
+    z-index: 5;
+  }
+  .comparison-row.ew-p5-row-selected:hover::after { content: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2. BULK ACTION BAR
+   ───────────────────────────────────────────────────────────── */
+#ewP5ActionBar {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%) translateY(0);
+  z-index: 55;
+  transition: transform .28s cubic-bezier(.32,.72,0,1), opacity .22s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+#ewP5ActionBar.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+@media (max-width: 1024px) {
+  #ewP5ActionBar {
+    bottom: calc(4rem + env(safe-area-inset-bottom, 0px) + 1rem);
+    left: 1rem;
+    right: 1rem;
+    transform: none;
+  }
+  #ewP5ActionBar.show { transform: none; }
+}
+
+.ew-p5-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: .55rem .55rem .55rem 1rem;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, rgba(20,25,35,.92), rgba(13,17,26,.96));
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 20px 50px -18px rgba(0,0,0,.6), 0 0 22px rgba(139,92,246,.18);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+html.light .ew-p5-bar-inner {
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(246,246,249,.98));
+  border-color: rgba(15,23,42,.12);
+  box-shadow: 0 20px 50px -18px rgba(15,23,42,.22);
+}
+
+.ew-p5-count {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .03em;
+  color: #fff;
+  white-space: nowrap;
+}
+html.light .ew-p5-count { color: #0B1220; }
+.ew-p5-count b { color: #C4B5FD; }
+html.light .ew-p5-count b { color: #6D28D9; }
+
+.ew-p5-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.ew-p5-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: .42rem .75rem;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  color: #fff;
+  transition: all .15s ease;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.ew-p5-actions button:hover {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.28);
+}
+.ew-p5-actions button:active { transform: scale(.97); }
+.ew-p5-actions button.danger {
+  background: rgba(251,113,133,.16);
+  border-color: rgba(251,113,133,.4);
+  color: #FDA4AF;
+}
+.ew-p5-actions button.danger:hover {
+  background: rgba(251,113,133,.26);
+  border-color: rgba(251,113,133,.6);
+}
+html.light .ew-p5-actions button {
+  background: rgba(15,23,42,.05);
+  border-color: rgba(15,23,42,.12);
+  color: #0B1220;
+}
+html.light .ew-p5-actions button:hover {
+  background: rgba(15,23,42,.09);
+  border-color: rgba(15,23,42,.22);
+}
+html.light .ew-p5-actions button.danger {
+  background: rgba(190,18,60,.09);
+  border-color: rgba(190,18,60,.32);
+  color: #BE123C;
+}
+
+.ew-p5-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px; height: 26px;
+  border-radius: 9999px;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,.5);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ew-p5-clear:hover { background: rgba(255,255,255,.10); color: #fff; }
+html.light .ew-p5-clear { color: rgba(15,23,42,.45); }
+html.light .ew-p5-clear:hover { background: rgba(15,23,42,.08); color: #0B1220; }
+
+/* ─────────────────────────────────────────────────────────────
+   3. CELL FOCUS — subtle enhancement so grid feels like a spreadsheet
+   ───────────────────────────────────────────────────────────── */
+.comparison-cell:focus,
+td input.input:focus {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   4. RECORD SEARCH RESULTS IN COMMAND PALETTE
+   ───────────────────────────────────────────────────────────── */
+.ew-cmd-records .cmd-item .cmd-icon {
+  background: rgba(236,72,153,.12);
+  color: #BE185D;
+}
+html.light .ew-cmd-records .cmd-item .cmd-icon {
+  background: rgba(236,72,153,.10);
+  color: #BE185D;
+}
+html.dark .ew-cmd-records .cmd-item .cmd-icon,
+html.glass-theme .ew-cmd-records .cmd-item .cmd-icon {
+  color: #F9A8D4;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   5. BULK PROMPT MODAL (used for "Add $X")
+   ───────────────────────────────────────────────────────────── */
+.ew-p5-prompt {
+  position: fixed;
+  inset: 0;
+  z-index: 2300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15,23,42,.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+.ew-p5-prompt.open { opacity: 1; pointer-events: auto; }
+.ew-p5-prompt .ew-p5-prompt-card {
+  width: 100%;
+  max-width: 400px;
+  transform: translateY(8px) scale(.98);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.ew-p5-prompt.open .ew-p5-prompt-card {
+  transform: translateY(0) scale(1);
+}
+</style>
+<!-- ═══════════════════════════════════════════════════════════════
+     EXECUTIVE WEALTH v4.5.1 — PHASE 6 UX FEATURES
+     ═══════════════════════════════════════════════════════════════ -->
+<style id="ew-phase6-styles">
+
+/* ─────────────────────────────────────────────────────────────
+   1. ONBOARDING TOUR
+   ───────────────────────────────────────────────────────────── */
+.ew-tour-backdrop {
+  position: fixed; inset: 0;
+  z-index: 3100;
+  background: rgba(15,23,42,.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.ew-tour-backdrop.show { opacity: 1; }
+
+.ew-tour-spot {
+  position: fixed;
+  z-index: 3101;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 9999px rgba(15,23,42,.72),
+    0 0 0 4px #8B5CF6,
+    0 0 32px 6px rgba(139,92,246,.55);
+  pointer-events: none;
+  transition: all .35s cubic-bezier(.34,1.2,.64,1);
+}
+
+.ew-tour-tip {
+  position: fixed;
+  z-index: 3102;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  padding: 1.1rem 1.2rem .95rem;
+  box-shadow: 0 32px 64px -16px rgba(0,0,0,.55), 0 0 24px rgba(139,92,246,.25);
+  opacity: 0;
+  transition: opacity .25s ease, transform .3s cubic-bezier(.34,1.2,.64,1);
+}
+.ew-tour-tip.show { opacity: 1; }
+.ew-tour-tip h4 {
+  font-size: 14px; font-weight: 800; letter-spacing: -.01em;
+  color: var(--text-1); margin-bottom: 6px;
+}
+.ew-tour-tip p {
+  font-size: 11.5px; line-height: 1.55; font-weight: 500;
+  color: var(--text-3); margin-bottom: 14px;
+}
+.ew-tour-tip .ew-tour-prog {
+  display: flex; gap: 4px; margin-bottom: 12px;
+}
+.ew-tour-tip .ew-tour-prog span {
+  width: 22px; height: 3px; border-radius: 9999px;
+  background: var(--surface-3); transition: background .2s ease;
+}
+.ew-tour-tip .ew-tour-prog span.on { background: #8B5CF6; }
+.ew-tour-tip .ew-tour-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding-top: 12px; border-top: 1px solid var(--border);
+}
+.ew-tour-tip .ew-tour-skip {
+  font-size: 11px; font-weight: 700; color: var(--text-4);
+  background: transparent; border: none; cursor: pointer;
+  font-family: inherit; padding: 4px 8px; border-radius: 6px;
+}
+.ew-tour-tip .ew-tour-skip:hover { color: var(--text-1); background: var(--surface-2); }
+.ew-tour-tip .ew-tour-btns { display: flex; gap: 6px; }
+
+#ewTourHelp {
+  position: absolute; right: 10px; bottom: 10px;
+  width: 26px; height: 26px; border-radius: 9999px;
+  background: var(--surface); border: 1px solid var(--border-strong);
+  color: var(--text-3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800;
+  transition: all .15s ease;
+  z-index: 5;
+}
+#ewTourHelp:hover { border-color: var(--accent); color: #6D28D9; }
+html.dark #ewTourHelp:hover, html.glass-theme #ewTourHelp:hover { color: #C4B5FD; }
+
+/* ─────────────────────────────────────────────────────────────
+   2. SANDBOX BADGE
+   ───────────────────────────────────────────────────────────── */
+#ewSandboxBadge {
+  position: fixed;
+  top: 4.5rem; left: 50%; transform: translateX(-50%);
+  z-index: 55;
+  display: none;
+  align-items: center; gap: 8px;
+  padding: .45rem .85rem .45rem .7rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, rgba(245,158,11,.22), rgba(236,72,153,.16));
+  border: 1px solid rgba(245,158,11,.55);
+  color: #B45309;
+  font-size: 11px; font-weight: 800; letter-spacing: .02em;
+  box-shadow: 0 12px 32px -10px rgba(245,158,11,.35), 0 0 20px rgba(245,158,11,.18);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+html.dark #ewSandboxBadge, html.glass-theme #ewSandboxBadge { color: #FCD34D; }
+#ewSandboxBadge.show { display: inline-flex; }
+#ewSandboxBadge button {
+  padding: 3px 9px; border-radius: 9999px;
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.22);
+  color: inherit; font-size: 10px; font-weight: 800;
+  cursor: pointer; font-family: inherit;
+  transition: all .15s ease;
+}
+#ewSandboxBadge button:hover { background: rgba(255,255,255,.2); }
+
+/* ─────────────────────────────────────────────────────────────
+   3. RECONCILIATION ROWS
+   ───────────────────────────────────────────────────────────── */
+.ew-recon-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  margin-bottom: 7px;
+}
+.ew-recon-row:hover { border-color: var(--border-hover); }
+.ew-recon-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+  background: rgba(139,92,246,.10);
+  border: 1px solid rgba(139,92,246,.20);
+}
+.ew-recon-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 9999px;
+  font-size: 9.5px; font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase; white-space: nowrap;
+}
+.ew-recon-status.ok       { background: rgba(16,185,129,.14); color: #059669; border: 1px solid rgba(16,185,129,.32); }
+.ew-recon-status.stale    { background: rgba(245,158,11,.14); color: #B45309; border: 1px solid rgba(245,158,11,.32); }
+.ew-recon-status.unmapped { background: rgba(148,163,184,.14); color: #475569; border: 1px solid rgba(148,163,184,.28); }
+.ew-recon-status.drift    { background: rgba(190,18,60,.12); color: #BE123C; border: 1px solid rgba(190,18,60,.32); }
+html.dark .ew-recon-status.ok, html.glass-theme .ew-recon-status.ok { color: #6EE7B7; }
+html.dark .ew-recon-status.stale, html.glass-theme .ew-recon-status.stale { color: #FCD34D; }
+html.dark .ew-recon-status.unmapped, html.glass-theme .ew-recon-status.unmapped { color: #CBD5E1; }
+html.dark .ew-recon-status.drift, html.glass-theme .ew-recon-status.drift { color: #FDA4AF; }
+
+/* ─────────────────────────────────────────────────────────────
+   4. NOTIFICATION RULES
+   ───────────────────────────────────────────────────────────── */
+.ew-rule-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  margin-bottom: 7px;
+}
+.ew-rule-row:hover { border-color: var(--border-hover); }
+.ew-rule-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.ew-rule-icon.budget    { background: rgba(236,72,153,.14); color: #BE185D; border: 1px solid rgba(236,72,153,.28); }
+.ew-rule-icon.reminder  { background: rgba(139,92,246,.14); color: #6D28D9; border: 1px solid rgba(139,92,246,.28); }
+.ew-rule-icon.milestone { background: rgba(16,185,129,.14); color: #059669; border: 1px solid rgba(16,185,129,.28); }
+.ew-rule-row .ew-rule-title { font-size: 12.5px; font-weight: 800; color: var(--text-1); }
+.ew-rule-row .ew-rule-sub   { font-size: 10.5px; font-weight: 600; color: var(--text-4); margin-top: 2px; }
+.ew-rule-toggle {
+  position: relative; display: inline-block;
+  width: 36px; height: 20px; flex-shrink: 0;
+}
+.ew-rule-toggle input { opacity: 0; width: 0; height: 0; }
+.ew-rule-toggle .s {
+  position: absolute; inset: 0; cursor: pointer;
+  border-radius: 9999px; background: var(--surface-3);
+  border: 1px solid var(--border-strong);
+  transition: all .2s ease;
+}
+.ew-rule-toggle .s::before {
+  content: ''; position: absolute;
+  width: 14px; height: 14px; left: 2px; top: 2px;
+  background: #fff; border-radius: 50%;
+  transition: transform .2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,.22);
+}
+.ew-rule-toggle input:checked + .s {
+  background: linear-gradient(135deg,var(--accent),var(--accent-2));
+  border-color: transparent;
+}
+.ew-rule-toggle input:checked + .s::before { transform: translateX(16px); }
+
+/* ─────────────────────────────────────────────────────────────
+   5. CSV IMPORT WIZARD
+   ───────────────────────────────────────────────────────────── */
+.ew-csv-drop {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 2.5rem 1.5rem;
+  border-radius: 16px;
+  border: 2px dashed var(--border-strong);
+  background: var(--surface-2);
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.ew-csv-drop:hover {
+  border-color: var(--accent);
+  background: rgba(139,92,246,.04);
+}
+.ew-csv-drop.dragover {
+  border-color: #8B5CF6;
+  background: rgba(139,92,246,.10);
+  transform: scale(1.005);
+}
+.ew-csv-map-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px 14px;
+  align-items: center;
+}
+.ew-csv-map-grid .ew-csv-mid {
+  font-size: 11px; color: var(--text-4); text-align: center;
+}
+.ew-csv-preview {
+  border-radius: 12px; border: 1px solid var(--border);
+  overflow: auto; max-height: 220px;
+  font-size: 10.5px;
+}
+.ew-csv-preview table {
+  width: 100%; border-collapse: collapse;
+}
+.ew-csv-preview th,
+.ew-csv-preview td {
+  padding: 6px 10px; text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.ew-csv-preview th {
+  background: var(--surface-2); font-weight: 800; font-size: 9.5px;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--text-4);
+  position: sticky; top: 0;
+}
+.ew-csv-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 9999px;
+  font-size: 9.5px; font-weight: 800;
+}
+.ew-csv-badge.auto { background: rgba(16,185,129,.14); color: #059669; border: 1px solid rgba(16,185,129,.32); }
+.ew-csv-badge.manual { background: rgba(139,92,246,.14); color: #6D28D9; border: 1px solid rgba(139,92,246,.32); }
+
+/* ─────────────────────────────────────────────────────────────
+   6. SHARED MODAL BACKDROP (used by several Phase 6 modals)
+   ───────────────────────────────────────────────────────────── */
+.ew-p6-modal {
+  position: fixed; inset: 0; z-index: 2300;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  background: rgba(15,23,42,.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+.ew-p6-modal.open { opacity: 1; pointer-events: auto; }
+.ew-p6-modal-card {
+  width: 100%; max-width: 560px;
+  max-height: 88vh; display: flex; flex-direction: column;
+  transform: translateY(8px) scale(.98);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.ew-p6-modal.open .ew-p6-modal-card {
+  transform: translateY(0) scale(1);
 }
 </style>
 </head>
@@ -13128,7 +13814,28 @@ const COLLAPSE_SELECTORS = [
   '#tab-overview  .collapsible-container',
   '#tab-tax       .collapsible-container',
 ];
+function injectAmortViewToggle(){
+  try{
+    const wrap = document.querySelector('.mort-amort-wrap');
+    if(!wrap) return;
+    if(document.getElementById('mortAmortViewToggle')) return;
+    if(typeof mortState === 'undefined') return;
 
+    const wasUnset = !mortState.amortView;         // ← NEW
+    if(!mortState.amortView) mortState.amortView = 'year';
+
+    const bar = document.createElement('div');
+    // ... existing code unchanged ...
+
+    wrap.parentElement.insertBefore(bar, wrap);
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+
+    // If we just defaulted the mode, re-render so the table matches
+    if(wasUnset && typeof mortRenderAmortTable === 'function'){   // ← NEW
+      setTimeout(mortRenderAmortTable, 20);
+    }
+  }catch(e){ console.warn('[EW patch] amort toggle', e); }
+}
 function collapseContentSections(){
   try{
     COLLAPSE_SELECTORS.forEach(sel => {
@@ -13410,6 +14117,11 @@ function openMortMathSheet(){
   try{
     const pane = document.querySelector('.mort-tab-pane[data-mort-pane="formula"]');
     if(!pane) return;
+
+    // MOVE the DOM rather than copying it (avoids duplicate IDs)
+    const body = document.createElement('div');
+    while(pane.firstChild) body.appendChild(pane.firstChild);
+
     const html = `
       <div class="surface p-6 max-w-lg w-full max-h-[85vh] overflow-y-auto scroll space-y-4" style="box-shadow:var(--shadow-lift);">
         <div class="flex justify-between items-center pb-3" style="border-bottom:1px solid var(--border);">
@@ -13421,10 +14133,15 @@ function openMortMathSheet(){
             <i data-lucide="x" class="w-4 h-4"></i>
           </button>
         </div>
-        ${pane.innerHTML}
       </div>`;
-    if(typeof openModal === 'function') openModal(html);
+
+    const wrap = openModal(html);
+    // Append the moved children into the modal's inner surface
+    const surface = wrap.querySelector('.surface');
+    while(body.firstChild) surface.appendChild(body.firstChild);
+
     if(typeof lucide !== 'undefined') lucide.createIcons();
+    if(typeof mortRenderFormula === 'function') mortRenderFormula();
   }catch(e){ console.warn('[EW patch] math sheet', e); }
 }
 window.openMortMathSheet = openMortMathSheet;
@@ -13903,6 +14620,7 @@ window.addEventListener('load', () => setTimeout(p3Boot, 700));
 
 })();
 </script>
+
 <script>
 (function(){
   'use strict';
@@ -13942,6 +14660,2131 @@ window.addEventListener('load', () => setTimeout(p3Boot, 700));
   document.addEventListener('keydown', e => {
     if(e.key === 'Escape') window.closeQuickAddSheet();
   });
+
+})();
+</script>
+<!-- ═══════════════════════════════════════════════════════════════
+     EXECUTIVE WEALTH v4.5.1 — PHASE 4 SHEET RUNTIME
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+'use strict';
+const P4_VERSION = '1.0.0';
+
+/* ═══════════════════════════════════════════════════════════
+   1. ENSURE THE BACKDROP + HANDLE EXIST
+   ═══════════════════════════════════════════════════════════ */
+function ensureSheetChrome(){
+  const sheet = document.getElementById('expTransactionDrawer');
+  if(!sheet) return null;
+
+  // Backdrop
+  let bd = document.getElementById('expTxBackdrop');
+  if(!bd){
+    bd = document.createElement('div');
+    bd.id = 'expTxBackdrop';
+    bd.addEventListener('click', () => {
+      if(typeof window.closeTransactionDrawer === 'function') window.closeTransactionDrawer();
+    });
+    document.body.appendChild(bd);
+  }
+
+  // Handle at the top of the sheet (before the header)
+  if(!sheet.querySelector(':scope > .ew-sheet-handle')){
+    const handle = document.createElement('div');
+    handle.className = 'ew-sheet-handle';
+    handle.setAttribute('aria-hidden', 'true');
+    sheet.insertBefore(handle, sheet.firstChild);
+    installSwipeToClose(sheet, handle);
+  }
+
+  return sheet;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2. SWIPE DOWN TO CLOSE
+   ═══════════════════════════════════════════════════════════ */
+function installSwipeToClose(sheet, handle){
+  let startY = 0, currentY = 0, tracking = false, dragged = false;
+
+  handle.addEventListener('touchstart', (e) => {
+    if(e.touches.length !== 1) return;
+    startY = e.touches[0].clientY;
+    currentY = startY;
+    tracking = true;
+    dragged = false;
+  }, { passive: true });
+
+  handle.addEventListener('touchmove', (e) => {
+    if(!tracking) return;
+    currentY = e.touches[0].clientY;
+    const dy = Math.max(0, currentY - startY);
+    if(dy > 6) dragged = true;
+    if(dy > 0){
+      sheet.style.setProperty('transform', `translateY(${Math.min(dy, 260)}px)`, 'important');
+      const bd = document.getElementById('expTxBackdrop');
+      if(bd){
+        const fade = Math.max(0, 1 - dy / 300);
+        bd.style.opacity = String(fade);
+      }
+    }
+  }, { passive: true });
+
+  handle.addEventListener('touchend', () => {
+    if(!tracking) return;
+    tracking = false;
+    const dy = currentY - startY;
+    const bd = document.getElementById('expTxBackdrop');
+
+    if(dragged && dy > 90){
+      // Past threshold — close
+      sheet.style.removeProperty('transform');
+      if(bd) bd.style.opacity = '';
+      if(typeof window.closeTransactionDrawer === 'function') window.closeTransactionDrawer();
+    } else {
+      // Snap back
+      sheet.style.removeProperty('transform');
+      if(bd) bd.style.opacity = '';
+    }
+  });
+
+  handle.addEventListener('touchcancel', () => {
+    tracking = false;
+    sheet.style.removeProperty('transform');
+    const bd = document.getElementById('expTxBackdrop');
+    if(bd) bd.style.opacity = '';
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. MERCHANT AUTOCOMPLETE FROM HISTORY
+   ═══════════════════════════════════════════════════════════ */
+function refreshMerchantDatalist(){
+  const input = document.getElementById('txDescription');
+  if(!input) return;
+
+  let dl = document.getElementById('txMerchantDatalist');
+  if(!dl){
+    dl = document.createElement('datalist');
+    dl.id = 'txMerchantDatalist';
+    document.body.appendChild(dl);
+  }
+  // Bind once
+  if(input.getAttribute('list') !== 'txMerchantDatalist'){
+    input.setAttribute('list', 'txMerchantDatalist');
+    input.setAttribute('autocomplete', 'off');
+  }
+
+  // Count merchant frequency
+  const counts = new Map();
+  const add = (name) => {
+    name = String(name || '').trim();
+    if(name.length < 2) return;
+    const k = name.toLowerCase();
+    counts.set(k, (counts.get(k) || 0) + 1);
+  };
+  (typeof expenseStore !== 'undefined' ? (expenseStore.transactions || []) : []).forEach(tx => add(tx.description));
+  (typeof accountsStore !== 'undefined' ? (accountsStore.plaidTransactions || []) : []).forEach(tx =>
+    add(tx.merchantName || tx.name));
+
+  const top = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 40)
+    .map(([name]) => `<option value="${esc(name)}"></option>`)
+    .join('');
+
+  dl.innerHTML = top;
+  input.dataset.hasHistory = top ? '1' : '0';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. QUICK AMOUNT CHIPS
+   ═══════════════════════════════════════════════════════════ */
+const QUICK_AMOUNTS = [5, 10, 25, 50, 100, 250];
+
+function injectQuickAmountChips(){
+  const amountEl = document.getElementById('txAmount');
+  if(!amountEl) return;
+  if(document.getElementById('quickAmountChips')) return;
+
+  // Find the wrapper around txAmount (the div with the label + input)
+  const wrap = amountEl.parentElement;
+  if(!wrap) return;
+
+  const host = document.createElement('div');
+  host.id = 'quickAmountChips';
+  host.innerHTML = QUICK_AMOUNTS.map(v =>
+    `<button type="button" class="qa-chip" onclick="ewPickQuickAmount(${v})">${getCurrencySymbol()}${v}</button>`
+  ).join('');
+  wrap.appendChild(host);
+}
+
+window.ewPickQuickAmount = function(v){
+  const amountEl = document.getElementById('txAmount');
+  if(!amountEl) return;
+  amountEl.value = String(v);
+  amountEl.dispatchEvent(new Event('input', { bubbles: true }));
+  amountEl.dispatchEvent(new Event('change', { bubbles: true }));
+  // Move focus to merchant so user can continue quickly
+  const desc = document.getElementById('txDescription');
+  if(desc) setTimeout(() => { try{ desc.focus({ preventScroll: true }); }catch(_){} }, 60);
+};
+
+/* ═══════════════════════════════════════════════════════════
+   5. SMART CATEGORY DEFAULT — most-used recent
+   ═══════════════════════════════════════════════════════════ */
+const LAST_CAT_KEY = 'ew_last_category_v1';
+
+function rememberLastCategory(catId){
+  try{ if(catId) localStorage.setItem(LAST_CAT_KEY, catId); }catch(_){}
+}
+function recallLastCategory(){
+  try{ return localStorage.getItem(LAST_CAT_KEY) || ''; }catch(_){ return ''; }
+}
+
+function applySmartCategoryDefault(){
+  const sel = document.getElementById('txCategorySelect');
+  if(!sel) return;
+  // Only apply when it's a fresh entry (no edit id set)
+  const editId = (document.getElementById('txEditId') || {}).value;
+  if(editId) return;
+
+  const last = recallLastCategory();
+  if(last && [...sel.options].some(o => o.value === last)){
+    sel.value = last;
+  }
+}
+
+// Hook — remember chosen category on submit
+if(typeof window.handleTransactionSubmit === 'function'){
+  const _submitOrig = window.handleTransactionSubmit;
+  window.handleTransactionSubmit = function(e){
+    try{
+      const sel = document.getElementById('txCategorySelect');
+      if(sel && sel.value) rememberLastCategory(sel.value);
+    }catch(_){}
+    return _submitOrig.apply(this, arguments);
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6. WRAP OPEN / CLOSE TO SYNC BACKDROP + REFRESH DATALIST
+   ═══════════════════════════════════════════════════════════ */
+function syncBackdrop(show){
+  const bd = document.getElementById('expTxBackdrop');
+  if(!bd) return;
+  if(show) bd.classList.add('show');
+  else bd.classList.remove('show');
+}
+
+function wrapDrawerFunctions(){
+  // openTransactionDrawer
+  if(typeof window.openTransactionDrawer === 'function'){
+    const _origOpen = window.openTransactionDrawer;
+    window.openTransactionDrawer = function(){
+      ensureSheetChrome();
+      refreshMerchantDatalist();
+      const r = _origOpen.apply(this, arguments);
+      // Post-open behavior
+      setTimeout(() => {
+        injectQuickAmountChips();
+        applySmartCategoryDefault();
+        // Focus amount on mobile (numeric keyboard pops)
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        const amountEl = document.getElementById('txAmount');
+        if(isMobile && amountEl){
+          try{ amountEl.focus({ preventScroll: true }); }catch(_){}
+        }
+      }, 160);
+      syncBackdrop(true);
+      return r;
+    };
+  }
+
+  // openManualTransactionDrawer (Phase 2 alt entry)
+  if(typeof window.openManualTransactionDrawer === 'function'){
+    const _origOpen2 = window.openManualTransactionDrawer;
+    window.openManualTransactionDrawer = function(){
+      ensureSheetChrome();
+      refreshMerchantDatalist();
+      const r = _origOpen2.apply(this, arguments);
+      setTimeout(() => {
+        injectQuickAmountChips();
+        applySmartCategoryDefault();
+      }, 160);
+      syncBackdrop(true);
+      return r;
+    };
+  }
+
+  // closeTransactionDrawer
+  if(typeof window.closeTransactionDrawer === 'function'){
+    const _origClose = window.closeTransactionDrawer;
+    window.closeTransactionDrawer = function(){
+      syncBackdrop(false);
+      return _origClose.apply(this, arguments);
+    };
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   7. ESCAPE KEY CLOSES THE SHEET
+   ═══════════════════════════════════════════════════════════ */
+document.addEventListener('keydown', (e) => {
+  if(e.key !== 'Escape') return;
+  const sheet = document.getElementById('expTransactionDrawer');
+  if(!sheet) return;
+  if(sheet.classList.contains('translate-x-full')) return;
+  if(typeof window.closeTransactionDrawer === 'function') window.closeTransactionDrawer();
+});
+
+/* ═══════════════════════════════════════════════════════════
+   8. WINDOW RESIZE — RESET INLINE STYLES THAT SWIPE LEFT BEHIND
+   ═══════════════════════════════════════════════════════════ */
+let _p4ResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_p4ResizeTimer);
+  _p4ResizeTimer = setTimeout(() => {
+    const sheet = document.getElementById('expTransactionDrawer');
+    if(sheet) sheet.style.removeProperty('transform');
+    const bd = document.getElementById('expTxBackdrop');
+    if(bd) bd.style.opacity = '';
+  }, 120);
+});
+
+/* ═══════════════════════════════════════════════════════════
+   9. BOOT
+   ═══════════════════════════════════════════════════════════ */
+function p4Boot(){
+  try{
+    ensureSheetChrome();
+    wrapDrawerFunctions();
+    console.log(
+      `%c[EW Phase 4] v${P4_VERSION} · bottom-sheet · merchant autocomplete · quick amounts · smart default`,
+      'color:#EC4899;font-weight:700;'
+    );
+  }catch(e){ console.warn('[EW Phase 4] boot', e); }
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', () => setTimeout(p4Boot, 1800));
+} else {
+  setTimeout(p4Boot, 1800);
+}
+window.addEventListener('load', () => setTimeout(p4Boot, 800));
+
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     EXECUTIVE WEALTH v4.5.1 — PHASE 5 POWER-USER RUNTIME
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+'use strict';
+const P5_VERSION = '1.0.0';
+
+/* ═══════════════════════════════════════════════════════════
+   1. BULK ROW SELECTION — state + interaction
+   ═══════════════════════════════════════════════════════════ */
+const p5Selection = { years: new Set() };
+
+function isComparisonRow(el){
+  return el && el.classList && el.classList.contains('comparison-row') && el.dataset.year;
+}
+
+function applyRowSelectionVisuals(){
+  document.querySelectorAll('.comparison-row').forEach(tr => {
+    const y = tr.dataset.year;
+    tr.classList.toggle('ew-p5-row-selected', p5Selection.years.has(y));
+  });
+}
+
+function updateActionBar(){
+  const bar = document.getElementById('ewP5ActionBar');
+  if(!bar) return;
+  const n = p5Selection.years.size;
+  if(n === 0){ bar.classList.remove('show'); return; }
+  bar.classList.add('show');
+  const countEl = bar.querySelector('.ew-p5-count b');
+  if(countEl) countEl.textContent = String(n);
+}
+
+function clearSelection(){
+  p5Selection.years.clear();
+  applyRowSelectionVisuals();
+  updateActionBar();
+}
+window.ewP5Clear = clearSelection;
+
+document.addEventListener('click', (e) => {
+  const tr = e.target.closest('tr');
+  if(!tr || !isComparisonRow(tr)) return;
+  // Ignore clicks on interactive elements
+  if(e.target.closest('input, button, select, a, .ew-float-menu, .row-menu-cell')) return;
+
+  const year = tr.dataset.year;
+  const table = tr.closest('table');
+  if(!table) return;
+
+  if(e.metaKey || e.ctrlKey){
+    if(p5Selection.years.has(year)) p5Selection.years.delete(year);
+    else p5Selection.years.add(year);
+  } else if(e.shiftKey && p5Selection.years.size > 0){
+    const allRows = [...table.querySelectorAll('tbody tr.comparison-row')];
+    const years   = allRows.map(r => r.dataset.year).filter(Boolean);
+    const last    = [...p5Selection.years].pop();
+    const i1 = years.indexOf(last);
+    const i2 = years.indexOf(year);
+    if(i1 >= 0 && i2 >= 0){
+      const [a, b] = i1 < i2 ? [i1, i2] : [i2, i1];
+      for(let i = a; i <= b; i++) p5Selection.years.add(years[i]);
+    }
+  } else {
+    p5Selection.years.clear();
+    p5Selection.years.add(year);
+  }
+  applyRowSelectionVisuals();
+  updateActionBar();
+}, true);
+
+// Clear selection when the user changes year filter or navigates away
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if(t && t.id === 'yearFilter') clearSelection();
+});
+
+/* ═══════════════════════════════════════════════════════════
+   2. ACTION BAR — inject once, wire actions
+   ═══════════════════════════════════════════════════════════ */
+function ensureActionBar(){
+  if(document.getElementById('ewP5ActionBar')) return;
+  const bar = document.createElement('div');
+  bar.id = 'ewP5ActionBar';
+  bar.setAttribute('role', 'toolbar');
+  bar.setAttribute('aria-label', 'Bulk actions');
+  bar.innerHTML = `
+    <div class="ew-p5-bar-inner">
+      <span class="ew-p5-count"><b>0</b> selected</span>
+      <div class="ew-p5-actions">
+        <button type="button" onclick="ewP5SetZero()" title="Set every category balance in selected years to $0">
+          <i data-lucide="eraser" class="w-3 h-3"></i> Set to $0
+        </button>
+        <button type="button" onclick="ewP5AddAmount()" title="Add an amount to every category balance in selected years">
+          <i data-lucide="plus" class="w-3 h-3"></i> Add $X
+        </button>
+        <button type="button" onclick="ewP5Duplicate()" title="Duplicate each selected year into the following year">
+          <i data-lucide="copy" class="w-3 h-3"></i> Duplicate
+        </button>
+        <button type="button" class="danger" onclick="ewP5Delete()" title="Delete the selected years (cannot be undone)">
+          <i data-lucide="trash-2" class="w-3 h-3"></i> Delete
+        </button>
+      </div>
+      <button type="button" class="ew-p5-clear" onclick="ewP5Clear()" title="Clear selection" aria-label="Clear selection">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>`;
+  document.body.appendChild(bar);
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/* ── Bulk actions ────────────────────────────────────────── */
+function selectedYears(){
+  return [...p5Selection.years].map(String);
+}
+
+function persistAndRerender(){
+  try{ if(typeof scheduleSaveData === 'function') scheduleSaveData(400); }catch(_){}
+  try{ if(typeof localStorage !== 'undefined'){
+    localStorage.setItem('categoryPortfolioData', JSON.stringify(portfolioData));
+  } }catch(_){}
+  try{ if(typeof renderComparisonTable === 'function') renderComparisonTable(); }catch(_){}
+  try{ if(typeof renderTables === 'function') renderTables(); }catch(_){}
+  try{ if(typeof updateDashboard === 'function') updateDashboard(); }catch(_){}
+  try{ if(typeof renderMiniCharts === 'function') renderMiniCharts(); }catch(_){}
+  applyRowSelectionVisuals();
+  updateActionBar();
+}
+
+window.ewP5SetZero = function(){
+  const years = selectedYears();
+  if(!years.length) return;
+  const count = years.length;
+  if(!confirm(`Set every category balance to $0 for ${count} year${count === 1 ? '' : 's'}?\n\nThis cannot be undone.`)) return;
+
+  years.forEach(y => {
+    const row = portfolioData.find(r => String(r.year) === String(y));
+    if(!row) return;
+    if(!row.balances) row.balances = {};
+    Object.keys(row.balances).forEach(k => { row.balances[k] = 0; });
+    // Also zero invested and contri — the "fresh year" intent
+    if(row.invested) Object.keys(row.invested).forEach(k => { row.invested[k] = 0; });
+    if(row.contri)   Object.keys(row.contri).forEach(k => { row.contri[k] = 0; });
+  });
+
+  persistAndRerender();
+  clearSelection();
+  if(typeof toast === 'function') toast(`Zeroed ${count} year${count === 1 ? '' : 's'}.`, 'success');
+};
+
+window.ewP5AddAmount = function(){
+  const years = selectedYears();
+  if(!years.length) return;
+
+  const prompt = document.createElement('div');
+  prompt.className = 'ew-p5-prompt';
+  prompt.innerHTML = `
+    <div class="ew-p5-prompt-card surface p-6 space-y-4" style="box-shadow:var(--shadow-lift);">
+      <div class="flex items-center justify-between pb-3" style="border-bottom:1px solid var(--border);">
+        <div class="flex items-center gap-2">
+          <i data-lucide="plus-circle" class="w-4 h-4" style="color:#6D28D9;"></i>
+          <h3 class="text-sm font-extrabold" style="color:var(--text-1);">Add to ${years.length} year${years.length === 1 ? '' : 's'}</h3>
+        </div>
+        <button type="button" class="btn-icon btn-ghost" data-cancel aria-label="Cancel">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div>
+        <label class="field-label">Amount to add to every category balance</label>
+        <input type="number" id="ewP5AddAmt" class="input font-mono text-right text-lg" value="1000" step="100" autofocus>
+        <p class="text-[10px] mt-2" style="color:var(--text-4);">Use negative values to subtract. Applies to <b>balances only</b> — invested &amp; contributions untouched.</p>
+      </div>
+      <div class="flex flex-wrap gap-1.5">
+        ${[100, 500, 1000, 5000, 10000].map(v => `<button type="button" class="chip !py-1.5 !text-[11px]" data-quick="${v}">+${formatCurrency(v, 0)}</button>`).join('')}
+      </div>
+      <div class="flex justify-end gap-2 pt-3" style="border-top:1px solid var(--border);">
+        <button type="button" class="btn btn-ghost" data-cancel>Cancel</button>
+        <button type="button" class="btn btn-primary" id="ewP5AddApply">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i> Apply
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(prompt);
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+  requestAnimationFrame(() => prompt.classList.add('open'));
+
+  const close = () => {
+    prompt.classList.remove('open');
+    setTimeout(() => prompt.remove(), 220);
+  };
+  prompt.addEventListener('click', e => {
+    if(e.target === prompt || e.target.closest('[data-cancel]')) close();
+  });
+  prompt.querySelectorAll('[data-quick]').forEach(b => {
+    b.addEventListener('click', () => {
+      const inp = prompt.querySelector('#ewP5AddAmt');
+      if(inp) inp.value = b.dataset.quick;
+    });
+  });
+  prompt.querySelector('#ewP5AddApply').addEventListener('click', () => {
+    const raw = parseFloat(prompt.querySelector('#ewP5AddAmt').value) || 0;
+    if(raw === 0){ close(); return; }
+    years.forEach(y => {
+      const row = portfolioData.find(r => String(r.year) === String(y));
+      if(!row) return;
+      if(!row.balances) row.balances = {};
+      Object.keys(row.balances).forEach(k => {
+        row.balances[k] = (Number(row.balances[k]) || 0) + raw;
+      });
+    });
+    close();
+    persistAndRerender();
+    clearSelection();
+    if(typeof toast === 'function') toast(`Added ${formatCurrency(raw, 0)} to ${years.length} year${years.length === 1 ? '' : 's'}.`, 'success');
+  });
+
+  // Esc to close
+  const esc = (e) => { if(e.key === 'Escape'){ close(); document.removeEventListener('keydown', esc); } };
+  document.addEventListener('keydown', esc);
+};
+
+window.ewP5Duplicate = function(){
+  const years = selectedYears().sort();
+  if(!years.length) return;
+  const existing = new Set(portfolioData.map(r => String(r.year)));
+  const plans = years.map(y => ({ from: y, to: String(parseInt(y) + 1) }))
+                     .filter(p => !existing.has(p.to));
+  const skipped = years.length - plans.length;
+
+  if(!plans.length){
+    if(typeof toast === 'function') toast('Every selected year already has a following year.', 'warning');
+    return;
+  }
+
+  const msg = `Duplicate ${plans.length} year${plans.length === 1 ? '' : 's'} into the following year?` +
+              (skipped ? `\n\n${skipped} year${skipped === 1 ? '' : 's'} skipped (target already exists).` : '') +
+              `\n\nNew rows keep the same balances, invested, and contributions.`;
+  if(!confirm(msg)) return;
+
+  plans.forEach(({ from, to }) => {
+    const src = portfolioData.find(r => String(r.year) === from);
+    if(!src) return;
+    const clone = JSON.parse(JSON.stringify(src));
+    clone.year = to;
+    portfolioData.unshift(clone);
+  });
+
+  persistAndRerender();
+  try{ if(typeof populateYearFilter === 'function') populateYearFilter(); }catch(_){}
+  clearSelection();
+  if(typeof toast === 'function') toast(`Duplicated ${plans.length} year${plans.length === 1 ? '' : 's'}.`, 'success');
+};
+
+window.ewP5Delete = function(){
+  const years = selectedYears();
+  if(!years.length) return;
+  const remaining = portfolioData.length - years.length;
+  if(remaining < 1){
+    if(typeof toast === 'function') toast('At least one year must remain.', 'warning');
+    return;
+  }
+  if(!confirm(`Delete ${years.length} year${years.length === 1 ? '' : 's'}?\n\nEvery balance, contribution, and invested basis for:\n\n${years.join(', ')}\n\nwill be removed permanently.`)) return;
+
+  portfolioData = portfolioData.filter(r => !years.includes(String(r.year)));
+  persistAndRerender();
+  try{ if(typeof populateYearFilter === 'function') populateYearFilter(); }catch(_){}
+  clearSelection();
+  if(typeof toast === 'function') toast(`Deleted ${years.length} year${years.length === 1 ? '' : 's'}.`, 'info');
+};
+
+/* Re-apply visuals after every comparison re-render */
+if(typeof window.renderComparisonTable === 'function'){
+  const _orig = window.renderComparisonTable;
+  window.renderComparisonTable = function(){
+    const r = _orig.apply(this, arguments);
+    setTimeout(() => { applyRowSelectionVisuals(); updateActionBar(); }, 30);
+    return r;
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. KEYBOARD NAVIGATION IN TABLE CELL INPUTS
+   ═══════════════════════════════════════════════════════════ */
+function isGridCell(el){
+  if(!el || !el.matches) return false;
+  if(!el.matches('input[type="number"], input[type="text"]')) return false;
+  return !!el.closest('td');
+}
+
+function moveCellVertically(el, dir){
+  const cell = el.closest('td');
+  const tr   = el.closest('tr');
+  if(!cell || !tr) return;
+  const rowIdx = [...cell.parentElement.children].indexOf(cell);
+  let sibling = dir > 0 ? tr.nextElementSibling : tr.previousElementSibling;
+  while(sibling){
+    const target = sibling.children[rowIdx];
+    if(target){
+      const inp = target.querySelector('input');
+      if(inp){
+        try{ inp.focus({ preventScroll: false }); if(inp.select) inp.select(); }catch(_){}
+        try{ inp.scrollIntoView({ block:'nearest' }); }catch(_){}
+        return;
+      }
+    }
+    sibling = dir > 0 ? sibling.nextElementSibling : sibling.previousElementSibling;
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  const t = e.target;
+  if(!isGridCell(t)) return;
+
+  // Cmd/Ctrl + Enter — commit and stay
+  if((e.metaKey || e.ctrlKey) && e.key === 'Enter'){
+    e.preventDefault();
+    t.blur();
+    return;
+  }
+  // Enter / Shift+Enter — commit and move
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    if(t.dataset.prev !== undefined) t.dataset.prev = t.value;
+    t.dispatchEvent(new Event('change', { bubbles: true }));
+    const dir = e.shiftKey ? -1 : 1;
+    moveCellVertically(t, dir);
+    return;
+  }
+  // Escape — revert to the value at focus time, then blur
+  if(e.key === 'Escape'){
+    e.preventDefault();
+    if(t.dataset.prev !== undefined){
+      t.value = t.dataset.prev;
+      t.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    t.blur();
+    return;
+  }
+  // Cmd/Ctrl + D — duplicate value from cell above
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'd'){
+    e.preventDefault();
+    const cell = t.closest('td');
+    const tr   = t.closest('tr');
+    if(!cell || !tr) return;
+    const prevRow = tr.previousElementSibling;
+    if(!prevRow) return;
+    const idx = [...cell.parentElement.children].indexOf(cell);
+    const prevCell = prevRow.children[idx];
+    const prevInput = prevCell ? prevCell.querySelector('input') : null;
+    if(prevInput){
+      t.value = prevInput.value;
+      t.dispatchEvent(new Event('input',  { bubbles: true }));
+      t.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    return;
+  }
+}, true);
+
+/* ═══════════════════════════════════════════════════════════
+   4. GLOBAL SEARCH — extend ⌘K with record results
+   ═══════════════════════════════════════════════════════════ */
+function searchRecords(q){
+  const out = [];
+  const push = (label, sub, icon, action) => out.push({
+    id: 'rec_' + out.length,
+    label, sub, icon,
+    type: 'Records',
+    action
+  });
+
+  // Accounts
+  try{
+    const list = (typeof window.allAccounts === 'function') ? allAccounts() : [];
+    list.forEach(a => {
+      const hay = `${a.name || ''} ${a.institution || ''}`.toLowerCase();
+      if(hay.includes(q)){
+        push(
+          a.name || 'Untitled account',
+          `Account · ${a.institution || ''}${a.mask ? ' ••' + a.mask : ''}`,
+          'wallet',
+          () => { window.switchMainTab(null, 'tab-accounts', true); }
+        );
+      }
+    });
+  }catch(_){}
+
+  // Transactions (manual + plaid, deduped)
+  try{
+    const seen = new Set();
+    const merged = [
+      ...((window.expenseStore && expenseStore.transactions) || []).map(t => ({
+        name: t.description, date: t.date, amount: t.amount, src: 'manual'
+      })),
+      ...((window.accountsStore && accountsStore.plaidTransactions) || []).map(t => ({
+        name: t.merchantName || t.name, date: t.date, amount: t.amount, src: 'plaid'
+      }))
+    ];
+    merged
+      .filter(t => t.name && t.name.toLowerCase().includes(q))
+      .slice(0, 12)
+      .forEach(t => {
+        const key = `${t.name.toLowerCase()}|${t.date}`;
+        if(seen.has(key)) return;
+        seen.add(key);
+        const abs = Math.abs(Number(t.amount) || 0);
+        push(
+          t.name,
+          `Transaction · ${t.date} · ${formatCurrency(abs)}`,
+          'receipt',
+          () => { window.switchMainTab(null, 'tab-transactions', true); }
+        );
+      });
+  }catch(_){}
+
+  // Goals
+  try{
+    const goals = (window.DB && DB.goals) || [];
+    goals.forEach(g => {
+      if(g.name && g.name.toLowerCase().includes(q)){
+        push(
+          g.name,
+          `Goal · ${formatCurrency(g.target || 0, 0)} target`,
+          'flag',
+          () => { window.switchMainTab(null, 'tab-goals', true); }
+        );
+      }
+    });
+  }catch(_){}
+
+  // Expense categories
+  try{
+    const cats = (window.expenseStore && expenseStore.categories) || [];
+    cats.forEach(c => {
+      if(c.label && c.label.toLowerCase().includes(q)){
+        push(
+          c.label,
+          `Category · ${expenseEmoji ? '' : ''}budget ${formatCurrency(c.limit || 0, 0)}`,
+          'tag',
+          () => { window.openSettingsSection('categories'); }
+        );
+      }
+    });
+  }catch(_){}
+
+  // Portfolio years
+  try{
+    (portfolioData || []).forEach(row => {
+      if(String(row.year).includes(q)){
+        push(
+          `Year ${row.year}`,
+          `Portfolio · ${formatCurrency(typeof getTotalBal === 'function' ? getTotalBal(row) : 0, 0)}`,
+          'calendar',
+          () => {
+            window.switchMainTab(null, 'tab-overview', true);
+            setTimeout(() => {
+              const yf = document.getElementById('yearFilter');
+              if(yf){ yf.value = String(row.year); yf.dispatchEvent(new Event('change', { bubbles: true })); }
+            }, 320);
+          }
+        );
+      }
+    });
+  }catch(_){}
+
+  return out.slice(0, 12);
+}
+
+if(typeof window.renderCommandList === 'function'){
+  const _orig = window.renderCommandList;
+  window.renderCommandList = function(query){
+    _orig.apply(this, arguments);
+
+    const q = (query || '').trim().toLowerCase();
+    const list = document.getElementById('cmdList');
+    if(!list) return;
+
+    // Always remove any previous records band first
+    list.querySelectorAll('.ew-cmd-records').forEach(el => el.remove());
+
+    if(q.length < 2) return;
+
+    // If original showed "No matches found", clear it
+    const emptyState = list.querySelector(':scope > .p-6');
+    if(emptyState && /no matches/i.test(emptyState.textContent)){
+      list.innerHTML = '';
+    }
+
+    const records = searchRecords(q);
+    if(!records.length) return;
+
+    const filtered = Array.isArray(window._cmdFiltered) ? window._cmdFiltered : [];
+    const offset = filtered.length;
+
+    const band = document.createElement('div');
+    band.className = 'ew-cmd-records';
+    band.innerHTML =
+      `<div class="cmd-section-label">Records</div>` +
+      records.map((r, i) => `
+        <div class="cmd-item" data-idx="${offset + i}" onclick="executeCommand(${offset + i})">
+          <div class="cmd-icon"><i data-lucide="${r.icon}" class="w-4 h-4"></i></div>
+          <div class="min-w-0 flex-grow">
+            <div class="font-semibold truncate">${window.esc ? window.esc(r.label) : r.label}</div>
+            <div class="text-[10px] truncate" style="color:var(--text-4);">${window.esc ? window.esc(r.sub) : r.sub}</div>
+          </div>
+          <span class="cmd-kbd">↵</span>
+        </div>`).join('');
+    list.appendChild(band);
+
+    window._cmdFiltered = [...filtered, ...records];
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. HIDE COLUMN — hook the existing category header menu
+   ═══════════════════════════════════════════════════════════ */
+function hideColumnFromTable(key){
+  try{
+    const hidden = appSettings.hiddenCategories.portfolio || [];
+    if(!hidden.includes(key)) hidden.push(key);
+    appSettings.hiddenCategories.portfolio = hidden;
+    if(typeof persistAppSettings === 'function') persistAppSettings();
+    if(typeof renderComparisonTable === 'function') renderComparisonTable();
+    if(typeof renderTables === 'function') renderTables();
+    if(typeof toast === 'function') toast('Column hidden. Restore any time in Settings → Categories.', 'info');
+  }catch(e){ console.warn('[hide column]', e); }
+}
+window.hideColumnFromTable = hideColumnFromTable;
+
+if(typeof window.openCatHeaderMenu === 'function'){
+  const _orig = window.openCatHeaderMenu;
+  window.openCatHeaderMenu = function(ev, key){
+    _orig.apply(this, arguments);
+    const menu = document.querySelector('.ew-float-menu.cat-header-menu');
+    if(!menu) return;
+    if(menu.querySelector('[data-hide-col]')) return;
+    const deleteBtn = menu.querySelector('.popover-item.danger');
+    if(!deleteBtn) return;
+
+    const hideBtn = document.createElement('button');
+    hideBtn.className = 'popover-item';
+    hideBtn.setAttribute('data-hide-col', '1');
+    hideBtn.innerHTML = '<i data-lucide="eye-off" class="w-4 h-4"></i> Hide from table';
+    hideBtn.onclick = () => {
+      window.closeAllFloatMenus();
+      hideColumnFromTable(key);
+    };
+    menu.insertBefore(hideBtn, deleteBtn);
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6. BOOT
+   ═══════════════════════════════════════════════════════════ */
+function p5Boot(){
+  try{
+    ensureActionBar();
+    console.log(
+      `%c[EW Phase 5] v${P5_VERSION} · bulk-edit · keyboard-nav · global search · hide-column`,
+      'color:#EC4899;font-weight:700;'
+    );
+  }catch(e){ console.warn('[EW Phase 5] boot', e); }
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', () => setTimeout(p5Boot, 2000));
+} else {
+  setTimeout(p5Boot, 2000);
+}
+window.addEventListener('load', () => setTimeout(p5Boot, 900));
+
+})();
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     EXECUTIVE WEALTH v4.5.1 — PHASE 6 RUNTIME
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+'use strict';
+const P6_VERSION = '1.0.0';
+const KEY = {
+  TOUR:      'ew_tour_done_v1',
+  SANDBOX:   'ew_sandbox_snapshot_v1',
+  SANDBOX_ON:'ew_sandbox_active_v1',
+  RULES:     'ew_notif_rules_v1',
+  RULES_LAST:'ew_notif_rules_last_v1'
+};
+
+/* ═══════════════════════════════════════════════════════════
+   1. ONBOARDING TOUR
+   ═══════════════════════════════════════════════════════════ */
+const TOUR_STEPS = [
+  {
+    title: 'Welcome to Executive Wealth',
+    body:  "Here's a 5-stop tour. You can restart it any time from the `?` in the sidebar footer.",
+    target: null,           // centered modal
+    placement: 'center'
+  },
+  {
+    title: 'Your 5 workspaces',
+    body:  'Everything lives in one of five sections: Home, Money, Plan, Tools, and You. The sidebar expands each on demand.',
+    target: '.desktop-sidebar nav',
+    placement: 'right',
+      desktopOnly: true,               // ← NEW
+  },
+  {
+    title: 'Jump anywhere with ⌘K',
+    body:  'Press ⌘K (or Ctrl+K) at any time to search pages, records, and quick actions.',
+    target: '[onclick="openCommandPalette()"]',
+    placement: 'right',
+      desktopOnly: true,               // ← NEW
+
+  },
+  {
+    title: 'Stay ahead with alerts',
+    body:  'The bell surfaces sync results, budget warnings, goal milestones, and your own custom rules.',
+    target: '#notifBellBtn',
+    placement: 'bottom'
+  },
+  {
+    title: 'Add data in one tap',
+    body:  'On mobile, the ⊕ in the bottom nav lets you log an expense, add an account, or create a goal instantly.',
+    target: '#mobileNavAddBtn',
+    placement: 'top',
+    mobileOnly: true
+  },
+  {
+    title: "You're all set",
+    body:  'Start by importing default portfolio data, or open Settings to enter your income profile. Both flow into every calculator.',
+    target: null,
+    placement: 'center'
+  }
+];
+
+let tourState = { active: false, step: 0, els: [] };
+
+function tourStepVisible(step){
+  if(step.mobileOnly  && !window.matchMedia('(max-width: 768px)').matches) return false;
+  if(step.desktopOnly &&  window.matchMedia('(max-width: 1024px)').matches) return false;   // ← NEW
+  return true;
+}
+
+function tourReset(){
+  try{ localStorage.removeItem(KEY.TOUR); }catch(_){}
+}
+
+function startTour(force){
+  if(tourState.active) return;
+  try{
+    if(!force && localStorage.getItem(KEY.TOUR) === '1') return;
+  }catch(_){}
+ // NEW: defer if any other modal/dialog is already showing
+  if(!force && document.querySelector('.fixed.inset-0.z-\\[2200\\]')){
+    setTimeout(() => startTour(false), 2000);
+    return;
+  }
+  tourState.active = true;
+  tourState.step = 0;
+
+  // Backdrop
+  const bd = document.createElement('div');
+  bd.className = 'ew-tour-backdrop';
+  document.body.appendChild(bd);
+  requestAnimationFrame(() => bd.classList.add('show'));
+
+  // Spotlight + tooltip
+  const spot = document.createElement('div');
+  spot.className = 'ew-tour-spot';
+  spot.style.opacity = '0';
+  document.body.appendChild(spot);
+
+  const tip = document.createElement('div');
+  tip.className = 'ew-tour-tip';
+  document.body.appendChild(tip);
+
+  tourState.els = [bd, spot, tip];
+  renderTourStep();
+}
+
+function endTour(markDone){
+  if(!tourState.active) return;
+  tourState.active = false;
+  tourState.els.forEach(el => {
+    el.classList.remove('show');
+    if(el.classList.contains('ew-tour-tip') || el.classList.contains('ew-tour-spot')){
+      el.style.opacity = '0';
+    }
+    setTimeout(() => el.remove(), 320);
+  });
+  tourState.els = [];
+  if(markDone){
+    try{ localStorage.setItem(KEY.TOUR, '1'); }catch(_){}
+  }
+}
+
+function renderTourStep(){
+  const [bd, spot, tip] = tourState.els;
+  if(!bd || !spot || !tip) return;
+
+  // Skip hidden steps
+  while(tourState.step < TOUR_STEPS.length && !tourStepVisible(TOUR_STEPS[tourState.step])){
+    tourState.step++;
+  }
+
+  const step = TOUR_STEPS[tourState.step];
+  if(!step){ endTour(true); return; }
+
+  const total = TOUR_STEPS.filter(tourStepVisible).length;
+  const cur   = TOUR_STEPS.slice(0, tourState.step + 1).filter(tourStepVisible).length;
+
+  // Progress bar
+  const progHtml = Array.from({ length: total }, (_, i) =>
+    `<span class="${i < cur ? 'on' : ''}"></span>`).join('');
+
+  const isFirst = tourState.step === 0;
+  const isLast  = tourState.step === TOUR_STEPS.length - 1;
+
+  tip.innerHTML = `
+    <div class="ew-tour-prog">${progHtml}</div>
+    <h4>${step.title}</h4>
+    <p>${step.body}</p>
+    <div class="ew-tour-nav">
+      <button class="ew-tour-skip" data-skip>${isLast ? '' : 'Skip tour'}</button>
+      <div class="ew-tour-btns">
+        ${isFirst ? '' : '<button class="btn btn-ghost !py-1.5 !text-[11px]" data-back>Back</button>'}
+        <button class="btn btn-primary !py-1.5 !text-[11px]" data-next>
+          ${isLast ? 'Done' : 'Next'}
+        </button>
+      </div>
+    </div>`;
+
+  tip.querySelector('[data-skip]')?.addEventListener('click', () => endTour(true));
+  tip.querySelector('[data-back]')?.addEventListener('click', () => {
+    tourState.step = Math.max(0, tourState.step - 1);
+    renderTourStep();
+  });
+  tip.querySelector('[data-next]')?.addEventListener('click', () => {
+    if(isLast){ endTour(true); return; }
+    tourState.step++;
+    renderTourStep();
+  });
+
+  // Position: spotlight on target if visible
+  let targetEl = null;
+  if(step.target) targetEl = document.querySelector(step.target);
+  if(targetEl && (targetEl.offsetWidth === 0 || targetEl.offsetHeight === 0)) targetEl = null;
+
+  if(!targetEl || step.placement === 'center'){
+    spot.style.opacity = '0';
+    tip.style.left = '50%';
+    tip.style.top  = '50%';
+    tip.style.transform = 'translate(-50%, -50%) scale(1)';
+    tip.style.maxWidth = '420px';
+  } else {
+    const r = targetEl.getBoundingClientRect();
+    const pad = 6;
+    spot.style.opacity = '1';
+    spot.style.left = (r.left - pad) + 'px';
+    spot.style.top  = (r.top  - pad) + 'px';
+    spot.style.width  = (r.width  + pad * 2) + 'px';
+    spot.style.height = (r.height + pad * 2) + 'px';
+
+    // Tooltip position
+    const gap = 16;
+    const tipW = 340;
+    const tipH = tip.offsetHeight || 200;
+    let tipX = r.left + r.width / 2 - tipW / 2;
+    let tipY = r.top + r.height + gap;
+
+    if(step.placement === 'right'){
+      tipX = r.right + gap;
+      tipY = r.top + r.height / 2 - tipH / 2;
+    } else if(step.placement === 'top'){
+      tipX = r.left + r.width / 2 - tipW / 2;
+      tipY = r.top - tipH - gap;
+    }
+
+    tipX = Math.max(16, Math.min(window.innerWidth - tipW - 16, tipX));
+    tipY = Math.max(16, Math.min(window.innerHeight - tipH - 16, tipY));
+
+    tip.style.transform = 'none';
+    tip.style.left = tipX + 'px';
+    tip.style.top  = tipY + 'px';
+    tip.style.maxWidth = tipW + 'px';
+  }
+
+  requestAnimationFrame(() => {
+    tip.classList.add('show');
+    requestAnimationFrame(() => { /* second pass for layout settle */
+      // Re-position once more after tip has real height
+      if(targetEl && step.placement !== 'center'){
+        const r = targetEl.getBoundingClientRect();
+        const tipH2 = tip.offsetHeight || 200;
+        const gap = 16;
+        const tipW = 340;
+        let tipX = r.left + r.width / 2 - tipW / 2;
+        let tipY = r.top + r.height + gap;
+        if(step.placement === 'right'){ tipX = r.right + gap; tipY = r.top + r.height / 2 - tipH2 / 2; }
+        else if(step.placement === 'top'){ tipX = r.left + r.width / 2 - tipW / 2; tipY = r.top - tipH2 - gap; }
+        tipX = Math.max(16, Math.min(window.innerWidth - tipW - 16, tipX));
+        tipY = Math.max(16, Math.min(window.innerHeight - tipH2 - 16, tipY));
+        tip.style.left = tipX + 'px';
+        tip.style.top  = tipY + 'px';
+      }
+    });
+  });
+}
+
+window.startTour = startTour;
+window.endTour = endTour;
+window.tourReset = tourReset;
+
+function injectTourHelpButton(){
+  const footer = document.querySelector('.desktop-sidebar > div:last-child');
+  if(!footer || document.getElementById('ewTourHelp')) return;
+  const btn = document.createElement('button');
+  btn.id = 'ewTourHelp';
+  btn.title = 'Restart the tour';
+  btn.setAttribute('aria-label', 'Restart the tour');
+  btn.textContent = '?';
+  btn.onclick = () => startTour(true);
+  footer.style.position = 'relative';
+  footer.appendChild(btn);
+}
+
+// Re-position on resize while tour is active
+window.addEventListener('resize', () => {
+  if(tourState.active) renderTourStep();
+});
+
+/* ═══════════════════════════════════════════════════════════
+   2. SAMPLE-DATA SANDBOX
+   ═══════════════════════════════════════════════════════════ */
+function snapshotKeys(){
+  return [
+    'categoryPortfolioData',
+    'expense_tracker_data',
+    'accounts_data',
+    'savings_goals_v1',
+    'dash_layout_v2',
+    'ew_notifications_v1'
+  ];
+}
+
+function buildSampleData(){
+  const y = new Date().getFullYear();
+  const cats = [
+    { key:'k401',    label:'401(k)',    color:'#8B5CF6', type:'deferred' },
+    { key:'roth',    label:'Roth IRA',  color:'#EC4899', type:'exempt' },
+    { key:'tradIra', label:'Trad IRA',  color:'#F59E0B', type:'deferred' },
+    { key:'hsa',     label:'HSA',       color:'#3B82F6', type:'special' },
+    { key:'espp',    label:'ESPP',      color:'#A78BFA', type:'taxable' },
+    { key:'cd',      label:'CD / Cash', color:'#71717A', type:'taxable' },
+    { key:'c529',    label:'529',       color:'#06B6D4', type:'special' }
+  ];
+  const years = [y - 4, y - 3, y - 2, y - 1, y];
+  const defaultAccountData = years.map((yy, idx) => {
+    const scale = Math.pow(1.12, idx);
+    const balances = {
+      k401:    Math.round(120000 * scale),
+      roth:    Math.round( 28000 * scale),
+      tradIra: Math.round( 42000 * scale),
+      hsa:     Math.round(  9000 * scale),
+      espp:    Math.round( 15000 * scale),
+      cd:      Math.round( 22000 + idx * 2000),
+      c529:    Math.round(  8000 * scale)
+    };
+    const invested = Object.fromEntries(
+      Object.entries(balances).map(([k, v]) => [k, Math.round(v * 0.78)])
+    );
+    const contri = {
+      employer: Math.round( 8000 + idx * 400),
+      user:     Math.round(12000 + idx * 600),
+      rollover: 0,
+      k401:     0,
+      roth:     Math.round( 6000 + idx * 200),
+      tradIra:  0,
+      hsa:      Math.round( 3000 + idx * 100),
+      espp:     Math.round( 4000 + idx * 200),
+      cd:       0,
+      c529:     Math.round( 2000 + idx * 100)
+    };
+    contri.k401 = contri.employer + contri.user + contri.rollover;
+    return { year: String(yy), salary: Math.round(145000 * Math.pow(1.04, idx)), balances, invested, contri };
+  });
+
+  const expense = {
+    selectedCurrency: 'USD',
+    monthlyBudget: 6500,
+    categories: [
+      { id:'cat_dining',    label:'Dining',    color:'#F97316', emoji:'🍽️', limit:800,  groupId:'grp_lifestyle' },
+      { id:'cat_grocer',    label:'Groceries', color:'#10B981', emoji:'🛒', limit:900,  groupId:'grp_essentials' },
+      { id:'cat_housing',   label:'Housing',   color:'#F59E0B', emoji:'🏠', limit:2400, groupId:'grp_essentials' },
+      { id:'cat_transport', label:'Transport', color:'#3B82F6', emoji:'🚗', limit:500,  groupId:'grp_essentials' },
+      { id:'cat_shopping',  label:'Shopping',  color:'#EC4899', emoji:'🛍️', limit:600,  groupId:'grp_lifestyle' },
+      { id:'cat_health',    label:'Health',    color:'#06B6D4', emoji:'🩺', limit:400,  groupId:'grp_essentials' }
+    ],
+    cards: [ { id:'card_1', name:'Sample Card', masked:'8842', issuer:'VISA' } ],
+    transactions: (() => {
+      const out = [];
+      const now = new Date();
+      const samples = [
+        { desc:'Blue Bottle Coffee',  cat:'cat_dining',    amt: 7.50,  rec: false },
+        { desc:'Whole Foods Market',  cat:'cat_grocer',    amt: 142.30, rec: false },
+        { desc:'Uber',                cat:'cat_transport', amt: 22.10, rec: false },
+        { desc:'Amazon',              cat:'cat_shopping',  amt: 68.40, rec: false },
+        { desc:'Netflix',             cat:'cat_shopping',  amt: 22.99, rec: true  },
+        { desc:'Gym Membership',      cat:'cat_health',    amt: 89.00, rec: true  },
+        { desc:'Blue Bottle Coffee',  cat:'cat_dining',    amt: 8.20,  rec: false },
+        { desc:'Trader Joe\'s',       cat:'cat_grocer',    amt: 96.15, rec: false }
+      ];
+      samples.forEach((s, i) => {
+        const d = new Date(now); d.setDate(d.getDate() - i * 2);
+        out.push({
+          id: 'sample_tx_' + i,
+          amount: s.amt,
+          description: s.desc,
+          cardId: 'card_1',
+          categoryId: s.cat,
+          date: d.toISOString().slice(0, 10),
+          isRecurring: s.rec
+        });
+      });
+      return out;
+    })(),
+    categoryGroups: [
+      { id:'grp_essentials', name:'Essentials', emoji:'🏠', color:'#3B82F6', collapsed:false },
+      { id:'grp_lifestyle',  name:'Lifestyle',  emoji:'✨', color:'#EC4899', collapsed:false }
+    ]
+  };
+
+  const accounts = {
+    linked: [],
+    manual: [
+      { id:'sample_a1', name:'Everyday Checking', institution:'Sample Bank', type:'checking', mask:'4532', balance: 12400, color:'#8B5CF6', notes:'Sample data' },
+      { id:'sample_a2', name:'High-Yield Savings', institution:'Sample Bank', type:'savings',  mask:'8891', balance: 42800, color:'#10B981', notes:'Sample data' },
+      { id:'sample_a3', name:'Brokerage',          institution:'Sample Broker', type:'investment', mask:'2211', balance: 87400, color:'#3B82F6', notes:'Sample data' },
+      { id:'sample_a4', name:'Mortgage',           institution:'Sample Bank', type:'mortgage', mask:'9902', balance: 412000, color:'#FB7185', notes:'Sample data' }
+    ],
+    lastSync: null, selectedCurrency: 'USD',
+    plaidTransactions: [], plaidMappings: {}, merchantRules: {}
+  };
+
+  const goals = [
+    { id:'sample_g1', name:'Emergency Fund', icon:'🛡️', target: 45000, saved: 27400, date: new Date(y + 1, 5, 1).toISOString().slice(0,10), monthly: 1200, color:'#3B82F6', cat:'Emergency', shared: true },
+    { id:'sample_g2', name:'Japan Trip',     icon:'🗾', target: 12000, saved:  3900, date: new Date(y + 1, 3, 1).toISOString().slice(0,10), monthly:  500, color:'#EC4899', cat:'Travel',    shared: true }
+  ];
+
+  return {
+    portfolio: { selectedCurrency: 'USD', categories: cats, irsBaseLimits: {}, defaultAccountData },
+    expense, accounts, goals
+  };
+}
+
+window.ewSandboxIsActive = function(){
+  try{ return localStorage.getItem(KEY.SANDBOX_ON) === '1'; }catch(_){ return false; }
+};
+
+window.ewSandboxEnter = function(){
+  if(ewSandboxIsActive()){
+    if(typeof toast === 'function') toast('Sandbox is already active.', 'info');
+    return;
+  }
+  if(!confirm('Load sample data into a sandbox?\n\nYour real records will be safely preserved and restored when you exit. Do not make real changes you want to keep while in sandbox.')) return;
+
+  // Snapshot
+  const snap = {};
+  snapshotKeys().forEach(k => {
+    try{ const v = localStorage.getItem(k); if(v !== null) snap[k] = v; }catch(_){}
+  });
+  try{ localStorage.setItem(KEY.SANDBOX, JSON.stringify(snap)); }catch(_){}
+  try{ localStorage.setItem(KEY.SANDBOX_ON, '1'); }catch(_){}
+
+  // Load sample
+  const s = buildSampleData();
+  try{ localStorage.setItem('categoryPortfolioData', JSON.stringify(s.portfolio.defaultAccountData)); }catch(_){}
+  try{ localStorage.setItem('expense_tracker_data', JSON.stringify(s.expense)); }catch(_){}
+  try{ localStorage.setItem('accounts_data', JSON.stringify(s.accounts)); }catch(_){}
+  try{ localStorage.setItem('savings_goals_v1', JSON.stringify(s.goals)); }catch(_){}
+
+  if(typeof toast === 'function') toast('Sandbox active · loading sample data…', 'success', 2200);
+  setTimeout(() => location.reload(), 700);
+};
+
+window.ewSandboxExit = function(){
+  if(!ewSandboxIsActive()) return;
+  if(!confirm('Exit sandbox and restore your real data?')) return;
+  let snap = {};
+  try{ snap = JSON.parse(localStorage.getItem(KEY.SANDBOX) || '{}'); }catch(_){}
+
+  snapshotKeys().forEach(k => {
+    try{
+      if(snap[k] !== undefined) localStorage.setItem(k, snap[k]);
+      else                      localStorage.removeItem(k);
+    }catch(_){}
+  });
+  try{ localStorage.removeItem(KEY.SANDBOX); }catch(_){}
+  try{ localStorage.removeItem(KEY.SANDBOX_ON); }catch(_){}
+
+  if(typeof toast === 'function') toast('Sandbox exited · your real data restored.', 'success');
+  setTimeout(() => location.reload(), 700);
+};
+
+function renderSandboxBadge(){
+  const active = ewSandboxIsActive();
+  let badge = document.getElementById('ewSandboxBadge');
+  if(!active){
+    if(badge) badge.classList.remove('show');
+    return;
+  }
+  if(!badge){
+    badge = document.createElement('div');
+    badge.id = 'ewSandboxBadge';
+    badge.innerHTML = `
+      <span style="width:7px;height:7px;border-radius:50%;background:#F59E0B;box-shadow:0 0 8px #F59E0B;"></span>
+      <span>Sandbox mode · sample data</span>
+      <button onclick="ewSandboxExit()">Exit</button>`;
+    document.body.appendChild(badge);
+  }
+  badge.classList.add('show');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. ACCOUNT RECONCILIATION
+   ═══════════════════════════════════════════════════════════ */
+function reconRows(){
+  const rows = [];
+  const accounts = (typeof allAccounts === 'function') ? allAccounts() : [];
+  const linked  = new Set(((typeof accountsStore !== 'undefined' ? accountsStore.linked : []) || []).map(a => a.id));
+  const now = Date.now();
+  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+
+  accounts.forEach(a => {
+    const isLinked = linked.has(a.id);
+    const mapping = a.mapping;
+    const meta = (typeof accountTypeMeta === 'function') ? accountTypeMeta(a.type) : { emoji:'📦', label:'Other' };
+
+    let status = 'ok', note = 'Mapped and in sync';
+    if(!mapping || !mapping.enabled){
+      status = 'unmapped';
+      note = 'Not linked to the ledger';
+    } else if(isLinked && a.lastSynced){
+      const age = now - new Date(a.lastSynced).getTime();
+      if(age > THIRTY_DAYS){
+        status = 'stale';
+        note = `Last synced ${Math.round(age / 86400000)} days ago`;
+      } else {
+        note = `Synced ${Math.round(age / 86400000)}d ago`;
+      }
+    } else if(!isLinked){
+      note = 'Manual account · edit balance to keep in sync';
+    }
+
+    rows.push({
+      id: a.id,
+      name: a.name || 'Untitled',
+      institution: a.institution || '',
+      mask: a.mask || '',
+      emoji: meta.emoji,
+      type: meta.label,
+      balance: Number(a.balance) || 0,
+      mappingLabel: mapping && mapping.enabled
+        ? (typeof mappingLabel === 'function' ? mappingLabel(mapping) : `${mapping.portfolioKey} · ${mapping.year}`)
+        : '—',
+      isLinked,
+      status, note
+    });
+  });
+  return rows.sort((x, y) => {
+    const order = { drift:0, stale:1, unmapped:2, ok:3 };
+    return order[x.status] - order[y.status];
+  });
+}
+
+window.ewOpenReconcile = function(){
+  const rows = reconRows();
+  const total    = rows.length;
+  const ok       = rows.filter(r => r.status === 'ok').length;
+  const stale    = rows.filter(r => r.status === 'stale').length;
+  const unmapped = rows.filter(r => r.status === 'unmapped').length;
+
+  const rowsHtml = rows.length
+    ? rows.map(r => `
+        <div class="ew-recon-row">
+          <div class="ew-recon-icon">${r.emoji}</div>
+          <div style="min-width:0;">
+            <div style="font-size:12.5px;font-weight:800;color:var(--text-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${window.esc ? esc(r.name) : r.name}</div>
+            <div style="font-size:10.5px;font-weight:600;color:var(--text-4);margin-top:2px;">
+              ${window.esc ? esc(r.institution) : r.institution}${r.mask ? ' ••' + r.mask : ''} ·
+              <b style="color:var(--text-3);">${r.mappingLabel}</b> · ${formatCurrency(r.balance, 0)}
+            </div>
+          </div>
+          <span class="ew-recon-status ${r.status}">${r.status === 'ok' ? '✓ In sync' : r.status === 'stale' ? '⚠ Stale' : r.status === 'unmapped' ? '· Unmapped' : '✕ Drift'}</span>
+          <button class="btn btn-ghost !py-1.5 !text-[10.5px]" onclick="this.closest('.ew-p6-modal').remove(); openMappingModal('${r.id}', '${r.isLinked ? 'linked' : 'manual'}');">
+            ${r.status === 'unmapped' ? 'Map →' : 'Edit'}
+          </button>
+        </div>`).join('')
+    : `<div style="text-align:center;padding:2.5rem 1rem;color:var(--text-4);font-size:12px;">No accounts yet.</div>`;
+
+  const modal = document.createElement('div');
+  modal.className = 'ew-p6-modal';
+  modal.innerHTML = `
+    <div class="ew-p6-modal-card surface" style="box-shadow:var(--shadow-lift);">
+      <div class="flex items-center justify-between px-5 py-4 shrink-0" style="border-bottom:1px solid var(--border);">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                style="background:rgba(16,185,129,.14);border:1px solid rgba(16,185,129,.28);color:#059669;">
+            <i data-lucide="git-merge" class="w-4 h-4"></i>
+          </span>
+          <div class="min-w-0">
+            <h3 class="text-sm font-extrabold" style="color:var(--text-1);">Account reconciliation</h3>
+            <p class="text-[10.5px] font-semibold" style="color:var(--text-4);">Verify every account is mapped and synced with the ledger.</p>
+          </div>
+        </div>
+        <button class="btn-icon btn-ghost" onclick="this.closest('.ew-p6-modal').remove()" aria-label="Close">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="grid grid-cols-4 gap-2.5 px-5 py-3.5 shrink-0" style="border-bottom:1px solid var(--border);">
+        <div><div class="text-[9px] font-extrabold uppercase tracking-wider" style="color:var(--text-4);">Total</div>
+             <div class="text-base font-extrabold" style="color:var(--text-1);">${total}</div></div>
+        <div><div class="text-[9px] font-extrabold uppercase tracking-wider" style="color:var(--text-4);">In sync</div>
+             <div class="text-base font-extrabold" style="color:#059669;">${ok}</div></div>
+        <div><div class="text-[9px] font-extrabold uppercase tracking-wider" style="color:var(--text-4);">Stale</div>
+             <div class="text-base font-extrabold" style="color:#B45309;">${stale}</div></div>
+        <div><div class="text-[9px] font-extrabold uppercase tracking-wider" style="color:var(--text-4);">Unmapped</div>
+             <div class="text-base font-extrabold" style="color:var(--text-3);">${unmapped}</div></div>
+      </div>
+      <div class="flex-grow overflow-y-auto scroll px-5 py-4">${rowsHtml}</div>
+      <div class="flex justify-end gap-2 px-5 py-3 shrink-0" style="border-top:1px solid var(--border);">
+        <button class="btn btn-ghost" onclick="this.closest('.ew-p6-modal').remove()">Close</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  requestAnimationFrame(() => modal.classList.add('open'));
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+
+  modal.addEventListener('click', e => {
+    if(e.target === modal) modal.remove();
+  });
+};
+
+function injectReconcileButton(){
+  const row = document.getElementById('plaidActionRow');
+  if(!row || document.getElementById('ewReconBtn')) return;
+  const btn = document.createElement('button');
+  btn.id = 'ewReconBtn';
+  btn.className = 'btn btn-ghost';
+  btn.type = 'button';
+  btn.innerHTML = '<i data-lucide="git-merge" class="w-3.5 h-3.5"></i> Reconcile';
+  btn.onclick = ewOpenReconcile;
+  row.appendChild(btn);
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. NOTIFICATION RULES
+   ═══════════════════════════════════════════════════════════ */
+function loadRules(){
+  try{ return JSON.parse(localStorage.getItem(KEY.RULES) || '[]'); }
+  catch(_){ return []; }
+}
+function saveRules(rules){
+  try{ localStorage.setItem(KEY.RULES, JSON.stringify(rules)); }catch(_){}
+}
+
+function evaluateRules(){
+  if(ewSandboxIsActive()) return;
+  const rules = loadRules();
+  if(!rules.length) return;
+
+  // Throttle: only fire each rule once per 24h
+  let last = {};
+  try{ last = JSON.parse(localStorage.getItem(KEY.RULES_LAST) || '{}'); }catch(_){}
+  const now = Date.now();
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+  let changed = false;
+
+  rules.filter(r => r.enabled).forEach(rule => {
+    if(last[rule.id] && (now - last[rule.id]) < ONE_DAY) return;
+
+    try{
+      if(rule.type === 'budget'){
+        const month = new Date().toISOString().slice(0, 7);
+        const txs = (typeof getAllUnifiedTransactionsRaw === 'function' ? getAllUnifiedTransactionsRaw() : [])
+                    .filter(t => (t._date || '').startsWith(month));
+        const totalSpent = txs.reduce((s, t) => s + (t._amount || 0), 0);
+        const limit = Number(rule.amount) || 0;
+        if(limit > 0 && totalSpent > limit){
+          if(typeof pushNotification === 'function'){
+            pushNotification({
+              title: `Budget alert · ${formatCurrency(totalSpent, 0)} spent`,
+              message: `You exceeded your ${formatCurrency(limit, 0)} threshold for ${month}.`,
+              type: 'warning',
+              action: { label: 'Open budget', handler: "switchMainTab(null,'tab-expenses',true)" }
+            });
+          }
+          last[rule.id] = now; changed = true;
+        }
+      } else if(rule.type === 'reminder'){
+        const day = Number(rule.day) || 1;
+        const today = new Date().getDate();
+        if(today === day){
+          if(typeof pushNotification === 'function'){
+            pushNotification({
+              title: rule.label || 'Monthly reminder',
+              message: rule.body || 'Time to review your finances.',
+              type: 'info',
+              action: { label: 'Open dashboard', handler: "switchMainTab(null,'tab-dashboard',true)" }
+            });
+          }
+          last[rule.id] = now; changed = true;
+        }
+      } else if(rule.type === 'milestone'){
+        const goalId = rule.goalId;
+        const pct    = Number(rule.pct) || 50;
+        const goals  = (typeof DB !== 'undefined' && DB.goals) || [];
+        const goal   = goals.find(g => g.id === goalId);
+        if(goal){
+          const cur = goal.target > 0 ? (goal.saved / goal.target) * 100 : 0;
+          if(cur >= pct){
+            if(typeof pushNotification === 'function'){
+              pushNotification({
+                title: `${goal.icon || '🎯'} ${goal.name} hit ${pct}%`,
+                message: `${formatCurrency(goal.saved, 0)} of ${formatCurrency(goal.target, 0)} saved.`,
+                type: 'success',
+                action: { label: 'Open goals', handler: "switchMainTab(null,'tab-goals',true)" }
+              });
+            }
+            last[rule.id] = now; changed = true;
+          }
+        }
+      }
+    }catch(e){ console.warn('[rule eval]', e); }
+  });
+
+  if(changed){
+    try{ localStorage.setItem(KEY.RULES_LAST, JSON.stringify(last)); }catch(_){}
+  }
+}
+
+window.ewAddRule = function(kind){
+  const goals = (typeof DB !== 'undefined' && DB.goals) || [];
+  let formHtml = '';
+
+  if(kind === 'budget'){
+    formHtml = `
+      <div><label class="field-label">Threshold amount (${getCurrencySymbol()})<span class="req-mark">*</span></label>
+        <input type="number" id="ewRuleAmount" class="input text-right font-mono" value="5000" step="100"></div>
+      <p class="text-[10px]" style="color:var(--text-4);">Fires when <b>this month's total spend</b> exceeds the threshold. Repeats at most once per 24h.</p>`;
+  } else if(kind === 'reminder'){
+    formHtml = `
+      <div><label class="field-label">Day of month<span class="req-mark">*</span></label>
+        <input type="number" id="ewRuleDay" class="input text-right font-mono" value="1" min="1" max="28"></div>
+      <div><label class="field-label">Title</label>
+        <input type="text" id="ewRuleTitle" class="input" value="Monthly review" placeholder="Monthly review"></div>
+      <div><label class="field-label">Body</label>
+        <input type="text" id="ewRuleBody" class="input" value="Time to update balances and review spending." placeholder="Reminder text"></div>`;
+  } else if(kind === 'milestone'){
+    if(!goals.length){
+      if(typeof toast === 'function') toast('Create a savings goal first.', 'warning');
+      return;
+    }
+    formHtml = `
+      <div><label class="field-label">Goal<span class="req-mark">*</span></label>
+        <select id="ewRuleGoal" class="input">${goals.map(g => `<option value="${g.id}">${g.icon || ''} ${window.esc ? esc(g.name) : g.name}</option>`).join('')}</select></div>
+      <div><label class="field-label">Trigger at %<span class="req-mark">*</span></label>
+        <input type="number" id="ewRulePct" class="input text-right font-mono" value="75" min="1" max="100"></div>`;
+  }
+
+  const modal = document.createElement('div');
+  modal.className = 'ew-p6-modal';
+  modal.innerHTML = `
+    <div class="ew-p6-modal-card surface p-6" style="box-shadow:var(--shadow-lift);max-width:420px;">
+      <div class="flex items-center justify-between pb-3" style="border-bottom:1px solid var(--border);">
+        <h3 class="text-sm font-extrabold" style="color:var(--text-1);">Add rule · ${kind}</h3>
+        <button class="btn-icon btn-ghost" data-cancel><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="space-y-3 pt-3">${formHtml}</div>
+      <div class="flex justify-end gap-2 pt-4 mt-2" style="border-top:1px solid var(--border);">
+        <button class="btn btn-ghost" data-cancel>Cancel</button>
+        <button class="btn btn-primary" data-save>Add rule</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  requestAnimationFrame(() => modal.classList.add('open'));
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+
+  modal.addEventListener('click', e => {
+    if(e.target === modal || e.target.closest('[data-cancel]')) modal.remove();
+  });
+  modal.querySelector('[data-save]').addEventListener('click', () => {
+    const rule = {
+      id: 'rule_' + Date.now(),
+      type: kind,
+      enabled: true,
+      createdAt: new Date().toISOString()
+    };
+    if(kind === 'budget')       rule.amount = parseFloat(document.getElementById('ewRuleAmount').value) || 0;
+    else if(kind === 'reminder'){
+      rule.day   = parseInt(document.getElementById('ewRuleDay').value, 10) || 1;
+      rule.label = document.getElementById('ewRuleTitle').value.trim() || 'Monthly reminder';
+      rule.body  = document.getElementById('ewRuleBody').value.trim() || '';
+    } else if(kind === 'milestone'){
+      rule.goalId = document.getElementById('ewRuleGoal').value;
+      rule.pct    = Math.max(1, Math.min(100, parseFloat(document.getElementById('ewRulePct').value) || 50));
+    }
+    const rules = loadRules();
+    rules.push(rule);
+    saveRules(rules);
+    modal.remove();
+    if(typeof toast === 'function') toast('Rule added.', 'success');
+    // Re-render wherever rules are shown
+    if(typeof currentSettingsSection !== 'undefined' && currentSettingsSection === 'notifications'){
+      ewRenderRulesInto('ewRulesHost');
+    }
+  });
+};
+
+window.ewToggleRule = function(id){
+  const rules = loadRules();
+  const r = rules.find(x => x.id === id);
+  if(!r) return;
+  r.enabled = !r.enabled;
+  saveRules(rules);
+  ewRenderRulesInto('ewRulesHost');
+};
+
+window.ewDeleteRule = function(id){
+  const rules = loadRules().filter(x => x.id !== id);
+  saveRules(rules);
+  ewRenderRulesInto('ewRulesHost');
+  if(typeof toast === 'function') toast('Rule removed.', 'info');
+};
+
+window.ewRenderRulesInto = function(hostId){
+  const host = document.getElementById(hostId);
+  if(!host) return;
+  const rules = loadRules();
+
+  const kindMeta = {
+    budget:    { label:'Budget alert',  emoji:'💸' },
+    reminder:  { label:'Reminder',      emoji:'🔔' },
+    milestone: { label:'Goal milestone',emoji:'🎯' }
+  };
+
+  const rows = rules.length
+    ? rules.map(r => {
+        const meta = kindMeta[r.type] || { label:'Rule', emoji:'•' };
+        let sub = '';
+        if(r.type === 'budget')         sub = `Alert when monthly spend exceeds ${formatCurrency(r.amount || 0, 0)}`;
+        else if(r.type === 'reminder')  sub = `Day ${r.day} of every month · "${window.esc ? esc(r.label || 'Reminder') : (r.label || 'Reminder')}"`;
+        else if(r.type === 'milestone') sub = `Notify when a goal reaches ${r.pct}%`;
+        return `
+          <div class="ew-rule-row">
+            <div class="ew-rule-icon ${r.type}">${meta.emoji}</div>
+            <div style="min-width:0;">
+              <div class="ew-rule-title">${meta.label}</div>
+              <div class="ew-rule-sub">${sub}</div>
+            </div>
+            <label class="ew-rule-toggle">
+              <input type="checkbox" ${r.enabled ? 'checked' : ''} onchange="ewToggleRule('${r.id}')">
+              <span class="s"></span>
+            </label>
+            <button class="btn-icon btn-ghost" onclick="ewDeleteRule('${r.id}')" title="Delete" style="color:#BE123C;">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>`;
+      }).join('')
+    : `<div style="padding:1.5rem 1rem;text-align:center;background:var(--surface-2);border:1px dashed var(--border-strong);border-radius:12px;font-size:11px;color:var(--text-4);">No custom rules yet. Add one above.</div>`;
+
+  host.innerHTML = `
+    <div class="flex flex-wrap gap-2 mb-3">
+      <button class="btn btn-primary !py-1.5 !text-[11px]" onclick="ewAddRule('budget')"><i data-lucide="plus" class="w-3 h-3"></i> Budget alert</button>
+      <button class="btn btn-ghost !py-1.5 !text-[11px]" onclick="ewAddRule('reminder')"><i data-lucide="bell-plus" class="w-3 h-3"></i> Reminder</button>
+      <button class="btn btn-ghost !py-1.5 !text-[11px]" onclick="ewAddRule('milestone')"><i data-lucide="target" class="w-3 h-3"></i> Goal milestone</button>
+    </div>
+    ${rows}`;
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+};
+
+function injectRulesCard(){
+  const pane = document.querySelector('.settings-pane[data-pane="notifications"]');
+  if(!pane || document.getElementById('ewRulesCard')) return;
+
+  const card = document.createElement('div');
+  card.className = 'settings-card';
+  card.id = 'ewRulesCard';
+  card.style.marginTop = '1rem';
+  card.innerHTML = `
+    <div class="settings-card-header">
+      <div class="settings-card-icon"><i data-lucide="filter" style="width:18px;height:18px;"></i></div>
+      <div class="flex-grow min-w-0">
+        <h3>Notification rules</h3>
+        <p>Custom triggers that fire alerts into the bell</p>
+      </div>
+      <span class="badge badge-violet">Custom</span>
+    </div>
+    <div id="ewRulesHost"></div>`;
+  pane.appendChild(card);
+  ewRenderRulesInto('ewRulesHost');
+};
+
+/* ═══════════════════════════════════════════════════════════
+   5. CSV IMPORT WIZARD
+   ═══════════════════════════════════════════════════════════ */
+function parseCSV(text){
+  const rows = [];
+  let row = [], cell = '', inQ = false;
+  for(let i = 0; i < text.length; i++){
+    const ch = text[i];
+    if(inQ){
+      if(ch === '"'){
+        if(text[i + 1] === '"'){ cell += '"'; i++; }
+        else inQ = false;
+      } else cell += ch;
+    } else {
+      if(ch === '"') inQ = true;
+      else if(ch === ',' || ch === ';'){ row.push(cell); cell = ''; }
+      else if(ch === '\n' || ch === '\r'){
+        if(ch === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); rows.push(row);
+        row = []; cell = '';
+      } else cell += ch;
+    }
+  }
+  if(cell !== '' || row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim() !== ''));
+}
+
+function autoDetectMapping(headers){
+  const norm = h => String(h || '').toLowerCase().trim();
+  const m = { date: -1, amount: -1, merchant: -1, category: -1 };
+
+  headers.forEach((h, i) => {
+    const n = norm(h);
+    if(m.date     < 0 && /(date|when|posted)/.test(n))                 m.date = i;
+    if(m.amount   < 0 && /(amount|value|total|debit|credit|sum)/.test(n)) m.amount = i;
+    if(m.merchant < 0 && /(merchant|description|name|payee|memo|note)/.test(n)) m.merchant = i;
+    if(m.category < 0 && /(category|cat|type|tag)/.test(n))            m.category = i;
+  });
+  return m;
+}
+
+function normalizeDate(str){
+  if(!str) return '';
+  const s = String(str).trim();
+  // ISO
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // US  M/D/YY  or  MM/DD/YYYY
+  const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if(us){
+    let y = us[3]; if(y.length === 2) y = '20' + y;
+    return `${y}-${us[1].padStart(2,'0')}-${us[2].padStart(2,'0')}`;
+  }
+  // Try Date parse
+  const d = new Date(s);
+  if(!isNaN(d)) return d.toISOString().slice(0, 10);
+  return '';
+}
+
+function normalizeAmount(str){
+  if(!str) return null;
+  const cleaned = String(str).replace(/[^0-9.\-()]/g, '').replace(/\((.+)\)/, '-$1');
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? null : n;
+}
+
+window.ewOpenCSVWizard = function(){
+  const modal = document.createElement('div');
+  modal.className = 'ew-p6-modal';
+  modal.innerHTML = `
+    <div class="ew-p6-modal-card surface" style="box-shadow:var(--shadow-lift);max-width:680px;">
+      <div class="flex items-center justify-between px-5 py-4 shrink-0" style="border-bottom:1px solid var(--border);">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                style="background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.28);color:#1D4ED8;">
+            <i data-lucide="upload" class="w-4 h-4"></i>
+          </span>
+          <div class="min-w-0">
+            <h3 class="text-sm font-extrabold" style="color:var(--text-1);">Import transactions from CSV</h3>
+            <p class="text-[10.5px] font-semibold" style="color:var(--text-4);">Column mapper with automatic detection &amp; dedupe.</p>
+          </div>
+        </div>
+        <button class="btn-icon btn-ghost" data-close><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="flex-grow overflow-y-auto scroll px-5 py-4" data-body>
+        <label class="ew-csv-drop" data-drop>
+          <input type="file" accept=".csv,text/csv" data-file hidden>
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
+               style="background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.28);color:#1D4ED8;">
+            <i data-lucide="file-spreadsheet" class="w-6 h-6"></i>
+          </div>
+          <div style="font-size:13px;font-weight:800;color:var(--text-1);">Drop a CSV file here</div>
+          <div style="font-size:11px;color:var(--text-4);">or click to browse · works with Mint, YNAB, Personal Capital exports</div>
+        </label>
+      </div>
+      <div class="flex justify-end gap-2 px-5 py-3 shrink-0" style="border-top:1px solid var(--border);">
+        <button class="btn btn-ghost" data-close>Cancel</button>
+        <button class="btn btn-primary" data-import hidden><i data-lucide="check" class="w-3.5 h-3.5"></i> Import</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  requestAnimationFrame(() => modal.classList.add('open'));
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+
+  const close = () => modal.remove();
+  modal.addEventListener('click', e => {
+    if(e.target === modal || e.target.closest('[data-close]')) close();
+  });
+
+  const drop      = modal.querySelector('[data-drop]');
+  const fileInput = modal.querySelector('[data-file]');
+  const body      = modal.querySelector('[data-body]');
+  const importBtn = modal.querySelector('[data-import]');
+
+  let wizardState = { headers: [], rows: [], mapping: null, rawRows: [] };
+
+  async function readFile(file){
+    const text = await file.text();
+    const parsed = parseCSV(text);
+    if(parsed.length < 2){
+      if(typeof toast === 'function') toast('CSV appears empty or invalid.', 'error');
+      return;
+    }
+    wizardState.headers  = parsed[0].map(h => h.trim());
+    wizardState.rawRows  = parsed.slice(1);
+    wizardState.rows     = parsed.slice(1, 6);
+    wizardState.mapping  = autoDetectMapping(wizardState.headers);
+    renderWizardStage2();
+  }
+
+  fileInput.addEventListener('change', e => {
+    const f = e.target.files?.[0];
+    if(f) readFile(f);
+  });
+
+  ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); drop.classList.add('dragover');
+  }));
+  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); drop.classList.remove('dragover');
+  }));
+  drop.addEventListener('drop', e => {
+    const f = e.dataTransfer?.files?.[0];
+    if(f) readFile(f);
+  });
+
+  function renderWizardStage2(){
+    const h = wizardState.headers;
+    const m = wizardState.mapping;
+    const opts = (selected) => h.map((hh, i) =>
+      `<option value="${i}" ${i === selected ? 'selected' : ''}>${window.esc ? esc(hh) : hh}</option>`).join('');
+
+    const mapRow = (label, key) => `
+      <div style="font-size:11.5px;font-weight:800;color:var(--text-2);">${label}</div>
+      <div class="ew-csv-mid">→</div>
+      <select class="input !py-1.5 !text-[11.5px]" data-map="${key}">
+        <option value="-1">— Not mapped —</option>
+        ${opts(m[key])}
+      </select>`;
+
+    const previewHead = h.map(hh => `<th>${window.esc ? esc(hh) : hh}</th>`).join('');
+    const previewBody = wizardState.rows.map(r =>
+      `<tr>${r.map(c => `<td>${window.esc ? esc(c) : c}</td>`).join('')}</tr>`).join('');
+
+    body.innerHTML = `
+      <div class="space-y-3">
+        <div class="ew-csv-map-grid">
+          ${mapRow('Date', 'date')}
+          ${mapRow('Amount', 'amount')}
+          ${mapRow('Merchant / Description', 'merchant')}
+          ${mapRow('Category (optional)', 'category')}
+        </div>
+        <div class="flex flex-wrap gap-2 items-center pt-1">
+          <span class="ew-csv-badge auto"><i data-lucide="check" class="w-3 h-3"></i> Auto-detected</span>
+          <span style="font-size:10.5px;color:var(--text-4);">Adjust any dropdown if the guess is wrong.</span>
+        </div>
+        <div>
+          <div class="text-[10px] font-extrabold uppercase tracking-wider mb-2" style="color:var(--text-4);">Preview (first 5 rows)</div>
+          <div class="ew-csv-preview">
+            <table><thead><tr>${previewHead}</tr></thead><tbody>${previewBody}</tbody></table>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-4);">Total rows detected: <b style="color:var(--text-2);">${wizardState.rawRows.length}</b>. Duplicates against existing transactions will be skipped.</div>
+      </div>`;
+
+    body.querySelectorAll('[data-map]').forEach(sel => {
+      sel.addEventListener('change', e => {
+        wizardState.mapping[e.target.dataset.map] = parseInt(e.target.value, 10);
+      });
+    });
+
+    importBtn.hidden = false;
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  importBtn.addEventListener('click', () => {
+    const m = wizardState.mapping;
+    if(m.date < 0 || m.amount < 0 || m.merchant < 0){
+      if(typeof toast === 'function') toast('Map Date, Amount, and Merchant before importing.', 'warning');
+      return;
+    }
+
+    // Dedupe signature: date + amount + merchant lowercased
+    const existing = new Set();
+    (expenseStore.transactions || []).forEach(t => {
+      existing.add(`${t.date}|${Number(t.amount).toFixed(2)}|${String(t.description || '').toLowerCase()}`);
+    });
+
+    const catLookup = {};
+    (expenseStore.categories || []).forEach(c => { catLookup[c.label.toLowerCase()] = c.id; });
+
+    let added = 0, skipped = 0;
+    wizardState.rawRows.forEach(r => {
+      const date     = normalizeDate(r[m.date]);
+      const amt      = normalizeAmount(r[m.amount]);
+      const merchant = String(r[m.merchant] || '').trim();
+      if(!date || amt === null || !merchant){ skipped++; return; }
+      const sig = `${date}|${Math.abs(amt).toFixed(2)}|${merchant.toLowerCase()}`;
+      if(existing.has(sig)){ skipped++; return; }
+
+      let catId = null;
+      if(m.category >= 0){
+        const catName = String(r[m.category] || '').trim().toLowerCase();
+        catId = catLookup[catName] || null;
+      }
+      expenseStore.transactions.push({
+        id: 'csv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        amount: Math.abs(amt),
+        description: merchant,
+        cardId: (expenseStore.cards && expenseStore.cards[0]) ? expenseStore.cards[0].id : null,
+        categoryId: catId,
+        date,
+        isRecurring: false
+      });
+      existing.add(sig);
+      added++;
+    });
+
+    try{ saveExpenseStore(); }catch(_){}
+    try{ if(typeof renderTransactions === 'function') renderTransactions(); }catch(_){}
+    try{ if(typeof renderBudgetTab === 'function') renderBudgetTab(); }catch(_){}
+    try{ if(typeof dashRender === 'function') dashRender(); }catch(_){}
+
+    close();
+    if(typeof toast === 'function'){
+      toast(`Imported ${added} transaction${added === 1 ? '' : 's'} · ${skipped} skipped.`, 'success', 3200);
+    }
+  });
+};
+
+function injectCSVButton(){
+  const txHeader = document.querySelector('#tab-transactions .desktop-filters') ||
+                   document.querySelector('#tab-transactions .surface .flex-wrap');
+  if(!txHeader || document.getElementById('ewCSVBtn')) return;
+  // Find a good home: next to Export
+  const exportBtn = [...document.querySelectorAll('#tab-transactions button')]
+    .find(b => /export/i.test(b.textContent));
+  const btn = document.createElement('button');
+  btn.id = 'ewCSVBtn';
+  btn.className = 'btn btn-ghost';
+  btn.type = 'button';
+  btn.innerHTML = '<i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Import CSV';
+  btn.onclick = ewOpenCSVWizard;
+  if(exportBtn && exportBtn.parentElement){
+    exportBtn.parentElement.appendChild(btn);
+  } else {
+    txHeader.appendChild(btn);
+  }
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6. FIRST-RUN + APP-WIDE BOOT
+   ═══════════════════════════════════════════════════════════ */
+function p6Boot(){
+  try{
+
+
+    // NEW: don't inject sidebar chrome / start tour until signed in
+    const signedIn = (typeof authState !== 'undefined') && authState.user;
+    if(!signedIn){
+      setTimeout(p6Boot, 2000);   // retry once signed in
+      return;
+    }
+    renderSandboxBadge();
+    injectTourHelpButton();
+    injectReconcileButton();
+    injectCSVButton();
+    injectRulesCard();
+    evaluateRules();
+
+    // First-run tour, once the app is settled
+    setTimeout(() => {
+      try{
+        if(!localStorage.getItem(KEY.TOUR) && !ewSandboxIsActive()){
+          startTour(false);
+        }
+      }catch(_){}
+    }, 2400);
+
+    console.log(
+      `%c[EW Phase 6] v${P6_VERSION} · tour · sandbox · reconcile · rules · CSV wizard`,
+      'color:#EC4899;font-weight:700;'
+    );
+  }catch(e){ console.warn('[EW Phase 6] boot', e); }
+}
+
+// Extend command palette with Phase 6 actions
+if(typeof window.buildCommandItems === 'function'){
+  const _orig = window.buildCommandItems;
+  window.buildCommandItems = function(){
+    const base = _orig();
+    const extra = [
+      { id:'p6-tour', label:'Restart the app tour', sub:'5-stop walkthrough',
+        icon:'graduation-cap', type:'Quick Actions',
+        action:() => startTour(true) },
+      { id:'p6-sandbox', label: ewSandboxIsActive() ? 'Exit sandbox' : 'Enter sample-data sandbox',
+        sub:'Toggle a demo household',
+        icon:'flask-conical', type:'Quick Actions',
+        action:() => ewSandboxIsActive() ? ewSandboxExit() : ewSandboxEnter() },
+      { id:'p6-recon', label:'Reconcile accounts', sub:'Mapping & sync status',
+        icon:'git-merge', type:'Quick Actions',
+        action:() => ewOpenReconcile() },
+      { id:'p6-csv', label:'Import transactions from CSV', sub:'Column mapper & dedupe',
+        icon:'file-spreadsheet', type:'Quick Actions',
+        action:() => ewOpenCSVWizard() },
+      { id:'p6-rules', label:'Notification rules', sub:'Custom triggers',
+        icon:'filter', type:'Quick Actions',
+        action:() => { switchMainTab(null,'tab-settings',true); setTimeout(() => openSettingsSection('notifications'), 260); } }
+    ];
+    return [...extra, ...base];
+  };
+}
+
+// Wrap tab switches to re-inject contextual Phase 6 UI
+if(typeof window.switchMainTab === 'function'){
+  const _orig = window.switchMainTab;
+  window.switchMainTab = function(...args){
+    const r = _orig.apply(this, args);
+    setTimeout(() => {
+      const tab = (typeof currentTabId !== 'undefined') ? currentTabId : '';
+      if(tab === 'tab-accounts')     injectReconcileButton();
+      if(tab === 'tab-transactions') injectCSVButton();
+    }, 280);
+    return r;
+  };
+}
+
+if(typeof window.switchSettingsSection === 'function'){
+  const _orig = window.switchSettingsSection;
+  window.switchSettingsSection = function(id){
+    const r = _orig.apply(this, arguments);
+    setTimeout(() => {
+      if(id === 'notifications'){ injectRulesCard(); ewRenderRulesInto('ewRulesHost'); }
+      if(id === 'data')         injectSandboxIntoDataPane();
+    }, 200);
+    return r;
+  };
+}
+
+function injectSandboxIntoDataPane(){
+  const pane = document.querySelector('.settings-pane[data-pane="data"]');
+  if(!pane || document.getElementById('ewSandboxCard')) return;
+  const active = ewSandboxIsActive();
+  const card = document.createElement('div');
+  card.id = 'ewSandboxCard';
+  card.className = 'settings-card';
+  card.style.gridColumn = '1 / -1';
+  card.style.borderColor = 'rgba(245,158,11,.32)';
+  card.innerHTML = `
+    <div class="settings-card-header">
+      <div class="settings-card-icon" style="background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.34);color:#B45309;">
+        <i data-lucide="flask-conical" style="width:18px;height:18px;"></i>
+      </div>
+      <div class="flex-grow min-w-0">
+        <h3>Sample-data sandbox</h3>
+        <p>Explore the app with a pre-built household — your real records are preserved</p>
+      </div>
+      <span class="badge ${active ? 'badge-amber' : 'badge-slate'}">${active ? 'ACTIVE' : 'Off'}</span>
+    </div>
+    <p class="text-[10px] leading-relaxed mb-3" style="color:var(--text-4);">
+      Loading the sandbox replaces portfolio, expense, account and goal data in this browser with sample records.
+      When you exit, your real data is restored exactly as it was.
+    </p>
+    <div class="flex flex-wrap gap-2">
+      ${active
+        ? `<button class="btn btn-primary" onclick="ewSandboxExit()"><i data-lucide="log-out" class="w-3.5 h-3.5"></i> Exit sandbox &amp; restore my data</button>`
+        : `<button class="btn btn-ghost" onclick="ewSandboxEnter()"><i data-lucide="flask-conical" class="w-3.5 h-3.5"></i> Enter sandbox</button>`}
+    </div>`;
+  pane.appendChild(card);
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// Boot
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', () => setTimeout(p6Boot, 2200));
+} else {
+  setTimeout(p6Boot, 2200);
+}
+window.addEventListener('load', () => setTimeout(p6Boot, 1000));
+
+// Re-evaluate rules every 5 minutes while the app is open
+setInterval(evaluateRules, 5 * 60 * 1000);
 
 })();
 </script>
