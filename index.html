@@ -1210,7 +1210,7 @@ html.dark .ps-receipt-table tr.ps-receipt-row.is-neg td:last-child{color:#FDA4AF
   font-size:clamp(2.4rem,4.4vw,3.8rem);
   font-weight:900;
   letter-spacing:-.045em;
-  line-height:4.5rem;
+  line-height:1.02;
   color:#fff;
   margin:0 0 1.1rem;
 }
@@ -3132,7 +3132,7 @@ html.dark .ew-recon-status.drift, html.glass-theme .ew-recon-status.drift { colo
           </span>
 
           <h2 class="auth-headline">
-            <span class="grad">Master your money. <br>Track every penny.<br>Design your future.</span>
+            <span class="grad">Master your money. <br>Track every account.<br>Design your future.</span>
           </h2>
 
           <p class="auth-sub">
@@ -19002,5 +19002,683 @@ console.log('%c[EW Fix Pack v2] loading', 'color:#10B981;font-weight:700;');
 console.log('%c[EW Fix Pack v2] ready — mortgage persistence + palette records', 'color:#10B981;font-weight:700;');
 })();
 </script>
+<script id="ew-phase7-tool-gates">
+(function(){
+'use strict';
+const P7_VERSION = '1.0.0';
+
+/* ───────────────────────────────────────────────────────────
+   1. Map each tool pane → the calculator functions that drive it.
+      Wrapping them makes the gate real, not cosmetic.
+   ─────────────────────────────────────────────────────────── */
+const CALC_FUNCTIONS = {
+  rule72: [
+    'r72Calc','r72PickMode','r72Reset','r72SyncSlider','r72SyncInput'
+  ],
+  mortgage: [
+    'mortCompute','mortSlider','mortInput','mortDownPct','mortDownAmt',
+    'mortSetTerm','mortSetStartDate','mortResetStartDate','mortPager',
+    'mortExportCSV','mortSetSubTab','mortFocusTermInput','mortSetAmortView',
+    'mortToggleInflation','mortSetInflationRate'
+  ],
+  vehicle: [
+    'leaseCalc','leasePickTerm','leasePickMileage','leaseResetAll',
+    'valCalc','valPickPerspective','valResetAll','setVehicleMode'
+  ],
+  projections: [
+    'updateProjections','onProjStartingBalInput','onProjContriSliderInput',
+    'onProjContriNumberInput','onProjReturnInput','onProjInflationInput',
+    'onProjTimeSpanInput','setCompoundingFreq','syncProjectionsAndPropagate',
+    'refreshContributionFieldForFrequency'
+  ],
+  fire:       ['calculateFIRE'],
+  emergency:  ['calculateEmergencyFund'],
+  inflation:  ['calculateInflation','syncInflationSliders','setInflationAmount'],
+  insights:   ['renderStrategicHub']
+};
+
+function wrapCalcFunctions(){
+  Object.entries(CALC_FUNCTIONS).forEach(([toolId, fns]) => {
+    const req = WB_TOOL_GATES[toolId];
+    if(!req) return;                      // tool has no gate → always free
+    fns.forEach(fnName => {
+      const orig = window[fnName];
+      if(typeof orig !== 'function') return;
+      if(orig.__ewP7) return;
+      const wrapped = function(){
+        if(!hasFeature(req)){
+          reassertLock(toolId);
+          return;                          // no-op — display frozen
+        }
+        return orig.apply(this, arguments);
+      };
+      wrapped.__ewP7 = true;
+      wrapped.__orig = orig;
+      window[fnName] = wrapped;
+    });
+  });
+}
+
+/* ───────────────────────────────────────────────────────────
+   2. Overlay builder — identical to switchWbTool's, extracted
+      so we can re-inject it from the tamper guard.
+   ─────────────────────────────────────────────────────────── */
+function buildLockOverlay(toolId){
+  const req = WB_TOOL_GATES[toolId];
+  if(!req) return null;
+  const tier = FEATURE_GATES[req] || 'basic';
+  const plan = SUB_PLANS[tier] || SUB_PLANS.basic;
+  const tool = WB_TOOLS_FLAT.find(t => t.id === toolId) || { label:'This tool', desc:'' };
+  const s = ensureSubscriptionState();
+  const canTrial = !s.trialUsed[tier] && !subIsTrialing() && s.plan === 'free';
+
+  const lock = document.createElement('div');
+  lock.className = 'wb-tool-lock';
+  lock.style.cssText =
+    'position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;' +
+    'align-items:center;justify-content:flex-start;gap:1rem;text-align:center;' +
+    'padding:3.5rem 2rem 2rem;min-height:520px;overflow-y:auto;' +
+    'background:radial-gradient(600px 300px at 50% 0%,rgba(139,92,246,.14),transparent 65%),' +
+    'linear-gradient(180deg,rgba(11,17,32,.35),rgba(11,17,32,.75));' +
+    'border-radius:14px;backdrop-filter:blur(6px);';
+  lock.innerHTML = `
+    <span class="w-14 h-14 rounded-2xl flex items-center justify-center"
+          style="background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(236,72,153,.13));border:1px solid rgba(139,92,246,.4);">
+      <i data-lucide="lock" style="width:22px;height:22px;color:#C4B5FD;"></i>
+    </span>
+    <div>
+      <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0;">${tool.label} is a ${plan.name} feature</h3>
+      <p style="font-size:12px;color:var(--text-3);max-width:380px;margin:6px auto 0;line-height:1.55;">${tool.desc} — upgrade to unlock this tool and the rest of the ${plan.name} tier.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+      ${canTrial ? `<button class="btn btn-ghost" onclick="subConfirmTrial('${plan.id}')"><i data-lucide="timer" style="width:13px;height:13px;"></i> Start 7-Day Trial</button>` : ''}
+      <button class="btn btn-primary" onclick="subConfirmUpgrade('${plan.id}')"><i data-lucide="arrow-up-right" style="width:13px;height:13px;"></i> Upgrade to ${plan.name}</button>
+    </div>`;
+  return lock;
+}
+
+/* ───────────────────────────────────────────────────────────
+   3. Disable every input / select / button inside a locked pane
+      (skipping the lock overlay itself so Upgrade stays clickable).
+   ─────────────────────────────────────────────────────────── */
+function lockPaneInputs(pane){
+  pane.querySelectorAll('input, select, textarea').forEach(el => {
+    if(el.closest('.wb-tool-lock')) return;
+    el.disabled = true;
+    el.setAttribute('data-ew-p7-locked', '1');
+  });
+  pane.querySelectorAll('button').forEach(el => {
+    if(el.closest('.wb-tool-lock')) return;
+    el.disabled = true;
+    el.setAttribute('data-ew-p7-locked', '1');
+  });
+}
+function unlockPaneInputs(pane){
+  pane.querySelectorAll('[data-ew-p7-locked]').forEach(el => {
+    el.disabled = false;
+    el.removeAttribute('data-ew-p7-locked');
+  });
+}
+
+/* ───────────────────────────────────────────────────────────
+   4. Re-assert the lock — inputs disabled + overlay back.
+   ─────────────────────────────────────────────────────────── */
+function reassertLock(toolId){
+  const req = WB_TOOL_GATES[toolId];
+  if(!req || hasFeature(req)) return;
+  const pane = document.querySelector(`.wb-pane[data-wb-pane="${toolId}"]`);
+  if(!pane) return;
+
+  if(getComputedStyle(pane).position === 'static'){
+    pane.style.position = 'relative';
+  }
+  lockPaneInputs(pane);
+  if(!pane.querySelector('.wb-tool-lock')){
+    const lock = buildLockOverlay(toolId);
+    if(lock){
+      pane.style.minHeight = '520px';
+      pane.appendChild(lock);
+      if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+  }
+}
+
+/* ───────────────────────────────────────────────────────────
+   5. Tamper guard — if someone removes the overlay, put it back
+      on the next microtask. The wrapped functions still no-op,
+      so even a race window is harmless.
+   ─────────────────────────────────────────────────────────── */
+function installTamperGuards(){
+  document.querySelectorAll('.wb-pane').forEach(pane => {
+    const toolId = pane.dataset.wbPane;
+    const req = WB_TOOL_GATES[toolId];
+    if(!req || hasFeature(req)) return;
+    if(pane.dataset.ewP7Guard === '1') return;
+    pane.dataset.ewP7Guard = '1';
+
+    new MutationObserver(mutations => {
+      if(hasFeature(req)) return;
+      for(const m of mutations){
+        for(const node of m.removedNodes){
+          if(node.nodeType === 1 && node.classList && node.classList.contains('wb-tool-lock')){
+            queueMicrotask(() => reassertLock(toolId));
+            return;
+          }
+        }
+      }
+    }).observe(pane, { childList: true });
+  });
+}
+
+/* ───────────────────────────────────────────────────────────
+   6. Wrap switchWbTool — after every navigation, re-lock the pane.
+      The original already returns early for locked tools, but this
+      catches the "user upgraded the DOM" case.
+   ─────────────────────────────────────────────────────────── */
+function wrapSwitchWbTool(){
+  if(typeof window.switchWbTool !== 'function') return;
+  if(window.switchWbTool.__ewP7) return;
+  const orig = window.switchWbTool;
+  const wrapped = function(toolId){
+    const r = orig.apply(this, arguments);
+    setTimeout(() => {
+      const req = WB_TOOL_GATES[toolId];
+      if(req && !hasFeature(req)) reassertLock(toolId);
+    }, 40);
+    return r;
+  };
+  wrapped.__ewP7 = true;
+  window.switchWbTool = wrapped;
+}
+
+/* ───────────────────────────────────────────────────────────
+   7. Re-evaluate locks whenever the subscription changes.
+   ─────────────────────────────────────────────────────────── */
+function refreshAllToolLocks(){
+  document.querySelectorAll('.wb-pane').forEach(pane => {
+    const toolId = pane.dataset.wbPane;
+    const req = WB_TOOL_GATES[toolId];
+    if(!req) return;
+    if(hasFeature(req)){
+      pane.querySelectorAll('.wb-tool-lock').forEach(el => el.remove());
+      unlockPaneInputs(pane);
+    } else {
+      reassertLock(toolId);
+    }
+  });
+}
+
+function hookSubscriptionRefresh(){
+  if(typeof window.refreshAllGatedUI !== 'function') return;
+  if(window.refreshAllGatedUI.__ewP7) return;
+  const orig = window.refreshAllGatedUI;
+  const wrapped = function(){
+    const r = orig.apply(this, arguments);
+    setTimeout(refreshAllToolLocks, 50);
+    return r;
+  };
+  wrapped.__ewP7 = true;
+  window.refreshAllGatedUI = wrapped;
+}
+
+/* ───────────────────────────────────────────────────────────
+   8. Boot
+   ─────────────────────────────────────────────────────────── */
+function p7Boot(){
+  wrapCalcFunctions();
+  wrapSwitchWbTool();
+  hookSubscriptionRefresh();
+  installTamperGuards();
+  refreshAllToolLocks();
+  console.log(
+    `%c[EW Phase 7] v${P7_VERSION} · calculator gates now enforced at the function level`,
+    'color:#8B5CF6;font-weight:700;'
+  );
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', () => setTimeout(p7Boot, 2400));
+} else {
+  setTimeout(p7Boot, 2400);
+}
+window.addEventListener('load', () => setTimeout(p7Boot, 1400));
+
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     EW v4.5.1 — PHASE 8: WB TAB LOCK REFRESH + TRIAL VISIBILITY
+     ═══════════════════════════════════════════════════════════════ -->
+<style id="ew-phase8-styles">
+
+/* ─────────────────────────────────────────────────────────────
+   1. TRIAL STRIP — slim shimmering bar under the header
+      Uses a colored gradient + pulse dot + countdown + upgrade
+      CTA. Height animates 0 → 26px when a trial becomes active.
+   ───────────────────────────────────────────────────────────── */
+#trialStrip {
+  height: 0;
+  overflow: hidden;
+  transition: height .3s cubic-bezier(.32,.72,0,1);
+  background: linear-gradient(90deg, #8B5CF6 0%, #EC4899 48%, #F59E0B 100%);
+  background-size: 200% 100%;
+  position: relative;
+}
+#trialStrip.show {
+  height: 26px;
+  animation: trialShimmer 5s ease-in-out infinite;
+}
+@keyframes trialShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+#trialStrip .trial-inner {
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 12px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.28);
+  white-space: nowrap;
+}
+#trialStrip .trial-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: #fff;
+  flex-shrink: 0;
+}
+#trialStrip.show .trial-dot {
+  animation: trialPulse 1.8s ease-out infinite;
+}
+@keyframes trialPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,255,255,.75); }
+  70%  { box-shadow: 0 0 0 9px rgba(255,255,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
+#trialStrip .trial-upgrade {
+  margin-left: 4px;
+  padding: 3px 11px;
+  border-radius: 9999px;
+  background: rgba(255,255,255,.22);
+  border: 1px solid rgba(255,255,255,.4);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+#trialStrip .trial-upgrade:hover {
+  background: rgba(255,255,255,.35);
+  border-color: rgba(255,255,255,.7);
+}
+#trialStrip .trial-upgrade:active { transform: scale(.96); }
+
+@media (max-width: 640px) {
+  #trialStrip .trial-inner { font-size: 9.5px; letter-spacing: .04em; gap: 6px; padding: 0 8px; }
+  #trialStrip .trial-upgrade { padding: 2px 8px; font-size: 9px; margin-left: 2px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2. ENHANCED HEADER CHIP DURING TRIAL
+      Adds a pulsing green dot + keeps the countdown visible in
+      the chip label itself, so it survives even when the strip
+      is off-screen (e.g. on very short viewports).
+   ───────────────────────────────────────────────────────────── */
+#headerPlanChip.trial-active {
+  background: linear-gradient(135deg, rgba(139,92,246,.3), rgba(236,72,153,.22)) !important;
+  border-color: rgba(139,92,246,.65) !important;
+  color: #DDD6FE !important;
+  box-shadow: 0 0 0 3px rgba(139,92,246,.12), 0 4px 14px -6px rgba(139,92,246,.75) !important;
+}
+#headerPlanChip.trial-active .trial-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #10B981;
+  flex-shrink: 0;
+  animation: trialPulse 2s ease-out infinite;
+}
+html.light #headerPlanChip.trial-active {
+  background: linear-gradient(135deg, rgba(139,92,246,.16), rgba(236,72,153,.1)) !important;
+  color: #6D28D9 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   3. SIDEBAR PROFILE TRIGGER — trial sub-label
+      A small colored line under the email inside the sidebar
+      profile row.
+   ───────────────────────────────────────────────────────────── */
+#sidebarTrialBadge {
+  display: none;
+  margin-top: 2px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #C4B5FD;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+#sidebarTrialBadge.show { display: block; }
+html.light #sidebarTrialBadge { color: #6D28D9; }
+
+@media (prefers-reduced-motion: reduce) {
+  #trialStrip.show { animation: none; }
+  #trialStrip.show .trial-dot { animation: none; }
+  #headerPlanChip.trial-active .trial-chip-dot { animation: none; }
+}
+</style>
+
+<script id="ew-phase8-runtime">
+(function(){
+'use strict';
+const P8_VERSION = '1.0.0';
+
+/* ═══════════════════════════════════════════════════════════
+   1. TRIAL INFO — single source of truth
+   ═══════════════════════════════════════════════════════════ */
+function getTrialInfo(){
+  try{
+    const s = (typeof appSettings !== 'undefined') ? appSettings.subscription : null;
+    if(!s || !s.trial) return null;
+    const endsAt = new Date(s.trial.endsAt);
+    const now = new Date();
+    if(now >= endsAt) return null;
+
+    const msLeft = endsAt - now;
+    const daysLeft  = Math.floor(msLeft / 86400000);
+    const hoursLeft = Math.floor((msLeft % 86400000) / 3600000);
+
+    const shortLabel =
+      daysLeft >= 2 ? `${daysLeft}d left` :
+      daysLeft === 1 ? '1d left' :
+      hoursLeft > 0 ? `${hoursLeft}h left` :
+      '< 1h left';
+
+    return {
+      plan:      s.trial.plan || 'basic',
+      endsAt,
+      daysLeft,
+      hoursLeft,
+      shortLabel
+    };
+  }catch(_){ return null; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2. TRIAL STRIP — injected once at the top of the header
+   ═══════════════════════════════════════════════════════════ */
+function ensureTrialStrip(){
+  const header = document.querySelector('#appShell header.glass');
+  if(!header) return null;
+  let strip = document.getElementById('trialStrip');
+  if(strip) return strip;
+
+  strip = document.createElement('div');
+  strip.id = 'trialStrip';
+  strip.setAttribute('role', 'status');
+  strip.setAttribute('aria-live', 'polite');
+  strip.innerHTML = `
+    <div class="trial-inner">
+      <span class="trial-dot" aria-hidden="true"></span>
+      <span id="trialStripText">Trial active</span>
+      <button type="button" class="trial-upgrade" id="trialStripUpgrade">
+        Upgrade now →
+      </button>
+    </div>`;
+  header.insertBefore(strip, header.firstChild);
+
+  strip.querySelector('#trialStripUpgrade').addEventListener('click', () => {
+    const info = getTrialInfo();
+    const planId = info ? info.plan : 'basic';
+    if(typeof subConfirmUpgrade === 'function') subConfirmUpgrade(planId);
+  });
+
+  return strip;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. UPDATE ALL TRIAL UI IN ONE PASS
+   ═══════════════════════════════════════════════════════════ */
+function updateTrialUI(){
+  const info = getTrialInfo();
+  const isTrialing = !!info;
+
+  /* ── Strip ── */
+  const strip = ensureTrialStrip();
+  if(strip){
+    if(isTrialing){
+      strip.classList.add('show');
+      const planName = (typeof SUB_PLANS !== 'undefined' && SUB_PLANS[info.plan]?.name)
+                       || (info.plan || 'Basic').toUpperCase();
+      const txt = document.getElementById('trialStripText');
+      if(txt) txt.textContent = `${planName} trial · ${info.shortLabel}`;
+    } else {
+      strip.classList.remove('show');
+    }
+  }
+
+  /* ── Header plan chip ── */
+  const chip = document.getElementById('headerPlanChip');
+  if(chip){
+    chip.classList.toggle('trial-active', isTrialing);
+    if(isTrialing){
+      const planName = (typeof SUB_PLANS !== 'undefined' && SUB_PLANS[info.plan]?.name)
+                       || (info.plan || 'Basic').toUpperCase();
+      chip.innerHTML =
+        `<span class="trial-chip-dot" aria-hidden="true"></span>` +
+        `<span id="headerPlanChipText">TRIAL · ${info.shortLabel}</span>`;
+      chip.title = `${planName} trial · ${info.daysLeft} day${info.daysLeft === 1 ? '' : 's'} remaining — click to upgrade`;
+      chip.onclick = (e) => {
+        if(e) e.preventDefault();
+        if(typeof subConfirmUpgrade === 'function') subConfirmUpgrade(info.plan);
+      };
+    } else {
+      // Leave innerHTML to renderPlanChips — just restore default click
+      chip.onclick = () => {
+        if(typeof switchMainTab === 'function') switchMainTab(null, 'tab-pricing', true);
+      };
+    }
+  }
+
+  /* ── Sidebar profile trigger badge ── */
+  const trigger = document.getElementById('sidebarProfileTrigger');
+  if(trigger){
+    let badge = document.getElementById('sidebarTrialBadge');
+    if(!badge){
+      const textCol = trigger.querySelector('.profile-text');
+      if(textCol){
+        badge = document.createElement('span');
+        badge.id = 'sidebarTrialBadge';
+        textCol.appendChild(badge);
+      }
+    }
+    if(badge){
+      if(isTrialing){
+        badge.classList.add('show');
+        badge.textContent = `✦ Trial · ${info.shortLabel}`;
+      } else {
+        badge.classList.remove('show');
+        badge.textContent = '';
+      }
+    }
+  }
+
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. WB TAB LOCK REFRESH — the actual upgrade fix
+   ═══════════════════════════════════════════════════════════ */
+function refreshWbToolUI(){
+  /* (a) Re-render the pill bar so lock icons and BASIC badges
+         update immediately after a plan change. */
+  try{
+    if(typeof renderWbTabs === 'function') renderWbTabs();
+  }catch(e){ console.warn('[P8] renderWbTabs', e); }
+
+  /* (b) If the currently-visible tool pane is the one that was
+         locked, tear down its overlay and re-init the calculator. */
+  try{
+    if(typeof currentWbTool === 'string' && typeof switchWbTool === 'function'){
+      switchWbTool(currentWbTool);
+    }
+  }catch(e){ console.warn('[P8] switchWbTool re-entry', e); }
+
+  /* (c) Belt & braces: force-clean every pane whose gate is now
+         open, in case some path skipped (b). */
+  document.querySelectorAll('.wb-pane').forEach(pane => {
+    const toolId = pane.dataset.wbPane;
+    if(!toolId) return;
+    const req = (typeof WB_TOOL_GATES !== 'undefined') ? WB_TOOL_GATES[toolId] : null;
+    if(!req) return;
+    const unlocked = (typeof hasFeature === 'function') && hasFeature(req);
+    if(unlocked){
+      pane.querySelectorAll('.wb-tool-lock').forEach(el => el.remove());
+      pane.querySelectorAll('[data-ew-p7-locked]').forEach(el => {
+        el.disabled = false;
+        el.removeAttribute('data-ew-p7-locked');
+      });
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. HOOK EVERY SUBSCRIPTION MUTATION ENTRY POINT
+   ═══════════════════════════════════════════════════════════ */
+function hookSubscriptionMutations(){
+  const fns = [
+    'subApplyUpgrade',
+    'subApplyDowngrade',
+    'subCancelDowngrade',
+    'subStartTrial',
+    'subEndTrial',
+    'subSimulateCycleEnd',
+    'demoSetPlan',
+    'resetSubscriptionDemo',
+    'setBilling'
+  ];
+
+  fns.forEach(name => {
+    if(typeof window[name] !== 'function' || window[name].__ewP8) return;
+    const orig = window[name];
+    const wrapped = function(){
+      const r = orig.apply(this, arguments);
+      setTimeout(() => { updateTrialUI(); refreshWbToolUI(); }, 60);
+      setTimeout(() => { updateTrialUI(); refreshWbToolUI(); }, 320);
+      return r;
+    };
+    wrapped.__ewP8 = true;
+    window[name] = wrapped;
+  });
+
+  /* refreshAllGatedUI — the master refresh that every upgrade path
+     ultimately calls. Chain one more pass on top of Phase 7's wrap. */
+  if(typeof window.refreshAllGatedUI === 'function' && !window.refreshAllGatedUI.__ewP8){
+    const orig = window.refreshAllGatedUI;
+    const wrapped = function(){
+      const r = orig.apply(this, arguments);
+      setTimeout(() => { updateTrialUI(); refreshWbToolUI(); }, 90);
+      return r;
+    };
+    wrapped.__ewP8 = true;
+    window.refreshAllGatedUI = wrapped;
+  }
+
+  /* renderPlanChips rebuilds the header chip innerHTML — re-apply
+     the trial overlay immediately after. */
+  if(typeof window.renderPlanChips === 'function' && !window.renderPlanChips.__ewP8){
+    const orig = window.renderPlanChips;
+    const wrapped = function(){
+      const r = orig.apply(this, arguments);
+      setTimeout(updateTrialUI, 20);
+      return r;
+    };
+    wrapped.__ewP8 = true;
+    window.renderPlanChips = wrapped;
+  }
+
+  /* switchMainTab — refresh WB tabs whenever the Tools tab is shown,
+     so pills are never stale. */
+  if(typeof window.switchMainTab === 'function' && !window.switchMainTab.__ewP8){
+    const orig = window.switchMainTab;
+    const wrapped = function(event, tabId, scrollTop){
+      const r = orig.apply(this, arguments);
+      if(tabId === 'tab-blueprint'){
+        setTimeout(() => {
+          try{ if(typeof renderWbTabs === 'function') renderWbTabs(); }catch(_){}
+        }, 50);
+      }
+      return r;
+    };
+    wrapped.__ewP8 = true;
+    window.switchMainTab = wrapped;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6. COUNTDOWN TICKER — refreshes "Xd left" every minute
+   ═══════════════════════════════════════════════════════════ */
+let _p8Ticker = null;
+function startCountdownTicker(){
+  if(_p8Ticker) clearInterval(_p8Ticker);
+  _p8Ticker = setInterval(() => {
+    updateTrialUI();
+    // Detect expiry edge and refresh locks
+    if(typeof subIsTrialing === 'function' && !subIsTrialing()){
+      const strip = document.getElementById('trialStrip');
+      if(strip && strip.classList.contains('show')){
+        refreshWbToolUI();
+      }
+    }
+  }, 60000);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   7. BOOT
+   ═══════════════════════════════════════════════════════════ */
+function p8Boot(){
+  try{
+    ensureTrialStrip();
+    hookSubscriptionMutations();
+    updateTrialUI();
+    refreshWbToolUI();
+    startCountdownTicker();
+
+    // Delayed passes — beat every later boot / render pass
+    [400, 1200, 2400, 4200].forEach(t => setTimeout(() => {
+      updateTrialUI();
+      refreshWbToolUI();
+    }, t));
+
+    console.log(
+      `%c[EW Phase 8] v${P8_VERSION} · WB tab lock refresh on upgrade · trial strip + chip + sidebar badge`,
+      'color:#8B5CF6;font-weight:700;'
+    );
+  }catch(e){ console.warn('[EW Phase 8] boot', e); }
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', () => setTimeout(p8Boot, 2600));
+} else {
+  setTimeout(p8Boot, 2600);
+}
+window.addEventListener('load', () => setTimeout(p8Boot, 1500));
+
+})();
+</script>
+
 </body>
 </html>
