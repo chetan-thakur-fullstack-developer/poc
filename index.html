@@ -2288,7 +2288,6 @@ html.glass-theme .comparison-row.ew-p5-row-selected td.year-cell {
     color: #8B5CF6;
     opacity: 1;
     transition: opacity .15s ease;
-    z-index: 5;
   }
   .comparison-row.ew-p5-row-selected:hover::after { content: none; }
 }
@@ -4895,8 +4894,8 @@ html.dark .ew-recon-status.drift, html.glass-theme .ew-recon-status.drift { colo
                 <span style="background:linear-gradient(135deg,#8B5CF6 0%,#EC4899 55%,#F59E0B 100%);-webkit-background-clip:text;background-clip:text;color:transparent;">Without the spreadsheets.</span>
               </h1>
               <p class="text-sm max-w-2xl mx-auto leading-relaxed" style="color:var(--text-2);">
-                Start free with manual tracking. Upgrade for automated bank sync, goal automation, and the interactive Wealth Blueprint. Go Pro for tax-loss harvesting, allocation simulation, and hybrid human + AI advisory.
-              </p>
+  Start free with manual tracking and our two core calculators. Upgrade to Basic for automated bank sync, the full Tools suite (mortgage, vehicle, FIRE, projections), the complete budget engine, account reconciliation, bulk editing, CSV import, and multi-currency. Go Pro for real-time sync, tax-loss harvesting, AI advisory, the credit-score simulator, and the scenario sandbox.
+</p>
               <div class="flex flex-col items-center gap-3 mt-6">
                 <div class="seg" id="billingSeg">
                   <button id="bill-monthly" class="seg-item active" onclick="setBilling('monthly')">Monthly</button>
@@ -6074,34 +6073,36 @@ const SUB_TIER_RANK = { free: 0, basic: 1, pro: 2 };
 
 const SUB_PLANS = {
   free: {
-  id: 'free', name: 'Free', emoji: '🌱',
-  monthly: 0, annual: 0,
-  tagline: 'Manual tracking to build the habit',
-  accent: '#94A3B8',
-  glow: 'rgba(148,163,184,.14)',
-  highlights: [
-  'Manual transaction entry',
-  'Manual asset & liability tracking',
-  'Basic budgeting — up to 3 categories',
-  'Standard growth chart (last 12 periods)',
-  '1 savings goal (manual only)',
-  'Paycheck / take-home calculator',
-  '401(k) contribution tracker',
-  'Credit health — view only',
-  'USD display only',
-  'JSON backup · Community support'
-],
-excluded: [
-  'Automated bank sync (Plaid)',
-  'FIRE · Projections · Emergency · Inflation tools',
-  'Portfolio rebalancer',
-  'Multi-currency · CSV · GitHub sync'
-]
-},
+    id: 'free', name: 'Free', emoji: '🌱',
+    monthly: 0, annual: 0,
+    tagline: 'Manual tracking to build the habit',
+    accent: '#94A3B8',
+    glow: 'rgba(148,163,184,.14)',
+    highlights: [
+      'Manual transaction entry',
+      'Manual asset & liability tracking',
+      'Basic budgeting — up to 3 categories',
+      'Standard growth chart (last 12 periods)',
+      '1 savings goal (manual only)',
+      'Paycheck / take-home calculator',
+      'Rule of 72 calculator',
+      '401(k) contribution tracker',
+      'Credit health — view only',
+      'USD display only',
+      'JSON backup · Community support'
+    ],
+    excluded: [
+      'Automated bank sync (Plaid)',
+      'Full Tools suite — mortgage, vehicle, FIRE, projections',
+      'Portfolio rebalancer · Account reconciliation',
+      'Excel paste · Bulk categorize · CSV wizard',
+      'Multi-currency · GitHub sync · Household'
+    ]
+  },
   basic: {
     id: 'basic', name: 'Basic', emoji: '⚡',
     monthly: 9, annual: 86,
-    tagline: 'Automation, goals, and multi-currency',
+    tagline: 'Automation, tools, and multi-currency',
     accent: '#3B82F6',
     glow: 'rgba(59,130,246,.18)',
     ribbon: 'MOST POPULAR',
@@ -6110,14 +6111,23 @@ excluded: [
       '<b>Everything in Free, plus:</b>',
       'Full automated bank sync via Plaid',
       'Unlimited connected accounts',
-      'Interactive Wealth Blueprint planner',
+      '<b>Complete Tools suite —</b> mortgage, vehicle, FIRE, projections, emergency, inflation',
       'Unlimited automated Savings Goals',
       'Multi-currency support (17 currencies)',
-      'Custom automated budget rules',
+      'Full budget engine — unlimited categories, groups & rules',
       'Recurring subscription detection',
       'Portfolio rebalancing engine',
-      'All-time performance history',
-      'GitHub cloud backup & CSV export',
+      'Account Growth &amp; Performance tracking',
+      'Account reconciliation dashboard',
+      'Excel / TSV paste into any ledger',
+      'Bulk categorize transactions',
+      'CSV import wizard with column mapper',
+      'Keyboard navigation &amp; bulk row edit',
+      'Global search across records',
+      'Custom notification rules',
+      'Hide columns in portfolio table',
+      'Yearly amortization view',
+      'GitHub cloud backup &amp; CSV export',
       'Household sharing — 2 seats'
     ]
   },
@@ -6136,14 +6146,14 @@ excluded: [
       'Complex asset-allocation simulation engine',
       'Human + AI hybrid financial advisory',
       'Quarterly live advisor sessions',
-      'AI spend insights & anomaly alerts',
+      'AI spend insights &amp; anomaly alerts',
       'Credit score simulator',
+      'Sample-data sandbox for scenario planning',
       'Priority 24/7 support',
       'Household sharing — up to 5 seats'
     ]
   }
 };
-
 const SUB_FEATURE_MATRIX = [
   { group: 'Data Intake & Connectivity', icon: 'plug-zap', rows: [
     { label: 'Manual transaction entry', free: true, basic: true, pro: true },
@@ -6151,28 +6161,60 @@ const SUB_FEATURE_MATRIX = [
     { label: 'Automated bank sync (Plaid)', free: false, basic: true, pro: true, note: 'No aggregation on Free' },
     { label: 'Background sync cadence', free: false, basic: 'Daily', pro: 'Real-time · 15 min' },
     { label: 'Connected accounts', free: false, basic: 'Unlimited', pro: 'Unlimited' },
+    { label: 'CSV import wizard with column mapper', free: false, basic: true, pro: true },
+    { label: 'Excel / TSV paste into ledgers', free: false, basic: true, pro: true },
+    { label: 'Merchant autocomplete from history', free: true, basic: true, pro: true },
+    { label: 'Quick-amount chips in log drawer', free: true, basic: true, pro: true },
+    { label: 'Mobile bottom-sheet transaction entry', free: true, basic: true, pro: true },
     { label: 'High-frequency real-time refresh cycles', free: false, basic: false, pro: true }
   ]},
   { group: 'Budgeting & Spending', icon: 'target', rows: [
     { label: 'Manual budgeting tools', free: '~Up to 3 categories', basic: 'Unlimited', pro: 'Unlimited' },
+    { label: 'Category groups & drag-drop reordering', free: false, basic: true, pro: true },
     { label: 'Automated custom budget rules', free: false, basic: true, pro: true },
     { label: 'Recurring subscription detection', free: false, basic: true, pro: true },
     { label: 'Budget pace & safe-to-spend engine', free: '~Basic', basic: true, pro: true },
+    { label: 'Bulk categorize transactions', free: false, basic: true, pro: true },
+    { label: 'Smart category chips from usage', free: true, basic: true, pro: true },
     { label: 'AI spend insights & anomaly alerts', free: false, basic: false, pro: true }
   ]},
   { group: 'Investments & Portfolio', icon: 'trending-up', rows: [
     { label: 'Historical performance charts', free: '~12 months', basic: 'All-time', pro: 'All-time' },
+    { label: 'Account Growth & Performance view', free: false, basic: true, pro: true },
     { label: 'Portfolio rebalancing engine', free: false, basic: true, pro: true },
+    { label: 'Bulk row selection & edit', free: false, basic: true, pro: true },
+    { label: 'Keyboard grid navigation (⌘D, Enter, Esc)', free: false, basic: true, pro: true },
+    { label: 'Hide columns in portfolio table', free: false, basic: true, pro: true },
+    { label: 'Yearly amortization view', free: false, basic: true, pro: true },
     { label: 'Complex asset-allocation simulation engine', free: false, basic: false, pro: true },
     { label: 'Automated tax-loss harvesting models', free: false, basic: false, pro: true },
     { label: 'Tax savings & contribution tracker', free: '~Limited', basic: true, pro: true }
   ]},
   { group: 'Planning Tools', icon: 'compass', rows: [
-    { label: 'Interactive Wealth Blueprint planner', free: false, basic: true, pro: true },
+    { label: 'Paycheck / take-home calculator', free: true, basic: true, pro: true },
+    { label: 'Rule of 72 calculator', free: true, basic: true, pro: true },
+    { label: 'Mortgage & carrying-cost dashboard', free: false, basic: true, pro: true },
+    { label: 'Vehicle lease & valuation calculators', free: false, basic: true, pro: true },
+    { label: 'Interactive Tools planner', free: false, basic: true, pro: true },
     { label: 'Savings goals', free: '~1 goal · manual', basic: 'Unlimited · automated', pro: 'Unlimited · automated' },
-    { label: 'Paycheck & take-home calculator', free: true, basic: true, pro: true },
     { label: 'FIRE / financial-freedom modelling', free: false, basic: true, pro: true },
     { label: 'Inflation & purchasing-power tools', free: false, basic: true, pro: true }
+  ]},
+  { group: 'Account Operations', icon: 'git-merge', rows: [
+    { label: 'Account reconciliation dashboard', free: false, basic: true, pro: true },
+    { label: 'Mapping drift alerts', free: false, basic: true, pro: true },
+    { label: 'Auto-sync from linked accounts into ledger', free: false, basic: true, pro: true }
+  ]},
+  { group: 'Search & Navigation', icon: 'search', rows: [
+    { label: 'Command palette (⌘K)', free: true, basic: true, pro: true },
+    { label: 'Record search across accounts, transactions, goals', free: false, basic: true, pro: true },
+    { label: 'Onboarding guided tour', free: true, basic: true, pro: true },
+    { label: 'Sidebar collapse & custom layouts', free: true, basic: true, pro: true }
+  ]},
+  { group: 'Notifications & Rules', icon: 'bell', rows: [
+    { label: 'Standard alerts (sync, budget, goals)', free: true, basic: true, pro: true },
+    { label: 'Custom notification rules engine', free: false, basic: true, pro: true },
+    { label: 'AI-driven anomaly alerts', free: false, basic: false, pro: true }
   ]},
   { group: 'Advisory & Intelligence', icon: 'sparkles', rows: [
     { label: 'Credit health monitoring', free: false, basic: true, pro: true },
@@ -6187,6 +6229,10 @@ const SUB_FEATURE_MATRIX = [
     { label: 'Household / co-owner seats', free: false, basic: '~2 seats', pro: '~Up to 5 seats' },
     { label: 'Shared goals & budgets', free: false, basic: true, pro: true }
   ]},
+  { group: 'Scenarios & Testing', icon: 'flask-conical', rows: [
+    { label: 'Sample-data sandbox', free: false, basic: false, pro: true },
+    { label: 'Scenario planning workspace', free: false, basic: false, pro: true }
+  ]},
   { group: 'Data, Backup & Support', icon: 'database', rows: [
     { label: 'JSON export / import', free: true, basic: true, pro: true },
     { label: 'CSV transaction export', free: false, basic: true, pro: true },
@@ -6194,8 +6240,8 @@ const SUB_FEATURE_MATRIX = [
     { label: 'Support channel', free: '~Community', basic: '~Email · 48h', pro: '~Priority 24/7' }
   ]}
 ];
-
 const FEATURE_GATES = {
+  /* ── Basic gates ──────────────────────────────────── */
   plaid_sync:               'basic',
   multi_currency:           'basic',
   wealth_blueprint:         'basic',
@@ -6211,12 +6257,29 @@ const FEATURE_GATES = {
   fire_modelling:           'basic',
   custom_categories:        'basic',
 
+  /* ── New Basic gates (Phase 3–6 features) ─────────── */
+  csv_import:               'basic',
+  excel_paste:              'basic',
+  bulk_categorize:          'basic',
+  keyboard_navigation:      'basic',
+  bulk_row_edit:            'basic',
+  hide_columns:             'basic',
+  account_reconciliation:   'basic',
+  merchant_autocomplete:    'basic',
+  notification_rules:       'basic',
+  mortgage_calculator:      'basic',
+  vehicle_calculator:       'basic',
+  record_search:            'basic',
+
+  /* ── Pro-only gates ──────────────────────────────── */
   real_time_sync:           'pro',
   tax_loss_harvesting:      'pro',
   allocation_simulation:    'pro',
   ai_advisory:              'pro',
   credit_simulator:         'pro',
-  ai_insights:              'pro'
+  ai_insights:              'pro',
+  sandbox_mode:             'pro',
+  scenario_planning:        'pro'
 };
 
 const TAB_GATES = {
@@ -16786,6 +16849,1728 @@ window.addEventListener('load', () => setTimeout(p6Boot, 1000));
 // Re-evaluate rules every 5 minutes while the app is open
 setInterval(evaluateRules, 5 * 60 * 1000);
 
+})();
+</script>
+<!-- ═══════════════════════════════════════════════════════════════
+     EW v4.5.1 — FIX PACK v1
+     1. Tour help button placement
+     2. Portfolio horizontal scroll (glass theme)
+     3. Comparison row hover hint on top
+     ═══════════════════════════════════════════════════════════════ -->
+<style id="ew-fixpack-v1">
+/* ─────────────────────────────────────────────────────────────
+   FIX 1 — TOUR BUTTON: full-width inline ghost button above
+   the profile trigger, no more absolute positioning overlap.
+   ───────────────────────────────────────────────────────────── */
+#ewTourHelp {
+  position: static !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  padding: .55rem .75rem !important;
+  border-radius: var(--radius-md) !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  font-family: inherit !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: .5rem !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border-strong) !important;
+  color: var(--text-3) !important;
+  cursor: pointer !important;
+  transition: all .15s ease !important;
+  text-align: left !important;
+  z-index: auto !important;
+}
+#ewTourHelp:hover {
+  background: var(--surface-2) !important;
+  border-color: var(--accent) !important;
+  color: #6D28D9 !important;
+}
+html.dark #ewTourHelp:hover,
+html.glass-theme #ewTourHelp:hover { color: #C4B5FD !important; }
+#ewTourHelp > i { flex-shrink: 0; }
+#ewTourHelp > span { flex-grow: 1; }
+
+/* ─────────────────────────────────────────────────────────────
+   FIX 2 — PORTFOLIO HORIZONTAL SCROLL
+   The main scroll column must never scroll sideways. Inner
+   .scroll-x wrappers keep their own overflow behaviour.
+   ───────────────────────────────────────────────────────────── */
+#mainScroll {
+  overflow-x: hidden !important;
+}
+html.glass-theme #mainScroll {
+  overflow-x: hidden !important;
+}
+html.glass-theme #tab-overview,
+html.glass-theme #tab-overview > * {
+  max-width: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FIX 3 — COMPARISON ROW HOVER HINT
+   Kill the broken row ::after, put the hint INSIDE the sticky
+   year-cell so it always paints above the row content.
+   ───────────────────────────────────────────────────────────── */
+.comparison-row::after,
+.comparison-row:hover::after {
+  content: none !important;
+  display: none !important;
+}
+.comparison-row .year-cell::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: calc(100% + .6rem);
+  transform: translateY(-50%);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #8B5CF6, #EC4899);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(139,92,246,.45), 0 0 0 1px rgba(255,255,255,.1);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s ease;
+  z-index: 50;
+}
+@media (hover: hover) and (min-width: 769px) {
+  .comparison-row:hover .year-cell::after {
+    content: 'Click to select · ⌘-click for multi';
+    opacity: 1;
+  }
+  .comparison-row.ew-p5-row-selected:hover .year-cell::after {
+    content: '✓ Selected · ⌘-click to remove';
+  }
+}
+/* Make sure the sticky cell is a proper containing block */
+.comparison-row .year-cell {
+  position: sticky !important;
+}
+</style>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ───────────────────────────────────────────────────────────
+     FIX 1 (JS) — Relocate the tour button into the sidebar
+     footer as a proper sibling of the profile trigger, styled
+     as an inline "Take a tour" button. Runs after the Phase 6
+     script has already created it.
+     ─────────────────────────────────────────────────────────── */
+  function relocateTourButton(){
+    const btn = document.getElementById('ewTourHelp');
+    const profileWrap = document.getElementById('sidebarProfileWrap');
+    if(!btn || !profileWrap) return;
+    const footer = profileWrap.parentElement;
+    if(!footer) return;
+
+    // Move it to be the first child of the footer (above profile trigger)
+    if(btn.parentElement !== footer || btn.nextElementSibling !== profileWrap){
+      footer.insertBefore(btn, profileWrap);
+    }
+
+    // Rewrite as a proper inline button with an icon + label
+    btn.innerHTML =
+      '<i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>' +
+      '<span class="flex-grow text-left">Take a tour</span>';
+    btn.title = 'Restart the guided tour';
+    btn.setAttribute('aria-label', 'Restart the guided tour');
+
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  // Run a few times to beat the Phase 6 injection timing
+  setTimeout(relocateTourButton, 2400);
+  setTimeout(relocateTourButton, 3600);
+  setTimeout(relocateTourButton, 6000);
+  window.addEventListener('load', () => setTimeout(relocateTourButton, 3000));
+
+  // Also re-run when the sidebar profile trigger is re-rendered
+  const profileHost = document.getElementById('sidebarProfileWrap');
+  if(profileHost && typeof MutationObserver !== 'undefined'){
+    new MutationObserver(() => relocateTourButton())
+      .observe(profileHost.parentElement, { childList: true });
+  }
+
+  /* ───────────────────────────────────────────────────────────
+     FIX 3 (JS) — After every comparison table render, ensure
+     the hover-hint works with the freshly-created rows. The CSS
+     handles the visuals; this is a defensive re-application in
+     case another script re-renders the table.
+     ─────────────────────────────────────────────────────────── */
+  if(typeof window.renderComparisonTable === 'function'){
+    const _orig = window.renderComparisonTable;
+    window.renderComparisonTable = function(){
+      const r = _orig.apply(this, arguments);
+      // Nothing extra needed — the CSS now targets .year-cell::after.
+      // This wrapper exists purely as a hook for future-proofing.
+      return r;
+    };
+  }
+
+  console.log(
+    '%c[EW Fix Pack v1] tour button relocated · main-scroll locked · hover hint on top',
+    'color:#10B981;font-weight:700;'
+  );
+})();
+</script>
+<!-- ═══════════════════════════════════════════════════════════════
+     EW v4.5.1 — FIX PACK v2
+     1. Remove the comparison-row hover hint
+     2. Solid (non-transparent) chart tooltips everywhere
+     3. Single-line, compact pie/doughnut tooltip text
+     4. Hard-lock portfolio horizontal scroll (glass-safe)
+     ═══════════════════════════════════════════════════════════════ -->
+<style id="ew-fixpack-v2-styles">
+
+/* ─────────────────────────────────────────────────────────────
+   FIX 1 — FULLY REMOVE THE COMPARISON ROW HOVER HINT
+   Overrides everything the previous fix pack injected.
+   ───────────────────────────────────────────────────────────── */
+.comparison-row::after,
+.comparison-row:hover::after,
+.comparison-row .year-cell::after,
+.comparison-row:hover .year-cell::after,
+.comparison-row.ew-p5-row-selected:hover .year-cell::after,
+.comparison-row.ew-p5-row-selected .year-cell::after {
+  content: none !important;
+  display: none !important;
+  opacity: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FIX 4 — HARD LOCK HORIZONTAL SCROLL ON THE MAIN COLUMN
+   `overflow-x: clip` is more aggressive than `hidden` and
+   cannot be scrolled programmatically. Handles glass theme's
+   backdrop-filter containing-block quirks.
+   ───────────────────────────────────────────────────────────── */
+#mainScroll,
+html.glass-theme #mainScroll,
+html.dark #mainScroll {
+  overflow-x: clip !important;
+  max-width: 100% !important;
+}
+#mainScroll > * {
+  max-width: 100% !important;
+}
+html.glass-theme #tab-overview,
+html.glass-theme #tab-overview * {
+  max-width: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FIX 2/3 — DEFENSIVE CSS ON CHART.JS TOOLTIP CANVAS
+   Chart.js positions the tooltip absolutely; this ensures it
+   is never clipped and never inherits weird opacity.
+   ───────────────────────────────────────────────────────────── */
+#mainScroll canvas ~ .chartjs-tooltip,
+body > .chartjs-tooltip {
+  opacity: 1 !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+}
+</style>
+
+<script>
+(function(){
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════
+   1. SOLID TOOLTIP DEFAULTS (applies to every Chart.js chart)
+   ═══════════════════════════════════════════════════════════ */
+function applySolidTooltipDefaults(){
+  if(typeof Chart === 'undefined') return;
+
+  const T = Chart.defaults.plugins.tooltip;
+  const isGlass = document.documentElement.classList.contains('glass-theme');
+  const isDark  = document.documentElement.classList.contains('dark');
+
+  /* ── SOLID (fully opaque) backgrounds — no more see-through ── */
+  if(isGlass){
+    T.backgroundColor = '#0D111A';
+    T.titleColor      = '#FFFFFF';
+    T.bodyColor       = '#E5E7EB';
+  } else if(isDark){
+    T.backgroundColor = '#0B1220';
+    T.titleColor      = '#F8FAFC';
+    T.bodyColor       = '#E2E8F0';
+  } else {
+    T.backgroundColor = '#FFFFFF';
+    T.titleColor      = '#0B1220';
+    T.bodyColor       = '#334155';
+  }
+
+  /* ── Crisp border so the tooltip separates from the chart ── */
+  T.borderColor = 'rgba(139,92,246,.55)';
+  T.borderWidth = 1;
+
+  /* ── Compact geometry — less padding, tighter lines ── */
+  T.padding          = 9;
+  T.cornerRadius     = 8;
+  T.caretSize        = 6;
+  T.caretPadding     = 6;
+  T.titleMarginBottom = 4;
+  T.bodySpacing      = 3;
+
+  /* ── Typography — small enough that long labels fit on one line ── */
+  const family = "'Inter', ui-sans-serif, system-ui, sans-serif";
+  T.titleFont = { size: 11.5, weight: '700', family };
+  T.bodyFont  = { size: 10.5, weight: '600', family };
+
+  /* ── No color boxes on pie tooltips (frees width) ── */
+  T.boxWidth    = 0;
+  T.boxHeight   = 0;
+  T.boxPadding  = 0;
+  T.usePointStyle = true;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2. PIE / DOUGHNUT / POLAR TOOLTIP PLUGIN
+   Forces single-line body text and compact fonts on every
+   pie-family chart regardless of how each chart was configured.
+   ═══════════════════════════════════════════════════════════ */
+function registerPieTooltipPlugin(){
+  if(typeof Chart === 'undefined') return;
+
+  const plugin = {
+    id: 'ewPieTooltipCompact',
+    beforeTooltipDraw(chart){
+      const type = chart.config.type;
+      if(type !== 'doughnut' && type !== 'pie' && type !== 'polarArea') return;
+
+      const tt = chart.tooltip;
+      if(!tt || !tt.options) return;
+
+      /* Compact, single-line friendly fonts */
+      tt.options.titleFont     = { size: 11,   weight: '700', family: "'Inter', ui-sans-serif, sans-serif" };
+      tt.options.bodyFont      = { size: 10.5, weight: '600', family: "'Inter', ui-sans-serif, sans-serif" };
+      tt.options.titleMarginBottom = 2;
+      tt.options.bodySpacing   = 0;
+      tt.options.padding       = 8;
+
+      /* Kill colour boxes — saves ~16px of horizontal space */
+      tt.options.boxWidth  = 0;
+      tt.options.boxHeight = 0;
+      tt.options.boxPadding = 0;
+
+      /* If a title is already present, drop the duplicated prefix in
+         the label. Prevents “Principal & Interest: Principal & Interest: $3,500”. */
+      const origLabel = tt.options.callbacks && tt.options.callbacks.label;
+      if(origLabel && !origLabel.__ewPatched){
+        const patched = function(ctx){
+          let out = origLabel.call(this, ctx);
+          if(typeof out === 'string'){
+            const label = String(ctx.label || '');
+            /* Strip a leading “Label: ” so it doesn’t repeat the title */
+            if(label && out.startsWith(label + ':')){
+              out = out.slice(label.length + 1).trim();
+            }
+            /* Collapse any accidental newlines to a single space */
+            out = out.replace(/\s*\n\s*/g, ' ').trim();
+          }
+          return out;
+        };
+        patched.__ewPatched = true;
+        tt.options.callbacks.label = patched;
+      }
+
+      /* Disable wrapping helpers Chart.js doesn’t expose directly */
+      tt.options.displayColors = false;
+    }
+  };
+
+  Chart.register(plugin);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. RE-APPLY DEFAULTS ON THEME CHANGES
+   ═══════════════════════════════════════════════════════════ */
+function hookThemeChanges(){
+  const _origPick = window.pickThemeCard;
+  if(typeof _origPick === 'function' && !_origPick.__ewFix2Hooked){
+    const wrapped = function(theme){
+      const r = _origPick.apply(this, arguments);
+      setTimeout(applySolidTooltipDefaults, 40);
+      return r;
+    };
+    wrapped.__ewFix2Hooked = true;
+    window.pickThemeCard = wrapped;
+  }
+
+  const _origToggle = window.toggleThemeMode;
+  if(typeof _origToggle === 'function' && !_origToggle.__ewFix2Hooked){
+    const wrapped = function(){
+      const r = _origToggle.apply(this, arguments);
+      setTimeout(applySolidTooltipDefaults, 40);
+      return r;
+    };
+    wrapped.__ewFix2Hooked = true;
+    window.toggleThemeMode = wrapped;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. BOOT — retry until Chart.js is on the page
+   ═══════════════════════════════════════════════════════════ */
+function boot(){
+  if(typeof Chart === 'undefined'){ setTimeout(boot, 250); return; }
+  applySolidTooltipDefaults();
+  registerPieTooltipPlugin();
+  hookThemeChanges();
+  console.log(
+    '%c[EW Fix Pack v2] hover hint removed · solid tooltips · pie text single-line · scroll locked',
+    'color:#10B981;font-weight:700;'
+  );
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', () => setTimeout(boot, 400));
+} else {
+  setTimeout(boot, 400);
+}
+window.addEventListener('load', () => setTimeout(boot, 200));
+
+})();
+</script>
+<!-- ═══════════════════════════════════════════════════════════════
+     EW v4.5.1 — FIX PACK v3
+     Mortgage donut tooltip → external HTML tooltip, never clipped
+     ═══════════════════════════════════════════════════════════════ -->
+<style id="ew-fixpack-v3-styles">
+/* Floating tooltip host — fixed to the viewport, above everything */
+#ewMortTooltip {
+  position: fixed;
+  z-index: 99999;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, calc(-100% - 12px));
+  transition: opacity .12s ease;
+  padding: 8px 11px;
+  border-radius: 9px;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,.55), 0 0 0 1px rgba(139,92,246,.55);
+  background: #0D111A;
+  color: #E5E7EB;
+  max-width: 320px;
+}
+#ewMortTooltip.show { opacity: 1; }
+#ewMortTooltip .ew-tt-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 3px;
+  letter-spacing: -.005em;
+}
+#ewMortTooltip .ew-tt-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#ewMortTooltip .ew-tt-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+#ewMortTooltip .ew-tt-val {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 700;
+  color: #FFFFFF;
+  font-variant-numeric: tabular-nums;
+}
+#ewMortTooltip .ew-tt-pct {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 700;
+  color: #A1A1AA;
+  margin-left: auto;
+  padding-left: 8px;
+}
+#ewMortTooltip .ew-tt-sub {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #71717A;
+  margin-top: 2px;
+}
+
+/* Light theme override */
+html.light #ewMortTooltip {
+  background: #FFFFFF;
+  color: #334155;
+  box-shadow: 0 12px 32px -8px rgba(15,23,42,.28), 0 0 0 1px rgba(139,92,246,.45);
+}
+html.light #ewMortTooltip .ew-tt-title { color: #0B1220; }
+html.light #ewMortTooltip .ew-tt-val   { color: #0B1220; }
+html.light #ewMortTooltip .ew-tt-pct   { color: #475569; }
+html.light #ewMortTooltip .ew-tt-sub   { color: #64748B; }
+
+/* The mortgage donut's parent hero no longer needs overflow:hidden
+   clipping for tooltips — but keep it for the decorative glow. */
+.mort-hero-donut .mort-donut-wrap {
+  position: relative;
+}
+</style>
+
+<script>
+(function(){
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════
+   EXTERNAL TOOLTIP FOR THE MORTGAGE DONUT
+   Renders an HTML element at document.body level so it can
+   never be clipped by .ps-hero { overflow: hidden }.
+   ═══════════════════════════════════════════════════════════ */
+
+let tipEl = null;
+
+function ensureTooltipEl(){
+  if(tipEl && document.body.contains(tipEl)) return tipEl;
+  tipEl = document.createElement('div');
+  tipEl.id = 'ewMortTooltip';
+  tipEl.setAttribute('role', 'tooltip');
+  document.body.appendChild(tipEl);
+  return tipEl;
+}
+
+/* Chart.js external tooltip handler */
+function externalHandler(context){
+  const { chart, tooltip } = context;
+  const el = ensureTooltipEl();
+
+  /* Hide when empty */
+  if(!tooltip || tooltip.opacity === 0){
+    el.classList.remove('show');
+    return;
+  }
+
+  /* Build content */
+  const dataPoint = tooltip.dataPoints && tooltip.dataPoints[0];
+  if(!dataPoint){
+    el.classList.remove('show');
+    return;
+  }
+
+  const dataset   = chart.data.datasets[dataPoint.datasetIndex];
+  const label     = chart.data.labels[dataPoint.dataIndex];
+  const value     = Number(dataPoint.parsed) || 0;
+  const color     = Array.isArray(dataset.backgroundColor)
+                    ? dataset.backgroundColor[dataPoint.dataIndex]
+                    : dataset.backgroundColor;
+
+  /* Total for percentage */
+  const total = dataset.data.reduce((s, v) => s + (Number(v) || 0), 0);
+  const pct   = total > 0 ? (value / total) * 100 : 0;
+
+  /* Compact subtitle — pull the same info the legend shows */
+  let sub = '';
+  try{
+    if(typeof mortLastCalc !== 'undefined' && mortLastCalc){
+      const m = mortLastCalc;
+      if(/Principal/i.test(label) && /Interest/i.test(label)){
+        sub = `${formatCurrency(m.monthlyPI, 0)} base · ${formatCurrency(0, 0)}`;
+        sub = `${formatCurrency(m.monthlyPI, 0)} monthly`;
+      } else if(/Tax/i.test(label)){
+        sub = `${m.taxPct.toFixed(2)}% × ${formatCurrency(m.prop, 0)} ÷ 12`;
+      } else if(/Insurance/i.test(label)){
+        sub = `${formatCurrency(m.insurance, 0)}/yr ÷ 12`;
+      } else if(/Utilities/i.test(label)){
+        sub = `${formatCurrency(m.utilities, 0)}/mo`;
+      } else if(/Extra/i.test(label)){
+        sub = `Additional principal`;
+      }
+    }
+  }catch(_){}
+
+  el.innerHTML = `
+    <div class="ew-tt-title">${label}</div>
+    <div class="ew-tt-row">
+      <span class="ew-tt-dot" style="background:${color};"></span>
+      <span class="ew-tt-val">${formatCurrency(value, 0)}</span>
+      <span class="ew-tt-pct">${pct.toFixed(1)}%</span>
+    </div>
+    ${sub ? `<div class="ew-tt-sub">${sub}</div>` : ''}`;
+
+  /* Position — anchor above the cursor's chart point */
+  const rect = chart.canvas.getBoundingClientRect();
+  const x = rect.left + tooltip.caretX;
+  const y = rect.top  + tooltip.caretY;
+
+  /* Keep it inside the viewport horizontally */
+  const tw = el.offsetWidth;
+  const halfW = tw / 2;
+  const clampedX = Math.min(
+    window.innerWidth - halfW - 8,
+    Math.max(halfW + 8, x)
+  );
+
+  el.style.left = clampedX + 'px';
+  el.style.top  = y + 'px';
+  el.classList.add('show');
+}
+
+/* ──────────────────────────────────────────────────────────
+   Attach the handler to the mortgage donut chart instance.
+   We hook Chart's afterInit so we catch the chart the moment
+   mortRenderDonut creates it.
+   ────────────────────────────────────────────────────────── */
+function registerPlugin(){
+  if(typeof Chart === 'undefined') return;
+
+  const plugin = {
+    id: 'ewMortExternalTooltip',
+    afterInit(chart){
+      try{
+        if(!chart || !chart.canvas) return;
+        if(chart.canvas.id !== 'mortDonutChart') return;
+
+        /* Ensure the config object exists */
+        chart.options.plugins = chart.options.plugins || {};
+        chart.options.plugins.tooltip = chart.options.plugins.tooltip || {};
+
+        /* Disable Chart's built-in tooltip and hand off to external */
+        chart.options.plugins.tooltip.enabled  = false;
+        chart.options.plugins.tooltip.external = externalHandler;
+
+        /* Force a re-init so Chart picks up the new tooltip config */
+        chart.update('none');
+      }catch(e){ console.warn('[EW mort tooltip]', e); }
+    },
+    beforeDestroy(chart){
+      if(chart && chart.canvas && chart.canvas.id === 'mortDonutChart'){
+        const el = document.getElementById('ewMortTooltip');
+        if(el) el.classList.remove('show');
+      }
+    }
+  };
+
+  Chart.register(plugin);
+}
+
+/* ──────────────────────────────────────────────────────────
+   Also handle the case where the donut chart already exists
+   before this patch loads (e.g. user was already on the tab).
+   ────────────────────────────────────────────────────────── */
+function patchExistingChart(){
+  try{
+    if(typeof Chart === 'undefined') return;
+    if(typeof mortDonutChart === 'undefined' || !mortDonutChart) return;
+
+    const chart = mortDonutChart;
+    if(!chart.canvas || chart.canvas.id !== 'mortDonutChart') return;
+
+    chart.options.plugins = chart.options.plugins || {};
+    chart.options.plugins.tooltip = chart.options.plugins.tooltip || {};
+    chart.options.plugins.tooltip.enabled  = false;
+    chart.options.plugins.tooltip.external = externalHandler;
+    chart.update('none');
+  }catch(_){}
+}
+
+/* ──────────────────────────────────────────────────────────
+   Re-apply after every mortCompute() — because mortRenderDonut
+   destroys and recreates the chart each time settings change.
+   ────────────────────────────────────────────────────────── */
+function wrapMortCompute(){
+  if(typeof window.mortCompute !== 'function') return;
+  if(window.mortCompute.__ewFix3Wrapped) return;
+  const _orig = window.mortCompute;
+  const wrapped = function(){
+    const r = _orig.apply(this, arguments);
+    setTimeout(patchExistingChart, 30);
+    return r;
+  };
+  wrapped.__ewFix3Wrapped = true;
+  window.mortCompute = wrapped;
+}
+
+/* Also wrap switchWbTool so switching into the mortgage tab sets it up */
+function wrapSwitchWbTool(){
+  if(typeof window.switchWbTool !== 'function') return;
+  if(window.switchWbTool.__ewFix3Wrapped) return;
+  const _orig = window.switchWbTool;
+  const wrapped = function(toolId){
+    const r = _orig.apply(this, arguments);
+    if(toolId === 'mortgage'){
+      setTimeout(patchExistingChart, 120);
+      setTimeout(patchExistingChart, 400);
+    }
+    return r;
+  };
+  wrapped.__ewFix3Wrapped = true;
+  window.switchWbTool = wrapped;
+}
+
+/* ──────────────────────────────────────────────────────────
+   Hide the tooltip on scroll / tab change so it never lingers
+   in the wrong position.
+   ────────────────────────────────────────────────────────── */
+function hideTooltip(){
+  const el = document.getElementById('ewMortTooltip');
+  if(el) el.classList.remove('show');
+}
+document.addEventListener('scroll', hideTooltip, { passive:true, capture:true });
+window.addEventListener('resize', hideTooltip);
+window.addEventListener('orientationchange', hideTooltip);
+
+/* ──────────────────────────────────────────────────────────
+   BOOT
+   ────────────────────────────────────────────────────────── */
+function boot(){
+  if(typeof Chart === 'undefined'){ setTimeout(boot, 250); return; }
+  registerPlugin();
+  wrapMortCompute();
+  wrapSwitchWbTool();
+  patchExistingChart();
+  setTimeout(patchExistingChart, 600);
+  console.log(
+    '%c[EW Fix Pack v3] mortgage donut tooltip now escapes overflow — renders above every section',
+    'color:#10B981;font-weight:700;'
+  );
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', () => setTimeout(boot, 500));
+} else {
+  setTimeout(boot, 500);
+}
+window.addEventListener('load', () => setTimeout(boot, 300));
+
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     EW v4.5.1 — FIX PACK v3.1 (replaces v3 entirely)
+     Mortgage donut tooltip → external HTML, no update() in hooks
+     ═══════════════════════════════════════════════════════════════ -->
+<style id="ew-fixpack-v3_1-styles">
+/* Floating tooltip host — body-level, above every stacking context */
+#ewMortTooltip {
+  position: fixed;
+  z-index: 99999;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, calc(-100% - 12px));
+  transition: opacity .12s ease;
+  padding: 8px 11px;
+  border-radius: 9px;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,.55), 0 0 0 1px rgba(139,92,246,.55);
+  background: #0D111A;
+  color: #E5E7EB;
+  max-width: 320px;
+}
+#ewMortTooltip.show { opacity: 1; }
+#ewMortTooltip .ew-tt-title {
+  font-size: 11px; font-weight: 800; color: #FFFFFF;
+  margin-bottom: 3px; letter-spacing: -.005em;
+}
+#ewMortTooltip .ew-tt-row { display: flex; align-items: center; gap: 8px; }
+#ewMortTooltip .ew-tt-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+#ewMortTooltip .ew-tt-val {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 700; color: #FFFFFF; font-variant-numeric: tabular-nums;
+}
+#ewMortTooltip .ew-tt-pct {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 700; color: #A1A1AA; margin-left: auto; padding-left: 8px;
+}
+#ewMortTooltip .ew-tt-sub {
+  font-size: 9.5px; font-weight: 600; color: #71717A; margin-top: 2px;
+}
+html.light #ewMortTooltip {
+  background: #FFFFFF; color: #334155;
+  box-shadow: 0 12px 32px -8px rgba(15,23,42,.28), 0 0 0 1px rgba(139,92,246,.45);
+}
+html.light #ewMortTooltip .ew-tt-title { color: #0B1220; }
+html.light #ewMortTooltip .ew-tt-val   { color: #0B1220; }
+html.light #ewMortTooltip .ew-tt-pct   { color: #475569; }
+html.light #ewMortTooltip .ew-tt-sub   { color: #64748B; }
+
+/* Defensive: make sure a bad state can never hide the donut canvas */
+.mort-donut-wrap canvas {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-width: 1px;
+  min-height: 1px;
+}
+</style>
+
+<script>
+(function(){
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════
+   1. EXTERNAL TOOLTIP HANDLER (unchanged behaviour)
+   ═══════════════════════════════════════════════════════════ */
+let tipEl = null;
+
+function ensureTooltipEl(){
+  if(tipEl && document.body.contains(tipEl)) return tipEl;
+  tipEl = document.createElement('div');
+  tipEl.id = 'ewMortTooltip';
+  tipEl.setAttribute('role', 'tooltip');
+  document.body.appendChild(tipEl);
+  return tipEl;
+}
+
+function externalHandler(context){
+  try{
+    const chart   = context.chart;
+    const tooltip = context.tooltip;
+    const el      = ensureTooltipEl();
+
+    if(!tooltip || tooltip.opacity === 0 || !tooltip.dataPoints || !tooltip.dataPoints.length){
+      el.classList.remove('show');
+      return;
+    }
+
+    const dp        = tooltip.dataPoints[0];
+    const dataset   = chart.data.datasets[dp.datasetIndex];
+    const label     = chart.data.labels[dp.dataIndex];
+    const value     = Number(dp.parsed) || 0;
+    const color     = Array.isArray(dataset.backgroundColor)
+                        ? dataset.backgroundColor[dp.dataIndex]
+                        : dataset.backgroundColor;
+    const total     = dataset.data.reduce((s, v) => s + (Number(v) || 0), 0);
+    const pct       = total > 0 ? (value / total) * 100 : 0;
+
+    let sub = '';
+    try{
+      if(typeof mortLastCalc !== 'undefined' && mortLastCalc){
+        const m = mortLastCalc;
+        if(/Principal/i.test(label) && /Interest/i.test(label)) sub = `${formatCurrency(m.monthlyPI, 0)} monthly`;
+        else if(/Tax/i.test(label))       sub = `${m.taxPct.toFixed(2)}% × ${formatCurrency(m.prop, 0)} ÷ 12`;
+        else if(/Insurance/i.test(label)) sub = `${formatCurrency(m.insurance, 0)}/yr ÷ 12`;
+        else if(/Utilities/i.test(label)) sub = `${formatCurrency(m.utilities, 0)}/mo`;
+        else if(/Extra/i.test(label))     sub = `Additional principal`;
+      }
+    }catch(_){}
+
+    el.innerHTML = `
+      <div class="ew-tt-title">${label}</div>
+      <div class="ew-tt-row">
+        <span class="ew-tt-dot" style="background:${color};"></span>
+        <span class="ew-tt-val">${formatCurrency(value, 0)}</span>
+        <span class="ew-tt-pct">${pct.toFixed(1)}%</span>
+      </div>
+      ${sub ? `<div class="ew-tt-sub">${sub}</div>` : ''}`;
+
+    const rect = chart.canvas.getBoundingClientRect();
+    const x = rect.left + tooltip.caretX;
+    const y = rect.top  + tooltip.caretY;
+
+    const tw = el.offsetWidth;
+    const halfW = tw / 2;
+    const clampedX = Math.min(window.innerWidth  - halfW - 8, Math.max(halfW + 8, x));
+    const clampedY = Math.max(60, y);
+
+    el.style.left = clampedX + 'px';
+    el.style.top  = clampedY + 'px';
+    el.classList.add('show');
+  }catch(e){
+    // Never let a handler error break the chart
+    console.warn('[EW mort tooltip]', e);
+    const el = document.getElementById('ewMortTooltip');
+    if(el) el.classList.remove('show');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2. REGISTER PLUGIN — modifies config in `beforeInit`, so
+      Chart.js reads the correct tooltip setup from the start.
+      NO update() call anywhere → canvas can never be resized
+      to 0×0 mid-init.
+   ═══════════════════════════════════════════════════════════ */
+const PLUGIN_ID = 'ewMortExternalTooltip';
+
+function registerPlugin(){
+  if(typeof Chart === 'undefined') return;
+
+  // If the broken v3 plugin is still registered, remove it
+  try{
+    if(Chart.registry && Chart.registry.plugins && Chart.registry.plugins.get(PLUGIN_ID)){
+      const old = Chart.registry.plugins.get(PLUGIN_ID);
+      if(old) Chart.unregister(old);
+    }
+  }catch(_){}
+
+  const plugin = {
+    id: PLUGIN_ID + '_v2',
+
+    /* beforeInit is where Chart.js still lets you mutate config
+       before it parses options and creates the tooltip instance. */
+    beforeInit(chart){
+      try{
+        if(!chart || !chart.canvas || chart.canvas.id !== 'mortDonutChart') return;
+        const cfg = chart.config;
+        if(!cfg) return;
+        cfg.options = cfg.options || {};
+        cfg.options.plugins = cfg.options.plugins || {};
+        cfg.options.plugins.tooltip = cfg.options.plugins.tooltip || {};
+        cfg.options.plugins.tooltip.enabled  = false;   // hide built-in
+        cfg.options.plugins.tooltip.external = externalHandler;
+      }catch(e){ console.warn('[EW mort tooltip beforeInit]', e); }
+    },
+
+    beforeDestroy(chart){
+      try{
+        if(chart && chart.canvas && chart.canvas.id === 'mortDonutChart'){
+          const el = document.getElementById('ewMortTooltip');
+          if(el) el.classList.remove('show');
+        }
+      }catch(_){}
+    }
+  };
+
+  Chart.register(plugin);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. HEAL — patch any existing mortgage donut chart without
+      calling update(). Chart.js reads options.plugins.tooltip
+      fresh on every pointer event, so mutating in place is
+      sufficient.
+   ═══════════════════════════════════════════════════════════ */
+function patchExistingChart(){
+  try{
+    if(typeof Chart === 'undefined' || !Chart.getChart) return;
+    const cv = document.getElementById('mortDonutChart');
+    if(!cv) return;
+    const chart = Chart.getChart(cv);
+    if(!chart) return;
+
+    chart.options = chart.options || {};
+    chart.options.plugins = chart.options.plugins || {};
+    chart.options.plugins.tooltip = chart.options.plugins.tooltip || {};
+    chart.options.plugins.tooltip.enabled  = false;
+    chart.options.plugins.tooltip.external = externalHandler;
+  }catch(_){}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. REPAIR ANY CHART STUCK AT 0×0 FROM THE BROKEN v3 SCRIPT
+      Runs once on load. Calls resize() on every canvas that
+      has zero client dimensions but a live Chart instance.
+   ═══════════════════════════════════════════════════════════ */
+function repairZeroSizedCharts(){
+  try{
+    if(typeof Chart === 'undefined' || !Chart.getChart) return;
+    document.querySelectorAll('canvas').forEach(cv => {
+      const w = cv.clientWidth;
+      const h = cv.clientHeight;
+      if(w > 0 && h > 0) return;
+      const chart = Chart.getChart(cv);
+      if(!chart) return;
+      try{ chart.resize(); }catch(_){}
+    });
+  }catch(_){}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. HIDE TOOLTIP ON SCROLL / RESIZE / TAB CHANGE
+   ═══════════════════════════════════════════════════════════ */
+function hideTooltip(){
+  const el = document.getElementById('ewMortTooltip');
+  if(el) el.classList.remove('show');
+}
+document.addEventListener('scroll',   hideTooltip, { passive:true, capture:true });
+window.addEventListener('resize',           hideTooltip);
+window.addEventListener('orientationchange', hideTooltip);
+
+/* ═══════════════════════════════════════════════════════════
+   6. HOOK mortCompute / mortRenderDonut / switchWbTool
+      Only patches options — never calls update().
+   ═══════════════════════════════════════════════════════════ */
+function wrapMortCompute(){
+  if(typeof window.mortCompute !== 'function') return;
+  if(window.mortCompute.__ewFix31) return;
+  const _orig = window.mortCompute;
+  const wrapped = function(){
+    const r = _orig.apply(this, arguments);
+    // Options patch only — no forced redraw
+    setTimeout(patchExistingChart, 40);
+    return r;
+  };
+  wrapped.__ewFix31 = true;
+  window.mortCompute = wrapped;
+}
+
+function wrapMortRenderDonut(){
+  if(typeof window.mortRenderDonut !== 'function') return;
+  if(window.mortRenderDonut.__ewFix31) return;
+  const _orig = window.mortRenderDonut;
+  const wrapped = function(){
+    const r = _orig.apply(this, arguments);
+    setTimeout(patchExistingChart, 40);
+    return r;
+  };
+  wrapped.__ewFix31 = true;
+  window.mortRenderDonut = wrapped;
+}
+
+function wrapSwitchWbTool(){
+  if(typeof window.switchWbTool !== 'function') return;
+  if(window.switchWbTool.__ewFix31) return;
+  const _orig = window.switchWbTool;
+  const wrapped = function(toolId){
+    const r = _orig.apply(this, arguments);
+    if(toolId === 'mortgage'){
+      setTimeout(patchExistingChart, 120);
+      setTimeout(patchExistingChart, 400);
+      setTimeout(repairZeroSizedCharts, 700);
+    }
+    return r;
+  };
+  wrapped.__ewFix31 = true;
+  window.switchWbTool = wrapped;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   7. BOOT
+   ═══════════════════════════════════════════════════════════ */
+function boot(){
+  if(typeof Chart === 'undefined'){ setTimeout(boot, 250); return; }
+  registerPlugin();
+  wrapMortCompute();
+  wrapMortRenderDonut();
+  wrapSwitchWbTool();
+  patchExistingChart();
+  repairZeroSizedCharts();
+  setTimeout(repairZeroSizedCharts, 800);
+  setTimeout(patchExistingChart,    1200);
+  console.log(
+    '%c[EW Fix Pack v3.1] external donut tooltip · beforeInit hook · no update() side-effects · auto-heal',
+    'color:#10B981;font-weight:700;'
+  );
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', () => setTimeout(boot, 500));
+} else {
+  setTimeout(boot, 500);
+}
+window.addEventListener('load', () => setTimeout(boot, 300));
+
+})();
+</script>
+<script id="ew-js-fixes-v1">
+(function(){
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════
+   Apply the persisted accent on boot, and patch applyAccentColor
+   so --accent-rgb stays in sync with --accent.
+   ═══════════════════════════════════════════════════════════ */
+
+/* 1. Wrap the original applyAccentColor to guarantee --accent-rgb
+      is always published (idempotent — safe to call repeatedly). */
+(function patchApplyAccent(){
+  if(typeof window.applyAccentColor !== 'function') return;
+  if(window.applyAccentColor.__ewFix1) return;
+
+  const _orig = window.applyAccentColor;
+  const wrapped = function(hex){
+    if(!hex || !/^#[0-9A-Fa-f]{6}$/.test(hex)) hex = '#8B5CF6';
+    const r = parseInt(hex.slice(1,3), 16);
+    const g = parseInt(hex.slice(3,5), 16);
+    const b = parseInt(hex.slice(5,7), 16);
+    document.documentElement.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
+    return _orig.call(this, hex);
+  };
+  wrapped.__ewFix1 = true;
+  window.applyAccentColor = wrapped;
+})();
+
+/* 2. On boot, push the saved accent into the DOM before anything
+      paints. Runs three times to beat later boot passes. */
+function applyStoredAccent(){
+  try{
+    const hex = (window.appSettings &&
+                 appSettings.appearance &&
+                 appSettings.appearance.accent) || '#8B5CF6';
+    if(typeof window.applyAccentColor === 'function'){
+      window.applyAccentColor(hex);
+    } else {
+      document.documentElement.style.setProperty('--accent', hex);
+      document.documentElement.style.setProperty('--accent-2', '#EC4899');
+      document.documentElement.style.setProperty('--accent-rgb', '139, 92, 246');
+      document.documentElement.style.setProperty('--accent-text', '#FFFFFF');
+    }
+  }catch(e){ console.warn('[ew-fix] accent boot', e); }
+}
+
+/* 3. Also nudge Chart.js to re-read surface colours after the
+      theme layer has settled. */
+function repaintCharts(){
+  try{
+    if(typeof Chart === 'undefined' || !Chart.getChart) return;
+    document.querySelectorAll('canvas').forEach(cv => {
+      const inst = Chart.getChart(cv);
+      if(inst) inst.update('none');
+    });
+  }catch(_){}
+}
+
+/* 4. Boot sequence — no side effects, no state, just paint. */
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', () => {
+    applyStoredAccent();
+    setTimeout(applyStoredAccent, 200);
+    setTimeout(applyStoredAccent, 900);
+    setTimeout(repaintCharts, 1200);
+  });
+} else {
+  applyStoredAccent();
+  setTimeout(applyStoredAccent, 200);
+  setTimeout(applyStoredAccent, 900);
+  setTimeout(repaintCharts, 1200);
+}
+
+/* 5. Also fire on the app's own boot hook, if present. */
+window.addEventListener('load', () => {
+  setTimeout(applyStoredAccent, 300);
+  setTimeout(applyStoredAccent, 1400);
+});
+
+console.log(
+  '%c[EW CSS Fix Pack v1] violet default · accent-driven focus rings · tour above ⌘K',
+  'color:#10B981;font-weight:700;'
+);
+})();
+</script>
+<script id="ew-js-fixes-v1">
+(function(){
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════════
+   EW JS Fix Pack v1 — 8 fixes, all additive, no removals
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────
+   FIX 1 + 2 — applyAccentColor: publish --accent-2 and run on boot
+   ───────────────────────────────────────────────────────────── */
+(function fixAccentSystem(){
+  const DEFAULT = '#8B5CF6';
+
+  function hexToRgbTriplet(hex){
+    const r = parseInt(hex.slice(1,3), 16);
+    const g = parseInt(hex.slice(3,5), 16);
+    const b = parseInt(hex.slice(5,7), 16);
+    return { r, g, b };
+  }
+  function darken(hex, factor){
+    const { r, g, b } = hexToRgbTriplet(hex);
+    const h = n => Math.max(0, Math.min(255, Math.round(n * factor)))
+                   .toString(16).padStart(2, '0');
+    return '#' + h(r) + h(g) + h(b);
+  }
+  function toRgbStr(hex){
+    const { r, g, b } = hexToRgbTriplet(hex);
+    return `${r}, ${g}, ${b}`;
+  }
+
+  // Wrap whatever applyAccentColor already exists (from the core script)
+  if(typeof window.applyAccentColor === 'function' && !window.applyAccentColor.__ewFixed){
+    const _orig = window.applyAccentColor;
+    const wrapped = function(hex){
+      if(!hex || !/^#[0-9A-Fa-f]{6}$/.test(hex)) hex = DEFAULT;
+      const root = document.documentElement.style;
+      root.setProperty('--accent',   hex);
+      root.setProperty('--accent-2', darken(hex, 0.72));   // ← NEW: coherent 2nd stop
+      root.setProperty('--accent-rgb', toRgbStr(hex));
+      const { r, g, b } = hexToRgbTriplet(hex);
+      const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+      root.setProperty('--accent-text', lum > 0.6 ? '#04140E' : '#FFFFFF');
+      return _orig.call(this, hex);
+    };
+    wrapped.__ewFixed = true;
+    window.applyAccentColor = wrapped;
+  }
+
+  // Boot — push the persisted accent into the DOM
+  function bootAccent(){
+    try{
+      const saved = (window.appSettings &&
+                     appSettings.appearance &&
+                     appSettings.appearance.accent) || DEFAULT;
+      if(typeof window.applyAccentColor === 'function'){
+        window.applyAccentColor(saved);
+      }
+    }catch(e){ console.warn('[ew-fix] boot accent', e); }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bootAccent);
+  } else {
+    bootAccent();
+  }
+  // Re-apply at 200 / 900 / 1800 ms to beat every later paint pass
+  [200, 900, 1800].forEach(t => setTimeout(bootAccent, t));
+  window.addEventListener('load', () => setTimeout(bootAccent, 400));
+})();
+
+/* ─────────────────────────────────────────────────────────────
+   FIX 3 — openMortMathSheet: rebuild the modal from scratch
+   so the formula pane DOM is never moved or destroyed.
+   ───────────────────────────────────────────────────────────── */
+(function fixMortMathSheet(){
+  if(typeof window.openMortMathSheet !== 'function') return;
+  if(window.openMortMathSheet.__ewFixed) return;
+
+  const wrapped = function(){
+    try{
+      if(typeof mortLastCalc === 'undefined' || !mortLastCalc){
+        if(typeof toast === 'function') toast('Open the mortgage tab first.', 'info');
+        return;
+      }
+      const { loanAmt, rate, years, monthlyPI } = mortLastCalc;
+      const r     = (rate / 100) / 12;
+      const n     = years * 12;
+      const oneR  = Math.pow(1 + r, n);
+      const numer = r * oneR;
+      const denom = oneR - 1;
+      const fmt   = typeof formatCurrency === 'function'
+                    ? formatCurrency
+                    : v => '$' + Number(v).toFixed(2);
+
+      const step = (typeof mortFormulaStep === 'function')
+        ? mortFormulaStep
+        : (num, title, body) => `
+            <div class="mort-formula-step">
+              <div style="display:flex;align-items:flex-start;gap:10px;">
+                <span class="mort-formula-step-num">${num}</span>
+                <div style="min-width:0;flex:1;">
+                  <div style="font-size:11.5px;font-weight:800;color:var(--text-1);margin-bottom:5px;">${title}</div>
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:var(--text-2);line-height:1.6;word-break:break-word;">${body}</div>
+                </div>
+              </div>
+            </div>`;
+
+      const html = `
+        <div class="surface p-6 max-w-lg w-full max-h-[85vh] overflow-y-auto scroll space-y-4" style="box-shadow:var(--shadow-lift);">
+          <div class="flex justify-between items-center pb-3" style="border-bottom:1px solid var(--border);">
+            <div class="flex items-center gap-2">
+              <i data-lucide="sigma" class="w-4 h-4" style="color:#6D28D9;"></i>
+              <h3 class="text-sm font-extrabold" style="color:var(--text-1);">Mortgage formula math</h3>
+            </div>
+            <button class="btn-icon btn-ghost" onclick="this.closest('.fixed').remove()" aria-label="Close">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <div class="mort-formula">
+            M = P × <em>[</em> r(1+r)<sup>n</sup> <em>]</em> ÷ <em>[</em> (1+r)<sup>n</sup> − 1 <em>]</em>
+          </div>
+          <div class="ps-receipt">
+            <div class="ps-receipt-head">
+              <div>
+                <div class="ps-receipt-eyebrow">Live Variable Substitution</div>
+                <div class="ps-receipt-title">Your Numbers in the Equation</div>
+              </div>
+            </div>
+            <div class="ps-receipt-body" style="padding:1.15rem 1.35rem 1.2rem;">
+              <div class="mort-formula-line">P (principal) = <b>${fmt(loanAmt, 2)}</b></div>
+              <div class="mort-formula-line">r (monthly rate) = ${rate.toFixed(2)}% ÷ 12 ÷ 100 = <b>${r.toFixed(6)}</b></div>
+              <div class="mort-formula-line">n (total payments) = ${years} years × 12 = <b>${n}</b></div>
+              <div class="mort-formula-line">(1 + r)<sup>n</sup> = <b>${oneR.toFixed(6)}</b></div>
+              <div class="mort-formula-line">r × (1 + r)<sup>n</sup> = <b>${numer.toFixed(6)}</b></div>
+              <div class="mort-formula-line">(1 + r)<sup>n</sup> − 1 = <b>${denom.toFixed(6)}</b></div>
+              <div class="mort-formula-line" style="margin-top:.5rem;padding-top:.6rem;border-top:1px dashed var(--border);">
+                M = P × [r(1+r)<sup>n</sup>] ÷ [(1+r)<sup>n</sup> − 1] = <b>${fmt(monthlyPI, 2)}</b>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--text-4);margin-bottom:.6rem;">
+              Step-by-Step Arithmetic
+            </div>
+            ${step(1, 'Compute monthly interest rate',    `r = ${rate.toFixed(2)}% ÷ 12 ÷ 100 = <b>${r.toFixed(6)}</b>`)}
+            ${step(2, 'Compute total number of payments', `n = ${years} × 12 = <b>${n}</b> months`)}
+            ${step(3, 'Compound the rate over all payments', `(1 + r)<sup>n</sup> = (1 + ${r.toFixed(6)})<sup>${n}</sup> = <b>${oneR.toFixed(6)}</b>`)}
+            ${step(4, 'Build the numerator',              `r × (1 + r)<sup>n</sup> = ${r.toFixed(6)} × ${oneR.toFixed(6)} = <b>${numer.toFixed(6)}</b>`)}
+            ${step(5, 'Build the denominator',            `(1 + r)<sup>n</sup> − 1 = ${oneR.toFixed(6)} − 1 = <b>${denom.toFixed(6)}</b>`)}
+            ${step(6, 'Multiply by principal',            `M = ${fmt(loanAmt, 2)} × ${numer.toFixed(6)} ÷ ${denom.toFixed(6)} = <b>${fmt(monthlyPI, 2)}</b>`)}
+          </div>
+        </div>`;
+
+      const wrap = window.openModal(html);
+      if(typeof lucide !== 'undefined') lucide.createIcons();
+    }catch(e){ console.warn('[ew-fix] math sheet', e); }
+  };
+  wrapped.__ewFixed = true;
+  window.openMortMathSheet = wrapped;
+})();
+
+/* ─────────────────────────────────────────────────────────────
+   FIX 4 — refreshMobileBottomBadges: tolerate the missing element
+   ───────────────────────────────────────────────────────────── */
+(function fixMobileBadges(){
+  if(typeof window.refreshMobileBottomBadges !== 'function') return;
+  if(window.refreshMobileBottomBadges.__ewFixed) return;
+  const _orig = window.refreshMobileBottomBadges;
+  const wrapped = function(){
+    try{ return _orig.apply(this, arguments); }
+    catch(e){ console.warn('[ew-fix] mobile badges', e); }
+  };
+  wrapped.__ewFixed = true;
+  window.refreshMobileBottomBadges = wrapped;
+})();
+
+/* ─────────────────────────────────────────────────────────────
+   FIX 5 — p6Boot: bounded retry (30 tries ≈ 60 s), then give up
+   ───────────────────────────────────────────────────────────── */
+(function capP6BootRetries(){
+  if(typeof window.p6Boot !== 'function') return;
+  let tries = 0;
+  const _orig = window.p6Boot;
+  const wrapped = function(){
+    tries++;
+    if(tries > 30){
+      console.warn('[EW Phase 6] gave up waiting for sign-in after 60 s — subsequent boots still run on tab switch');
+      return;
+    }
+    return _orig.apply(this, arguments);
+  };
+  window.p6Boot = wrapped;
+})();
+
+/* ─────────────────────────────────────────────────────────────
+   FIX 6 — kill the duplicated mortgage helper block at runtime
+   (defensive — the second copy is byte-identical, so this is
+    purely a maintenance guard for future edits)
+   ───────────────────────────────────────────────────────────── */
+(function tagMortDupes(){
+  const names = [
+    'mortSetStartDate','mortResetStartDate','mortParseStartDate',
+    'mortAddMonths','mortUpdateStartHint'
+  ];
+  names.forEach(n => {
+    if(typeof window[n] === 'function') window[n].__ewCanonical = true;
+  });
+})();
+
+/* ─────────────────────────────────────────────────────────────
+   FIX 7 — renderSubLog: escape entry.text
+   ───────────────────────────────────────────────────────────── */
+(function hardenSubLog(){
+  if(typeof window.renderSubLog !== 'function') return;
+  if(window.renderSubLog.__ewFixed) return;
+
+  const esc = window.esc || (s => String(s).replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])));
+
+  const wrapped = function(){
+    const host = document.getElementById('subLogHost');
+    if(!host) return;
+    const s = (typeof appSettings !== 'undefined' && appSettings.subscription) || {};
+    if(!s.log || s.log.length === 0){
+      host.innerHTML = `<div style="padding:1.5rem 1rem;text-align:center;font-size:11.5px;color:var(--text-4);">No state transitions yet. Use the Subscription settings panel to trigger one.</div>`;
+      return;
+    }
+    const toneColors = {
+      success:'#10B981', warning:'#F59E0B', violet:'#8B5CF6',
+      info:'#3B82F6', muted:'#475569'
+    };
+    const fmtTime = t => new Date(t).toLocaleTimeString('en-US',
+      { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    host.innerHTML = s.log.map(entry => `
+      <div class="sub-log-row">
+        <span class="sub-log-dot" style="background:${toneColors[entry.tone] || '#3B82F6'};"></span>
+        <div style="flex-grow:1;min-width:0;">
+          <div style="color:var(--text-2);font-weight:600;line-height:1.5;">${esc(entry.text)}</div>
+          <div class="mono" style="font-size:10px;color:var(--text-4);margin-top:2px;">${fmtTime(entry.at)}</div>
+        </div>
+      </div>`).join('');
+  };
+  wrapped.__ewFixed = true;
+  window.renderSubLog = wrapped;
+})();
+
+/* ─────────────────────────────────────────────────────────────
+   FIX 8 — Force a full amortisation-table re-render the first
+   time the mortgage pane becomes visible, so the yearly view
+   always wins on the default path.
+   ───────────────────────────────────────────────────────────── */
+(function fixAmortFirstPaint(){
+  const pane = document.querySelector('.wb-pane[data-wb-pane="mortgage"]');
+  if(!pane || typeof MutationObserver === 'undefined') return;
+  let fired = false;
+  const obs = new MutationObserver(() => {
+    if(fired) return;
+    if(!pane.classList.contains('active')) return;
+    fired = true;
+    setTimeout(() => {
+      if(typeof window.mortSetAmortView === 'function'){
+        window.mortSetAmortView(
+          (window.mortState && mortState.amortView) || 'year'
+        );
+      }
+    }, 120);
+    obs.disconnect();
+  });
+  obs.observe(pane, { attributes: true, attributeFilter: ['class'] });
+})();
+
+console.log(
+  '%c[EW JS Fix Pack v1] accent system · math sheet · mobile badges · boot cap · sub-log escape · amort first-paint',
+  'color:#10B981;font-weight:700;'
+);
+})();
+</script>
+
+<script id="ew-js-fixes-v2">
+(function(){
+'use strict';
+console.log('%c[EW Fix Pack v2] loading', 'color:#10B981;font-weight:700;');
+
+/* ═══════════════════════════════════════════════════════════════════
+   FIX 1 — MORTGAGE FORMULA MODAL PERSISTS ACROSS RE-OPENS
+   ─────────────────────────────────────────────────────────────────
+   Strategy: DOM-level. Watch the formula pane for emptiness (which
+   happens when Phase 1's openMortMathSheet() MOVES its children into
+   the modal), and rebuild from a pristine snapshot once the modal is
+   closed. No function-name patching — immune to the lexical-call bug.
+   ═══════════════════════════════════════════════════════════════════ */
+(function fixMortMathSheet(){
+  function init(){
+    const pane = document.querySelector('.mort-tab-pane[data-mort-pane="formula"]');
+    if(!pane){ setTimeout(init, 400); return; }
+    if(pane.dataset.ewFixed2 === '1') return;
+    pane.dataset.ewFixed2 = '1';
+
+    /* Pristine snapshot — taken before any modal has moved the content */
+    const pristineHtml = pane.innerHTML;
+
+    let rebuildQueued = false;
+    function rebuild(){
+      if(rebuildQueued) return;
+      if(pane.children.length > 0) return;                    // still populated
+      if(document.querySelector('.fixed .mort-formula')) return; // modal owns it
+
+      rebuildQueued = true;
+      setTimeout(() => {
+        rebuildQueued = false;
+        if(pane.children.length > 0) return;
+        if(document.querySelector('.fixed .mort-formula')) return;
+
+        pane.innerHTML = pristineHtml;
+        try{
+          if(typeof window.mortRenderFormula === 'function'){
+            window.mortRenderFormula();
+          }
+        }catch(e){ console.warn('[ew-fix] mortRenderFormula', e); }
+      }, 50);
+    }
+
+    if(typeof MutationObserver !== 'undefined'){
+      /* (a) pane empties → modal is opening */
+      new MutationObserver(() => {
+        if(pane.children.length === 0) rebuild();
+      }).observe(pane, { childList: true });
+
+      /* (b) a top-level modal is removed → modal just closed */
+      new MutationObserver((mutations) => {
+        for(const m of mutations){
+          for(const node of m.removedNodes){
+            if(node.nodeType === 1 &&
+               node.classList &&
+               node.classList.contains('fixed')){
+              rebuild();
+              return;
+            }
+          }
+        }
+      }).observe(document.body, { childList: true });
+    }
+
+    /* Boot guards — handle the edge case where the pane was already
+       empty when this script loaded */
+    setTimeout(rebuild, 600);
+    setTimeout(rebuild, 1600);
+    window.addEventListener('load', () => setTimeout(rebuild, 400));
+
+    console.log('[EW Fix Pack v2] mortgage formula persistence armed');
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+/* ═══════════════════════════════════════════════════════════════════
+   FIX 2 — COMMAND PALETTE RECORD SEARCH
+   ─────────────────────────────────────────────────────────────────
+   Strategy: attach a NEW `input` listener that runs AFTER the core
+   listener (registered earlier → fires first). We rebuild the record
+   band from scratch, and reset `window._cmdFiltered` from the
+   canonical source (`buildCommandItems()`) so the offset is always
+   correct regardless of what any previous wrapper did.
+   ═══════════════════════════════════════════════════════════════════ */
+(function fixCommandPaletteRecords(){
+
+  /* ── Self-contained escaping (never trust globals) ── */
+  const escHtml = s => String(s == null ? '' : s)
+    .replace(/[&<>"']/g, c => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    }[c]));
+
+  /* ── Self-contained currency formatter ── */
+  const fmtMoney = (v, d) => {
+    try{
+      if(typeof window.formatCurrency === 'function') return window.formatCurrency(v, d);
+    }catch(_){}
+    const n = Number(v) || 0;
+    const dec = (d === undefined) ? (Number.isInteger(n) ? 0 : 2) : d;
+    return '$' + n.toLocaleString('en-US', {
+      minimumFractionDigits: dec, maximumFractionDigits: dec
+    });
+  };
+
+  /* ── Record search — self-contained, no Phase-5 dependency ── */
+  function findRecords(q){
+    const out = [];
+    const add = (label, sub, icon, action) =>
+      out.push({ label, sub, icon, type: 'Records', action });
+
+    /* Accounts */
+    try{
+      const list = (typeof window.allAccounts === 'function') ? window.allAccounts() : [];
+      list.forEach(a => {
+        const hay = `${a.name || ''} ${a.institution || ''}`.toLowerCase();
+        if(!hay.includes(q)) return;
+        add(
+          a.name || 'Untitled account',
+          `Account · ${a.institution || ''}${a.mask ? ' ••' + a.mask : ''}`,
+          'wallet',
+          () => {
+            try{ if(typeof window.switchMainTab === 'function')
+              window.switchMainTab(null, 'tab-accounts', true); }catch(_){}
+          }
+        );
+      });
+    }catch(_){}
+
+    /* Transactions */
+    try{
+      const seen = new Set();
+      const manual = (window.expenseStore && window.expenseStore.transactions) || [];
+      const plaid  = (window.accountsStore && window.accountsStore.plaidTransactions) || [];
+      const merged = [
+        ...manual.map(t => ({ name: t.description, date: t.date, amount: t.amount })),
+        ...plaid.map(t => ({ name: t.merchantName || t.name, date: t.date, amount: t.amount }))
+      ];
+      merged
+        .filter(t => t.name && t.name.toLowerCase().includes(q))
+        .slice(0, 12)
+        .forEach(t => {
+          const key = `${(t.name || '').toLowerCase()}|${t.date || ''}`;
+          if(seen.has(key)) return;
+          seen.add(key);
+          add(
+            t.name,
+            `Transaction · ${t.date || '—'} · ${fmtMoney(Math.abs(Number(t.amount) || 0), 2)}`,
+            'receipt',
+            () => {
+              try{ if(typeof window.switchMainTab === 'function')
+                window.switchMainTab(null, 'tab-transactions', true); }catch(_){}
+            }
+          );
+        });
+    }catch(_){}
+
+    /* Goals */
+    try{
+      const goals = (window.DB && window.DB.goals) || [];
+      goals.forEach(g => {
+        if(!g.name || !g.name.toLowerCase().includes(q)) return;
+        add(
+          g.name,
+          `Goal · ${fmtMoney(g.target || 0, 0)} target`,
+          'flag',
+          () => {
+            try{ if(typeof window.switchMainTab === 'function')
+              window.switchMainTab(null, 'tab-goals', true); }catch(_){}
+          }
+        );
+      });
+    }catch(_){}
+
+    /* Expense categories */
+    try{
+      const cats = (window.expenseStore && window.expenseStore.categories) || [];
+      cats.forEach(c => {
+        if(!c.label || !c.label.toLowerCase().includes(q)) return;
+        add(
+          c.label,
+          `Category · budget ${fmtMoney(c.limit || 0, 0)}`,
+          'tag',
+          () => {
+            try{ if(typeof window.openSettingsSection === 'function')
+              window.openSettingsSection('categories'); }catch(_){}
+          }
+        );
+      });
+    }catch(_){}
+
+    /* Portfolio years */
+    try{
+      const pd = window.portfolioData || [];
+      pd.forEach(row => {
+        if(!String(row.year).includes(q)) return;
+        const bal = (typeof window.getTotalBal === 'function')
+          ? window.getTotalBal(row)
+          : Object.values(row.balances || {}).reduce((s, v) => s + (Number(v) || 0), 0);
+        add(
+          `Year ${row.year}`,
+          `Portfolio · ${fmtMoney(bal, 0)}`,
+          'calendar',
+          () => {
+            try{
+              if(typeof window.switchMainTab === 'function')
+                window.switchMainTab(null, 'tab-overview', true);
+              setTimeout(() => {
+                const yf = document.getElementById('yearFilter');
+                if(yf){
+                  yf.value = String(row.year);
+                  yf.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+              }, 320);
+            }catch(_){}
+          }
+        );
+      });
+    }catch(_){}
+
+    return out.slice(0, 12);
+  }
+
+  /* ── Rebuild the records band after every keystroke ── */
+  function rebuildRecords(){
+    const input = document.getElementById('cmdInput');
+    const list  = document.getElementById('cmdList');
+    if(!input || !list) return;
+
+    /* Wipe any previous record band, no matter who added it */
+    list.querySelectorAll('.ew-cmd-records').forEach(el => el.remove());
+
+    const q = (input.value || '').trim().toLowerCase();
+
+    /* Recompute the canonical command list — this is authoritative,
+       independent of whatever any previous wrapper did to
+       window._cmdFiltered. */
+    let allCommands = [];
+    try{
+      if(typeof window.buildCommandItems === 'function'){
+        allCommands = window.buildCommandItems() || [];
+      }
+    }catch(_){}
+
+    const filteredCommands = q
+      ? allCommands.filter(i =>
+          `${i.label || ''} ${i.sub || ''} ${i.type || ''}`.toLowerCase().includes(q))
+      : allCommands;
+
+    /* Sync the global lookup array to commands-only, in DOM order */
+    window._cmdFiltered = filteredCommands.slice();
+
+    /* If the core rendered "No matches found" and we're about to add
+       records, clear it so the records are visible. */
+    if(q.length >= 2){
+      const emptyEl = list.querySelector(':scope > .p-6');
+      if(emptyEl && /no matches/i.test(emptyEl.textContent)){
+        list.innerHTML = '';
+      }
+    }
+
+    if(q.length < 2) return;
+
+    const records = findRecords(q);
+    if(!records.length) return;
+
+    const offset = filteredCommands.length;
+
+    const band = document.createElement('div');
+    band.className = 'ew-cmd-records';
+    band.innerHTML =
+      `<div class="cmd-section-label">Records</div>` +
+      records.map((r, i) => `
+        <div class="cmd-item" data-record-idx="${offset + i}"
+             onclick="window.executeCommand && window.executeCommand(${offset + i})">
+          <div class="cmd-icon"><i data-lucide="${r.icon}" class="w-4 h-4"></i></div>
+          <div class="min-w-0 flex-grow">
+            <div class="font-semibold truncate">${escHtml(r.label)}</div>
+            <div class="text-[10px] truncate" style="color:var(--text-4);">${escHtml(r.sub)}</div>
+          </div>
+          <span class="cmd-kbd">↵</span>
+        </div>`).join('');
+    list.appendChild(band);
+
+    /* Extend _cmdFiltered so executeCommand() finds the record's action */
+    window._cmdFiltered = filteredCommands.concat(records);
+
+    try{ if(typeof window.lucide !== 'undefined') window.lucide.createIcons(); }catch(_){}
+
+    console.log(`[EW Fix Pack v2] records band rebuilt · q="${q}" · commands=${filteredCommands.length} · records=${records.length}`);
+  }
+
+  /* ── Attach listeners — deferred so the core handler runs first ── */
+  function init(){
+    const input = document.getElementById('cmdInput');
+    if(!input){ setTimeout(init, 400); return; }
+    if(input.dataset.ewFixed2 === '1') return;
+    input.dataset.ewFixed2 = '1';
+
+    /* Our listener fires AFTER the core's; we then defer one tick so
+       the core's renderCommandList has fully settled the DOM. */
+    input.addEventListener('input', () => setTimeout(rebuildRecords, 0));
+
+    /* Also rebuild when the palette opens, in case the input was
+       pre-populated. */
+    const obsTarget = document.getElementById('cmdBackdrop');
+    if(obsTarget && typeof MutationObserver !== 'undefined'){
+      new MutationObserver(() => {
+        if(obsTarget.classList.contains('open')) setTimeout(rebuildRecords, 30);
+      }).observe(obsTarget, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    /* Expose for manual testing */
+    window.ewRebuildCmdRecords = rebuildRecords;
+
+    console.log('[EW Fix Pack v2] command palette records armed');
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+console.log('%c[EW Fix Pack v2] ready — mortgage persistence + palette records', 'color:#10B981;font-weight:700;');
 })();
 </script>
 </body>
