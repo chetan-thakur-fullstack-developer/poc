@@ -1098,7 +1098,346 @@ html.dark .ps-receipt-table tr.ps-receipt-row.is-neg td:last-child{color:#FDA4AF
   .ps-receipt-wrap{position:static}
 }
 #authOverlay{z-index:5000;}
-.auth-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border-strong);border-radius:20px;padding:2rem;box-shadow:0 40px 80px -20px rgba(15,23,42,.35);position:relative;}
+/* ═══════════════════════════════════════════════════════════
+   AUTH — AI-NATIVE REDESIGN
+   Split-screen · aurora background · glassmorphic form panel
+   ═══════════════════════════════════════════════════════════ */
+#authOverlay{
+  padding:0 !important;
+  background:#05060D !important;
+  align-items:stretch !important;
+  justify-content:stretch !important;
+}
+.auth-shell{
+  position:relative;
+  width:100%;height:100%;
+  overflow:hidden;
+  isolation:isolate;
+  color:#fff;
+  font-family:'Inter',ui-sans-serif,system-ui,sans-serif;
+}
+
+/* ── Animated AI-color background ───────────────────────── */
+.auth-bg{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(1200px 800px at 15% 20%, rgba(139,92,246,.28), transparent 60%),
+    radial-gradient(900px 700px at 85% 80%, rgba(236,72,153,.20), transparent 60%),
+    radial-gradient(700px 600px at 50% 50%, rgba(6,182,212,.14), transparent 65%),
+    #05060D;
+}
+.auth-blob{
+  position:absolute;border-radius:50%;filter:blur(80px);
+  opacity:.55;will-change:transform;
+  animation:authDrift 22s ease-in-out infinite;
+  pointer-events:none;
+}
+.auth-blob-1{width:520px;height:520px;background:radial-gradient(circle,#8B5CF6,transparent 70%);top:-140px;left:-100px;}
+.auth-blob-2{width:460px;height:460px;background:radial-gradient(circle,#EC4899,transparent 70%);bottom:-160px;right:-120px;animation-delay:-8s;}
+.auth-blob-3{width:380px;height:380px;background:radial-gradient(circle,#06B6D4,transparent 70%);top:35%;left:45%;animation-delay:-14s;opacity:.4;}
+@keyframes authDrift{
+  0%,100%{transform:translate(0,0) scale(1);}
+  33%   {transform:translate(40px,-30px) scale(1.08);}
+  66%   {transform:translate(-30px,30px) scale(.95);}
+}
+.auth-grid{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,#000 30%,transparent 90%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,#000 30%,transparent 90%);
+}
+.auth-noise{
+  position:absolute;inset:0;opacity:.045;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Split-screen layout ────────────────────────────────── */
+.auth-layout{
+  position:relative;z-index:1;
+  width:100%;height:100%;
+  display:grid;
+  grid-template-columns:1.15fr 1fr;
+}
+
+/* ── LEFT · HERO ────────────────────────────────────────── */
+.auth-hero{
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:2.75rem 4rem;
+  min-width:0;
+}
+.auth-brand-mark{
+  display:inline-flex;align-items:center;gap:.7rem;
+  font-size:13px;font-weight:800;letter-spacing:-.01em;
+  color:rgba(255,255,255,.92);
+}
+.auth-brand-glyph{
+  width:34px;height:34px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:linear-gradient(135deg,#8B5CF6,#EC4899);
+  box-shadow:0 10px 26px -8px rgba(139,92,246,.85),
+             inset 0 1px 0 rgba(255,255,255,.35);
+}
+.auth-hero-mid{max-width:600px;margin:2.5rem 0;}
+
+.auth-pill{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.4rem .8rem .4rem .65rem;
+  border-radius:9999px;
+  font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(236,72,153,.14));
+  border:1px solid rgba(139,92,246,.4);
+  color:#DDD6FE;
+  margin-bottom:1.4rem;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  box-shadow:0 8px 24px -12px rgba(139,92,246,.7);
+}
+.auth-pill .pulse{
+  width:6px;height:6px;border-radius:50%;background:#10B981;
+  box-shadow:0 0 0 0 rgba(16,185,129,.7);
+  animation:authPulse 2s ease-out infinite;
+}
+@keyframes authPulse{
+  0%  {box-shadow:0 0 0 0 rgba(16,185,129,.7);}
+  70% {box-shadow:0 0 0 8px rgba(16,185,129,0);}
+  100%{box-shadow:0 0 0 0 rgba(16,185,129,0);}
+}
+
+.auth-headline{
+  font-size:clamp(2.4rem,4.4vw,3.8rem);
+  font-weight:900;
+  letter-spacing:-.045em;
+  line-height:1.02;
+  color:#fff;
+  margin:0 0 1.1rem;
+}
+.auth-headline .grad{
+  background:linear-gradient(135deg,#A78BFA 0%,#EC4899 50%,#22D3EE 100%);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+  display:block;
+}
+.auth-sub{
+  font-size:14.5px;font-weight:500;line-height:1.65;
+  color:rgba(255,255,255,.62);
+  max-width:520px;
+  margin:0 0 2rem;
+}
+
+.auth-features{
+  display:flex;flex-direction:column;gap:.85rem;
+  margin:0;
+  max-width:520px;
+}
+.auth-feat{
+  display:flex;align-items:center;gap:.75rem;
+  font-size:12.5px;font-weight:600;
+  color:rgba(255,255,255,.72);
+}
+.auth-feat-icon{
+  width:28px;height:28px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);
+  color:#C4B5FD;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.auth-feat b{color:#fff;font-weight:800;}
+
+.auth-hero-foot{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.32);
+  display:flex;align-items:center;gap:1rem;
+  flex-wrap:wrap;
+}
+.auth-hero-foot .dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.25);}
+
+/* ── RIGHT · FORM PANEL ─────────────────────────────────── */
+.auth-panel{
+  display:flex;align-items:center;justify-content:center;
+  padding:2.75rem 3rem;
+  min-width:0;
+  position:relative;
+}
+.auth-panel::before{
+  content:'';position:absolute;left:0;top:8%;bottom:8%;width:1px;
+  background:linear-gradient(180deg,
+    transparent 0%,
+    rgba(139,92,246,.25) 25%,
+    rgba(236,72,153,.25) 55%,
+    rgba(6,182,212,.20) 80%,
+    transparent 100%);
+}
+
+.auth-card{
+  width:100%;max-width:420px;
+  background:linear-gradient(180deg,
+    rgba(20,22,32,.72),
+    rgba(12,14,22,.82));
+  backdrop-filter:blur(28px) saturate(150%);
+  -webkit-backdrop-filter:blur(28px) saturate(150%);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:22px;
+  padding:2rem 1.9rem 1.75rem;
+  box-shadow:
+    0 40px 90px -30px rgba(0,0,0,.9),
+    0 0 0 1px rgba(255,255,255,.03) inset,
+    0 1px 0 rgba(255,255,255,.10) inset,
+    0 0 60px -20px rgba(139,92,246,.35);
+  position:relative;
+  overflow:hidden;
+}
+.auth-card::before{
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:22px;
+  background:radial-gradient(500px 240px at 0% 0%,rgba(139,92,246,.14),transparent 60%),
+             radial-gradient(400px 220px at 100% 100%,rgba(236,72,153,.10),transparent 60%);
+}
+
+.auth-brand{
+  display:flex;flex-direction:column;
+  align-items:flex-start;
+  margin-bottom:1.35rem;
+  text-align:left;
+  position:relative;
+}
+.auth-brand h1{
+  font-size:1.15rem;font-weight:900;letter-spacing:-.02em;
+  color:#fff;line-height:1.2;
+  margin:0 0 .25rem;
+}
+.auth-brand p{
+  font-size:11.5px;font-weight:600;
+  color:rgba(255,255,255,.5);
+  margin:0;
+}
+
+/* Toggle tabs — dark-glass restyle */
+.auth-toggle-row{
+  display:flex;
+  background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(236,72,153,.14));
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;
+  padding:.3rem;
+  gap:.2rem;
+  margin-bottom:1.25rem;
+  position:relative;
+}
+.auth-toggle-row button{
+  flex:1;padding:.6rem;
+  font-size:12px;font-weight:700;
+  border-radius:9px;border:none;background:transparent;
+  color:white;
+  cursor:pointer;transition:all .18s ease;
+  font-family:inherit;
+}
+.auth-toggle-row button:hover{color:grey;}
+.auth-toggle-row button.active{
+  background:linear-gradient(135deg,rgba(139,92,246,.28),rgba(236,72,153,.18));
+  color:#fff;
+  font-weight:800;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.12) inset,
+    0 6px 18px -8px rgba(139,92,246,.7);
+}
+
+/* Form controls scoped to the auth surface */
+#authOverlay .field-label{
+  display:block;font-size:10.5px;font-weight:800;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(255,255,255,.55);
+  margin-bottom:.45rem;
+}
+#authOverlay .input{
+  width:100%;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:10px;
+  padding:.7rem .85rem;
+  font-size:13px;font-weight:600;
+  color:#fff;
+  outline:none;
+  transition:border-color .15s,background-color .15s,box-shadow .15s;
+}
+#authOverlay .input::placeholder{color:rgba(255,255,255,.30);font-weight:500;}
+#authOverlay .input:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);}
+#authOverlay .input:focus{
+  background:rgba(255,255,255,.07);
+  border-color:#8B5CF6;
+  box-shadow:0 0 0 3px rgba(139,92,246,.30),0 8px 24px -12px rgba(139,92,246,.6);
+}
+#authOverlay select.input{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A1A1AA' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right .75rem center;
+  padding-right:2rem;
+}
+#authOverlay select.input option{background:#141622;color:#fff;}
+
+#authOverlay .btn-primary{
+  background:linear-gradient(135deg,#8B5CF6 0%,#EC4899 100%);
+  color:#fff;
+  font-weight:800;
+  letter-spacing:-.01em;
+  border:none;
+  box-shadow:
+    0 10px 26px -8px rgba(139,92,246,.75),
+    0 0 0 1px rgba(255,255,255,.10) inset;
+}
+#authOverlay .btn-primary:hover{
+  box-shadow:
+    0 14px 32px -10px rgba(139,92,246,.95),
+    0 0 0 1px rgba(255,255,255,.18) inset;
+}
+
+#authOverlay .seg-lift{
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;
+}
+#authOverlay .seg-lift button{
+  color:rgba(255,255,255,.55);font-weight:700;
+}
+#authOverlay .seg-lift button:hover{
+  color:#fff;background:rgba(255,255,255,.05);
+}
+#authOverlay .seg-lift button.active{
+  background:linear-gradient(135deg,rgba(139,92,246,.28),rgba(236,72,153,.18));
+  color:#fff;
+  box-shadow:0 1px 0 rgba(255,255,255,.12) inset,0 6px 18px -8px rgba(139,92,246,.6);
+}
+
+#authOverlay .auth-msg.error  {background:rgba(251,113,133,.12);color:#FDA4AF;border:1px solid rgba(251,113,133,.35);}
+#authOverlay .auth-msg.success{background:rgba(16,185,129,.12);color:#6EE7B7;border:1px solid rgba(16,185,129,.35);}
+#authOverlay .auth-msg.info   {background:rgba(139,92,246,.12);color:#C4B5FD;border:1px solid rgba(139,92,246,.35);}
+
+#authOverlay .req-mark{color:#FB7185;}
+
+#authOverlay a,
+#authOverlay button.hover\:underline:hover{
+  color:#C4B5FD !important;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 1024px){
+  .auth-layout{grid-template-columns:1fr;}
+  .auth-hero{display:none;}
+  .auth-panel{padding:2rem 1.5rem;}
+  .auth-panel::before{display:none;}
+}
+@media (max-width: 520px){
+  .auth-card{padding:1.6rem 1.35rem 1.4rem;border-radius:18px;}
+  .auth-panel{padding:1.25rem 1rem;}
+}
+@media (prefers-reduced-motion: reduce){
+  .auth-blob{animation:none;}
+  .auth-pill .pulse{animation:none;}
+}
 html.glass-theme .auth-card{background:rgba(20,25,35,.65);backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);border-color:rgba(255,255,255,.15)}
 .auth-brand{display:flex;flex-direction:column;align-items:center;margin-bottom:1.5rem;text-align:center;}
 .auth-brand-icon{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin-bottom:.75rem;box-shadow:0 10px 24px -8px rgba(139,92,246,.55);}
@@ -2762,22 +3101,92 @@ html.dark .ew-recon-status.drift, html.glass-theme .ew-recon-status.drift { colo
 
 <div id="appShell">
 
-  <div id="authOverlay" class="fixed inset-0 hidden flex items-center justify-center p-4" style="background:var(--app-bg);z-index:5000;">
-    <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(900px 500px at 30% -10%,rgba(139,92,246,.15),transparent 60%),radial-gradient(700px 400px at 90% 100%,rgba(236,72,153,.10),transparent 60%);"></div>
-    <div class="auth-card relative">
-      <div class="auth-brand">
-        <div class="auth-brand-icon"><i data-lucide="gem" style="width:26px;height:26px;color:#fff;"></i></div>
-        <h1>Executive Wealth</h1>
-        <p>Personal Finance · Household Edition</p>
+<div id="authOverlay" class="fixed inset-0 hidden" style="z-index:5000;">
+  <div class="auth-shell">
+
+    <!-- Aurora background layer -->
+    <div class="auth-bg" aria-hidden="true">
+      <div class="auth-blob auth-blob-1"></div>
+      <div class="auth-blob auth-blob-2"></div>
+      <div class="auth-blob auth-blob-3"></div>
+      <div class="auth-grid"></div>
+      <div class="auth-noise"></div>
+    </div>
+
+    <!-- Split-screen layout -->
+    <div class="auth-layout">
+
+      <!-- LEFT · HERO -->
+      <div class="auth-hero">
+        <div class="auth-brand-mark">
+          <span class="auth-brand-glyph">
+            <i data-lucide="gem" style="width:16px;height:16px;color:#fff;"></i>
+          </span>
+          <span>Executive Wealth</span>
+        </div>
+
+        <div class="auth-hero-mid">
+          <span class="auth-pill">
+            <span class="pulse"></span>
+            AI-Native Wealth OS
+          </span>
+
+          <h2 class="auth-headline">
+            Your money,
+            <span class="grad">made intelligent.</span>
+          </h2>
+
+          <p class="auth-sub">
+            One command center for every account, goal, and dollar.
+            Built with AI-era clarity — so your entire financial life
+            lives in a single glance.
+          </p>
+
+          <div class="auth-features">
+            <div class="auth-feat">
+              <span class="auth-feat-icon"><i data-lucide="brain-circuit" style="width:14px;height:14px;"></i></span>
+              <span><b>AI-guided insights</b> across every connected account</span>
+            </div>
+            <div class="auth-feat">
+              <span class="auth-feat-icon"><i data-lucide="zap" style="width:14px;height:14px;"></i></span>
+              <span><b>Real-time portfolio</b> intelligence &amp; rebalancing</span>
+            </div>
+            <div class="auth-feat">
+              <span class="auth-feat-icon"><i data-lucide="shield-check" style="width:14px;height:14px;"></i></span>
+              <span><b>Private by design</b> — your data never leaves your device</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="auth-hero-foot">
+          <span>v4.5.1</span>
+          <span class="dot"></span>
+          <span>Household Edition</span>
+          <span class="dot"></span>
+          <span>Encrypted Local-First</span>
+        </div>
       </div>
-      <div class="auth-toggle-row">
-        <button id="authTabSignin" class="active" onclick="renderAuthView('signin')">Sign In</button>
-        <button id="authTabSignup" onclick="renderAuthView('signup')">Create Account</button>
+
+      <!-- RIGHT · FORM -->
+      <div class="auth-panel">
+        <div class="auth-card">
+          <div class="auth-brand">
+            <h1>Welcome back</h1>
+            <p>Sign in to your command center</p>
+          </div>
+
+          <div class="auth-toggle-row">
+            <button id="authTabSignin" class="active" onclick="renderAuthView('signin')">Sign In</button>
+            <button id="authTabSignup" onclick="renderAuthView('signup')">Create Account</button>
+          </div>
+
+          <div id="authBody"></div>
+        </div>
       </div>
-      <div id="authBody"></div>
+
     </div>
   </div>
-
+</div>
   <div id="skeletonOverlay" class="fixed inset-0 z-[2000] hidden flex flex-col p-6 gap-5" style="background:var(--app-bg);">
     <div class="skeleton h-14 rounded-2xl" style="background:var(--surface);"></div>
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 flex-grow">
