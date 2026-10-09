@@ -154,7 +154,7 @@ html.glass-theme .sidebar-profile-trigger:hover{background:rgba(255,255,255,.08)
 html.glass-theme .popover,
 html.glass-theme .profile-popover,
 html.glass-theme .cmd-panel,
-html.glass-theme .curr-combo-popover{background:rgba(20,25,35,.85) !important;border-color:rgba(255,255,255,.12);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%)}
+html.glass-theme .curr-combo-popover{background:rgba(4, 3, 4, 0.87) !important;border-color:rgba(255,255,255,.12);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%)}
 html.glass-theme .popover-item:hover,
 html.glass-theme .profile-popover-item:hover,
 html.glass-theme .cmd-item:hover{background:rgba(255,255,255,.06)}
@@ -1307,7 +1307,7 @@ html.dark .ps-receipt-table tr.ps-receipt-row.is-neg td:last-child{color:#FDA4AF
 }
 .auth-brand h1{
   font-size:1.15rem;font-weight:900;letter-spacing:-.02em;
-  color:#fff;line-height:1.2;
+  color:white;line-height:1.2;
   margin:0 0 .25rem;
 }
 .auth-brand p{
@@ -1319,7 +1319,7 @@ html.dark .ps-receipt-table tr.ps-receipt-row.is-neg td:last-child{color:#FDA4AF
 /* Toggle tabs — dark-glass restyle */
 .auth-toggle-row{
   display:flex;
-  background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(236,72,153,.14));
+  background:black;
   border:1px solid rgba(255,255,255,.09);
   border-radius:12px;
   padding:.3rem;
@@ -1441,9 +1441,9 @@ html.dark .ps-receipt-table tr.ps-receipt-row.is-neg td:last-child{color:#FDA4AF
 html.glass-theme .auth-card{background:rgba(20,25,35,.65);backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);border-color:rgba(255,255,255,.15)}
 .auth-brand{display:flex;flex-direction:column;align-items:center;margin-bottom:1.5rem;text-align:center;}
 .auth-brand-icon{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin-bottom:.75rem;box-shadow:0 10px 24px -8px rgba(139,92,246,.55);}
-.auth-brand h1{font-size:1.35rem;font-weight:800;letter-spacing:-.02em;color:var(--text-1);}
+.auth-brand h1{font-size:1.35rem;font-weight:800;letter-spacing:-.02em;color:white;}
 .auth-brand p{font-size:.78rem;font-weight:500;color:var(--text-4);margin-top:.35rem;}
-.auth-toggle-row{display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:.3rem;gap:.2rem;margin-bottom:1.25rem;}
+.auth-toggle-row{display:flex;background:#0b1220;border:1px solid var(--border);border-radius:12px;padding:.3rem;gap:.2rem;margin-bottom:1.25rem;}
 .auth-toggle-row button{flex:1;padding:.6rem;font-size:.75rem;font-weight:700;border-radius:9px;border:none;background:transparent;color:var(--text-3);cursor:pointer;transition:all .18s ease;}
 .auth-toggle-row button.active{background:var(--surface);color:var(--text-1);box-shadow:0 1px 3px rgba(15,23,42,.08);font-weight:800;}
 html.dark .auth-toggle-row button.active{box-shadow:0 1px 3px rgba(0,0,0,.4);}
@@ -1661,7 +1661,7 @@ html.dark .btn-active{color:#6EE7B7;}
 #notifBellWrap .notif-dot{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;line-height:15px;padding:0 4px;font-size:9.5px;font-weight:800;border-radius:9999px;background:#EC4899;color:#fff;text-align:center;box-shadow:0 2px 5px rgba(236,72,153,.45);}
 #notifPopover{min-width:340px;max-width:calc(100vw - 24px);}
 @media(max-width:640px){#notifPopover{position:fixed;top:3.75rem;left:1rem;right:1rem;min-width:0;max-width:none;}}
-.notif-item{display:flex;align-items:flex-start;gap:.7rem;padding:.7rem .75rem;border-radius:10px;transition:background-color .15s ease;cursor:default;}
+.notif-item{display:flex;align-items:flex-start;gap:.7rem;padding:.7rem .75rem;margin-bottom:.7rem;border-radius:10px;transition:background-color .15s ease;cursor:default;}
 .notif-item:hover{background:var(--surface-2);}
 .notif-item.unread{background:rgba(139,92,246,.05);}
 .notif-empty{padding:2.25rem 1rem;text-align:center;}
@@ -3128,32 +3128,29 @@ html.dark .ew-recon-status.drift, html.glass-theme .ew-recon-status.drift { colo
         <div class="auth-hero-mid">
           <span class="auth-pill">
             <span class="pulse"></span>
-            AI-Native Wealth OS
+            BUILT FOR SERIOUS HOUSEHOLDS
           </span>
 
           <h2 class="auth-headline">
-            Your money,
-            <span class="grad">made intelligent.</span>
+            <span class="grad">Master your money. <br>Track every account.<br>Design your future.</span>
           </h2>
 
           <p class="auth-sub">
-            One command center for every account, goal, and dollar.
-            Built with AI-era clarity — so your entire financial life
-            lives in a single glance.
+            The perfect place for people who want clarity, not complexity. Your portfolio, budget, and goals — held to the same standard you hold everything else.
           </p>
 
           <div class="auth-features">
             <div class="auth-feat">
               <span class="auth-feat-icon"><i data-lucide="brain-circuit" style="width:14px;height:14px;"></i></span>
-              <span><b>AI-guided insights</b> across every connected account</span>
+              <span><b>Every account, one place</b> bank sync or manual tracking</span>
             </div>
             <div class="auth-feat">
               <span class="auth-feat-icon"><i data-lucide="zap" style="width:14px;height:14px;"></i></span>
-              <span><b>Real-time portfolio</b> intelligence &amp; rebalancing</span>
+              <span><b>Deep planning</b> Mortgage, FIRE, projections built in</span>
             </div>
             <div class="auth-feat">
               <span class="auth-feat-icon"><i data-lucide="shield-check" style="width:14px;height:14px;"></i></span>
-              <span><b>Private by design</b> — your data never leaves your device</span>
+              <span><b>Built for households</b> — two owners, one source of truth</span>
             </div>
           </div>
         </div>
@@ -3187,13 +3184,36 @@ html.dark .ew-recon-status.drift, html.glass-theme .ew-recon-status.drift { colo
     </div>
   </div>
 </div>
-  <div id="skeletonOverlay" class="fixed inset-0 z-[2000] hidden flex flex-col p-6 gap-5" style="background:var(--app-bg);">
+      <div id="skeletonOverlay" class="fixed inset-0 z-[2000] hidden flex flex-col p-6 gap-5" style="background:var(--app-bg);">
     <div class="skeleton h-14 rounded-2xl" style="background:var(--surface);"></div>
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 flex-grow">
       <div class="skeleton rounded-2xl hidden lg:block" style="background:var(--surface);"></div>
       <div class="skeleton rounded-2xl lg:col-span-3" style="background:var(--surface);"></div>
     </div>
   </div>
+
+  <!-- ▼▼▼ EW AUTH-FLASH FIX — synchronous, no persistent side-effects ▼▼▼ -->
+  <script>
+  (function(){
+    try{
+      var raw   = localStorage.getItem('exec_wealth_auth_v1');
+      var state = raw ? JSON.parse(raw) : null;
+      var signedIn = !!(state && state.user && state.session && state.session.token);
+
+      if(signedIn){
+        // Signed-in: show the skeleton until bootApp() finishes loading data
+        var skel = document.getElementById('skeletonOverlay');
+        if(skel){ skel.classList.remove('hidden'); skel.style.display = 'flex'; }
+      } else {
+        // Signed-out: show the auth overlay. It sits at z-5000 with a
+        // solid background, so it fully covers the app shell behind it.
+        var auth = document.getElementById('authOverlay');
+        if(auth) auth.classList.remove('hidden');
+      }
+    }catch(_){}
+  })();
+  </script>
+  <!-- ▲▲▲ END EW AUTH-FLASH FIX ▲▲▲ -->
 
   <div id="cmdBackdrop" class="cmd-backdrop" onclick="if(event.target===this) closeCommandPalette()">
     <div class="cmd-panel" role="dialog" aria-modal="true">
