@@ -2236,6 +2236,32 @@ html.glass-theme input[type="date"]#mortStartInput::-webkit-calendar-picker-indi
 @media(max-width:560px){
   .mort-amort-summary{grid-template-columns:1fr;}
 }
+.cat-group-label {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px 4px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-4);
+}
+.cat-group-label:first-child { padding-top: 0; }
+.cat-group-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 9999px;
+  background: var(--surface-3);
+  color: var(--text-3);
+  font-size: 9.5px;
+  letter-spacing: 0;
+}
 </style>
 <!-- ═══════════════════════════════════════════════════════════════
      EXECUTIVE WEALTH v4.5.1 — PHASE 3 DENSITY LAYER
@@ -3094,6 +3120,310 @@ html.dark .ew-recon-status.drift, html.glass-theme .ew-recon-status.drift { colo
 }
 .ew-p6-modal.open .ew-p6-modal-card {
   transform: translateY(0) scale(1);
+}
+/* ═══════════════════════════════════════════════════════════
+   SETTINGS → CATEGORIES — CARD REDESIGN
+   ═══════════════════════════════════════════════════════════ */
+.cat-section { margin-bottom: 2rem; }
+
+.cat-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.cat-section-title {
+  display: flex;
+  align-items: flex-start;
+  gap: .85rem;
+  min-width: 0;
+}
+.cat-section-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.cat-section-title h3 {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: var(--text-1);
+  line-height: 1.2;
+}
+.cat-section-title p {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-4);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.cat-section-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cat-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 200px;
+  flex: 1 1 200px;
+  max-width: 280px;
+}
+.cat-search > i,
+.cat-search > svg {
+  position: absolute;
+  left: 10px;
+  width: 13px;
+  height: 13px;
+  color: var(--text-4);
+  pointer-events: none;
+}
+.cat-search input {
+  width: 100%;
+  padding: .5rem .7rem .5rem 1.9rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-1);
+  outline: none;
+  transition: border-color .15s, background-color .15s;
+}
+.cat-search input:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 139 92 246) / .14);
+}
+
+/* ── Card grid ─────────────────────────────────────────── */
+.cat-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+@media (max-width: 640px){
+  .cat-card-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Individual card ───────────────────────────────────── */
+.cat-card {
+  position: relative;
+  padding: 14px 15px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: border-color .18s ease, transform .18s ease, box-shadow .2s ease;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.cat-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-lift);
+}
+.cat-card:active { cursor: grabbing; }
+.cat-card.dragging { opacity: .4; transform: scale(.98); }
+.cat-card.drag-over {
+  border-color: var(--accent);
+  border-style: dashed;
+  background: rgba(139,92,246,.05);
+}
+.cat-card.cat-hidden {
+  opacity: .55;
+  background: var(--surface-2);
+}
+.cat-card.cat-hidden .cat-card-name {
+  text-decoration: line-through;
+  text-decoration-color: rgba(148,163,184,.5);
+}
+
+/* ── Card head ─────────────────────────────────────────── */
+.cat-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+.cat-card-identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+.cat-card-emoji {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+.cat-card-titles {
+  min-width: 0;
+  flex: 1;
+}
+.cat-card-name {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -.005em;
+  color: var(--text-1);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cat-card-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-4);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Always-visible actions ───────────────────────────── */
+.cat-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  flex-shrink: 0;
+  opacity: .55;
+  transition: opacity .15s ease;
+}
+.cat-card:hover .cat-card-actions { opacity: 1; }
+.cat-card-actions button {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color .12s, color .12s;
+}
+.cat-card-actions button:hover {
+  background: var(--surface-3);
+  color: var(--text-1);
+}
+.cat-card-actions button.danger:hover {
+  background: rgba(251,113,133,.14);
+  color: #BE123C;
+}
+
+/* ── Badges row ────────────────────────────────────────── */
+.cat-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.cat-card-badges .badge {
+  font-size: 9.5px;
+  padding: .22rem .55rem;
+  font-weight: 800;
+}
+
+/* ── Metric strip ──────────────────────────────────────── */
+.cat-card-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.cat-card-metric {
+  min-width: 0;
+}
+.cat-card-metric-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-4);
+  margin-bottom: 3px;
+}
+.cat-card-metric-value {
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.1;
+}
+.cat-card-metric-value.pos { color: #059669; }
+.cat-card-metric-value.neg { color: #BE123C; }
+.cat-card-metric-value.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Progress row for expense budgets ──────────────────── */
+.cat-card-progress {
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.cat-card-progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 10.5px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+.cat-card-progress-head .lbl { color: var(--text-4); }
+.cat-card-progress-head .amt {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+.cat-card-progress-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+.cat-card-progress-bar > div {
+  height: 100%;
+  border-radius: 999px;
+  transition: width .35s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Empty state ───────────────────────────────────────── */
+.cat-empty {
+  grid-column: 1 / -1;
+  padding: 2rem 1rem;
+  text-align: center;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-4);
 }
 </style>
 </head>
@@ -5829,38 +6159,72 @@ html.dark .ew-recon-status.drift, html.glass-theme .ew-recon-status.drift { colo
                   </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                  <div class="settings-card">
-                    <div class="settings-card-header">
-                      <div class="settings-card-icon"><i data-lucide="layers" style="width:18px;height:18px;"></i></div>
-                      <div class="flex-grow min-w-0"><h3>Portfolio Categories</h3><p><span id="portfolioCountBadge" class="category-mini-stat">0 of 0 visible</span></p></div>
-                    </div>
-                    <div class="settings-toolbar">
-                      <div class="search-wrap"><i data-lucide="search"></i><input type="text" id="portfolioCatSearch" placeholder="Search portfolio categories…" oninput="renderSettingsCategoryLists()"></div>
-                      <div class="flex gap-1.5">
-                        <button onclick="bulkToggleVisibility('portfolio', true)" class="mini-btn" title="Show all"><i data-lucide="eye" class="w-3 h-3"></i></button>
-                        <button onclick="bulkToggleVisibility('portfolio', false)" class="mini-btn" title="Hide all"><i data-lucide="eye-off" class="w-3 h-3"></i></button>
-                        <button onclick="resetCategoryOrder('portfolio')" class="mini-btn" title="Reset order"><i data-lucide="rotate-ccw" class="w-3 h-3"></i></button>
-                        <button onclick="openPortfolioCategoryModal()" class="btn btn-primary !py-1.5 !px-3 !text-[11px]"><i data-lucide="plus" class="w-3 h-3"></i> Add</button>
-                      </div>
-                    </div>
-                    <div id="portfolioCategoriesList" class="space-y-0.5 max-h-[28rem] overflow-y-auto scroll pr-1"></div>
-                  </div>
-                  <div class="settings-card">
-                    <div class="settings-card-header">
-                      <div class="settings-card-icon"><i data-lucide="receipt" style="width:18px;height:18px;"></i></div>
-                      <div class="flex-grow min-w-0"><h3>Expense Categories</h3><p><span id="expenseCountBadge" class="category-mini-stat">0 of 0 visible</span></p></div>
-                    </div>
-                    <div class="settings-toolbar">
-                      <div class="search-wrap"><i data-lucide="search"></i><input type="text" id="expenseCatSearch" placeholder="Search expense categories…" oninput="renderSettingsCategoryLists()"></div>
-                      <div class="flex gap-1.5">
-                        <button onclick="bulkToggleVisibility('expense', true)" class="mini-btn" title="Show all"><i data-lucide="eye" class="w-3 h-3"></i></button>
-                        <button onclick="bulkToggleVisibility('expense', false)" class="mini-btn" title="Hide all"><i data-lucide="eye-off" class="w-3 h-3"></i></button>
-                        <button onclick="resetCategoryOrder('expense')" class="mini-btn" title="Reset order"><i data-lucide="rotate-ccw" class="w-3 h-3"></i></button>
-                        <button onclick="openSettingsAddCategory()" class="btn btn-primary !py-1.5 !px-3 !text-[11px]"><i data-lucide="plus" class="w-3 h-3"></i> Add</button>
-                      </div>
-                    </div>
-                    <div id="expenseCategoriesList" class="space-y-0.5 max-h-[28rem] overflow-y-auto scroll pr-1"></div>
-                  </div>
+                  
+                  
+                  <div class="settings-pane" data-pane="categories">
+  <div class="settings-hero">
+    <div class="flex items-start gap-4 flex-wrap">
+      <div class="settings-hero-icon"><i data-lucide="tags" class="w-6 h-6"></i></div>
+      <div class="flex-grow min-w-0">
+        <h2>Categories</h2>
+        <p>Drag to reorder · edit, hide, or delete · auto-sync with linked accounts</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Portfolio categories ─────────────────────────── -->
+  <div class="cat-section" data-cat-kind="portfolio">
+    <div class="cat-section-head">
+      <div class="cat-section-title">
+        <span class="cat-section-icon">💼</span>
+        <div>
+          <h3>Portfolio Categories</h3>
+          <p id="portfolioCatSummary">Assets and holdings tracked across every year</p>
+        </div>
+      </div>
+      <div class="cat-section-tools">
+        <div class="cat-search">
+          <i data-lucide="search"></i>
+          <input type="text" id="portfolioCatSearch"
+                 placeholder="Search portfolio categories…"
+                 oninput="renderSettingsCategoryList('portfolio')">
+        </div>
+        <button class="btn btn-ghost btn-icon" onclick="bulkToggleVisibility('portfolio', true)"  title="Show all"><i data-lucide="eye" class="w-4 h-4"></i></button>
+        <button class="btn btn-ghost btn-icon" onclick="bulkToggleVisibility('portfolio', false)" title="Hide all"><i data-lucide="eye-off" class="w-4 h-4"></i></button>
+        <button class="btn btn-ghost btn-icon" onclick="resetCategoryOrder('portfolio')"        title="Reset order"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
+        <button class="btn btn-primary" onclick="openPortfolioCategoryModal()"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add</button>
+      </div>
+    </div>
+    <div id="portfolioCategoriesList" class="cat-card-grid"></div>
+  </div>
+
+  <!-- ── Expense categories ───────────────────────────── -->
+  <div class="cat-section" data-cat-kind="expense">
+    <div class="cat-section-head">
+      <div class="cat-section-title">
+        <span class="cat-section-icon">🧾</span>
+        <div>
+          <h3>Expense Categories</h3>
+          <p id="expenseCatSummary">Where your spending is tracked and capped</p>
+        </div>
+      </div>
+      <div class="cat-section-tools">
+        <div class="cat-search">
+          <i data-lucide="search"></i>
+          <input type="text" id="expenseCatSearch"
+                 placeholder="Search expense categories…"
+                 oninput="renderSettingsCategoryList('expense')">
+        </div>
+        <button class="btn btn-ghost btn-icon" onclick="bulkToggleVisibility('expense', true)"  title="Show all"><i data-lucide="eye" class="w-4 h-4"></i></button>
+        <button class="btn btn-ghost btn-icon" onclick="bulkToggleVisibility('expense', false)" title="Hide all"><i data-lucide="eye-off" class="w-4 h-4"></i></button>
+        <button class="btn btn-ghost btn-icon" onclick="resetCategoryOrder('expense')"        title="Reset order"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
+        <button class="btn btn-primary" onclick="openSettingsAddCategory()"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add</button>
+      </div>
+    </div>
+    <div id="expenseCategoriesList" class="cat-card-grid"></div>
+  </div>
+</div>
+                  
                 </div>
               </div>
 
@@ -9878,12 +10242,245 @@ function renderSettingsCategoryLists(){
 
   if(typeof lucide !== 'undefined') lucide.createIcons();
 }
-function renderSettingsCategoryList(kind){const c=$id(kind==='portfolio'?'portfolioCategoriesList':'expenseCategoriesList');if(!c)return;const src=kind==='portfolio'?categoriesConfig:expenseStore.categories;const ord=appSettings.categoryOrder[kind]||[],hid=appSettings.hiddenCategories[kind]||[];const sEl=$id(kind==='portfolio'?'portfolioCatSearch':'expenseCatSearch');const s=(sEl?.value||'').toLowerCase().trim();const o=[...src].sort((a,b)=>{const ia=ord.indexOf(a.key||a.id),ib=ord.indexOf(b.key||b.id);if(ia===-1&&ib===-1)return 0;if(ia===-1)return 1;if(ib===-1)return-1;return ia-ib;});const f=s?o.filter(x=>(x.label||'').toLowerCase().includes(s)||(x.key||x.id||'').toLowerCase().includes(s)):o;const b=$id(kind==='portfolio'?'portfolioCountBadge':'expenseCountBadge');if(b){const v=o.filter(x=>!hid.includes(x.key||x.id)).length;b.textContent=`${v} of ${o.length} visible`;}if(f.length===0){c.innerHTML=`<div class="settings-empty">${s?'No categories match your search.':'No categories yet. Click <b>Add</b> to create one.'}</div>`;return;}c.innerHTML=f.map(cat=>{const id=cat.key||cat.id;const ih=hid.includes(id);const catLocked=!canManageCategories();const em=kind==='portfolio'?categoryEmoji(cat):expenseEmoji(cat);const cl=cat.color||'#8B5CF6';let meta='';if(kind==='portfolio'){const yu=portfolioData.filter(r=>(r.balances?.[id]||0)!==0||(r.invested?.[id]||0)!==0||(r.contri?.[id]||0)!==0).length;meta=`${cat.type||'taxable'} · ${yu} year${yu===1?'':'s'} with data`;}else{const tc=(expenseStore.transactions||[]).filter(tx=>tx.categoryId===id).length;meta=cat.limit?`Budget ${formatCurrency(cat.limit,0)} · ${tc} tx`:`${tc} transaction${tc===1?'':'s'}`;}return `<div class="cat-item ${ih?'cat-hidden':''}" draggable="true" data-cat-id="${id}" data-cat-kind="${kind}"><span class="cat-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></span><span class="cat-swatch" style="background:${cl}18;color:${cl};border-color:${cl}33;">${em}</span><div class="min-w-0 flex-grow"><div class="cat-name truncate">${cat.label}</div><div class="cat-meta truncate">${meta}</div></div>
-<div class="cat-actions">
-  <button onclick="toggleCategoryVisibility('${kind}','${id}')" title="${ih?'Show':'Hide'}" class="cat-action-btn"><i data-lucide="${ih?'eye-off':'eye'}" class="w-3.5 h-3.5"></i></button>
-  <button onclick="editSettingsCategory('${kind}','${id}')" title="${catLocked?'Editing categories requires Basic':'Edit'}" class="cat-action-btn" style="${catLocked?'opacity:.55;':''}"><i data-lucide="${catLocked?'lock':'pencil'}" class="w-3.5 h-3.5"></i></button>
-  <button onclick="deleteSettingsCategory('${kind}','${id}')" title="${catLocked?'Deleting categories requires Basic':'Delete'}" class="cat-action-btn danger" style="${catLocked?'opacity:.55;':''}"><i data-lucide="${catLocked?'lock':'trash-2'}" class="w-3.5 h-3.5"></i></button>
-</div>`;}).join('');if(typeof lucide!=='undefined')lucide.createIcons();c.querySelectorAll('.cat-item').forEach(el=>{el.addEventListener('dragstart',e=>{_catDragSrc={id:el.dataset.catId,kind:el.dataset.catKind};el.classList.add('dragging');try{e.dataTransfer.setData('text/plain',el.dataset.catId);}catch(_){}e.dataTransfer.effectAllowed='move';});el.addEventListener('dragover',e=>{if(_catDragSrc&&_catDragSrc.kind===el.dataset.catKind&&_catDragSrc.id!==el.dataset.catId){e.preventDefault();el.classList.add('drag-over');}});el.addEventListener('dragleave',()=>el.classList.remove('drag-over'));el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('drag-over');if(!_catDragSrc||_catDragSrc.kind!==el.dataset.catKind)return;reorderSettingsCategory(_catDragSrc.kind,_catDragSrc.id,el.dataset.catId);});el.addEventListener('dragend',()=>{el.classList.remove('dragging');_catDragSrc=null;});});}
+
+function renderSettingsCategoryList(kind){
+  const listId = kind === 'portfolio' ? 'portfolioCategoriesList' : 'expenseCategoriesList';
+  const summaryId = kind === 'portfolio' ? 'portfolioCatSummary' : 'expenseCatSummary';
+  const listEl = $id(listId);
+  const summaryEl = $id(summaryId);
+  if(!listEl) return;
+
+  const src = kind === 'portfolio' ? categoriesConfig : expenseStore.categories;
+  const hidden = appSettings.hiddenCategories[kind] || [];
+  const order  = appSettings.categoryOrder[kind] || [];
+  const searchEl = $id(kind === 'portfolio' ? 'portfolioCatSearch' : 'expenseCatSearch');
+  const q = (searchEl?.value || '').toLowerCase().trim();
+
+  // Order
+  const ordered = [...src].sort((a, b) => {
+    const ia = order.indexOf(a.key || a.id);
+    const ib = order.indexOf(b.key || b.id);
+    if(ia === -1 && ib === -1) return 0;
+    if(ia === -1) return 1;
+    if(ib === -1) return -1;
+    return ia - ib;
+  });
+
+  // Filter
+  const filtered = q
+    ? ordered.filter(c =>
+        (c.label || '').toLowerCase().includes(q) ||
+        (c.key || c.id || '').toLowerCase().includes(q))
+    : ordered;
+
+  // Summary line
+  if(summaryEl){
+    const visibleCount = ordered.filter(c => !hidden.includes(c.key || c.id)).length;
+    summaryEl.textContent = `${visibleCount} of ${ordered.length} visible · drag cards to reorder`;
+  }
+
+  if(filtered.length === 0){
+    listEl.innerHTML = `<div class="cat-empty">${
+      q ? 'No categories match your search.' : 'No categories yet. Click <b>Add</b> to create one.'
+    }</div>`;
+    return;
+  }
+
+  // Group portfolio categories by tax bucket for visual grouping
+  let html = '';
+  if(kind === 'portfolio'){
+    const groups = {
+      exempt:   { label:'Tax-Exempt (Roth)',    emoji:'🌱', cats:[] },
+      deferred: { label:'Tax-Deferred',          emoji:'📊', cats:[] },
+      taxable:  { label:'Taxable',               emoji:'💵', cats:[] },
+      special:  { label:'Special Purpose',       emoji:'🩺', cats:[] }
+    };
+    filtered.forEach(c => {
+      const t = c.type || 'taxable';
+      (groups[t] || groups.taxable).cats.push(c);
+    });
+    for(const key of ['exempt','deferred','taxable','special']){
+      const g = groups[key];
+      if(!g.cats.length) continue;
+      html += `<div class="cat-group-label">${g.emoji} ${g.label} <span class="cat-group-count">${g.cats.length}</span></div>`;
+      g.cats.forEach(c => { html += renderCatCard(kind, c, hidden); });
+    }
+  } else {
+    filtered.forEach(c => { html += renderCatCard(kind, c, hidden); });
+  }
+
+  listEl.innerHTML = html;
+  bindCatCardDragDrop(kind, listEl);
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+  applyPrivacyState();
+}
+
+function renderCatCard(kind, cat, hidden){
+  const id = cat.key || cat.id;
+  const isHidden = hidden.includes(id);
+  const color = cat.color || '#8B5CF6';
+  const emoji = kind === 'portfolio' ? categoryEmoji(cat) : expenseEmoji(cat);
+  const locked = !canManageCategories();
+
+  let badges = '';
+  let metrics = '';
+  let progressRow = '';
+
+  if(kind === 'portfolio'){
+    // Tax type badge
+    const taxLabels = {
+      exempt:   'Tax-Exempt',
+      deferred: 'Tax-Deferred',
+      taxable:  'Taxable',
+      special:  'Special'
+    };
+    badges += `<span class="badge badge-violet">${taxLabels[cat.type] || 'Taxable'}</span>`;
+
+    // Years with data
+    const yearsWithData = portfolioData.filter(r =>
+      (r.balances?.[id] || 0) !== 0 ||
+      (r.invested?.[id] || 0) !== 0 ||
+      (r.contri?.[id] || 0) !== 0
+    ).length;
+    if(yearsWithData > 0){
+      badges += `<span class="badge badge-emerald">${yearsWithData} year${yearsWithData === 1 ? '' : 's'} with data</span>`;
+    } else {
+      badges += `<span class="badge badge-slate">No data yet</span>`;
+    }
+
+    // Linked accounts
+    const linkedCount = (cat.linkedAccountIds || []).length;
+    if(linkedCount > 0){
+      badges += `<span class="badge badge-blue"><i data-lucide="link" style="width:10px;height:10px;"></i> ${linkedCount} linked</span>`;
+    }
+
+    // Latest balance + invested
+    const latestRow = portfolioData.find(r => String(r.year) === currentYear());
+    const bal = Number(latestRow?.balances?.[id] || 0);
+    const inv = Number(latestRow?.invested?.[id] || 0);
+    const gain = bal - inv;
+    metrics = `
+      <div class="cat-card-metric">
+        <div class="cat-card-metric-label">Latest Balance</div>
+        <div class="cat-card-metric-value mono privacy-target">${formatCurrency(bal, 0)}</div>
+      </div>
+      <div class="cat-card-metric">
+        <div class="cat-card-metric-label">Unrealized Gain</div>
+        <div class="cat-card-metric-value mono ${gain >= 0 ? 'pos' : 'neg'} privacy-target">
+          ${gain >= 0 ? '+' : ''}${formatCurrency(gain, 0)}
+        </div>
+      </div>`;
+  } else {
+    // Budget cap badge
+    const limit = parseFloat(cat.limit) || 0;
+    const txsThisMonth = (expenseStore.transactions || [])
+      .filter(t => t.categoryId === id)
+      .length;
+    if(limit > 0){
+      badges += `<span class="badge badge-pink">Cap ${formatCurrency(limit, 0)}/mo</span>`;
+    } else {
+      badges += `<span class="badge badge-slate">No budget</span>`;
+    }
+    badges += `<span class="badge badge-violet">${txsThisMonth} transaction${txsThisMonth === 1 ? '' : 's'}</span>`;
+
+    // Group badge
+    const group = (expenseStore.categoryGroups || []).find(g => g.id === cat.groupId);
+    if(group){
+      badges += `<span class="badge badge-blue">${group.emoji} ${esc(group.name)}</span>`;
+    }
+
+    // Budget progress for current month
+    if(limit > 0){
+      const now = new Date();
+      const monthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+      const spentThisMonth = (expenseStore.transactions || [])
+        .filter(t => t.categoryId === id && (t.date || '').startsWith(monthKey))
+        .reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
+      const pct = Math.min(100, (spentThisMonth / limit) * 100);
+      const barColor = pct >= 100 ? '#BE123C' : pct >= 85 ? '#F59E0B' : '#10B981';
+      progressRow = `
+        <div class="cat-card-progress">
+          <div class="cat-card-progress-head">
+            <span class="lbl">This month</span>
+            <span class="amt privacy-target">${formatCurrency(spentThisMonth, 0)} / ${formatCurrency(limit, 0)}</span>
+          </div>
+          <div class="cat-card-progress-bar">
+            <div style="width:${pct}%;background:${barColor};"></div>
+          </div>
+        </div>`;
+    }
+  }
+
+  return `
+    <div class="cat-card ${isHidden ? 'cat-hidden' : ''}"
+         draggable="true"
+         data-cat-id="${id}"
+         data-cat-kind="${kind}">
+      <div class="cat-card-head">
+        <div class="cat-card-identity">
+          <span class="cat-card-emoji"
+                style="background:${color}1A;color:${color};border-color:${color}40;">
+            ${emoji}
+          </span>
+          <div class="cat-card-titles">
+            <div class="cat-card-name">${esc(cat.label)}</div>
+            <div class="cat-card-key">Key: ${esc(id)}</div>
+          </div>
+        </div>
+        <div class="cat-card-actions">
+          <button onclick="toggleCategoryVisibility('${kind}','${id}')"
+                  title="${isHidden ? 'Show' : 'Hide'} this category"
+                  class="cat-action-btn">
+            <i data-lucide="${isHidden ? 'eye-off' : 'eye'}" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="editSettingsCategory('${kind}','${id}')"
+                  title="${locked ? 'Editing categories requires Basic' : 'Edit'}"
+                  class="cat-action-btn"
+                  style="${locked ? 'opacity:.55;' : ''}">
+            <i data-lucide="${locked ? 'lock' : 'pencil'}" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="deleteSettingsCategory('${kind}','${id}')"
+                  title="${locked ? 'Deleting categories requires Basic' : 'Delete'}"
+                  class="cat-action-btn danger"
+                  style="${locked ? 'opacity:.55;' : ''}">
+            <i data-lucide="${locked ? 'lock' : 'trash-2'}" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+      <div class="cat-card-badges">${badges}</div>
+      ${metrics ? `<div class="cat-card-metrics">${metrics}</div>` : ''}
+      ${progressRow}
+    </div>`;
+}
+
+// Preserve existing drag/drop contract by re-using `_catDragSrc`
+function bindCatCardDragDrop(kind, listEl){
+  listEl.querySelectorAll('.cat-card').forEach(el => {
+    el.addEventListener('dragstart', e => {
+      _catDragSrc = { id: el.dataset.catId, kind: el.dataset.catKind };
+      el.classList.add('dragging');
+      try { e.dataTransfer.setData('text/plain', el.dataset.catId); } catch(_){}
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    el.addEventListener('dragover', e => {
+      if(_catDragSrc && _catDragSrc.kind === el.dataset.catKind && _catDragSrc.id !== el.dataset.catId){
+        e.preventDefault();
+        el.classList.add('drag-over');
+      }
+    });
+    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      el.classList.remove('drag-over');
+      if(!_catDragSrc || _catDragSrc.kind !== el.dataset.catKind) return;
+      reorderSettingsCategory(_catDragSrc.kind, _catDragSrc.id, el.dataset.catId);
+    });
+    el.addEventListener('dragend', () => {
+      el.classList.remove('dragging');
+      _catDragSrc = null;
+    });
+  });
+}
 function reorderSettingsCategory(kind,srcId,tgtId){if(srcId===tgtId)return;const src=kind==='portfolio'?categoriesConfig:expenseStore.categories;const all=src.map(c=>c.key||c.id);const eo=(appSettings.categoryOrder[kind]||[]).filter(id=>all.includes(id));const rem=all.filter(id=>!eo.includes(id));const ord=[...eo,...rem];const si=ord.indexOf(srcId),ti=ord.indexOf(tgtId);if(si===-1||ti===-1)return;ord.splice(si,1);ord.splice(ti,0,srcId);appSettings.categoryOrder[kind]=ord;persistAppSettings();renderSettingsCategoryList(kind);propagateCategoryChanges(kind);toast('Category order updated.','success',1600);}
 function resetCategoryOrder(kind){appSettings.categoryOrder[kind]=[];persistAppSettings();renderSettingsCategoryList(kind);propagateCategoryChanges(kind);toast('Category order reset.','info');}
 function toggleCategoryVisibility(kind,id){const h=appSettings.hiddenCategories[kind]||[];const i=h.indexOf(id);if(i===-1)h.push(id);else h.splice(i,1);appSettings.hiddenCategories[kind]=h;persistAppSettings();renderSettingsCategoryList(kind);propagateCategoryChanges(kind);toast(h.includes(id)?'Category hidden.':'Category visible.','info',1400);}
@@ -19679,312 +20276,1523 @@ window.addEventListener('load', () => setTimeout(p8Boot, 1500));
 
 })();
 </script>
-<!-- ═══════════════════════════════════════════════════════════════
-     EW v4.5.1 — PHASE 8.1: TRIAL STRIP SELF-HEALING FIX
-     Runs standalone — does not depend on Phase 8 internals.
-     ═══════════════════════════════════════════════════════════════ -->
-<script id="ew-phase8-1-trial-strip-fix">
+<style id="ew-fixpack-all-styles">
+/* ═══════════════════════════════════════════════════════════
+   SETTINGS → CATEGORIES — TABLE VIEW
+   ═══════════════════════════════════════════════════════════ */
+.cat-table-wrap {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.cat-table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .85rem;
+  padding: .85rem 1rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.cat-table-title {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  min-width: 0;
+}
+.cat-table-title .cat-tbl-title-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-3); border: 1px solid var(--border);
+  font-size: 15px; flex-shrink: 0;
+}
+.cat-table-title h3 {
+  font-size: 13px; font-weight: 800; color: var(--text-1);
+  line-height: 1.2; letter-spacing: -.005em;
+}
+.cat-table-title p {
+  font-size: 10.5px; font-weight: 600; color: var(--text-4);
+  margin-top: 2px; line-height: 1.35;
+}
+
+.cat-table-tools {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.cat-search {
+  position: relative; display: flex; align-items: center;
+  min-width: 180px; flex: 1 1 180px; max-width: 240px;
+}
+.cat-search > i {
+  position: absolute; left: 9px; width: 13px; height: 13px;
+  color: var(--text-4); pointer-events: none;
+}
+.cat-search input {
+  width: 100%; padding: .45rem .65rem .45rem 1.8rem;
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: 8px; font-size: 11.5px; font-weight: 600;
+  color: var(--text-1); outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.cat-search input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 139 92 246) / .14);
+}
+
+.cat-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table.cat-table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  min-width: 760px;
+}
+table.cat-table thead th {
+  position: sticky; top: 0; z-index: 3;
+  background: var(--surface-2);
+  text-align: left; padding: 9px 12px;
+  font-size: 9.5px; font-weight: 800;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--text-4); white-space: nowrap;
+  border-bottom: 1px solid var(--border-strong);
+}
+table.cat-table thead th.num { text-align: right; }
+table.cat-table thead th.act { text-align: right; width: 96px; }
+
+table.cat-table tbody tr.cat-row {
+  cursor: grab;
+  transition: background-color .15s ease;
+  border-bottom: 1px solid var(--border);
+}
+table.cat-table tbody tr.cat-row:last-child { border-bottom: none; }
+table.cat-table tbody tr.cat-row:hover { background: var(--surface-2); }
+table.cat-table tbody tr.cat-row:active { cursor: grabbing; }
+table.cat-table tbody tr.cat-row.dragging { opacity: .35; }
+table.cat-table tbody tr.cat-row.drag-over {
+  box-shadow: inset 0 2px 0 var(--accent);
+  background: rgba(139,92,246,.06);
+}
+table.cat-table tbody tr.cat-row.cat-hidden { opacity: .55; }
+table.cat-table tbody tr.cat-row.cat-hidden .cat-tbl-name {
+  text-decoration: line-through;
+  text-decoration-color: rgba(148,163,184,.5);
+}
+table.cat-table tbody td {
+  padding: 10px 12px; font-size: 12px;
+  vertical-align: middle; color: var(--text-2);
+}
+table.cat-table tbody td.num {
+  text-align: right;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700; color: var(--text-1); white-space: nowrap;
+}
+table.cat-table tbody td.num.pos { color: #059669; }
+table.cat-table tbody td.num.neg { color: #BE123C; }
+table.cat-table tbody td.num.muted { color: var(--text-3); font-weight: 600; }
+table.cat-table tbody td.act { text-align: right; white-space: nowrap; }
+
+.cat-tbl-handle {
+  width: 22px; display: inline-flex; align-items: center; justify-content: center;
+  color: var(--text-4); cursor: grab; flex-shrink: 0;
+}
+.cat-tbl-handle:active { cursor: grabbing; }
+
+.cat-tbl-identity {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+}
+.cat-tbl-emoji {
+  width: 30px; height: 30px; border-radius: 9px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0; border: 1px solid var(--border);
+}
+.cat-tbl-meta { min-width: 0; flex: 1; }
+.cat-tbl-name {
+  font-size: 12.5px; font-weight: 800; color: var(--text-1);
+  line-height: 1.2; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.cat-tbl-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px; font-weight: 600;
+  color: var(--text-4); margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.cat-tbl-actions {
+  display: inline-flex; align-items: center; gap: 2px;
+}
+.cat-tbl-actions button {
+  width: 28px; height: 28px; border-radius: 7px;
+  border: none; background: transparent; color: var(--text-3);
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+  transition: background-color .12s, color .12s;
+}
+.cat-tbl-actions button:hover { background: var(--surface-3); color: var(--text-1); }
+.cat-tbl-actions button.danger:hover {
+  background: rgba(251,113,133,.14); color: #BE123C;
+}
+
+.cat-tbl-progress { display: flex; flex-direction: column; gap: 4px; min-width: 110px; }
+.cat-tbl-progress-head {
+  display: flex; justify-content: space-between; gap: 6px;
+  font-size: 9.5px; font-weight: 700; color: var(--text-4);
+  font-variant-numeric: tabular-nums;
+}
+.cat-tbl-progress-bar {
+  height: 4px; background: var(--surface-3);
+  border-radius: 9999px; overflow: hidden;
+}
+.cat-tbl-progress-bar > div {
+  height: 100%; border-radius: 9999px;
+  transition: width .3s cubic-bezier(.4,0,.2,1);
+}
+
+.cat-table-empty {
+  padding: 2.5rem 1rem; text-align: center;
+  font-size: 12px; font-weight: 600; color: var(--text-4);
+}
+
+@media (max-width: 640px) {
+  .cat-table-head { padding: .75rem .85rem; }
+  .cat-search { max-width: none; flex: 1 1 100%; order: -1; }
+}
+</style>
+<script id="ew-fixpack-all-runtime">
 (function(){
 'use strict';
-const LOG_PREFIX = '%c[EW P8.1]';
-const LOG_STYLE  = 'color:#8B5CF6;font-weight:700;';
-function log(...a){ console.log(LOG_PREFIX, LOG_STYLE, ...a); }
-function warn(...a){ console.warn(LOG_PREFIX, LOG_STYLE, ...a); }
+console.log('%c[EW Fix Pack] loading — fixes 1-6 + tabular categories',
+  'color:#10B981;font-weight:700;');
 
-/* ─────────────────────────────────────────────────────────────
-   1. Read trial state directly from appSettings
-   ───────────────────────────────────────────────────────────── */
-function readTrialInfo(){
+/* ═══════════════════════════════════════════════════════════
+   SHARED DEFAULTS
+   ═══════════════════════════════════════════════════════════ */
+const DEFAULT_PORTFOLIO_CATEGORIES = [
+  { key:'k401',    label:'401(k)',    color:'#8B5CF6', type:'deferred' },
+  { key:'roth',    label:'Roth IRA',  color:'#EC4899', type:'exempt'   },
+  { key:'tradIra', label:'Trad IRA',  color:'#F59E0B', type:'deferred' },
+  { key:'hsa',     label:'HSA',       color:'#3B82F6', type:'special'  },
+  { key:'espp',    label:'ESPP',      color:'#A78BFA', type:'taxable'  },
+  { key:'cd',      label:'CD / Cash', color:'#71717A', type:'taxable'  },
+  { key:'c529',    label:'529',       color:'#06B6D4', type:'special'  }
+];
+const DEFAULT_IRS_LIMITS = {
+  "2023":{k401:22500,ira:6500,hsaSelf:3850,hsaFamily:7750,c529Single:17000,c529Joint:34000,k401Catch:7500,iraCatch:1000,hsaCatch:1000},
+  "2024":{k401:23000,ira:7000,hsaSelf:4150,hsaFamily:8300,c529Single:18000,c529Joint:36000,k401Catch:7500,iraCatch:1000,hsaCatch:1000},
+  "2025":{k401:23500,ira:7000,hsaSelf:4300,hsaFamily:8300,c529Single:19000,c529Joint:38000,k401Catch:7500,iraCatch:1000,hsaCatch:1000},
+  "2026":{k401:24500,ira:7500,hsaSelf:4400,hsaFamily:8750,c529Single:19000,c529Joint:38000,k401Catch:8000,iraCatch:1100,hsaCatch:1000}
+};
+const DEFAULT_EXPENSE_GROUPS = [
+  { id:'grp_essentials', name:'Essentials', emoji:'🏠', color:'#3B82F6', collapsed:false },
+  { id:'grp_lifestyle',  name:'Lifestyle',  emoji:'✨', color:'#EC4899', collapsed:false },
+  { id:'grp_financial',  name:'Financial',  emoji:'💼', color:'#10B981', collapsed:false },
+  { id:'grp_other',      name:'Other',      emoji:'📦', color:'#71717A', collapsed:false }
+];
+const DEFAULT_EXPENSE_CATEGORIES = [
+  { id:'cat_grocer',    label:'Groceries',     color:'#10B981', emoji:'🛒', limit:0, groupId:'grp_essentials' },
+  { id:'cat_dining',    label:'Dining',        color:'#F97316', emoji:'🍽️', limit:0, groupId:'grp_lifestyle'  },
+  { id:'cat_housing',   label:'Housing',       color:'#F59E0B', emoji:'🏠', limit:0, groupId:'grp_essentials' },
+  { id:'cat_utilities', label:'Utilities',     color:'#8B5CF6', emoji:'💡', limit:0, groupId:'grp_essentials' },
+  { id:'cat_transport', label:'Transport',     color:'#3B82F6', emoji:'🚗', limit:0, groupId:'grp_essentials' },
+  { id:'cat_shopping',  label:'Shopping',      color:'#EC4899', emoji:'🛍️', limit:0, groupId:'grp_lifestyle'  },
+  { id:'cat_health',    label:'Health',        color:'#06B6D4', emoji:'🩺', limit:0, groupId:'grp_essentials' },
+  { id:'cat_entertain', label:'Entertainment', color:'#A855F7', emoji:'🎬', limit:0, groupId:'grp_lifestyle'  }
+];
+
+/* ═══════════════════════════════════════════════════════════
+   FIX 2 — DEMO SESSION SHORT-CIRCUIT (must run before FIX 1)
+   ═══════════════════════════════════════════════════════════ */
+function isDemoSession(){
   try{
-    let s = null;
-    try{ s = appSettings && appSettings.subscription; }catch(_){}
-    if(!s || !s.trial) return null;
-    const endsAt = new Date(s.trial.endsAt);
-    const now = new Date();
-    if(!endsAt || isNaN(endsAt)) return null;
-    if(now >= endsAt) return null;
-
-    const msLeft = endsAt - now;
-    const daysLeft  = Math.floor(msLeft / 86400000);
-    const hoursLeft = Math.floor((msLeft % 86400000) / 3600000);
-    const shortLabel =
-      daysLeft >= 2 ? `${daysLeft}d left` :
-      daysLeft === 1 ? '1d left' :
-      hoursLeft > 0 ? `${hoursLeft}h left` : '< 1h left';
-
-    return { plan: s.trial.plan || 'basic', endsAt, daysLeft, hoursLeft, shortLabel };
-  }catch(e){ warn('readTrialInfo error', e); return null; }
-}
-
-/* ─────────────────────────────────────────────────────────────
-   2. Locate insertion point — many fallbacks
-   ───────────────────────────────────────────────────────────── */
-function findHeaderParent(){
-  const sels = [
-    '#appShell header.glass',
-    '#appShell header',
-    'header.glass',
-    '#appMain header',
-    '#appMain > div'
-  ];
-  for(const s of sels){
-    const el = document.querySelector(s);
-    if(el) return el;
-  }
-  return null;
-}
-
-/* ─────────────────────────────────────────────────────────────
-   3. Build the strip once
-   ───────────────────────────────────────────────────────────── */
-function createStrip(){
-  const strip = document.createElement('div');
-  strip.id = 'trialStrip';
-  strip.setAttribute('role', 'status');
-  strip.setAttribute('aria-live', 'polite');
-  strip.innerHTML = `
-    <div class="trial-inner">
-      <span class="trial-dot" aria-hidden="true"></span>
-      <span id="trialStripText">Trial active</span>
-      <button type="button" class="trial-upgrade" id="trialStripUpgrade">
-        Upgrade now →
-      </button>
-    </div>`;
-  strip.querySelector('#trialStripUpgrade').addEventListener('click', () => {
-    const info = readTrialInfo();
-    const planId = info ? info.plan : 'basic';
-    if(typeof subConfirmUpgrade === 'function') subConfirmUpgrade(planId);
-  });
-  return strip;
-}
-
-/* ─────────────────────────────────────────────────────────────
-   4. Render the strip — create if missing, show/hide by state
-   ───────────────────────────────────────────────────────────── */
-function renderStrip(){
-  let strip = document.getElementById('trialStrip');
-
-  if(!strip){
-    const parent = findHeaderParent();
-    if(!parent){ warn('No header parent found'); return false; }
-    strip = createStrip();
-    parent.insertBefore(strip, parent.firstChild);
-    log('Strip created and inserted into:', parent.tagName + (parent.id ? '#'+parent.id : ''));
-  }
-
-  if(!document.body.contains(strip)){
-    warn('Strip detached from DOM — re-inserting');
-    const parent = findHeaderParent();
-    if(parent) parent.insertBefore(strip, parent.firstChild);
-    else return false;
-  }
-
-  const info = readTrialInfo();
-
-  if(info){
-    strip.classList.add('show');
-    // Force styles with !important to guarantee visibility
-    strip.style.setProperty('height', '26px', 'important');
-    strip.style.setProperty('display', 'block', 'important');
-    strip.style.setProperty('overflow', 'hidden', 'important');
-    strip.style.setProperty('background',
-      'linear-gradient(90deg, #8B5CF6 0%, #EC4899 48%, #F59E0B 100%)', 'important');
-    strip.style.setProperty('background-size', '200% 100%', 'important');
-
-    const planName =
-      (typeof SUB_PLANS !== 'undefined' && SUB_PLANS[info.plan] && SUB_PLANS[info.plan].name)
-      || info.plan.toUpperCase();
-    const txt = document.getElementById('trialStripText');
-    if(txt) txt.textContent = `${planName} trial · ${info.shortLabel}`;
-    log('Strip shown —', planName, info.shortLabel);
-    return true;
-  } else {
-    strip.classList.remove('show');
-    strip.style.removeProperty('height');
-    strip.style.removeProperty('display');
-    return false;
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────
-   5. Update header chip + sidebar badge independently
-   ───────────────────────────────────────────────────────────── */
-function renderChipAndBadge(){
-  const info = readTrialInfo();
-
-  // Header plan chip
-  const chip = document.getElementById('headerPlanChip');
-  if(chip){
-    chip.classList.toggle('trial-active', !!info);
-    if(info){
-      chip.innerHTML =
-        `<span class="trial-chip-dot" aria-hidden="true"></span>` +
-        `<span id="headerPlanChipText">TRIAL · ${info.shortLabel}</span>`;
-      chip.title = `${info.plan.toUpperCase()} trial · ${info.daysLeft} day${info.daysLeft === 1 ? '' : 's'} remaining — click to upgrade`;
-      chip.onclick = (e) => {
-        if(e) e.preventDefault();
-        if(typeof subConfirmUpgrade === 'function') subConfirmUpgrade(info.plan);
-      };
+    if(typeof authState !== 'undefined' && authState?.user?.email === 'demo@execwealth.local'){
+      return true;
     }
-  }
-
-  // Sidebar profile badge
-  const trigger = document.getElementById('sidebarProfileTrigger');
-  if(trigger){
-    let badge = document.getElementById('sidebarTrialBadge');
-    if(!badge){
-      const textCol = trigger.querySelector('.profile-text');
-      if(textCol){
-        badge = document.createElement('span');
-        badge.id = 'sidebarTrialBadge';
-        textCol.appendChild(badge);
-      }
-    }
-    if(badge){
-      if(info){
-        badge.classList.add('show');
-        badge.textContent = `✦ Trial · ${info.shortLabel}`;
-      } else {
-        badge.classList.remove('show');
-        badge.textContent = '';
-      }
-    }
-  }
+    if(typeof ewSandboxIsActive === 'function' && ewSandboxIsActive()) return true;
+  }catch(_){}
+  return false;
 }
+window.isDemoSession = isDemoSession;
 
-/* ─────────────────────────────────────────────────────────────
-   6. Master refresh
-   ───────────────────────────────────────────────────────────── */
-function refresh(){
-  renderStrip();
-  renderChipAndBadge();
-  try{ if(typeof lucide !== 'undefined') lucide.createIcons(); }catch(_){}
-}
-
-/* ─────────────────────────────────────────────────────────────
-   7. Hook every subscription mutation with our own refresh
-   ───────────────────────────────────────────────────────────── */
-function hookSubFns(){
-  const names = [
-    'subApplyUpgrade','subApplyDowngrade','subCancelDowngrade',
-    'subStartTrial','subEndTrial','subSimulateCycleEnd',
-    'demoSetPlan','demoStartTrial','resetSubscriptionDemo','setBilling'
-  ];
-  let n = 0;
-  names.forEach(name => {
-    const orig = window[name];
-    if(typeof orig !== 'function') return;
-    if(orig.__ewP81) return;
-    const wrapped = function(){
-      const r = orig.apply(this, arguments);
-      setTimeout(refresh, 60);
-      setTimeout(refresh, 300);
-      return r;
-    };
-    wrapped.__ewP81 = true;
-    window[name] = wrapped;
-    n++;
-  });
-  return n;
-}
-
-/* ─────────────────────────────────────────────────────────────
-   8. Watch for the strip being removed
-   ───────────────────────────────────────────────────────────── */
-let _watcher = null;
-function startWatcher(){
-  if(_watcher) return;
-  const target = document.getElementById('appShell');
-  if(!target || typeof MutationObserver === 'undefined') return;
-  _watcher = new MutationObserver(() => {
-    const strip = document.getElementById('trialStrip');
-    if(!strip || !document.body.contains(strip)){
-      if(readTrialInfo()) refresh();
-    }
-  });
-  _watcher.observe(target, { childList: true, subtree: true });
-}
-
-/* ─────────────────────────────────────────────────────────────
-   9. Debug helpers (exposed on window)
-   ───────────────────────────────────────────────────────────── */
-window.ewDebugTrial = function(){
-  const info  = readTrialInfo();
-  const strip = document.getElementById('trialStrip');
-  const header = findHeaderParent();
-  const out = {
-    trial_info: info,
-    subscription_plan: (typeof appSettings !== 'undefined' && appSettings.subscription)
-      ? appSettings.subscription.plan : '(undefined)',
-    subscription_trial: (typeof appSettings !== 'undefined' && appSettings.subscription)
-      ? appSettings.subscription.trial : null,
-    strip_exists:  !!strip,
-    strip_in_dom:  strip ? document.body.contains(strip) : false,
-    strip_classes: strip ? strip.className : null,
-    strip_height_px: strip ? Math.round(strip.getBoundingClientRect().height) : null,
-    strip_parent: strip ? strip.parentElement.tagName : null,
-    header_parent: header ? header.tagName + (header.id ? '#'+header.id : '') : null
+if(typeof window.hasFeature === 'function' && !window.hasFeature.__ewFix2){
+  const _origHasFeature = window.hasFeature;
+  const wrapped = function(feature){
+    if(isDemoSession()) return true;
+    return _origHasFeature.apply(this, arguments);
   };
-  console.table(out);
-  return out;
-};
+  wrapped.__ewFix2 = true;
+  window.hasFeature = wrapped;
 
-window.ewForceTrial = function(){
-  log('Forcing refresh…');
-  refresh();
-  return window.ewDebugTrial();
-};
+  // Also rebind the local lexical reference, since the app calls
+  // hasFeature directly in many places
+  try{
+    if(typeof hasFeature !== 'undefined'){
+      // eslint-disable-next-line no-global-assign
+      // The core module uses function-scope lookup, so we need a global shim
+      // The reference chain: every call site uses window.hasFeature implicitly
+    }
+  }catch(_){}
+}
 
-/* ─────────────────────────────────────────────────────────────
-   10. BOOT
-   ───────────────────────────────────────────────────────────── */
-function boot(){
-  log('Booting…');
-  const hooked = hookSubFns();
-  log('Hooked', hooked, 'subscription functions');
+/* The core script defined `function hasFeature` in the same scope as
+   all its callers, so `window.hasFeature` is not enough. We instead
+   monkey-patch `subEffectiveRank` to always return the Pro rank for
+   demo sessions. That's a lower-level hook that all gates depend on. */
+if(typeof window.subEffectiveRank === 'function' && !window.subEffectiveRank.__ewFix2){
+  const _origRank = window.subEffectiveRank;
+  const wrapped = function(){
+    if(isDemoSession()) return 2; // Pro rank
+    return _origRank.apply(this, arguments);
+  };
+  wrapped.__ewFix2 = true;
+  window.subEffectiveRank = wrapped;
+}
 
-  refresh();
-  startWatcher();
+/* ═══════════════════════════════════════════════════════════
+   FIX 4 — applyPortfolioPayload() ensures defaults exist
+   ═══════════════════════════════════════════════════════════ */
+if(typeof window.applyPortfolioPayload === 'function' && !window.applyPortfolioPayload.__ewFix4){
+  const _orig = window.applyPortfolioPayload;
+  const wrapped = function(d){
+    try{
+      if(d){
+        if(!Array.isArray(d.categories) || d.categories.length === 0){
+          d.categories = JSON.parse(JSON.stringify(DEFAULT_PORTFOLIO_CATEGORIES));
+        }
+        if(!d.irsBaseLimits || !Object.keys(d.irsBaseLimits).length){
+          d.irsBaseLimits = DEFAULT_IRS_LIMITS;
+        }
+      }
+    }catch(_){}
+    const r = _orig.apply(this, arguments);
 
-  // Multiple delayed passes to catch late renders
-  [100, 500, 1500, 3500, 7000].forEach(t => setTimeout(refresh, t));
+    // Post-merge safety net — ensure the globals never end up empty
+    try{
+      if(typeof categoriesConfig !== 'undefined'
+         && Array.isArray(categoriesConfig)
+         && categoriesConfig.length === 0){
+        categoriesConfig = JSON.parse(JSON.stringify(DEFAULT_PORTFOLIO_CATEGORIES));
+      }
+      if(typeof irsBaseLimits !== 'undefined'
+         && (!irsBaseLimits || !Object.keys(irsBaseLimits).length)){
+        irsBaseLimits = DEFAULT_IRS_LIMITS;
+      }
+    }catch(_){}
+    return r;
+  };
+  wrapped.__ewFix4 = true;
+  window.applyPortfolioPayload = wrapped;
+}
 
-  // Hook enterApp so the strip appears immediately after login
-  if(typeof window.enterApp === 'function' && !window.enterApp.__ewP81){
-    const _orig = window.enterApp;
-    const wrapped = function(){
-      const r = _orig.apply(this, arguments);
-      setTimeout(refresh, 50);
-      setTimeout(refresh, 500);
-      setTimeout(refresh, 2000);
-      return r;
-    };
-    wrapped.__ewP81 = true;
-    window.enterApp = wrapped;
+/* ═══════════════════════════════════════════════════════════
+   FIX 1 — loadExpenseDataFromJSON() gated on demo mode
+   ═══════════════════════════════════════════════════════════ */
+async function ewLoadExpenseDataFresh(){
+  const demo = isDemoSession();
+  const handle = (typeof getUserHandle === 'function') ? getUserHandle() : 'guest';
+
+  // ── 1. User's own GitHub file (real users only) ──
+  if(handle && handle !== 'guest' && !demo){
+    try{
+      const path = `data/${handle}/expense_tracker_data.json`;
+      const url  = `https://raw.githubusercontent.com/${GITHUB_CONFIG.OWNER}/${GITHUB_CONFIG.REPO}/main/${path}?t=${Date.now()}`;
+      const r = await fetch(url, { headers: { 'Cache-Control': 'no-cache' } });
+      if(r.ok){
+        const j = await r.json();
+        applyExpensePayload(j);
+        return finalizeExpenseLoad('github');
+      }
+    }catch(_){}
   }
 
-  // Refresh on tab switches
-  if(typeof window.switchMainTab === 'function' && !window.switchMainTab.__ewP81){
-    const _orig = window.switchMainTab;
-    const wrapped = function(){
-      const r = _orig.apply(this, arguments);
-      setTimeout(refresh, 120);
-      return r;
-    };
-    wrapped.__ewP81 = true;
-    window.switchMainTab = wrapped;
+  // ── 2. localStorage (if it has meaningful data) ──
+  try{
+    const stored = localStorage.getItem('expense_tracker_data');
+    if(stored){
+      const p = JSON.parse(stored);
+      const meaningful = p && (
+        (Array.isArray(p.categories) && p.categories.length > 0) ||
+        (Array.isArray(p.transactions) && p.transactions.length > 0) ||
+        (Number(p.monthlyBudget) || 0) > 0
+      );
+      if(meaningful){
+        applyExpensePayload(p);
+        return finalizeExpenseLoad('localStorage');
+      }
+    }
+  }catch(_){}
+
+  // ── 3. Demo / sandbox users get the bundled sample file ──
+  if(demo){
+    try{
+      const r = await fetch(`./expense_tracker_data.json?t=${Date.now()}`,
+        { headers: { 'Cache-Control': 'no-cache' } });
+      if(r.ok){
+        const j = await r.json();
+        applyExpensePayload(j);
+        return finalizeExpenseLoad('demo-json');
+      }
+    }catch(_){}
   }
 
-  log('✅ Armed · use window.ewDebugTrial() to inspect, window.ewForceTrial() to refresh');
+  // ── 4. Real new user — seed a truly empty store ──
+  expenseStore = {
+    selectedCurrency: 'USD',
+    monthlyBudget: 0,
+    categories: JSON.parse(JSON.stringify(DEFAULT_EXPENSE_CATEGORIES)),
+    cards: [],
+    transactions: [],
+    categoryGroups: JSON.parse(JSON.stringify(DEFAULT_EXPENSE_GROUPS))
+  };
+  try{
+    localStorage.setItem('expense_tracker_data', JSON.stringify(expenseStore));
+  }catch(_){}
+  finalizeExpenseLoad('seeded-empty');
+
+  function applyExpensePayload(j){
+    try{
+      expenseStore = {
+        selectedCurrency: j.selectedCurrency || 'USD',
+        monthlyBudget: j.monthlyBudget || 0,
+        categories: Array.isArray(j.categories) ? j.categories : [],
+        cards: Array.isArray(j.cards) ? j.cards : [],
+        transactions: Array.isArray(j.transactions) ? j.transactions : [],
+        categoryGroups: Array.isArray(j.categoryGroups) ? j.categoryGroups : []
+      };
+      if(expenseStore.selectedCurrency) currentCurrency = expenseStore.selectedCurrency;
+      // Ensure default groups exist
+      if(!expenseStore.categoryGroups.length){
+        expenseStore.categoryGroups = JSON.parse(JSON.stringify(DEFAULT_EXPENSE_GROUPS));
+      }
+      localStorage.setItem('expense_tracker_data', JSON.stringify(expenseStore));
+    }catch(_){}
+  }
+
+  function finalizeExpenseLoad(source){
+    try{ updateCurrencyLabels(); }catch(_){}
+    const dEl = document.getElementById('txDate');
+    if(dEl) dEl.value = new Date().toISOString().split('T')[0];
+    try{ populateFormDropdowns(); }catch(_){}
+    try{ renderBudgetTab(); }catch(_){}
+    const skel = document.getElementById('skeletonOverlay');
+    if(skel){ skel.style.opacity = '0'; setTimeout(() => skel.remove(), 300); }
+    console.log(`[EW Fix Pack] expense store loaded from: ${source}`);
+  }
+}
+
+// Replace the global
+window.loadExpenseDataFromJSON = ewLoadExpenseDataFresh;
+
+/* ═══════════════════════════════════════════════════════════
+   FIX 6 — Auto-seed demo user on first dashboard visit
+   ═══════════════════════════════════════════════════════════ */
+(function hookDemoAutoSeed(){
+  function runDemoAutoSeed(){
+    if(!isDemoSession()) return;
+    const key = 'ew_demo_seeded_v2';
+    let already = false;
+    try{ already = localStorage.getItem(key) === '1'; }catch(_){}
+    if(already) return;
+
+    // Only fire once per session
+    try{ localStorage.setItem(key, '1'); }catch(_){}
+
+    setTimeout(async () => {
+      try{
+        // Skip if there's already meaningful portfolio data
+        const hasData = Array.isArray(portfolioData) && portfolioData.some(r =>
+          Object.values(r.balances || {}).some(v => Number(v) !== 0)
+        );
+        if(!hasData && typeof importDefaultPortfolioData === 'function'){
+          await importDefaultPortfolioData();
+        }
+        if(!(accountsStore.linked || []).length && typeof runPlaidDemoSync === 'function'){
+          await runPlaidDemoSync();
+        }
+        if(typeof toast === 'function'){
+          toast('Demo data loaded — explore every feature freely.', 'success', 3200);
+        }
+        try{
+          if(typeof pushNotification === 'function'){
+            pushNotification({
+              title: '🎬 Demo workspace ready',
+              message: 'Sample portfolio, accounts, and transactions are loaded. Every tier feature is unlocked.',
+              type: 'success'
+            });
+          }
+        }catch(_){}
+      }catch(e){
+        console.warn('[demo auto-seed]', e);
+      }
+    }, 900);
+  }
+
+  // Fire on every boot / sign-in
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', runDemoAutoSeed);
+  } else {
+    setTimeout(runDemoAutoSeed, 200);
+  }
+  window.addEventListener('load', () => setTimeout(runDemoAutoSeed, 400));
+  setTimeout(runDemoAutoSeed, 1600);
+  setTimeout(runDemoAutoSeed, 3000);
+})();
+
+/* ═══════════════════════════════════════════════════════════
+   FIX 3 — CATEGORIES: rebuild pane + tabular renderer
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 3a. Rebuild the categories settings pane HTML (fix nesting) ── */
+function rebuildCategoriesPane(){
+  const panes = document.querySelectorAll('.settings-pane[data-pane="categories"]');
+  if(!panes.length) return;
+
+  // Keep only the first pane; remove accidental nested duplicates
+  const primary = panes[0];
+  for(let i = 1; i < panes.length; i++) panes[i].remove();
+
+  // If already rebuilt, stop
+  if(primary.dataset.ewFix3 === '1') return;
+  primary.dataset.ewFix3 = '1';
+
+  primary.innerHTML = `
+    <div class="settings-hero">
+      <div class="flex items-start gap-4 flex-wrap">
+        <div class="settings-hero-icon"><i data-lucide="tags" class="w-6 h-6"></i></div>
+        <div class="flex-grow min-w-0">
+          <h2>Categories</h2>
+          <p>Drag rows to reorder · edit, hide, or delete · auto-sync with linked accounts</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Portfolio categories -->
+    <div class="cat-table-wrap" data-cat-kind="portfolio" style="margin-bottom:1.25rem;">
+      <div class="cat-table-head">
+        <div class="cat-table-title">
+          <span class="cat-tbl-title-icon">💼</span>
+          <div>
+            <h3>Portfolio Categories</h3>
+            <p id="portfolioCatSummary">Assets and holdings tracked across every year</p>
+          </div>
+        </div>
+        <div class="cat-table-tools">
+          <div class="cat-search">
+            <i data-lucide="search"></i>
+            <input type="text" id="portfolioCatSearch"
+                   placeholder="Search…"
+                   oninput="renderSettingsCategoryList('portfolio')">
+          </div>
+          <button class="btn btn-ghost btn-icon" onclick="bulkToggleVisibility('portfolio', true)"  title="Show all"><i data-lucide="eye" class="w-4 h-4"></i></button>
+          <button class="btn btn-ghost btn-icon" onclick="bulkToggleVisibility('portfolio', false)" title="Hide all"><i data-lucide="eye-off" class="w-4 h-4"></i></button>
+          <button class="btn btn-ghost btn-icon" onclick="resetCategoryOrder('portfolio')"        title="Reset order"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
+          <button class="btn btn-primary" onclick="openPortfolioCategoryModal()"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add</button>
+        </div>
+      </div>
+      <div class="cat-table-scroll">
+        <table class="cat-table">
+          <thead>
+            <tr>
+              <th style="width:40px;"></th>
+              <th>Category</th>
+              <th>Tax Bucket</th>
+              <th class="num">Latest Balance</th>
+              <th class="num">Unrealized Gain</th>
+              <th class="num">Years</th>
+              <th class="num">Linked</th>
+              <th class="act">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="portfolioCategoriesList"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Expense categories -->
+    <div class="cat-table-wrap" data-cat-kind="expense">
+      <div class="cat-table-head">
+        <div class="cat-table-title">
+          <span class="cat-tbl-title-icon">🧾</span>
+          <div>
+            <h3>Expense Categories</h3>
+            <p id="expenseCatSummary">Where your spending is tracked and capped</p>
+          </div>
+        </div>
+        <div class="cat-table-tools">
+          <div class="cat-search">
+            <i data-lucide="search"></i>
+            <input type="text" id="expenseCatSearch"
+                   placeholder="Search…"
+                   oninput="renderSettingsCategoryList('expense')">
+          </div>
+          <button class="btn btn-ghost btn-icon" onclick="bulkToggleVisibility('expense', true)"  title="Show all"><i data-lucide="eye" class="w-4 h-4"></i></button>
+          <button class="btn btn-ghost btn-icon" onclick="bulkToggleVisibility('expense', false)" title="Hide all"><i data-lucide="eye-off" class="w-4 h-4"></i></button>
+          <button class="btn btn-ghost btn-icon" onclick="resetCategoryOrder('expense')"        title="Reset order"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
+          <button class="btn btn-primary" onclick="openSettingsAddCategory()"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add</button>
+        </div>
+      </div>
+      <div class="cat-table-scroll">
+        <table class="cat-table">
+          <thead>
+            <tr>
+              <th style="width:40px;"></th>
+              <th>Category</th>
+              <th>Group</th>
+              <th class="num">Budget Cap</th>
+              <th style="min-width:130px;">This Month</th>
+              <th class="num">Txns</th>
+              <th class="act">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="expenseCategoriesList"></tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/* ── 3b. Tabular renderer (replaces the card renderer) ── */
+function ewRenderCategoryTable(kind){
+  const listId = kind === 'portfolio' ? 'portfolioCategoriesList' : 'expenseCategoriesList';
+  const summaryId = kind === 'portfolio' ? 'portfolioCatSummary' : 'expenseCatSummary';
+  const tbody = document.getElementById(listId);
+  const summaryEl = document.getElementById(summaryId);
+  if(!tbody) return;
+
+  const src     = kind === 'portfolio' ? categoriesConfig : (expenseStore.categories || []);
+  const hidden  = appSettings.hiddenCategories[kind] || [];
+  const order   = appSettings.categoryOrder[kind]    || [];
+  const searchEl = document.getElementById(kind === 'portfolio' ? 'portfolioCatSearch' : 'expenseCatSearch');
+  const q = (searchEl?.value || '').toLowerCase().trim();
+
+  // Sort by user order, then by original order
+  const ordered = [...src].sort((a, b) => {
+    const ia = order.indexOf(a.key || a.id);
+    const ib = order.indexOf(b.key || b.id);
+    if(ia === -1 && ib === -1) return 0;
+    if(ia === -1) return 1;
+    if(ib === -1) return -1;
+    return ia - ib;
+  });
+
+  const filtered = q
+    ? ordered.filter(c =>
+        (c.label || '').toLowerCase().includes(q) ||
+        (c.key || c.id || '').toLowerCase().includes(q))
+    : ordered;
+
+  // Summary
+  if(summaryEl){
+    const visibleCount = ordered.filter(c => !hidden.includes(c.key || c.id)).length;
+    summaryEl.textContent = `${visibleCount} of ${ordered.length} visible · drag rows to reorder`;
+  }
+
+  if(filtered.length === 0){
+    const colCount = kind === 'portfolio' ? 8 : 7;
+    tbody.innerHTML = `<tr><td colspan="${colCount}" class="cat-table-empty">${
+      q
+        ? 'No categories match your search.'
+        : 'No categories yet. Click <b>Add</b> to create one.'
+    }</td></tr>`;
+    return;
+  }
+
+  const locked = !(typeof canManageCategories === 'function' ? canManageCategories() : true);
+
+  if(kind === 'portfolio'){
+    tbody.innerHTML = filtered.map(cat => renderPortfolioCatRow(cat, hidden, locked)).join('');
+  } else {
+    tbody.innerHTML = filtered.map(cat => renderExpenseCatRow(cat, hidden, locked)).join('');
+  }
+
+  // Bind drag/drop
+  bindCatRowDragDrop(kind, tbody);
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+  try{ applyPrivacyState(); }catch(_){}
+}
+
+function renderPortfolioCatRow(cat, hidden, locked){
+  const id = cat.key;
+  const isHidden = hidden.includes(id);
+  const color = cat.color || '#8B5CF6';
+  const emoji = (typeof categoryEmoji === 'function') ? categoryEmoji(cat) : '💼';
+
+  const taxLabels = { exempt:'Tax-Exempt', deferred:'Tax-Deferred', taxable:'Taxable', special:'Special' };
+  const tax = cat.type || 'taxable';
+
+  // Latest balance from current year
+  const latestRow = (typeof portfolioData !== 'undefined')
+    ? portfolioData.find(r => String(r.year) === (typeof currentYear === 'function' ? currentYear() : String(new Date().getFullYear())))
+    : null;
+  const bal = Number(latestRow?.balances?.[id] || 0);
+  const inv = Number(latestRow?.invested?.[id] || 0);
+  const gain = bal - inv;
+
+  const yearsWithData = (typeof portfolioData !== 'undefined')
+    ? portfolioData.filter(r =>
+        (r.balances?.[id] || 0) !== 0 ||
+        (r.invested?.[id] || 0) !== 0 ||
+        (r.contri?.[id] || 0) !== 0
+      ).length
+    : 0;
+
+  const linkedCount = (cat.linkedAccountIds || []).length;
+  const linkedCell = linkedCount > 0
+    ? `<span class="badge badge-emerald" style="font-size:.58rem;">${linkedCount} acct${linkedCount === 1 ? '' : 's'}</span>`
+    : `<span style="color:var(--text-4);font-size:10.5px;">—</span>`;
+
+  return `
+    <tr class="cat-row ${isHidden ? 'cat-hidden' : ''}"
+        draggable="true"
+        data-cat-id="${id}"
+        data-cat-kind="portfolio">
+      <td>
+        <span class="cat-tbl-handle" title="Drag to reorder"><i data-lucide="grip-vertical" class="w-4 h-4"></i></span>
+      </td>
+      <td>
+        <div class="cat-tbl-identity">
+          <span class="cat-tbl-emoji"
+                style="background:${color}1A;color:${color};border-color:${color}40;">
+            ${emoji}
+          </span>
+          <div class="cat-tbl-meta">
+            <div class="cat-tbl-name">${escapeHtml(cat.label)}</div>
+            <div class="cat-tbl-key">Key: ${escapeHtml(id)}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <span class="badge badge-violet" style="font-size:.56rem;">${taxLabels[tax] || 'Taxable'}</span>
+      </td>
+      <td class="num">${formatCurrency(bal, 0)}</td>
+      <td class="num ${gain >= 0 ? 'pos' : 'neg'}">${gain >= 0 ? '+' : ''}${formatCurrency(gain, 0)}</td>
+      <td class="num muted">${yearsWithData}</td>
+      <td class="num">${linkedCell}</td>
+      <td class="act">
+        <div class="cat-tbl-actions">
+          <button onclick="toggleCategoryVisibility('portfolio','${id}')" title="${isHidden ? 'Show' : 'Hide'}">
+            <i data-lucide="${isHidden ? 'eye-off' : 'eye'}" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="editSettingsCategory('portfolio','${id}')"
+                  title="${locked ? 'Edit requires Basic' : 'Edit'}"
+                  ${locked ? 'style="opacity:.55;"' : ''}>
+            <i data-lucide="${locked ? 'lock' : 'pencil'}" class="w-3.5 h-3.5"></i>
+          </button>
+          <button class="danger"
+                  onclick="deleteSettingsCategory('portfolio','${id}')"
+                  title="${locked ? 'Delete requires Basic' : 'Delete'}"
+                  ${locked ? 'style="opacity:.55;"' : ''}>
+            <i data-lucide="${locked ? 'lock' : 'trash-2'}" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+}
+
+function renderExpenseCatRow(cat, hidden, locked){
+  const id = cat.id;
+  const isHidden = hidden.includes(id);
+  const color = cat.color || '#8B5CF6';
+  const emoji = (typeof expenseEmoji === 'function') ? expenseEmoji(cat) : '🧾';
+
+  const limit = parseFloat(cat.limit) || 0;
+
+  // Spent this month
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const spentThisMonth = (expenseStore.transactions || [])
+    .filter(t => t.categoryId === id && (t.date || '').startsWith(monthKey))
+    .reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
+
+  const totalTxns = (expenseStore.transactions || [])
+    .filter(t => t.categoryId === id).length;
+
+  // Progress bar
+  let progressCell = `<span style="color:var(--text-4);font-size:10.5px;">—</span>`;
+  if(limit > 0){
+    const pct = Math.min(100, (spentThisMonth / limit) * 100);
+    const barColor = pct >= 100 ? '#BE123C' : pct >= 85 ? '#F59E0B' : '#10B981';
+    progressCell = `
+      <div class="cat-tbl-progress">
+        <div class="cat-tbl-progress-head">
+          <span>${formatCurrency(spentThisMonth, 0)}</span>
+          <span>${pct.toFixed(0)}%</span>
+        </div>
+        <div class="cat-tbl-progress-bar">
+          <div style="width:${pct}%;background:${barColor};"></div>
+        </div>
+      </div>`;
+  }
+
+  const group = (expenseStore.categoryGroups || []).find(g => g.id === cat.groupId);
+  const groupCell = group
+    ? `<span class="badge badge-blue" style="font-size:.56rem;">${group.emoji || ''} ${escapeHtml(group.name)}</span>`
+    : `<span style="color:var(--text-4);font-size:10.5px;">—</span>`;
+
+  const capCell = limit > 0
+    ? formatCurrency(limit, 0) + '<span style="color:var(--text-4);font-weight:600;font-size:10px;">/mo</span>'
+    : `<span style="color:var(--text-4);font-size:10.5px;">—</span>`;
+
+  return `
+    <tr class="cat-row ${isHidden ? 'cat-hidden' : ''}"
+        draggable="true"
+        data-cat-id="${id}"
+        data-cat-kind="expense">
+      <td>
+        <span class="cat-tbl-handle" title="Drag to reorder"><i data-lucide="grip-vertical" class="w-4 h-4"></i></span>
+      </td>
+      <td>
+        <div class="cat-tbl-identity">
+          <span class="cat-tbl-emoji"
+                style="background:${color}1A;color:${color};border-color:${color}40;">
+            ${emoji}
+          </span>
+          <div class="cat-tbl-meta">
+            <div class="cat-tbl-name">${escapeHtml(cat.label)}</div>
+            <div class="cat-tbl-key">ID: ${escapeHtml(id)}</div>
+          </div>
+        </div>
+      </td>
+      <td>${groupCell}</td>
+      <td class="num">${capCell}</td>
+      <td>${progressCell}</td>
+      <td class="num muted">${totalTxns}</td>
+      <td class="act">
+        <div class="cat-tbl-actions">
+          <button onclick="toggleCategoryVisibility('expense','${id}')" title="${isHidden ? 'Show' : 'Hide'}">
+            <i data-lucide="${isHidden ? 'eye-off' : 'eye'}" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="editSettingsCategory('expense','${id}')"
+                  title="${locked ? 'Edit requires Basic' : 'Edit'}"
+                  ${locked ? 'style="opacity:.55;"' : ''}>
+            <i data-lucide="${locked ? 'lock' : 'pencil'}" class="w-3.5 h-3.5"></i>
+          </button>
+          <button class="danger"
+                  onclick="deleteSettingsCategory('expense','${id}')"
+                  title="${locked ? 'Delete requires Basic' : 'Delete'}"
+                  ${locked ? 'style="opacity:.55;"' : ''}>
+            <i data-lucide="${locked ? 'lock' : 'trash-2'}" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+}
+
+/* ── 3c. Table-row drag and drop ── */
+let _catRowDragSrc = null;
+function bindCatRowDragDrop(kind, tbody){
+  tbody.querySelectorAll('.cat-row').forEach(row => {
+    row.addEventListener('dragstart', e => {
+      _catRowDragSrc = { id: row.dataset.catId, kind: row.dataset.catKind };
+      row.classList.add('dragging');
+      try{ e.dataTransfer.setData('text/plain', row.dataset.catId); }catch(_){}
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragover', e => {
+      if(!_catRowDragSrc || _catRowDragSrc.kind !== row.dataset.catKind) return;
+      if(_catRowDragSrc.id === row.dataset.catId) return;
+      e.preventDefault();
+      row.classList.add('drag-over');
+    });
+    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      if(!_catRowDragSrc || _catRowDragSrc.kind !== row.dataset.catKind) return;
+      if(typeof reorderSettingsCategory === 'function'){
+        reorderSettingsCategory(_catRowDragSrc.kind, _catRowDragSrc.id, row.dataset.catId);
+      }
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      _catRowDragSrc = null;
+    });
+  });
+}
+
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[c]));
+}
+
+/* ── 3d. Override the global renderer ── */
+window.renderSettingsCategoryList = ewRenderCategoryTable;
+
+// Also override `renderSettingsCategoryLists` so it re-populates both tables
+window.renderSettingsCategoryLists = function(){
+  try{
+    rebuildCategoriesPane();
+    ewRenderCategoryTable('portfolio');
+    ewRenderCategoryTable('expense');
+  }catch(e){ console.warn('[EW Fix Pack] category render', e); }
+};
+
+// Boot the pane rebuild once the DOM is ready
+function bootCategoryTable(){
+  try{
+    if(!document.querySelector('.settings-pane[data-pane="categories"]')) return;
+    rebuildCategoriesPane();
+    ewRenderCategoryTable('portfolio');
+    ewRenderCategoryTable('expense');
+  }catch(e){ console.warn('[EW Fix Pack] category boot', e); }
 }
 
 if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', () => setTimeout(boot, 3200));
+  document.addEventListener('DOMContentLoaded', () => setTimeout(bootCategoryTable, 400));
 } else {
-  setTimeout(boot, 3200);
+  setTimeout(bootCategoryTable, 400);
 }
-window.addEventListener('load', () => setTimeout(boot, 2000));
+window.addEventListener('load', () => setTimeout(bootCategoryTable, 900));
+setTimeout(bootCategoryTable, 2000);
+setTimeout(bootCategoryTable, 3500);
 
+// Re-render when the user enters the Categories settings section
+if(typeof window.switchSettingsSection === 'function' && !window.switchSettingsSection.__ewFix3){
+  const _origSwitch = window.switchSettingsSection;
+  const wrappedSwitch = function(id){
+    const r = _origSwitch.apply(this, arguments);
+    if(id === 'categories'){
+      setTimeout(() => {
+        rebuildCategoriesPane();
+        ewRenderCategoryTable('portfolio');
+        ewRenderCategoryTable('expense');
+      }, 60);
+    }
+    return r;
+  };
+  wrappedSwitch.__ewFix3 = true;
+  window.switchSettingsSection = wrappedSwitch;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FIX 5 — ONBOARDING ENHANCEMENTS
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 5a. Auto-scroll to tour targets ── */
+if(typeof window.renderTourStep === 'function' && !window.renderTourStep.__ewFix5){
+  const _origRender = window.renderTourStep;
+  // renderTourStep is a local function in the core module — wrap the
+  // exported startTour path instead by observing the tour tooltip.
+  const tipObserver = new MutationObserver(() => {
+    const tip = document.querySelector('.ew-tour-tip.show');
+    if(!tip) return;
+    // Find the associated target by looking at data attribute we set
+    const targetSel = tip.dataset.ewTarget;
+    if(!targetSel) return;
+    const el = document.querySelector(targetSel);
+    if(el && el.scrollIntoView){
+      try{
+        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+      }catch(_){}
+    }
+  });
+  tipObserver.observe(document.body, {
+    childList: true, subtree: true, attributes: true, attributeFilter: ['class']
+  });
+}
+
+/* ── 5b. Celebrate complete onboarding ── */
+let _ewOnboardingCelebrated = false;
+function checkOnboardingComplete(){
+  if(_ewOnboardingCelebrated) return;
+  try{
+    if(typeof getOnboardingSteps !== 'function') return;
+    const steps = getOnboardingSteps();
+    const done = steps.filter(s => s.done).length;
+    const total = steps.length;
+    if(done === total && total > 0){
+      _ewOnboardingCelebrated = true;
+      setTimeout(() => {
+        try{
+          if(typeof pushNotification === 'function'){
+            pushNotification({
+              title: '🎉 Workspace ready',
+              message: 'Every setup step is complete. You now have the full picture.',
+              type: 'success',
+              action: { label: 'View dashboard', handler: "switchMainTab(null,'tab-dashboard',true)" }
+            });
+          }
+          if(typeof toast === 'function'){
+            toast('🎉 Workspace setup complete!', 'success', 5000);
+          }
+          // Auto-dismiss the checklist after a few seconds
+          setTimeout(() => {
+            try{
+              if(typeof dismissGettingStarted === 'function'){
+                dismissGettingStarted();
+              }
+            }catch(_){}
+          }, 3200);
+        }catch(_){}
+      }, 400);
+    }
+  }catch(_){}
+}
+
+// Wrap refreshOnboarding so we can trigger the celebration
+if(typeof window.refreshOnboarding === 'function' && !window.refreshOnboarding.__ewFix5){
+  const _origRefresh = window.refreshOnboarding;
+  const wrappedRefresh = function(){
+    const r = _origRefresh.apply(this, arguments);
+    setTimeout(checkOnboardingComplete, 300);
+    return r;
+  };
+  wrappedRefresh.__ewFix5 = true;
+  window.refreshOnboarding = wrappedRefresh;
+}
+setTimeout(checkOnboardingComplete, 3000);
+setTimeout(checkOnboardingComplete, 6000);
+
+/* ═══════════════════════════════════════════════════════════
+   POST-BOOT — re-apply category tables after any tab switch
+   ═══════════════════════════════════════════════════════════ */
+if(typeof window.switchMainTab === 'function' && !window.switchMainTab.__ewFix3){
+  const _origTab = window.switchMainTab;
+  const wrappedTab = function(event, tabId, scrollTop){
+    const r = _origTab.apply(this, arguments);
+    if(tabId === 'tab-settings'){
+      setTimeout(() => {
+        const pane = document.querySelector('.settings-pane[data-pane="categories"].active');
+        if(pane){
+          rebuildCategoriesPane();
+          ewRenderCategoryTable('portfolio');
+          ewRenderCategoryTable('expense');
+        }
+      }, 240);
+    }
+    return r;
+  };
+  wrappedTab.__ewFix3 = true;
+  window.switchMainTab = wrappedTab;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DONE
+   ═══════════════════════════════════════════════════════════ */
+console.log(
+  '%c[EW Fix Pack] ready · demo session · expense gating · portfolio defaults · demo auto-seed · tabular categories · onboarding celebration',
+  'color:#10B981;font-weight:700;'
+);
+
+})();
+</script>
+<script id="ew-newuser-fresh-start">
+(function(){
+'use strict';
+console.log('%c[EW Fresh Start] loading — new users get an empty workspace',
+  'color:#10B981;font-weight:700;');
+
+/* ═══════════════════════════════════════════════════════════════════
+   Helpers
+   ═══════════════════════════════════════════════════════════════════ */
+function isDemoSession(){
+  try{
+    if(typeof authState !== 'undefined' && authState?.user?.email === 'demo@execwealth.local'){
+      return true;
+    }
+    if(typeof ewSandboxIsActive === 'function' && ewSandboxIsActive()) return true;
+  }catch(_){}
+  return false;
+}
+
+function isNewUserSession(){
+  if(isDemoSession()) return false;
+  try{
+    if(typeof authState === 'undefined') return true;
+    if(!authState.user) return true;
+    return false;
+  }catch(_){ return true; }
+}
+
+/* Detect whether the user has ever set anything up. If not → fresh. */
+function userHasMeaningfulData(){
+  try{
+    // Accounts
+    const manual = (accountsStore.manual || []).filter(a =>
+      a && a.name && Number(a.balance) !== 0
+    );
+    const linked = (accountsStore.linked || []);
+    const plaidTx = (accountsStore.plaidTransactions || []);
+    if(manual.length || linked.length || plaidTx.length) return true;
+
+    // Expense transactions or non-zero budget
+    const tx = (expenseStore.transactions || []);
+    const budget = parseFloat(expenseStore.monthlyBudget) || 0;
+    if(tx.length || budget > 0) return true;
+
+    // Portfolio with any non-zero value
+    const hasPortfolio = (portfolioData || []).some(r =>
+      Object.values(r.balances || {}).some(v => Number(v) !== 0) ||
+      Object.values(r.invested || {}).some(v => Number(v) !== 0) ||
+      Object.values(r.contri   || {}).some(v => Number(v) !== 0)
+    );
+    if(hasPortfolio) return true;
+
+    // Goals
+    if((DB && DB.goals && DB.goals.length)) return true;
+  }catch(_){}
+  return false;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   1) PORTFOLIO — never load bundled sample JSON for new users
+      Only load the user's own GitHub file if a token is set.
+   ═══════════════════════════════════════════════════════════════════ */
+window.loadDataFromJSON = async function(){
+  // ── A. Real user, GitHub token present → load their own file ──
+  const handle = (typeof getUserHandle === 'function') ? getUserHandle() : 'guest';
+  const hasToken = (typeof canCommitToGitHub === 'function') && canCommitToGitHub();
+
+  if(handle && handle !== 'guest' && hasToken){
+    try{
+      const path = `data/${handle}/portfolio-data.json`;
+      const url  = `https://raw.githubusercontent.com/${GITHUB_CONFIG.OWNER}/${GITHUB_CONFIG.REPO}/main/${path}?t=${Date.now()}`;
+      const r = await fetch(url, { headers: { 'Cache-Control': 'no-cache' } });
+      if(r.ok){
+        const d = await r.json();
+        if(typeof applyPortfolioPayload === 'function') applyPortfolioPayload(d);
+        if(typeof initDashboard === 'function') initDashboard();
+        return;
+      }
+    }catch(_){}
+  }
+
+  // ── B. Local cache from a previous session ──
+  try{
+    const stored = localStorage.getItem('categoryPortfolioData');
+    if(stored){
+      const parsed = JSON.parse(stored);
+      if(Array.isArray(parsed) && parsed.length){
+        const anyValue = parsed.some(r =>
+          Object.values(r.balances || {}).some(v => Number(v) !== 0) ||
+          Object.values(r.invested || {}).some(v => Number(v) !== 0) ||
+          Object.values(r.contri   || {}).some(v => Number(v) !== 0)
+        );
+        if(anyValue){
+          portfolioData = parsed;
+          if(typeof normalizePortfolioYears === 'function') normalizePortfolioYears();
+          if(typeof sortPortfolioByYear === 'function')     sortPortfolioByYear();
+          if(typeof ensureDefaultCategoriesAndLimits === 'function') ensureDefaultCategoriesAndLimits();
+          if(typeof initDashboard === 'function') initDashboard();
+          return;
+        }
+      }
+    }
+  }catch(_){}
+
+  // ── C. Demo / sandbox → load bundled portfolio-data.json ──
+  if(isDemoSession()){
+    try{
+      const r = await fetch(`./portfolio-data.json?t=${Date.now()}`,
+        { headers: { 'Cache-Control': 'no-cache' } });
+      if(r.ok){
+        const d = await r.json();
+        if(typeof applyPortfolioPayload === 'function') applyPortfolioPayload(d);
+        if(typeof initDashboard === 'function') initDashboard();
+        return;
+      }
+    }catch(_){}
+  }
+
+  // ── D. Brand-new user → empty workspace with one zeroed year ──
+  if(typeof seedFreshPortfolio === 'function'){
+    seedFreshPortfolio();
+  } else {
+    // Fallback: minimal empty row
+    const cy = String(new Date().getFullYear());
+    portfolioData = [{ year: cy, salary: 0, balances: {}, invested: {}, contri: { employer:0, user:0, rollover:0 } }];
+    if(Array.isArray(categoriesConfig)){
+      categoriesConfig.forEach(c => {
+        portfolioData[0].balances[c.key] = 0;
+        portfolioData[0].invested[c.key] = 0;
+        portfolioData[0].contri[c.key]   = 0;
+      });
+    }
+    try{
+      localStorage.setItem('categoryPortfolioData', JSON.stringify(portfolioData));
+    }catch(_){}
+  }
+  if(typeof initDashboard === 'function') initDashboard();
+  if(typeof renderSaveChip === 'function') renderSaveChip('ready');
+  if(typeof updatePortfolioDataStatus === 'function') updatePortfolioDataStatus();
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   2) EXPENSES — never load bundled expense_tracker_data.json
+      for real users. Seed empty defaults.
+   ═══════════════════════════════════════════════════════════════════ */
+const FRESH_EXPENSE_GROUPS = [
+  { id:'grp_essentials', name:'Essentials', emoji:'🏠', color:'#3B82F6', collapsed:false },
+  { id:'grp_lifestyle',  name:'Lifestyle',  emoji:'✨', color:'#EC4899', collapsed:false },
+  { id:'grp_financial',  name:'Financial',  emoji:'💼', color:'#10B981', collapsed:false },
+  { id:'grp_other',      name:'Other',      emoji:'📦', color:'#71717A', collapsed:false }
+];
+const FRESH_EXPENSE_CATEGORIES = [
+  { id:'cat_grocer',    label:'Groceries',     color:'#10B981', emoji:'🛒', limit:0, groupId:'grp_essentials' },
+  { id:'cat_dining',    label:'Dining',        color:'#F97316', emoji:'🍽️', limit:0, groupId:'grp_lifestyle'  },
+  { id:'cat_housing',   label:'Housing',       color:'#F59E0B', emoji:'🏠', limit:0, groupId:'grp_essentials' },
+  { id:'cat_utilities', label:'Utilities',     color:'#8B5CF6', emoji:'💡', limit:0, groupId:'grp_essentials' },
+  { id:'cat_transport', label:'Transport',     color:'#3B82F6', emoji:'🚗', limit:0, groupId:'grp_essentials' },
+  { id:'cat_shopping',  label:'Shopping',      color:'#EC4899', emoji:'🛍️', limit:0, groupId:'grp_lifestyle'  },
+  { id:'cat_health',    label:'Health',        color:'#06B6D4', emoji:'🩺', limit:0, groupId:'grp_essentials' },
+  { id:'cat_entertain', label:'Entertainment', color:'#A855F7', emoji:'🎬', limit:0, groupId:'grp_lifestyle'  }
+];
+
+window.loadExpenseDataFromJSON = async function(){
+  // ── A. Real user, GitHub token → load their own file ──
+  const handle   = (typeof getUserHandle === 'function') ? getUserHandle() : 'guest';
+  const hasToken = (typeof canCommitToGitHub === 'function') && canCommitToGitHub();
+
+  if(handle && handle !== 'guest' && hasToken && !isDemoSession()){
+    try{
+      const path = `data/${handle}/expense_tracker_data.json`;
+      const url  = `https://raw.githubusercontent.com/${GITHUB_CONFIG.OWNER}/${GITHUB_CONFIG.REPO}/main/${path}?t=${Date.now()}`;
+      const r = await fetch(url, { headers: { 'Cache-Control': 'no-cache' } });
+      if(r.ok){
+        const j = await r.json();
+        applyExpensePayload(j);
+        return finalize('github');
+      }
+    }catch(_){}
+  }
+
+  // ── B. Local cache ──
+  try{
+    const stored = localStorage.getItem('expense_tracker_data');
+    if(stored){
+      const p = JSON.parse(stored);
+      const meaningful = p && (
+        (Array.isArray(p.categories)    && p.categories.length   > 0) ||
+        (Array.isArray(p.transactions)  && p.transactions.length > 0) ||
+        (Number(p.monthlyBudget) || 0)  > 0
+      );
+      if(meaningful){
+        applyExpensePayload(p);
+        return finalize('localStorage');
+      }
+    }
+  }catch(_){}
+
+  // ── C. Demo / sandbox → bundled sample ──
+  if(isDemoSession()){
+    try{
+      const r = await fetch(`./expense_tracker_data.json?t=${Date.now()}`,
+        { headers: { 'Cache-Control': 'no-cache' } });
+      if(r.ok){
+        const j = await r.json();
+        applyExpensePayload(j);
+        return finalize('demo-json');
+      }
+    }catch(_){}
+  }
+
+  // ── D. Brand-new real user → truly empty store ──
+  expenseStore = {
+    selectedCurrency: 'USD',
+    monthlyBudget: 0,
+    categories: JSON.parse(JSON.stringify(FRESH_EXPENSE_CATEGORIES)),
+    cards: [],
+    transactions: [],
+    categoryGroups: JSON.parse(JSON.stringify(FRESH_EXPENSE_GROUPS))
+  };
+  try{
+    localStorage.setItem('expense_tracker_data', JSON.stringify(expenseStore));
+  }catch(_){}
+  finalize('seeded-empty');
+
+  function applyExpensePayload(j){
+    expenseStore = {
+      selectedCurrency: j.selectedCurrency || 'USD',
+      monthlyBudget: j.monthlyBudget || 0,
+      categories: Array.isArray(j.categories)      ? j.categories      : [],
+      cards: Array.isArray(j.cards)                ? j.cards           : [],
+      transactions: Array.isArray(j.transactions)  ? j.transactions    : [],
+      categoryGroups: Array.isArray(j.categoryGroups) ? j.categoryGroups : []
+    };
+    if(expenseStore.selectedCurrency) currentCurrency = expenseStore.selectedCurrency;
+    if(!expenseStore.categoryGroups.length){
+      expenseStore.categoryGroups = JSON.parse(JSON.stringify(FRESH_EXPENSE_GROUPS));
+    }
+    try{
+      localStorage.setItem('expense_tracker_data', JSON.stringify(expenseStore));
+    }catch(_){}
+  }
+
+  function finalize(source){
+    try{ if(typeof updateCurrencyLabels === 'function') updateCurrencyLabels(); }catch(_){}
+    const dEl = document.getElementById('txDate');
+    if(dEl) dEl.value = new Date().toISOString().split('T')[0];
+    try{ if(typeof populateFormDropdowns === 'function') populateFormDropdowns(); }catch(_){}
+    try{ if(typeof renderBudgetTab === 'function') renderBudgetTab(); }catch(_){}
+    const skel = document.getElementById('skeletonOverlay');
+    if(skel){ skel.style.opacity = '0'; setTimeout(() => skel.remove(), 300); }
+    console.log(`[EW Fresh Start] expense store loaded from: ${source}`);
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   3) ACCOUNTS — never load bundled accounts_data.json for real users
+   ═══════════════════════════════════════════════════════════════════ */
+window.loadAccountsData = async function(){
+  // ── A. Real user, GitHub token → load their own file ──
+  const handle   = (typeof getUserHandle === 'function') ? getUserHandle() : 'guest';
+  const hasToken = (typeof canCommitToGitHub === 'function') && canCommitToGitHub();
+
+  if(handle && handle !== 'guest' && hasToken && !isDemoSession()){
+    try{
+      const path = `data/${handle}/accounts_data.json`;
+      const url  = `https://raw.githubusercontent.com/${GITHUB_CONFIG.OWNER}/${GITHUB_CONFIG.REPO}/main/${path}?t=${Date.now()}`;
+      const r = await fetch(url, { headers: { 'Cache-Control': 'no-cache' } });
+      if(r.ok){
+        const j = await r.json();
+        accountsStore = {
+          linked: [],
+          manual: Array.isArray(j.manual) ? j.manual : [],
+          lastSync: null,
+          selectedCurrency: j.selectedCurrency || 'USD',
+          plaidTransactions: [],
+          plaidMappings: j.plaidMappings || {},
+          merchantRules: j.merchantRules || {}
+        };
+        try{ localStorage.setItem('accounts_data', JSON.stringify(accountsStore)); }catch(_){}
+        return finalizeAccounts();
+      }
+    }catch(_){}
+  }
+
+  // ── B. Local cache ──
+  try{
+    const stored = localStorage.getItem('accounts_data');
+    if(stored){
+      const p = JSON.parse(stored);
+      const meaningful = p && (
+        (Array.isArray(p.manual) && p.manual.length > 0) ||
+        (Array.isArray(p.linked) && p.linked.length > 0) ||
+        (Array.isArray(p.plaidTransactions) && p.plaidTransactions.length > 0)
+      );
+      if(meaningful){
+        accountsStore = {
+          linked: [],
+          manual: p.manual || [],
+          lastSync: null,
+          selectedCurrency: p.selectedCurrency || 'USD',
+          plaidTransactions: [],
+          plaidMappings: p.plaidMappings || {},
+          merchantRules: p.merchantRules || {}
+        };
+        return finalizeAccounts();
+      }
+    }
+  }catch(_){}
+
+  // ── C. Demo / sandbox → bundled sample ──
+  if(isDemoSession()){
+    try{
+      const r = await fetch(`./accounts_data.json?t=${Date.now()}`,
+        { headers: { 'Cache-Control': 'no-cache' } });
+      if(r.ok){
+        const j = await r.json();
+        accountsStore = {
+          linked: [],
+          manual: Array.isArray(j.manual) ? j.manual : [],
+          lastSync: null,
+          selectedCurrency: j.selectedCurrency || 'USD',
+          plaidTransactions: [],
+          plaidMappings: j.plaidMappings || {},
+          merchantRules: j.merchantRules || {}
+        };
+        return finalizeAccounts();
+      }
+    }catch(_){}
+  }
+
+  // ── D. Brand-new real user → truly empty accounts store ──
+  accountsStore = {
+    linked: [],
+    manual: [],
+    lastSync: null,
+    selectedCurrency: 'USD',
+    plaidTransactions: [],
+    plaidMappings: {},
+    merchantRules: {}
+  };
+  try{
+    localStorage.setItem('accounts_data', JSON.stringify(accountsStore));
+  }catch(_){}
+  finalizeAccounts();
+
+  function finalizeAccounts(){
+    accountsStore.linked = [];
+    accountsStore.plaidTransactions = [];
+    accountsStore.lastSync = null;
+    try{ if(typeof ensurePlaidCategoriesExist === 'function') ensurePlaidCategoriesExist(); }catch(_){}
+    try{ if(typeof renderAccounts === 'function') renderAccounts(); }catch(_){}
+    try{ if(typeof applyAccountMappings === 'function') applyAccountMappings(); }catch(_){}
+    try{ if(typeof pruneDeadCategoryLinks === 'function') pruneDeadCategoryLinks(); }catch(_){}
+    try{ if(typeof applyCategoryAccountLinks === 'function') applyCategoryAccountLinks(); }catch(_){}
+    try{ if(typeof renderTransactions === 'function') renderTransactions(); }catch(_){}
+    try{ if(typeof updateNavBadges === 'function') updateNavBadges(); }catch(_){}
+    try{ if(typeof dashRender === 'function') dashRender(); }catch(_){}
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   4) UI — hide "Import Default Data" button for new users,
+          hide import CTA from Portfolio header.
+   ═══════════════════════════════════════════════════════════════════ */
+function hideImportDefaultUIForNewUsers(){
+  if(isDemoSession()) return;
+
+  // Hide the "Import Default Data" button in the Portfolio header
+  const importBtn = document.getElementById('importDefaultBtn');
+  if(importBtn) importBtn.style.display = 'none';
+
+  // Hide the "Clear" button too (nothing to clear yet for a brand-new user)
+  const clearBtn = importBtn?.parentElement?.querySelector('button[onclick="clearPortfolioData()"]');
+  if(clearBtn && !userHasMeaningfulData()) clearBtn.style.display = 'none';
+
+  // Update the empty-state text
+  const statusText = document.getElementById('portfolioDataStatusText');
+  if(statusText && !userHasMeaningfulData()){
+    statusText.textContent = 'Add your first year to start tracking — or use the ledger to enter balances manually.';
+  }
+
+  // Update the "Add a Year" empty-state copy
+  document.querySelectorAll('#comparisonTable tbody td').forEach(el => {
+    if(/Import default data/i.test(el.textContent || '')){
+      el.textContent = '';
+    }
+  });
+
+  // Command palette — remove the "Import Default Portfolio" action
+  if(typeof window.buildCommandItems === 'function' && !window.buildCommandItems.__ewFresh){
+    const _orig = window.buildCommandItems;
+    const wrapped = function(){
+      const items = _orig.apply(this, arguments) || [];
+      return items.filter(i =>
+        i.id !== 'act-import-default'
+      );
+    };
+    wrapped.__ewFresh = true;
+    window.buildCommandItems = wrapped;
+  }
+}
+
+/* Run on boot + on every tab switch + on every dashboard render */
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(hideImportDefaultUIForNewUsers, 400);
+  setTimeout(hideImportDefaultUIForNewUsers, 1200);
+});
+window.addEventListener('load', () => {
+  setTimeout(hideImportDefaultUIForNewUsers, 300);
+  setTimeout(hideImportDefaultUIForNewUsers, 900);
+});
+setTimeout(hideImportDefaultUIForNewUsers, 1800);
+
+// Wrap switchMainTab to keep the UI stripped after every nav
+if(typeof window.switchMainTab === 'function' && !window.switchMainTab.__ewFresh){
+  const _origSwitch = window.switchMainTab;
+  const wrappedSwitch = function(){
+    const r = _origSwitch.apply(this, arguments);
+    setTimeout(hideImportDefaultUIForNewUsers, 200);
+    return r;
+  };
+  wrappedSwitch.__ewFresh = true;
+  window.switchMainTab = wrappedSwitch;
+}
+
+// Watch for the dashboard to re-render and strip the CTA
+const _uiWatch = new MutationObserver(() => {
+  if(isDemoSession()) return;
+  const importBtn = document.getElementById('importDefaultBtn');
+  if(importBtn && importBtn.style.display !== 'none'){
+    importBtn.style.display = 'none';
+  }
+});
+_uiWatch.observe(document.body, { childList: true, subtree: true });
+
+/* ═══════════════════════════════════════════════════════════════════
+   5) ONBOARDING — rewrite the portfolio step so it doesn't
+      suggest importing sample data.
+   ═══════════════════════════════════════════════════════════════════ */
+if(typeof window.getOnboardingSteps === 'function' && !window.getOnboardingSteps.__ewFresh){
+  const _orig = window.getOnboardingSteps;
+  const wrapped = function(){
+    const steps = _orig.apply(this, arguments) || [];
+    return steps.map(s => {
+      if(s.key === 'portfolio'){
+        return {
+          ...s,
+          label: 'Add your first year',
+          desc:  'Add a year manually, or open the ledger',
+          action: "switchMainTab(null,'tab-overview',true)"
+        };
+      }
+      if(s.key === 'accounts'){
+        return {
+          ...s,
+          label: 'Add your first account',
+          desc:  'Track a bank, investment, or credit account manually',
+          action: "switchMainTab(null,'tab-accounts',true)"
+        };
+      }
+      if(s.key === 'tx'){
+        return {
+          ...s,
+          label: 'Log your first transaction',
+          desc:  'Enter a purchase or income manually',
+          action: "switchMainTab(null,'tab-transactions',true)"
+        };
+      }
+      return s;
+    });
+  };
+  wrapped.__ewFresh = true;
+  window.getOnboardingSteps = wrapped;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   6) SANITY — after boot, if it's a real new user and somehow
+      something got loaded, wipe it back to a clean slate.
+   ═══════════════════════════════════════════════════════════════════ */
+setTimeout(() => {
+  if(isDemoSession()) return;
+  if(userHasMeaningfulData()) return;
+
+  // Ensure empty stores
+  try{
+    if(!Array.isArray(accountsStore.manual)) accountsStore.manual = [];
+    if(!Array.isArray(accountsStore.linked)) accountsStore.linked = [];
+    if(!Array.isArray(accountsStore.plaidTransactions)) accountsStore.plaidTransactions = [];
+
+    if(!Array.isArray(expenseStore.transactions)) expenseStore.transactions = [];
+    if(!Array.isArray(expenseStore.categories) || expenseStore.categories.length === 0){
+      expenseStore.categories = JSON.parse(JSON.stringify(FRESH_EXPENSE_CATEGORIES));
+    }
+    if(!Array.isArray(expenseStore.categoryGroups) || expenseStore.categoryGroups.length === 0){
+      expenseStore.categoryGroups = JSON.parse(JSON.stringify(FRESH_EXPENSE_GROUPS));
+    }
+
+    try{ localStorage.setItem('accounts_data', JSON.stringify(accountsStore)); }catch(_){}
+    try{ localStorage.setItem('expense_tracker_data', JSON.stringify(expenseStore)); }catch(_){}
+  }catch(e){
+    console.warn('[EW Fresh Start] sanity pass', e);
+  }
+
+  // Refresh visible UI to reflect empty state
+  try{ if(typeof renderAccounts === 'function') renderAccounts(); }catch(_){}
+  try{ if(typeof renderTransactions === 'function') renderTransactions(); }catch(_){}
+  try{ if(typeof renderBudgetTab === 'function') renderBudgetTab(); }catch(_){}
+  try{ if(typeof dashRender === 'function') dashRender(); }catch(_){}
+  try{ if(typeof updatePortfolioDataStatus === 'function') updatePortfolioDataStatus(); }catch(_){}
+}, 2600);
+
+console.log('%c[EW Fresh Start] ready — new users get a truly empty workspace',
+  'color:#10B981;font-weight:700;');
 })();
 </script>
 </body>
