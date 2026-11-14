@@ -34,17 +34,26 @@ export const AuthProvider = ({ children }) => {
   );
 
   useEffect(() => {
+    // Safety timeout — never let loading hang more than 4 seconds
+    const timeout = setTimeout(() => setLoading(false), 4000);
+
     if (isCloudAuthAvailable && supabase) {
       // 1. Get initial session from Supabase
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user) {
-          setSession(session);
-          setUser(session.user);
-          localStorage.setItem('ew_auth_session', JSON.stringify(session));
-          localStorage.setItem('ew_auth_user', JSON.stringify(session.user));
-        }
-        setLoading(false);
-      });
+      supabase.auth.getSession()
+        .then(({ data: { session } }) => {
+          clearTimeout(timeout);
+          if (session?.user) {
+            setSession(session);
+            setUser(session.user);
+            localStorage.setItem('ew_auth_session', JSON.stringify(session));
+            localStorage.setItem('ew_auth_user', JSON.stringify(session.user));
+          }
+          setLoading(false);
+        })
+        .catch(() => {
+          clearTimeout(timeout);
+          setLoading(false);
+        });
 
       // 2. Listen for auth changes
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -62,8 +71,12 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       });
 
-      return () => subscription.unsubscribe();
+      return () => {
+        clearTimeout(timeout);
+        subscription.unsubscribe();
+      };
     } else {
+      clearTimeout(timeout);
       setLoading(false);
     }
   }, [isCloudAuthAvailable]);

@@ -29,8 +29,14 @@ export const App = () => {
   const { currentTab } = useApp();
   const { loading } = useAuth();
 
-  // Show spinner while auth initializes (prevents blank flash)
-  if (loading) {
+  // Show spinner while auth initializes — but cap at 5s to never block the UI
+  const [forceShow, setForceShow] = React.useState(false);
+  React.useEffect(() => {
+    const t = setTimeout(() => setForceShow(true), 5000);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (loading && !forceShow) {
     return (
       <div style={{
         minHeight: '100vh', display: 'flex', flexDirection: 'column',
