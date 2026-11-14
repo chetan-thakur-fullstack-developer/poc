@@ -1,0 +1,197 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --app-bg: #0B1120;
+  --app-bg-2: #0F172A;
+  --surface: #111C2E;
+  --surface-2: #172033;
+  --surface-3: #1E293B;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-hover: rgba(255, 255, 255, 0.22);
+  --text-1: #F8FAFC;
+  --text-2: #94A3B8;
+  --text-3: #64748B;
+  --text-4: #475569;
+  --accent: #10B981;
+  --accent-2: #059669;
+  --accent-3: #3B82F6;
+  --success: #10B981;
+  --warn: #F59E0B;
+  --danger: #FB7185;
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-lift: 0 10px 34px -14px rgba(0, 0, 0, 0.8);
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-sm: 8px;
+}
+
+html.light {
+  --app-bg: #F1F1F4;
+  --app-bg-2: #E8E8EC;
+  --surface: #FFFFFF;
+  --surface-2: #F6F6F9;
+  --surface-3: #EBEBEF;
+  --border: rgba(15, 23, 42, 0.10);
+  --border-strong: rgba(15, 23, 42, 0.16);
+  --border-hover: rgba(15, 23, 42, 0.28);
+  --text-1: #0B1220;
+  --text-2: #334155;
+  --text-3: #475569;
+  --text-4: #64748B;
+  --shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-lift: 0 12px 32px -14px rgba(15, 23, 42, 0.18);
+}
+
+html.glass-theme {
+  --app-bg: #080A10;
+  --app-bg-2: #0D111A;
+  --surface: rgba(20, 25, 35, 0.55);
+  --surface-2: rgba(30, 35, 50, 0.65);
+  --surface-3: rgba(40, 45, 60, 0.75);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-hover: rgba(255, 255, 255, 0.25);
+  --text-1: #FFFFFF;
+  --text-2: #A1A1AA;
+  --text-3: #71717A;
+  --text-4: #52525B;
+  --accent: #8B5CF6;
+  --accent-2: #EC4899;
+  --accent-3: #3B82F6;
+  --shadow-lift: 0 20px 40px -18px rgba(0, 0, 0, 0.7), 0 0 24px rgba(139, 92, 246, 0.12);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--app-bg);
+  color: var(--text-1);
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Background Aurora Mesh */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(1100px 550px at 12% -8%, rgba(16, 185, 129, 0.07), transparent 55%),
+              radial-gradient(800px 450px at 100% 0%, rgba(59, 130, 246, 0.05), transparent 55%);
+}
+
+html.light body::before {
+  background: radial-gradient(1100px 550px at 12% -8%, rgba(139, 92, 246, 0.08), transparent 55%),
+              radial-gradient(800px 450px at 100% 0%, rgba(16, 185, 129, 0.05), transparent 55%);
+}
+
+html.glass-theme body::before {
+  background: radial-gradient(900px 650px at 8% -8%, rgba(59, 130, 246, 0.16), transparent 60%),
+              radial-gradient(800px 550px at 95% 5%, rgba(139, 92, 246, 0.14), transparent 60%),
+              radial-gradient(750px 600px at 90% 100%, rgba(16, 185, 129, 0.10), transparent 60%);
+}
+
+/* Glass & Card Utilities */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+}
+
+.card-inner {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  color: #FFFFFF;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px -3px rgba(16, 185, 129, 0.4);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  color: var(--text-1);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--surface-3);
+  border-color: var(--border-hover);
+}
+
+.input-field {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.35);
+}
