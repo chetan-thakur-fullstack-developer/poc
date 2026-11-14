@@ -16,7 +16,9 @@ export const SettingsTab = () => {
     syncToCloud,
     isSyncing,
     lastSyncTime,
-    showToast
+    showToast,
+    loadDemoTemplate,
+    resetToCleanWorkspace
   } = useApp();
 
   const { user } = useAuth();
@@ -240,6 +242,56 @@ export const SettingsTab = () => {
           >
             📥 Export All Data (JSON)
           </button>
+        </div>
+      </div>
+
+      {/* Workspace Data Separation: Real User vs Demo */}
+      <div className="card p-5 space-y-4 border-amber-500/20">
+        <div>
+          <h3 className="font-bold text-sm text-[var(--text-1)]">Workspace Data Separation</h3>
+          <p className="text-xs text-[var(--text-3)]">
+            Keep real personal financial data completely separate from demo test records.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div className="card-inner p-4 flex flex-col justify-between space-y-3">
+            <div>
+              <h4 className="font-bold text-xs text-[var(--text-1)]">Start Clean Workspace</h4>
+              <p className="text-[11px] text-[var(--text-3)] mt-0.5">
+                Clears all sample cards, demo transactions, and resets account balances to 0 for your actual numbers.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                if (confirm('Reset workspace to an empty clean slate for your actual data?')) {
+                  resetToCleanWorkspace();
+                }
+              }}
+              className="btn-secondary text-xs py-2 w-full text-rose-400 hover:text-rose-300 border-rose-500/30"
+            >
+              🧹 Start Clean Slate (0 Accounts / 0 Transactions)
+            </button>
+          </div>
+
+          <div className="card-inner p-4 flex flex-col justify-between space-y-3">
+            <div>
+              <h4 className="font-bold text-xs text-[var(--text-1)]">Load Demo Sandbox Template</h4>
+              <p className="text-[11px] text-[var(--text-3)] mt-0.5">
+                Populates sample Chase, Fidelity, Vanguard accounts, and dummy transactions to test features.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                if (confirm('Load sample dummy data into workspace to preview features?')) {
+                  loadDemoTemplate();
+                }
+              }}
+              className="btn-secondary text-xs py-2 w-full text-emerald-400 hover:text-emerald-300 border-emerald-500/30"
+            >
+              📊 Load Sample Demo Data
+            </button>
+          </div>
         </div>
       </div>
     </div>

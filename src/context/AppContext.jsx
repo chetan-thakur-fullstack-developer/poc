@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { initialPortfolioData } from '../data/initialPortfolio.js';
-import { initialAccountsData } from '../data/initialAccounts.js';
-import { initialExpensesData } from '../data/initialExpenses.js';
+import { initialPortfolioData, getCleanPortfolio } from '../data/initialPortfolio.js';
+import { initialAccountsData, getCleanAccounts } from '../data/initialAccounts.js';
+import { initialExpensesData, getCleanExpenses } from '../data/initialExpenses.js';
 import { useAuth } from './AuthContext.jsx';
 import { api } from '../services/api.js';
 import { isSupabaseConfigured, supabase } from '../services/supabase.js';
@@ -18,7 +18,7 @@ export const CURRENCY_SYMBOLS = {
 };
 
 export const AppProvider = ({ children }) => {
-  const { user, session } = useAuth();
+  const { user, session, isDemoUser } = useAuth();
 
   // 1. Theme State
   const [theme, setTheme] = useState(() => {
@@ -54,31 +54,181 @@ export const AppProvider = ({ children }) => {
     })}`;
   };
 
+  // User storage key prefixes (separating real user from demo account)
+  const getStoragePrefix = () => isDemoUser ? 'ew_demo_' : `ew_user_${user?.id || 'real'}_`;
+
   // 4. Portfolio State
   const [portfolioData, setPortfolioData] = useState(() => {
-    const saved = localStorage.getItem('ew_portfolio_data');
-    return saved ? JSON.parse(saved) : initialPortfolioData;
+    if (isDemoUser) {
+      const saved = localStorage.getItem('ew_demo_portfolio');
+      return saved ? JSON.parse(saved) : initialPortfolioData;
+    }
+    const saved = localStorage.getItem(`ew_user_${user?.id}_portfolio`);
+    return saved ? JSON.parse(saved) : getCleanPortfolio();
   });
 
   // 5. Accounts State
   const [accountsData, setAccountsData] = useState(() => {
-    const saved = localStorage.getItem('ew_accounts_data');
-    return saved ? JSON.parse(saved) : initialAccountsData;
+    if (isDemoUser) {
+      const saved = localStorage.getItem('ew_demo_accounts');
+      return saved ? JSON.parse(saved) : initialAccountsData;
+    }
+    const saved = localStorage.getItem(`ew_user_${user?.id}_accounts`);
+    return saved ? JSON.parse(saved) : getCleanAccounts();
   });
 
   // 6. Expenses State
   const [expensesData, setExpensesData] = useState(() => {
-    const saved = localStorage.getItem('ew_expenses_data');
-    return saved ? JSON.parse(saved) : initialExpensesData;
+    if (isDemoUser) {
+      const saved = localStorage.getItem('ew_demo_expenses');
+      return saved ? JSON.parse(saved) : initialExpensesData;
+    }
+    const saved = localStorage.getItem(`ew_user_${user?.id}_expenses`);
+    return saved ? JSON.parse(saved) : getCleanExpenses();
   });
 
   // 7. Transactions State
   const [transactions, setTransactions] = useState(() => {
-    const saved = localStorage.getItem('ew_transactions_data');
-    return saved ? JSON.parse(saved) : (initialExpensesData.transactions || []);
+    if (isDemoUser) {
+      const saved = localStorage.getItem('ew_demo_transactions');
+      return saved ? JSON.parse(saved) : (initialExpensesData.transactions || []);
+    }
+    const saved = localStorage.getItem(`ew_user_${user?.id}_transactions`);
+    return saved ? JSON.parse(saved) : [];
   });
 
-  // 8. Modals Visibility State
+  // Load user data on user switch (Demo vs Real User)
+  useEffect(() => {
+    if (isDemoUser) {
+      // Load sample test data for demo user
+      const p = localStorage.getItem('ew_demo_portfolio');
+      const a = localStorage.getItem('ew_demo_accounts');
+      const e = localStorage.getItem('ew_demo_expenses');
+      const t = localStorage.getItem('ew_demo_transactions');
+
+      setPortfolioData(p ? JSON.parse(p) : initialPortfolioData);
+      setAccountsData(a ? JSON.parse(a) : initialAccountsData);
+      setExpensesData(e ? JSON.parse(e) : initialExpensesData);
+      setTransactions(t ? JSON.parse(t) : (initialExpensesData.transactions || []));
+    } else if (user?.id) {
+      // Real user: fetch their private data from Supabase
+      if (isSupabaseConfigured() && supabase) {
+        Promise.all([
+          supabase.from('portfolios').select('*').eq('user_id', user.id).order('year', { ascending: true }),
+          supabase.from('accounts').select('*').eq('user_id', user.id),
+          supabase.from('expenses').select('*').eq('user_id', user.id).maybeSingle(),
+          supabase.from('transactions').select('*').eq('user_id', user.id).order('date', { ascending: false })
+        ]).then(([pRes, aRes, eRes, tRes]) => {
+          // Portfolios
+          if (pRes.data && pRes.data.length > 0) {
+            setPortfolioData({
+              selectedCurrency: currentCurrency,
+              categories: pRes.data[0].categories || getCleanPortfolio().categories,
+              irsBaseLimits: pRes.data[0].irs_limits || getCleanPortfolio().irsBaseLimits,
+              defaultAccountData: pRes.data.map(r => ({
+                year: r.year,
+                salary: Number(r.salary) || 0,
+                balances: r.balances || {},
+                invested: r.invested || {},
+                contri: r.contri || {}
+              }))
+            });
+          } else {
+            const saved = localStorage.getItem(`ew_user_${user.id}_portfolio`);
+            setPortfolioData(saved ? JSON.parse(saved) : getCleanPortfolio());
+          }
+
+          // Accounts
+          if (aRes.data && aRes.data.length > 0) {
+            setAccountsData({
+              selectedCurrency: currentCurrency,
+              lastSync: new Date().toISOString(),
+              linked: aRes.data.map(a => ({
+                id: a.id,
+                name: a.name,
+                institution: a.institution,
+                type: a.type,
+                mask: a.mask,
+                balance: Number(a.balance),
+                color: a.color,
+                source: a.source,
+                lastSynced: a.last_synced,
+                mapping: a.mapping || {}
+              }))
+            });
+          } else {
+            const saved = localStorage.getItem(`ew_user_${user.id}_accounts`);
+            setAccountsData(saved ? JSON.parse(saved) : getCleanAccounts());
+          }
+
+          // Expenses
+          if (eRes.data) {
+            setExpensesData({
+              monthlyBudget: Number(eRes.data.monthly_budget) || 3000,
+              categories: eRes.data.categories || getCleanExpenses().categories,
+              cards: eRes.data.cards || [],
+              selectedCurrency: eRes.data.selected_currency || currentCurrency
+            });
+          } else {
+            const saved = localStorage.getItem(`ew_user_${user.id}_expenses`);
+            setExpensesData(saved ? JSON.parse(saved) : getCleanExpenses());
+          }
+
+          // Transactions
+          if (tRes.data && tRes.data.length > 0) {
+            setTransactions(tRes.data.map(t => ({
+              id: t.id,
+              amount: Number(t.amount),
+              description: t.description,
+              cardId: t.card_id,
+              categoryId: t.category_id,
+              date: t.date,
+              isRecurring: Boolean(t.is_recurring)
+            })));
+          } else {
+            const saved = localStorage.getItem(`ew_user_${user.id}_transactions`);
+            setTransactions(saved ? JSON.parse(saved) : []);
+          }
+        }).catch(err => {
+          console.warn('Supabase fetch error for user:', err);
+        });
+      } else {
+        // Fallback local storage for user
+        const p = localStorage.getItem(`ew_user_${user.id}_portfolio`);
+        const a = localStorage.getItem(`ew_user_${user.id}_accounts`);
+        const e = localStorage.getItem(`ew_user_${user.id}_expenses`);
+        const t = localStorage.getItem(`ew_user_${user.id}_transactions`);
+
+        setPortfolioData(p ? JSON.parse(p) : getCleanPortfolio());
+        setAccountsData(a ? JSON.parse(a) : getCleanAccounts());
+        setExpensesData(e ? JSON.parse(e) : getCleanExpenses());
+        setTransactions(t ? JSON.parse(t) : []);
+      }
+    }
+  }, [user?.id, isDemoUser]);
+
+  // Persist to user-specific localStorage
+  useEffect(() => {
+    const prefix = getStoragePrefix();
+    localStorage.setItem(`${prefix}portfolio`, JSON.stringify(portfolioData));
+  }, [portfolioData, isDemoUser, user?.id]);
+
+  useEffect(() => {
+    const prefix = getStoragePrefix();
+    localStorage.setItem(`${prefix}accounts`, JSON.stringify(accountsData));
+  }, [accountsData, isDemoUser, user?.id]);
+
+  useEffect(() => {
+    const prefix = getStoragePrefix();
+    localStorage.setItem(`${prefix}expenses`, JSON.stringify(expensesData));
+  }, [expensesData, isDemoUser, user?.id]);
+
+  useEffect(() => {
+    const prefix = getStoragePrefix();
+    localStorage.setItem(`${prefix}transactions`, JSON.stringify(transactions));
+  }, [transactions, isDemoUser, user?.id]);
+
+  // Modals Visibility State
   const [modals, setModals] = useState({
     auth: false,
     addAccount: false,
@@ -91,7 +241,7 @@ export const AppProvider = ({ children }) => {
   const openModal = (name) => setModals(prev => ({ ...prev, [name]: true }));
   const closeModal = (name) => setModals(prev => ({ ...prev, [name]: false }));
 
-  // 9. Toast Notifications
+  // Toast Notifications
   const [toasts, setToasts] = useState([]);
   const showToast = (message, type = 'info', duration = 3500) => {
     const id = Date.now() + Math.random().toString();
@@ -101,28 +251,7 @@ export const AppProvider = ({ children }) => {
     }, duration);
   };
 
-  // 10. Persist to LocalStorage
-  useEffect(() => {
-    localStorage.setItem('ew_portfolio_data', JSON.stringify(portfolioData));
-  }, [portfolioData]);
-
-  useEffect(() => {
-    localStorage.setItem('ew_accounts_data', JSON.stringify(accountsData));
-  }, [accountsData]);
-
-  useEffect(() => {
-    localStorage.setItem('ew_expenses_data', JSON.stringify(expensesData));
-  }, [expensesData]);
-
-  useEffect(() => {
-    localStorage.setItem('ew_transactions_data', JSON.stringify(transactions));
-  }, [transactions]);
-
-  useEffect(() => {
-    localStorage.setItem('ew_currency', currentCurrency);
-  }, [currentCurrency]);
-
-  // 11. Cloud Synchronization (Direct Supabase + Node.js API fallback)
+  // Cloud Synchronization (Direct Supabase + Node.js API fallback)
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState(() => localStorage.getItem('ew_last_sync') || null);
 
@@ -136,16 +265,15 @@ export const AppProvider = ({ children }) => {
         transactions
       };
 
-      const userId = user?.id || 'demo_user_001';
-      const token = session?.access_token || null;
+      const userId = user?.id || (isDemoUser ? '00000000-0000-0000-0000-000000000000' : 'demo_user_001');
 
-      // 1. Direct Supabase sync (ideal for static GitHub Pages!)
-      if (isSupabaseConfigured() && supabase && user?.id) {
+      // 1. Direct Supabase sync
+      if (isSupabaseConfigured() && supabase) {
         let errorOccurred = false;
         try {
           if (portfolioData?.defaultAccountData) {
             const rows = portfolioData.defaultAccountData.map(item => ({
-              user_id: user.id,
+              user_id: userId,
               year: String(item.year),
               salary: item.salary || 0,
               balances: item.balances || {},
@@ -161,7 +289,7 @@ export const AppProvider = ({ children }) => {
           if (accountsData?.linked) {
             const rows = accountsData.linked.map(a => ({
               id: a.id,
-              user_id: user.id,
+              user_id: userId,
               name: a.name || 'Account',
               institution: a.institution || 'Other',
               type: a.type || 'checking',
@@ -173,12 +301,14 @@ export const AppProvider = ({ children }) => {
               mapping: a.mapping || {},
               last_synced: new Date().toISOString()
             }));
-            await supabase.from('accounts').upsert(rows);
+            if (rows.length > 0) {
+              await supabase.from('accounts').upsert(rows);
+            }
           }
 
           if (expensesData) {
             await supabase.from('expenses').upsert({
-              user_id: user.id,
+              user_id: userId,
               monthly_budget: expensesData.monthlyBudget || 3000,
               categories: expensesData.categories || [],
               cards: expensesData.cards || [],
@@ -196,21 +326,21 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem('ew_last_sync', now);
 
         if (!errorOccurred) {
-          showToast('Data synchronized with Supabase!', 'success');
+          showToast(isDemoUser ? 'Demo data synced to sandbox' : 'Your personal data is synced with Supabase!', 'success');
         } else {
           showToast('Saved locally. Ensure database tables exist in Supabase.', 'info');
         }
       } else {
         // 2. Try Node.js API server
-        const result = await api.syncAll(payload, userId, token);
+        const result = await api.syncAll(payload, userId, session?.access_token);
         const now = new Date().toLocaleTimeString();
         setLastSyncTime(now);
         localStorage.setItem('ew_last_sync', now);
 
         if (result && result.synced) {
-          showToast('All data securely synchronized with Supabase!', 'success');
+          showToast('Data securely synchronized with Supabase!', 'success');
         } else {
-          showToast('Saved locally. Connect Supabase in .env or Settings for cloud backup.', 'info');
+          showToast('Saved locally.', 'info');
         }
       }
     } catch (err) {
@@ -236,9 +366,11 @@ export const AppProvider = ({ children }) => {
 
     showToast(`Account "${newAccount.name}" added successfully`, 'success');
 
-    // Async sync in background
-    if (user?.id) {
-      api.saveAccount(accountWithId, user.id, session?.access_token).catch(() => {});
+    if (user?.id && !isDemoUser && isSupabaseConfigured() && supabase) {
+      supabase.from('accounts').upsert({
+        ...accountWithId,
+        user_id: user.id
+      }).catch(() => {});
     }
   };
 
@@ -249,8 +381,8 @@ export const AppProvider = ({ children }) => {
     }));
     showToast('Account removed', 'info');
 
-    if (user?.id) {
-      api.deleteAccount(id, user.id, session?.access_token).catch(() => {});
+    if (user?.id && !isDemoUser && isSupabaseConfigured() && supabase) {
+      supabase.from('accounts').delete().eq('id', id).eq('user_id', user.id).catch(() => {});
     }
   };
 
@@ -265,8 +397,17 @@ export const AppProvider = ({ children }) => {
     setTransactions(prev => [tx, ...prev]);
     showToast(`Recorded transaction: ${currencySymbol}${tx.amount}`, 'success');
 
-    if (user?.id) {
-      api.saveTransaction(tx, user.id, session?.access_token).catch(() => {});
+    if (user?.id && !isDemoUser && isSupabaseConfigured() && supabase) {
+      supabase.from('transactions').upsert({
+        id: tx.id,
+        user_id: user.id,
+        amount: Number(tx.amount) || 0,
+        description: tx.description,
+        card_id: tx.cardId,
+        category_id: tx.categoryId,
+        date: tx.date,
+        is_recurring: Boolean(tx.isRecurring)
+      }).catch(() => {});
     }
   };
 
@@ -274,8 +415,8 @@ export const AppProvider = ({ children }) => {
     setTransactions(prev => prev.filter(t => t.id !== id));
     showToast('Transaction deleted', 'info');
 
-    if (user?.id) {
-      api.deleteTransaction(id, user.id, session?.access_token).catch(() => {});
+    if (user?.id && !isDemoUser && isSupabaseConfigured() && supabase) {
+      supabase.from('transactions').delete().eq('id', id).eq('user_id', user.id).catch(() => {});
     }
   };
 
@@ -298,17 +439,23 @@ export const AppProvider = ({ children }) => {
     });
   };
 
-  // Keyboard shortcut for Command Menu (⌘K / Ctrl+K)
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        setModals(prev => ({ ...prev, commandMenu: !prev.commandMenu }));
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  // Optional: Real user can import sample demo template if desired
+  const loadDemoTemplate = () => {
+    setPortfolioData(initialPortfolioData);
+    setAccountsData(initialAccountsData);
+    setExpensesData(initialExpensesData);
+    setTransactions(initialExpensesData.transactions || []);
+    showToast('Sample template data loaded into workspace', 'info');
+  };
+
+  // Reset to clean fresh workspace
+  const resetToCleanWorkspace = () => {
+    setPortfolioData(getCleanPortfolio());
+    setAccountsData(getCleanAccounts());
+    setExpensesData(getCleanExpenses());
+    setTransactions([]);
+    showToast('Workspace reset to clean slate', 'info');
+  };
 
   return (
     <AppContext.Provider
@@ -341,7 +488,9 @@ export const AppProvider = ({ children }) => {
         showToast,
         isSyncing,
         lastSyncTime,
-        syncToCloud
+        syncToCloud,
+        loadDemoTemplate,
+        resetToCleanWorkspace
       }}
     >
       {children}

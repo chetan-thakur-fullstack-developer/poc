@@ -46,3 +46,32 @@ export const initialPortfolioData = {
     }
   ]
 };
+
+// Clean fresh workspace for a real new user
+export const getCleanPortfolio = () => ({
+  selectedCurrency: "USD",
+  categories: [
+    { key: "k401",    label: "401(k)",    color: "#8B5CF6", type: "deferred" },
+    { key: "roth",    label: "Roth IRA",  color: "#EC4899", type: "exempt"   },
+    { key: "tradIra", label: "Trad IRA",  color: "#F59E0B", type: "deferred" },
+    { key: "hsa",     label: "HSA",       color: "#3B82F6", type: "special"  },
+    { key: "espp",    label: "ESPP",      color: "#A78BFA", type: "taxable"  },
+    { key: "cd",      label: "CD / Cash", color: "#71717A", type: "taxable"  },
+    { key: "c529",    label: "529",       color: "#06B6D4", type: "special"  }
+  ],
+  irsBaseLimits: {
+    "2023": { k401: 22500, ira: 6500, hsaSelf: 3850, hsaFamily: 7750, c529Single: 17000, c529Joint: 34000, k401Catch: 7500, iraCatch: 1000, hsaCatch: 1000 },
+    "2024": { k401: 23000, ira: 7000, hsaSelf: 4150, hsaFamily: 8300, c529Single: 18000, c529Joint: 36000, k401Catch: 7500, iraCatch: 1000, hsaCatch: 1000 },
+    "2025": { k401: 23500, ira: 7000, hsaSelf: 4300, hsaFamily: 8300, c529Single: 19000, c529Joint: 38000, k401Catch: 7500, iraCatch: 1000, hsaCatch: 1000 },
+    "2026": { k401: 24500, ira: 7500, hsaSelf: 4400, hsaFamily: 8750, c529Single: 19000, c529Joint: 38000, k401Catch: 8000, iraCatch: 1100, hsaCatch: 1000 }
+  },
+  defaultAccountData: [
+    {
+      year: "2026",
+      salary: 0,
+      balances: { k401: 0, roth: 0, tradIra: 0, hsa: 0, espp: 0, cd: 0, c529: 0 },
+      invested: { k401: 0, roth: 0, tradIra: 0, hsa: 0, espp: 0, cd: 0, c529: 0 },
+      contri:   { employer: 0, user: 0, rollover: 0, k401: 0, roth: 0, tradIra: 0, hsa: 0, espp: 0, cd: 0, c529: 0 }
+    }
+  ]
+});

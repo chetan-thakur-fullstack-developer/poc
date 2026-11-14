@@ -4,7 +4,7 @@ import { useApp } from '../../context/AppContext.jsx';
 
 export const AuthModal = () => {
   const { modals, closeModal, showToast } = useApp();
-  const { user, isCloudAuthAvailable, signIn, signUp, signOut } = useAuth();
+  const { user, isDemoUser, isCloudAuthAvailable, signIn, signUp, loginAsDemo, signOut } = useAuth();
 
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
   const [email, setEmail] = useState('');
@@ -22,10 +22,10 @@ export const AuthModal = () => {
     try {
       if (mode === 'signup') {
         await signUp({ email, password, fullName, role });
-        showToast('Account created successfully!', 'success');
+        showToast('Real account created! Your workspace is private and clean.', 'success');
       } else {
         await signIn({ email, password });
-        showToast('Signed in successfully!', 'success');
+        showToast('Signed in to your personal account', 'success');
       }
       closeModal('auth');
     } catch (err) {
@@ -41,6 +41,12 @@ export const AuthModal = () => {
     closeModal('auth');
   };
 
+  const handleDemoSwitch = () => {
+    loginAsDemo();
+    showToast('Switched to Demo Preview Account with sample data', 'info');
+    closeModal('auth');
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
       <div className="card relative w-full max-w-md p-6 bg-[var(--surface)] border border-[var(--border-strong)] rounded-2xl shadow-2xl">
@@ -52,30 +58,47 @@ export const AuthModal = () => {
           ✕
         </button>
 
-        {/* If user is already logged in */}
-        {user ? (
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="w-12 h-12 mx-auto rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl font-black mb-2 border border-emerald-500/30">
+            💎
+          </div>
+          <h2 className="text-lg font-bold text-[var(--text-1)]">
+            {isDemoUser ? 'Demo Sandbox Active' : 'Your Personal Account'}
+          </h2>
+          <p className="text-xs text-[var(--text-3)] mt-1">
+            {isDemoUser
+              ? 'Using sample demo data. Create or sign in to your real account for private records.'
+              : 'Logged into your private Supabase workspace.'}
+          </p>
+        </div>
+
+        {/* If REAL USER is logged in */}
+        {user && !isDemoUser ? (
           <div className="text-center py-4 space-y-4">
             <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-emerald-500 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold uppercase shadow-lg">
               {(user?.user_metadata?.full_name || user?.email || 'U')[0]}
             </div>
             <div>
               <h3 className="font-bold text-lg text-[var(--text-1)]">
-                {user?.user_metadata?.full_name || 'Member'}
+                {user?.user_metadata?.full_name || 'Personal Member'}
               </h3>
               <p className="text-xs text-[var(--text-3)]">{user?.email}</p>
               <div className="inline-block mt-2 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                {isCloudAuthAvailable ? 'Supabase Auth Verified' : 'Local Demo Account'}
+                🔒 Private Supabase Workspace
               </div>
             </div>
 
             <div className="pt-4 border-t border-[var(--border)] flex gap-3 justify-center">
               <button
-                onClick={() => closeModal('auth')}
-                className="btn-secondary text-xs px-4 py-2"
+                type="button"
+                onClick={handleDemoSwitch}
+                className="btn-secondary text-xs px-3 py-2"
               >
-                Close
+                Switch to Demo Mode
               </button>
               <button
+                type="button"
                 onClick={handleLogout}
                 className="btn-primary text-xs px-4 py-2 bg-rose-600 hover:bg-rose-700"
               >
@@ -85,21 +108,6 @@ export const AuthModal = () => {
           </div>
         ) : (
           <div>
-            {/* Modal Header */}
-            <div className="text-center mb-6">
-              <div className="w-10 h-10 mx-auto rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl font-black mb-2 border border-emerald-500/30">
-                💎
-              </div>
-              <h2 className="text-lg font-bold text-[var(--text-1)]">
-                {mode === 'signup' ? 'Create Executive Wealth Account' : 'Welcome to Executive Wealth'}
-              </h2>
-              <p className="text-xs text-[var(--text-3)] mt-1">
-                {isCloudAuthAvailable
-                  ? 'Connected to your Supabase Cloud Authentication'
-                  : 'Configure Supabase in .env for multi-device sync'}
-              </p>
-            </div>
-
             {/* Mode Switcher Tabs */}
             <div className="flex border-b border-[var(--border)] mb-4">
               <button
@@ -111,7 +119,7 @@ export const AuthModal = () => {
                     : 'border-transparent text-[var(--text-3)] hover:text-[var(--text-1)]'
                 }`}
               >
-                Sign In
+                Sign In to Real Account
               </button>
               <button
                 type="button"
@@ -122,7 +130,7 @@ export const AuthModal = () => {
                     : 'border-transparent text-[var(--text-3)] hover:text-[var(--text-1)]'
                 }`}
               >
-                New Account
+                New Real Account
               </button>
             </div>
 
@@ -175,16 +183,15 @@ export const AuthModal = () => {
               {mode === 'signup' && (
                 <div>
                   <label className="block text-[11px] font-semibold text-[var(--text-2)] mb-1">
-                    Account Role
+                    Role
                   </label>
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                     className="input-field text-xs"
                   >
-                    <option value="owner">Primary Household Owner</option>
+                    <option value="owner">Primary Owner</option>
                     <option value="coowner">Co-Owner / Partner</option>
-                    <option value="advisor">Financial Advisor (View Only)</option>
                   </select>
                 </div>
               )}
@@ -195,11 +202,21 @@ export const AuthModal = () => {
                 className="w-full btn-primary text-xs py-2.5 mt-2"
               >
                 {submitting
-                  ? 'Processing...'
+                  ? 'Connecting...'
                   : mode === 'signup'
-                  ? 'Complete Registration'
-                  : 'Sign In to Dashboard'}
+                  ? 'Create Clean Personal Account'
+                  : 'Sign In to My Personal Account'}
               </button>
+
+              <div className="pt-2 text-center">
+                <button
+                  type="button"
+                  onClick={handleDemoSwitch}
+                  className="text-xs text-[var(--text-3)] hover:text-emerald-400 font-medium underline"
+                >
+                  ⚡ Continue with Demo Sandbox (Sample Data)
+                </button>
+              </div>
             </form>
           </div>
         )}

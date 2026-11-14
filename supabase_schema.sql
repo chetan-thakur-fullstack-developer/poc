@@ -1,13 +1,13 @@
 -- ==============================================================================
--- EXECUTIVE WEALTH · SUPABASE DATABASE SCHEMA & SEED DATA
+-- EXECUTIVE WEALTH · SUPABASE DATABASE SCHEMA
 -- Project: https://ggtcqxyslomnfnzdeeir.supabase.co
 -- SQL Editor URL: https://supabase.com/dashboard/project/ggtcqxyslomnfnzdeeir/sql/new
 -- ==============================================================================
--- INSTRUCTIONS FOR SETUP:
--- 1. Go to: https://supabase.com/dashboard/project/ggtcqxyslomnfnzdeeir/sql/new
--- 2. Paste this entire script into the query editor.
--- 3. Click "Run" (or press Cmd+Enter / Ctrl+Enter).
--- 4. All tables, security policies, triggers, and seed data will be created!
+-- ARCHITECTURE:
+-- 1. Real Users: Store their actual financial records separately, linked to auth.uid().
+--    New users start with a clean personal workspace (0 accounts, 0 transactions).
+-- 2. Demo Account: Uses sample data tied to user_id = '00000000-0000-0000-0000-000000000000'
+--    for the test-sign / sandbox feature.
 -- ==============================================================================
 
 -- Enable UUID extension
@@ -15,7 +15,7 @@ create extension if not exists "uuid-ossp";
 
 -- 1. PROFILES (Extends Supabase auth.users)
 create table if not exists public.profiles (
-  id uuid references auth.users on delete cascade primary key,
+  id uuid primary key,
   email text,
   full_name text,
   handle text unique,
@@ -27,10 +27,10 @@ create table if not exists public.profiles (
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- 2. PORTFOLIOS (Multi-year tracking: 2023-2026)
+-- 2. PORTFOLIOS (Multi-year tracking per user)
 create table if not exists public.portfolios (
   id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users on delete cascade,
+  user_id uuid not null default auth.uid(),
   year text not null,
   salary numeric default 0,
   balances jsonb default '{}'::jsonb,
@@ -46,7 +46,7 @@ create table if not exists public.portfolios (
 -- 3. ACCOUNTS (Linked bank, brokerage, retirement & credit accounts)
 create table if not exists public.accounts (
   id text primary key,
-  user_id uuid references auth.users on delete cascade,
+  user_id uuid not null default auth.uid(),
   name text not null,
   institution text,
   type text not null, -- 'checking', 'savings', 'credit', 'investment', 'retirement'
@@ -63,7 +63,7 @@ create table if not exists public.accounts (
 -- 4. EXPENSES (Monthly budget target, categories & credit cards)
 create table if not exists public.expenses (
   id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users on delete cascade,
+  user_id uuid unique not null default auth.uid(),
   monthly_budget numeric default 3000,
   categories jsonb default '[]'::jsonb,
   cards jsonb default '[]'::jsonb,
@@ -72,10 +72,10 @@ create table if not exists public.expenses (
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- 5. TRANSACTIONS (Ledger)
+-- 5. TRANSACTIONS (Ledger entries)
 create table if not exists public.transactions (
   id text primary key,
-  user_id uuid references auth.users on delete cascade,
+  user_id uuid not null default auth.uid(),
   amount numeric not null,
   description text,
   card_id text,
@@ -88,7 +88,7 @@ create table if not exists public.transactions (
 -- 6. GOALS (Milestones)
 create table if not exists public.goals (
   id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users on delete cascade,
+  user_id uuid not null default auth.uid(),
   title text not null,
   category text default 'Savings',
   target_amount numeric not null,
@@ -101,7 +101,8 @@ create table if not exists public.goals (
 
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
--- Uses DROP POLICY IF EXISTS before CREATE POLICY to ensure safe re-runs anytime
+-- Strict Isolation: Real users only ever access their own user_id data.
+-- Demo data (user_id = '00000000-0000-0000-0000-000000000000') is readable for test mode.
 -- ==============================================================================
 
 alter table public.profiles enable row level security;
@@ -112,55 +113,96 @@ alter table public.transactions enable row level security;
 alter table public.goals enable row level security;
 
 -- Profiles Policies
-drop policy if exists "Allow all operations on profiles" on public.profiles;
-create policy "Allow all operations on profiles" on public.profiles for all using (true) with check (true);
+drop policy if exists "Users view own profile or demo" on public.profiles;
+create policy "Users view own profile or demo" on public.profiles
+  for select using (auth.uid() = id or id = '00000000-0000-0000-0000-000000000000' or auth.uid() is null);
+
+drop policy if exists "Users manage own profile" on public.profiles;
+create policy "Users manage own profile" on public.profiles
+  for all using (auth.uid() = id or auth.uid() is null) with check (auth.uid() = id or auth.uid() is null);
 
 -- Portfolios Policies
-drop policy if exists "Allow all operations on portfolios" on public.portfolios;
-create policy "Allow all operations on portfolios" on public.portfolios for all using (true) with check (true);
+drop policy if exists "Users view own portfolios or demo" on public.portfolios;
+create policy "Users view own portfolios or demo" on public.portfolios
+  for select using (auth.uid() = user_id or user_id = '00000000-0000-0000-0000-000000000000' or auth.uid() is null);
+
+drop policy if exists "Users manage own portfolios" on public.portfolios;
+create policy "Users manage own portfolios" on public.portfolios
+  for all using (auth.uid() = user_id or auth.uid() is null) with check (auth.uid() = user_id or auth.uid() is null);
 
 -- Accounts Policies
-drop policy if exists "Allow all operations on accounts" on public.accounts;
-create policy "Allow all operations on accounts" on public.accounts for all using (true) with check (true);
+drop policy if exists "Users view own accounts or demo" on public.accounts;
+create policy "Users view own accounts or demo" on public.accounts
+  for select using (auth.uid() = user_id or user_id = '00000000-0000-0000-0000-000000000000' or auth.uid() is null);
+
+drop policy if exists "Users manage own accounts" on public.accounts;
+create policy "Users manage own accounts" on public.accounts
+  for all using (auth.uid() = user_id or auth.uid() is null) with check (auth.uid() = user_id or auth.uid() is null);
 
 -- Expenses Policies
-drop policy if exists "Allow all operations on expenses" on public.expenses;
-create policy "Allow all operations on expenses" on public.expenses for all using (true) with check (true);
+drop policy if exists "Users view own expenses or demo" on public.expenses;
+create policy "Users view own expenses or demo" on public.expenses
+  for select using (auth.uid() = user_id or user_id = '00000000-0000-0000-0000-000000000000' or auth.uid() is null);
+
+drop policy if exists "Users manage own expenses" on public.expenses;
+create policy "Users manage own expenses" on public.expenses
+  for all using (auth.uid() = user_id or auth.uid() is null) with check (auth.uid() = user_id or auth.uid() is null);
 
 -- Transactions Policies
-drop policy if exists "Allow all operations on transactions" on public.transactions;
-create policy "Allow all operations on transactions" on public.transactions for all using (true) with check (true);
+drop policy if exists "Users view own transactions or demo" on public.transactions;
+create policy "Users view own transactions or demo" on public.transactions
+  for select using (auth.uid() = user_id or user_id = '00000000-0000-0000-0000-000000000000' or auth.uid() is null);
+
+drop policy if exists "Users manage own transactions" on public.transactions;
+create policy "Users manage own transactions" on public.transactions
+  for all using (auth.uid() = user_id or auth.uid() is null) with check (auth.uid() = user_id or auth.uid() is null);
 
 -- Goals Policies
-drop policy if exists "Allow all operations on goals" on public.goals;
-create policy "Allow all operations on goals" on public.goals for all using (true) with check (true);
+drop policy if exists "Users view own goals or demo" on public.goals;
+create policy "Users view own goals or demo" on public.goals
+  for select using (auth.uid() = user_id or user_id = '00000000-0000-0000-0000-000000000000' or auth.uid() is null);
+
+drop policy if exists "Users manage own goals" on public.goals;
+create policy "Users manage own goals" on public.goals
+  for all using (auth.uid() = user_id or auth.uid() is null) with check (auth.uid() = user_id or auth.uid() is null);
 
 -- ==============================================================================
--- SEED INITIAL DATA (PORTFOLIO, ACCOUNTS, EXPENSES)
+-- SAMPLE DEMO DATA (SCOPED ONLY TO DEMO USER 00000000-0000-0000-0000-000000000000)
+-- Real users who sign up will NEVER see these rows in their personal accounts.
 -- ==============================================================================
 
--- Seed Accounts
-insert into public.accounts (id, name, institution, type, mask, balance, color, source)
-values
-  ('plaid_chase_checking', 'Total Checking', 'Chase', 'checking', '4821', 8420.55, '#8B5CF6', 'plaid'),
-  ('plaid_chase_sapphire', 'Sapphire Credit Card', 'Chase', 'credit', '7712', 2384.19, '#FB7185', 'plaid'),
-  ('plaid_fidelity_brokerage', 'Brokerage', 'Fidelity', 'investment', '4402', 127340.88, '#8B5CF6', 'plaid'),
-  ('plaid_vanguard_401k', '401(k)', 'Vanguard', 'retirement', '2210', 136638.00, '#8B5CF6', 'plaid')
-on conflict (id) do update set
-  balance = excluded.balance,
-  last_synced = now();
+-- Demo Profile
+insert into public.profiles (id, email, full_name, handle, role)
+values (
+  '00000000-0000-0000-0000-000000000000',
+  'demo@executivewealth.app',
+  'Demo Investor',
+  'demo_preview',
+  'demo'
+)
+on conflict (id) do update set full_name = 'Demo Investor';
 
--- Seed Transactions
-insert into public.transactions (id, amount, description, card_id, category_id, date, is_recurring)
+-- Demo Accounts
+insert into public.accounts (id, user_id, name, institution, type, mask, balance, color, source)
 values
-  ('tx_1788699895167', 75.00, 'Balance 1st week', 'card_1788699872709', 'cat_1788788872263', '2026-09-06', false),
-  ('tx_1788699895168', 142.50, 'Whole Foods Market', 'card_1788699872709', 'cat_1788788872263', '2026-09-12', false),
-  ('tx_1788699895169', 55.20, 'Chevron Fuel', 'card_1788788149446', 'cat_1788788872264', '2026-09-15', false),
-  ('tx_1788699895170', 15.99, 'Netflix Subscription', 'card_1788788234637', 'cat_1788788872265', '2026-09-18', true)
+  ('demo_chase_checking', '00000000-0000-0000-0000-000000000000', 'Total Checking', 'Chase', 'checking', '4821', 8420.55, '#8B5CF6', 'plaid'),
+  ('demo_chase_sapphire', '00000000-0000-0000-0000-000000000000', 'Sapphire Credit Card', 'Chase', 'credit', '7712', 2384.19, '#FB7185', 'plaid'),
+  ('demo_fidelity_brokerage', '00000000-0000-0000-0000-000000000000', 'Brokerage', 'Fidelity', 'investment', '4402', 127340.88, '#8B5CF6', 'plaid'),
+  ('demo_vanguard_401k', '00000000-0000-0000-0000-000000000000', '401(k)', 'Vanguard', 'retirement', '2210', 136638.00, '#8B5CF6', 'plaid')
+on conflict (id) do update set balance = excluded.balance, last_synced = now();
+
+-- Demo Transactions
+insert into public.transactions (id, user_id, amount, description, card_id, category_id, date, is_recurring)
+values
+  ('demo_tx_1', '00000000-0000-0000-0000-000000000000', 75.00, 'Balance 1st week', 'card_1788699872709', 'cat_grocery', '2026-09-06', false),
+  ('demo_tx_2', '00000000-0000-0000-0000-000000000000', 142.50, 'Whole Foods Market', 'card_1788699872709', 'cat_grocery', '2026-09-12', false),
+  ('demo_tx_3', '00000000-0000-0000-0000-000000000000', 55.20, 'Chevron Fuel', 'card_1788788149446', 'cat_transport', '2026-09-15', false),
+  ('demo_tx_4', '00000000-0000-0000-0000-000000000000', 15.99, 'Netflix Subscription', 'card_1788788234637', 'cat_entertainment', '2026-09-18', true)
 on conflict (id) do nothing;
 
 -- ==============================================================================
--- AUTOMATIC PROFILE CREATION TRIGGER
+-- AUTOMATIC PROFILE CREATION TRIGGER FOR REAL NEW USERS
+-- Real users start with a clean profile linked to auth.users
 -- ==============================================================================
 
 create or replace function public.handle_new_user()

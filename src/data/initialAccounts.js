@@ -3,7 +3,7 @@ export const initialAccountsData = {
   lastSync: "2026-02-10T14:32:00.000Z",
   linked: [
     {
-      id: "plaid_chase_checking",
+      id: "demo_chase_checking",
       name: "Total Checking",
       institution: "Chase",
       type: "checking",
@@ -16,7 +16,7 @@ export const initialAccountsData = {
       mapping: { portfolioKey: "cd", year: "2026", enabled: true }
     },
     {
-      id: "plaid_chase_sapphire",
+      id: "demo_chase_sapphire",
       name: "Sapphire Credit Card",
       institution: "Chase",
       type: "credit",
@@ -28,7 +28,7 @@ export const initialAccountsData = {
       lastSynced: "2026-02-10T14:32:00.000Z"
     },
     {
-      id: "plaid_fidelity_brokerage",
+      id: "demo_fidelity_brokerage",
       name: "Brokerage",
       institution: "Fidelity",
       type: "investment",
@@ -41,7 +41,7 @@ export const initialAccountsData = {
       mapping: { portfolioKey: "espp", year: "2026", enabled: true }
     },
     {
-      id: "plaid_vanguard_401k",
+      id: "demo_vanguard_401k",
       name: "401(k)",
       institution: "Vanguard",
       type: "retirement",
@@ -55,3 +55,10 @@ export const initialAccountsData = {
     }
   ]
 };
+
+// Clean accounts for a real user
+export const getCleanAccounts = () => ({
+  selectedCurrency: "USD",
+  lastSync: null,
+  linked: []
+});

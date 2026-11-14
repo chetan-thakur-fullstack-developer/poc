@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 export const Sidebar = () => {
   const { currentTab, setCurrentTab, accountsData, transactions } = useApp();
-  const { user } = useAuth();
+  const { user, isDemoUser } = useAuth();
 
   const accountCount = accountsData?.linked?.length || 0;
   const txCount = transactions?.length || 0;

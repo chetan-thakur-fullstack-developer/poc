@@ -14,7 +14,7 @@ export const Header = () => {
     syncToCloud
   } = useApp();
 
-  const { user, isCloudAuthAvailable } = useAuth();
+  const { user, isDemoUser, isCloudAuthAvailable } = useAuth();
 
   const toggleTheme = () => {
     if (theme === 'dark') setTheme('light');
@@ -103,11 +103,19 @@ export const Header = () => {
           onClick={() => openModal('auth')}
           className="flex items-center gap-2 p-1 pl-2 rounded-full bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-hover)] transition-all cursor-pointer"
         >
-          <span className="text-xs font-medium max-w-[90px] truncate hidden sm:inline">
-            {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Account'}
-          </span>
-          <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm">
-            {(user?.user_metadata?.full_name || user?.email || 'U')[0]}
+          {isDemoUser ? (
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 hidden sm:inline">
+              Demo Sandbox
+            </span>
+          ) : (
+            <span className="text-xs font-medium max-w-[90px] truncate hidden sm:inline">
+              {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Account'}
+            </span>
+          )}
+          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm ${
+            isDemoUser ? 'bg-gradient-to-tr from-amber-500 to-orange-500' : 'bg-gradient-to-tr from-emerald-500 to-indigo-500'
+          }`}>
+            {isDemoUser ? 'D' : (user?.user_metadata?.full_name || user?.email || 'U')[0]}
           </div>
         </button>
       </div>
