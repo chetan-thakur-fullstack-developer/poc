@@ -101,7 +101,7 @@ create table if not exists public.goals (
 
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
--- Allows authenticated users to access their own data, and allows initial demo access
+-- Uses DROP POLICY IF EXISTS before CREATE POLICY to ensure safe re-runs anytime
 -- ==============================================================================
 
 alter table public.profiles enable row level security;
@@ -112,21 +112,27 @@ alter table public.transactions enable row level security;
 alter table public.goals enable row level security;
 
 -- Profiles Policies
+drop policy if exists "Allow all operations on profiles" on public.profiles;
 create policy "Allow all operations on profiles" on public.profiles for all using (true) with check (true);
 
 -- Portfolios Policies
+drop policy if exists "Allow all operations on portfolios" on public.portfolios;
 create policy "Allow all operations on portfolios" on public.portfolios for all using (true) with check (true);
 
 -- Accounts Policies
+drop policy if exists "Allow all operations on accounts" on public.accounts;
 create policy "Allow all operations on accounts" on public.accounts for all using (true) with check (true);
 
 -- Expenses Policies
+drop policy if exists "Allow all operations on expenses" on public.expenses;
 create policy "Allow all operations on expenses" on public.expenses for all using (true) with check (true);
 
 -- Transactions Policies
+drop policy if exists "Allow all operations on transactions" on public.transactions;
 create policy "Allow all operations on transactions" on public.transactions for all using (true) with check (true);
 
 -- Goals Policies
+drop policy if exists "Allow all operations on goals" on public.goals;
 create policy "Allow all operations on goals" on public.goals for all using (true) with check (true);
 
 -- ==============================================================================
@@ -140,7 +146,9 @@ values
   ('plaid_chase_sapphire', 'Sapphire Credit Card', 'Chase', 'credit', '7712', 2384.19, '#FB7185', 'plaid'),
   ('plaid_fidelity_brokerage', 'Brokerage', 'Fidelity', 'investment', '4402', 127340.88, '#8B5CF6', 'plaid'),
   ('plaid_vanguard_401k', '401(k)', 'Vanguard', 'retirement', '2210', 136638.00, '#8B5CF6', 'plaid')
-on conflict (id) do nothing;
+on conflict (id) do update set
+  balance = excluded.balance,
+  last_synced = now();
 
 -- Seed Transactions
 insert into public.transactions (id, amount, description, card_id, category_id, date, is_recurring)
