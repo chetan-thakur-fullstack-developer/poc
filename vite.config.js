@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/poc/', // GitHub Pages deploys under /poc/ — must match repo name exactly
+  base: './', // GitHub Pages deploys under /poc/ — must match repo name exactly
   server: {
     port: 5173,
     proxy: {
