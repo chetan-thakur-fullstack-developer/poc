@@ -5,7 +5,7 @@ name: Deploy to GitHub Pages
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write   # 👈 Add this here
   pages: write
   id-token: write
 
