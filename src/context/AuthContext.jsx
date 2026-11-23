@@ -5,41 +5,48 @@ const AuthContext = createContext();
 
 export const DEMO_USER = {
   id: '00000000-0000-0000-0000-000000000000',
-  email: 'demo@executivewealth.app',
+  email: 'demo@execwealth.local',
   user_metadata: {
     full_name: 'Demo Investor (Preview)',
     handle: 'demo_user',
-    role: 'demo'
+    role: 'owner'
   }
 };
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('ew_auth_user');
-    return saved ? JSON.parse(saved) : DEMO_USER;
+    try {
+      const saved = localStorage.getItem('ew_auth_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (_) {
+      return null;
+    }
   });
 
   const [session, setSession] = useState(() => {
-    const saved = localStorage.getItem('ew_auth_session');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('ew_auth_session');
+      return saved ? JSON.parse(saved) : null;
+    } catch (_) {
+      return null;
+    }
   });
 
-  // Start false — app renders immediately in demo mode; Supabase auth resolves async
   const [loading, setLoading] = useState(false);
   const isCloudAuthAvailable = isSupabaseConfigured();
 
   const isDemoUser = Boolean(
-    !user ||
-    user.id === '00000000-0000-0000-0000-000000000000' ||
-    user.email === 'demo@executivewealth.app'
+    user && (
+      user.id === '00000000-0000-0000-0000-000000000000' ||
+      user.email === 'demo@executivewealth.app' ||
+      user.email === 'demo@execwealth.local'
+    )
   );
 
   useEffect(() => {
-    // Safety timeout — never let loading hang more than 4 seconds
-    const timeout = setTimeout(() => setLoading(false), 4000);
+    const timeout = setTimeout(() => setLoading(false), 3000);
 
     if (isCloudAuthAvailable && supabase) {
-      // 1. Get initial session from Supabase
       supabase.auth.getSession()
         .then(({ data: { session } }) => {
           clearTimeout(timeout);
@@ -56,7 +63,6 @@ export const AuthProvider = ({ children }) => {
           setLoading(false);
         });
 
-      // 2. Listen for auth changes
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
           setSession(session);
@@ -82,8 +88,8 @@ export const AuthProvider = ({ children }) => {
     }
   }, [isCloudAuthAvailable]);
 
-  // Sign up a REAL user with Supabase
-  const signUp = async ({ email, password, fullName, handle, role = 'owner' }) => {
+  // Sign up a user
+  const signUp = async ({ email, password, fullName, handle, role = 'owner', inviteCode }) => {
     if (isCloudAuthAvailable && supabase) {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -92,7 +98,8 @@ export const AuthProvider = ({ children }) => {
           data: {
             full_name: fullName,
             handle: handle || email.split('@')[0],
-            role
+            role,
+            invite_code: inviteCode
           }
         }
       });
@@ -105,23 +112,32 @@ export const AuthProvider = ({ children }) => {
       return data;
     }
 
-    // Local fallback for testing without Supabase
+    // Local fallback account
     const newUser = {
       id: `usr_${Date.now()}`,
       email,
       user_metadata: {
         full_name: fullName || email.split('@')[0],
         handle: handle || email.split('@')[0],
-        role
+        role,
+        invite_code: inviteCode
       }
     };
     setUser(newUser);
     localStorage.setItem('ew_auth_user', JSON.stringify(newUser));
-    return { user: newUser, session: { access_token: 'mock_token' } };
+    return { user: newUser, session: { access_token: 'local_token' } };
   };
 
-  // Sign in a REAL user with Supabase
+  // Sign in a user
   const signIn = async ({ email, password }) => {
+    if (
+      (email.toLowerCase() === 'demo@execwealth.local' || email.toLowerCase() === 'demo@executivewealth.app') &&
+      password === 'demo123'
+    ) {
+      loginAsDemo();
+      return { user: DEMO_USER, session: null };
+    }
+
     if (isCloudAuthAvailable && supabase) {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -136,7 +152,7 @@ export const AuthProvider = ({ children }) => {
       return data;
     }
 
-    // Local fallback
+    // Local account signin fallback
     const loggedUser = {
       id: `usr_${Date.now()}`,
       email,
@@ -148,20 +164,22 @@ export const AuthProvider = ({ children }) => {
     };
     setUser(loggedUser);
     localStorage.setItem('ew_auth_user', JSON.stringify(loggedUser));
-    return { user: loggedUser, session: { access_token: 'mock_token' } };
+    return { user: loggedUser, session: { access_token: 'local_token' } };
   };
 
-  // Switch to DEMO test mode
+  // Launch Demo session (only triggered from login view)
   const loginAsDemo = () => {
     setUser(DEMO_USER);
     setSession(null);
     localStorage.setItem('ew_auth_user', JSON.stringify(DEMO_USER));
   };
 
-  // Sign out
+  // Sign out — clears session and brings user back to LoginView
   const signOut = async () => {
     if (isCloudAuthAvailable && supabase) {
-      await supabase.auth.signOut();
+      try {
+        await supabase.auth.signOut();
+      } catch (_) {}
     }
     setUser(null);
     setSession(null);

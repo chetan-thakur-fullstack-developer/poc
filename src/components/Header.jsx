@@ -11,10 +11,11 @@ export const Header = () => {
     openModal,
     isSyncing,
     lastSyncTime,
-    syncToCloud
+    syncToCloud,
+    setCurrentTab
   } = useApp();
 
-  const { user, isDemoUser, isCloudAuthAvailable } = useAuth();
+  const { user, isDemoUser, isCloudAuthAvailable, signOut } = useAuth();
 
   const toggleTheme = () => {
     if (theme === 'dark') setTheme('light');
@@ -36,7 +37,7 @@ export const Header = () => {
         {/* ⌘K Command Palette Button */}
         <button
           onClick={() => openModal('commandMenu')}
-          className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-xs text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-hover)] transition-all cursor-pointer"
+          className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-xs text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-hover)] transition-all cursor-pointer active:scale-95"
         >
           <svg className="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -48,20 +49,35 @@ export const Header = () => {
         </button>
       </div>
 
-      {/* Right Controls: Cloud Sync, Currency, Theme, Quick Add, User */}
+      {/* Right Controls: Demo Badge, Cloud Sync, Currency, Theme, Quick Add, User */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* Interactive Demo Mode Pill */}
+        {isDemoUser && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-500/40 bg-emerald-500/15 text-emerald-300 shadow-sm animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span className="hidden sm:inline">Demo Mode</span>
+            <button
+              onClick={() => signOut()}
+              className="text-[10px] text-emerald-300 hover:text-white underline ml-1 cursor-pointer font-bold"
+              title="Exit demo account and return to login screen"
+            >
+              Exit
+            </button>
+          </div>
+        )}
+
         {/* Supabase Cloud Sync Chip */}
         <button
           onClick={syncToCloud}
           disabled={isSyncing}
           title="Click to sync data with Supabase"
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-[var(--border)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] transition-all cursor-pointer"
+          className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-[var(--border)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] transition-all cursor-pointer active:scale-95"
         >
           <span className={`w-2 h-2 rounded-full ${isSyncing ? 'bg-amber-400 animate-ping' : isCloudAuthAvailable ? 'bg-emerald-400' : 'bg-blue-400'}`} />
-          <span className="hidden md:inline">
-            {isSyncing ? 'Syncing...' : isCloudAuthAvailable ? 'Supabase Connected' : 'Local / Demo Mode'}
+          <span className="hidden lg:inline">
+            {isSyncing ? 'Syncing...' : isCloudAuthAvailable ? 'Cloud Sync' : 'Local State'}
           </span>
-          <span className="text-[10px] text-[var(--text-3)] hidden lg:inline">
+          <span className="text-[10px] text-[var(--text-3)] hidden xl:inline">
             {lastSyncTime ? `(${lastSyncTime})` : ''}
           </span>
         </button>
@@ -84,7 +100,7 @@ export const Header = () => {
         <button
           onClick={toggleTheme}
           title={`Current Theme: ${theme.toUpperCase()} (Click to toggle)`}
-          className="p-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] transition-colors"
+          className="p-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] transition-colors active:scale-95"
         >
           {theme === 'dark' ? '🌙' : theme === 'light' ? '☀️' : '🔮'}
         </button>
@@ -92,20 +108,21 @@ export const Header = () => {
         {/* Quick Add Button */}
         <button
           onClick={() => openModal('quickAdd')}
-          className="btn-primary text-xs px-3 py-1.5"
+          className="btn-primary text-xs px-3 py-1.5 active:scale-95"
         >
           <span className="text-base leading-none font-bold">+</span>
           <span className="hidden sm:inline">Quick Add</span>
         </button>
 
-        {/* User Profile / Auth */}
+        {/* User Profile / Settings shortcut */}
         <button
-          onClick={() => openModal('auth')}
-          className="flex items-center gap-2 p-1 pl-2 rounded-full bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-hover)] transition-all cursor-pointer"
+          onClick={() => setCurrentTab('tab-settings')}
+          className="flex items-center gap-2 p-1 pl-2 rounded-full bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-hover)] transition-all cursor-pointer active:scale-95"
+          title="Open Settings"
         >
           {isDemoUser ? (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 hidden sm:inline">
-              Demo Sandbox
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hidden sm:inline">
+              Demo Pro
             </span>
           ) : (
             <span className="text-xs font-medium max-w-[90px] truncate hidden sm:inline">
@@ -113,7 +130,7 @@ export const Header = () => {
             </span>
           )}
           <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm ${
-            isDemoUser ? 'bg-gradient-to-tr from-amber-500 to-orange-500' : 'bg-gradient-to-tr from-emerald-500 to-indigo-500'
+            isDemoUser ? 'bg-gradient-to-tr from-emerald-500 to-teal-500' : 'bg-gradient-to-tr from-indigo-500 to-purple-500'
           }`}>
             {isDemoUser ? 'D' : (user?.user_metadata?.full_name || user?.email || 'U')[0]}
           </div>

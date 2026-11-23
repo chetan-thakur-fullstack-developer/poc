@@ -1,6 +1,8 @@
 import React from 'react';
 import { useApp } from './context/AppContext.jsx';
+import { useAuth } from './context/AuthContext.jsx';
 
+import { LoginView } from './components/LoginView.jsx';
 import { Header } from './components/Header.jsx';
 import { Sidebar } from './components/Sidebar.jsx';
 import { MobileNav } from './components/MobileNav.jsx';
@@ -26,6 +28,17 @@ import { CommandMenu } from './components/modals/CommandMenu.jsx';
 
 export const App = () => {
   const { currentTab } = useApp();
+  const { user } = useAuth();
+
+  // If user is not authenticated, display full-screen Login View
+  if (!user) {
+    return (
+      <>
+        <LoginView />
+        <Toast />
+      </>
+    );
+  }
 
   const renderActiveTab = () => {
     switch (currentTab) {
