@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef, useId } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 /* ═══════════════════════════════════════════════════════════
    SHARED UTILITIES
@@ -43,6 +44,10 @@ const marginalTax = (income, filing) => {
 
 /* Dual slider + number input wrapper */
 function DualField({ label, hint, value, onChange, min, max, step, prefix, suffix, placeholder }) {
+  const rangePct = max !== undefined && min !== undefined && max > min
+    ? Math.max(0, Math.min(100, ((num(value) - min) / (max - min)) * 100))
+    : 0;
+
   return (
     <div className="ps-field">
       <label className="ps-field-label">
@@ -68,10 +73,13 @@ function DualField({ label, hint, value, onChange, min, max, step, prefix, suffi
         </div>
         {min !== undefined && max !== undefined && (
           <input
-            type="range" className="slider-hero"
+            type="range" className="ps-slider"
             min={min} max={max} step={step || 1}
             value={value}
             onChange={(e) => onChange(num(e.target.value))}
+            style={{
+              background: `linear-gradient(to right, var(--accent) ${rangePct}%, var(--surface-3) ${rangePct}%)`
+            }}
           />
         )}
       </div>
@@ -1114,20 +1122,78 @@ const PANES = {
 export function BlueprintTab() {
   const [active, setActive] = useState('paycheck');
   const ActivePane = PANES[active];
+  const tabsRef = useRef(null);
+  const [showLeftChevron, setShowLeftChevron] = useState(false);
+  const [showRightChevron, setShowRightChevron] = useState(true);
+
+  const checkScroll = () => {
+    if (tabsRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = tabsRef.current;
+      setShowLeftChevron(scrollLeft > 6);
+      setShowRightChevron(scrollLeft + clientWidth < scrollWidth - 6);
+    }
+  };
+
+  useEffect(() => {
+    const el = tabsRef.current;
+    if (el) {
+      checkScroll();
+      el.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+      return () => {
+        el.removeEventListener('scroll', checkScroll);
+        window.removeEventListener('resize', checkScroll);
+      };
+    }
+  }, []);
+
+  const scrollTabs = (direction) => {
+    if (tabsRef.current) {
+      tabsRef.current.scrollBy({ left: direction === 'left' ? -220 : 220, behavior: 'smooth' });
+    }
+  };
 
   return (
     <div id="tab-blueprint" className="main-tab-content space-y-5">
       <div className="main-content-blur space-y-5">
-        <div className="wb-tabs">
-          {TABS.map((t) => (
-            <button
-              key={t.key}
-              className={`wb-tab${active === t.key ? ' active' : ''}`}
-              onClick={() => setActive(t.key)}
-            >
-              {t.label}
-            </button>
-          ))}
+        <div className="relative flex items-center">
+          {/* Left Scroll Button */}
+          <button
+            onClick={() => scrollTabs('left')}
+            className={`absolute left-1 z-10 p-1.5 rounded-xl bg-[var(--surface)] border border-[var(--border-strong)] text-[var(--text-2)] hover:text-[var(--text-1)] shadow-md flex items-center justify-center cursor-pointer backdrop-blur-md transition-opacity duration-200 ${
+              showLeftChevron ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+            title="Scroll Left"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+
+          <div
+            ref={tabsRef}
+            onScroll={checkScroll}
+            className="wb-tabs flex-1 overflow-x-auto scroll-smooth flex items-center gap-1.5 px-8 sm:px-10"
+          >
+            {TABS.map((t) => (
+              <button
+                key={t.key}
+                className={`wb-tab${active === t.key ? ' active' : ''}`}
+                onClick={() => setActive(t.key)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Right Scroll Button */}
+          <button
+            onClick={() => scrollTabs('right')}
+            className={`absolute right-1 z-10 p-1.5 rounded-xl bg-[var(--surface)] border border-[var(--border-strong)] text-[var(--text-2)] hover:text-[var(--text-1)] shadow-md flex items-center justify-center cursor-pointer backdrop-blur-md transition-opacity duration-200 ${
+              showRightChevron ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+            title="Scroll Right"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
 
         <div className="wb-content">

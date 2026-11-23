@@ -99,7 +99,25 @@ export const Header = () => {
           </div>
         )}
 
-        {/* Notification Bell & Popover */}
+        {/* Theme Switcher Button */}
+        <button
+          onClick={toggleTheme}
+          title={`Theme: ${theme.toUpperCase()}`}
+          className="p-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-hover)] transition-all cursor-pointer active:scale-95 shadow-sm flex items-center justify-center"
+        >
+          {theme === 'dark' ? <Moon className="w-4 h-4 text-blue-400" /> : theme === 'light' ? <Sun className="w-4 h-4 text-amber-400" /> : <Sparkles className="w-4 h-4 text-purple-400" />}
+        </button>
+
+        {/* Quick Add Button */}
+        <button
+          onClick={() => openModal('quickAdd')}
+          className="btn-primary text-xs px-3.5 py-1.5 shadow-sm cursor-pointer flex items-center gap-1.5"
+        >
+          <Plus className="w-3.5 h-3.5 stroke-[3]" />
+          <span className="hidden sm:inline font-semibold">New</span>
+        </button>
+
+        {/* Notification Bell & Popover (Second Last) */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setShowNotifPopover(!showNotifPopover)}
@@ -157,41 +175,7 @@ export const Header = () => {
           )}
         </div>
 
-        {/* Minimal Currency Pill */}
-        <div className="relative flex items-center">
-          <select
-            value={currentCurrency}
-            onChange={(e) => setCurrentCurrency(e.target.value)}
-            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] outline-none cursor-pointer hover:border-[var(--border-hover)]"
-          >
-            <option value="USD">USD ($)</option>
-            <option value="EUR">EUR (€)</option>
-            <option value="GBP">GBP (£)</option>
-            <option value="INR">INR (₹)</option>
-            <option value="CAD">CAD (C$)</option>
-            <option value="AUD">AUD (A$)</option>
-          </select>
-        </div>
-
-        {/* Theme Switcher Button */}
-        <button
-          onClick={toggleTheme}
-          title={`Theme: ${theme.toUpperCase()}`}
-          className="p-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-hover)] transition-all cursor-pointer active:scale-95 shadow-sm flex items-center justify-center"
-        >
-          {theme === 'dark' ? <Moon className="w-4 h-4 text-blue-400" /> : theme === 'light' ? <Sun className="w-4 h-4 text-amber-400" /> : <Sparkles className="w-4 h-4 text-purple-400" />}
-        </button>
-
-        {/* Quick Add Button */}
-        <button
-          onClick={() => openModal('quickAdd')}
-          className="btn-primary text-xs px-3.5 py-1.5 shadow-sm cursor-pointer flex items-center gap-1.5"
-        >
-          <Plus className="w-3.5 h-3.5 stroke-[3]" />
-          <span className="hidden sm:inline font-semibold">New</span>
-        </button>
-
-        {/* Profile Avatar / Settings Shortcut */}
+        {/* Profile Avatar / Settings Shortcut (Last) */}
         <button
           onClick={() => setCurrentTab('tab-settings')}
           className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm border border-white/20 hover:scale-105 transition-transform cursor-pointer"

@@ -400,7 +400,10 @@ export const SettingsTab = () => {
                     step="1"
                     value={k401Pct}
                     onChange={(e) => setK401Pct(Number(e.target.value))}
-                    className="w-full accent-emerald-500"
+                    className="ps-slider"
+                    style={{
+                      background: `linear-gradient(to right, var(--accent) ${(k401Pct / 25) * 100}%, var(--surface-3) ${(k401Pct / 25) * 100}%)`
+                    }}
                   />
                 </div>
 
