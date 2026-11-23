@@ -13,7 +13,7 @@
     "build": "node build.cjs",
     "start": "node server/index.js",
     "predeploy": "npm run build",
-  "deploy": "gh-pages -d dist"
+    "deploy": "node deploy.cjs"
   },
   "dependencies": {
     "chart.js": "^4.6.1",
