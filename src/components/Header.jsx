@@ -50,11 +50,26 @@ export const Header = () => {
     'tab-settings': 'Settings & Cloud Sync'
   };
 
+  const TAB_SUBTITLES = {
+    'tab-dashboard': 'Overview of net worth, cash flow & recent activity',
+    'tab-accounts': 'Manage checking, savings, investment & credit accounts',
+    'tab-overview': 'Track asset allocation, performance & historical growth',
+    'tab-transactions': 'Search, filter and analyze all household transactions',
+    'tab-expenses': 'Monitor monthly budgets, spending categories & trends',
+    'tab-goals': 'Set and track financial milestones and target dates',
+    'tab-tax': 'Estimate tax brackets, deductions and optimize withholdings',
+    'tab-credit': 'Monitor credit score factors, utilization and reports',
+    'tab-blueprint': 'Interactive paystub, retirement, mortgage & FIRE models',
+    'tab-pricing': 'Manage subscription tier, billing and enterprise access',
+    'tab-settings': 'Configure currency, profile, security and cloud sync'
+  };
+
   const activeTitle = TAB_TITLES[currentTab] || 'Dashboard';
+  const activeSubtitle = TAB_SUBTITLES[currentTab] || 'Manage your financial life';
 
   return (
     <header className="sticky top-0 z-40 h-16 w-full border-b border-[var(--border)] bg-[var(--surface)]/75 backdrop-blur-xl px-4 sm:px-8 flex items-center justify-between transition-all">
-      {/* Left: Active Section Title */}
+      {/* Left: Active Section Title & Subheading */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2.5 lg:hidden font-black text-base tracking-tight">
           <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex items-center justify-center shadow-md">
@@ -63,10 +78,13 @@ export const Header = () => {
           <span>LedgerJourney</span>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2">
-          <h2 className="text-sm sm:text-base font-black text-[var(--text-1)] tracking-tight">
+        <div className="hidden sm:flex flex-col">
+          <h2 className="text-xs sm:text-sm font-extrabold text-[var(--text-1)] tracking-tight leading-tight">
             {activeTitle}
           </h2>
+          <p className="text-[10px] font-medium text-[var(--text-3)] leading-none mt-0.5">
+            {activeSubtitle}
+          </p>
         </div>
       </div>
 

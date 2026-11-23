@@ -30,14 +30,7 @@ export const PortfolioTab = () => {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-black text-[var(--text-1)]">Portfolio & Wealth Tracker</h2>
-          <p className="text-xs text-[var(--text-3)]">
-            Multi-year tracking of 401(k), Roth IRA, HSA, ESPP, and CD savings balances.
-          </p>
-        </div>
-
+      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
         <div className="flex items-center gap-3">
           {/* Year selector buttons */}
           <div className="flex p-1 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">

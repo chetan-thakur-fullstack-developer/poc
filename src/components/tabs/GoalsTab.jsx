@@ -86,16 +86,6 @@ export const GoalsTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-black text-[var(--text-1)]">Household Goals & Milestones</h2>
-          <p className="text-xs text-[var(--text-3)] mt-0.5">
-            Target long-term wealth milestones, emergency funds, and investment objectives.
-          </p>
-        </div>
-      </div>
-
       {/* KPI Summary Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card p-4">

@@ -17,13 +17,6 @@ export const TaxTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-xl font-black text-[var(--text-1)]">Tax Planning & Optimization</h2>
-        <p className="text-xs text-[var(--text-3)]">
-          Maximize pre-tax 401(k), HSA triple-tax advantages, and minimize federal/state liabilities.
-        </p>
-      </div>
 
       {/* Tax Savings Summary Card */}
       <div className="card p-6 bg-gradient-to-br from-emerald-500/15 via-[var(--surface)] to-[var(--surface)] border-emerald-500/30 space-y-4">

@@ -13,13 +13,6 @@ export const CreditTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-xl font-black text-[var(--text-1)]">Credit Health & Debt Payoff</h2>
-        <p className="text-xs text-[var(--text-3)]">
-          Real-time credit score monitoring, utilization ratios, and accelerated payoff strategies.
-        </p>
-      </div>
 
       {/* Credit Score Top Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

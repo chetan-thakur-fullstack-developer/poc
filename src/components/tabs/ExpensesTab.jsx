@@ -27,14 +27,8 @@ export const ExpensesTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-black text-[var(--text-1)]">Monthly Budget & Spending</h2>
-          <p className="text-xs text-[var(--text-3)]">
-            Control expense limits, monitor card utilization, and optimize household cashflow.
-          </p>
-        </div>
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
 
         <button
           onClick={syncToCloud}
