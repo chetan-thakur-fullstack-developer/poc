@@ -7,6 +7,7 @@
   - `src/domain/` — Pure business logic and domain models (zero framework dependencies)
   - `src/adapters/` — Database repositories, external API clients, and third-party integrations
   - `src/api/` — Route handlers, input validation, and transport-layer serialization
+- Do not update my build and deploy functionality as it should be same as it is wworking as expected 
 
 ## Commands
 - **Dev server:** `pnpm dev`
