@@ -1,129 +1,198 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
+import { AnimatedNumber } from '../AnimatedNumber.jsx';
+import { DonutChart } from '../charts/DonutChart.jsx';
+import { Plus, Link2, Layers, TrendingUp, TrendingDown, Pencil, AlertCircle } from 'lucide-react';
 
 export const AccountsTab = () => {
-  const { accountsData, formatMoney, openModal, deleteAccount, syncToCloud } = useApp();
+  const { accountsData, formatMoney, openModal, deleteAccount, syncToCloud, isSyncing } = useApp();
+  const [filter, setFilter] = useState('all');
+
   const linked = accountsData?.linked || [];
 
-  // Group by account type
-  const checkingTotal = linked
-    .filter(a => a.type === 'checking')
+  // Filter accounts based on filter chip
+  const filteredAccounts = linked.filter(acc => {
+    const isLiability = acc.type === 'credit' || (Number(acc.balance) < 0);
+    const isLinked = acc.source === 'plaid' || acc.source === 'linked';
+    const isManual = !isLinked;
+
+    if (filter === 'assets') return !isLiability;
+    if (filter === 'liabilities') return isLiability;
+    if (filter === 'linked') return isLinked;
+    if (filter === 'manual') return isManual;
+    if (filter === 'unmapped') return !acc.mapping || Object.keys(acc.mapping).length === 0;
+    return true; // 'all'
+  });
+
+  const totalAssets = linked
+    .filter(a => a.type !== 'credit')
     .reduce((s, a) => s + (Number(a.balance) || 0), 0);
 
-  const investmentTotal = linked
-    .filter(a => a.type === 'investment' || a.type === 'retirement')
-    .reduce((s, a) => s + (Number(a.balance) || 0), 0);
-
-  const creditTotal = linked
+  const totalLiab = linked
     .filter(a => a.type === 'credit')
     .reduce((s, a) => s + (Number(a.balance) || 0), 0);
 
+  const netWorth = totalAssets - totalLiab;
+
+  const assetAccounts = linked.filter(a => a.type !== 'credit');
+  const liabAccounts = linked.filter(a => a.type === 'credit');
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-black text-[var(--text-1)]">Linked Money Accounts</h2>
-          <p className="text-xs text-[var(--text-3)]">
-            Manage your depository accounts, credit lines, and investment balances.
+      {/* Header & Net Worth Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="lg:col-span-3 card p-6 relative overflow-hidden bg-gradient-to-br from-[var(--surface)] to-emerald-500/5 border border-emerald-500/20">
+          <span className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--text-3)]">Your Net Worth</span>
+          <div className="text-4xl lg:text-5xl font-black tracking-tight text-[var(--text-1)] font-mono my-2">
+            <AnimatedNumber value={netWorth} />
+          </div>
+          <p className="text-xs font-semibold text-[var(--text-3)] mb-5">
+            Across {linked.length} linked accounts & assets
           </p>
-        </div>
-        <div className="flex gap-2.5">
-          <button
-            onClick={syncToCloud}
-            className="btn-secondary text-xs px-3 py-2 cursor-pointer"
-          >
-            Sync with Supabase
-          </button>
-          <button
-            onClick={() => openModal('addAccount')}
-            className="btn-primary text-xs px-4 py-2 cursor-pointer"
-          >
-            + Link Account
-          </button>
-        </div>
-      </div>
 
-      {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="card p-4">
-          <span className="text-[10px] font-bold uppercase text-[var(--text-3)]">Cash & Depository</span>
-          <p className="text-xl font-black font-mono text-emerald-400 mt-1">
-            {formatMoney(checkingTotal)}
-          </p>
-        </div>
-        <div className="card p-4">
-          <span className="text-[10px] font-bold uppercase text-[var(--text-3)]">Investments & 401(k)</span>
-          <p className="text-xl font-black font-mono text-purple-400 mt-1">
-            {formatMoney(investmentTotal)}
-          </p>
-        </div>
-        <div className="card p-4">
-          <span className="text-[10px] font-bold uppercase text-[var(--text-3)]">Credit Card Balance</span>
-          <p className="text-xl font-black font-mono text-rose-400 mt-1">
-            {formatMoney(creditTotal)}
-          </p>
-        </div>
-      </div>
-
-      {/* Accounts List */}
-      <div className="card p-5 space-y-4">
-        <h3 className="font-bold text-sm text-[var(--text-1)]">All Accounts ({linked.length})</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {linked.map(account => (
-            <div
-              key={account.id}
-              className="card-inner p-4 flex flex-col justify-between hover:border-[var(--border-hover)] transition-all"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm text-white shadow-sm"
-                    style={{ backgroundColor: account.color || '#8B5CF6' }}
-                  >
-                    {account.institution?.[0] || 'B'}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-sm text-[var(--text-1)]">{account.name}</h4>
-                    <p className="text-[11px] text-[var(--text-3)] font-medium">
-                      {account.institution} · •••• {account.mask}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => deleteAccount(account.id)}
-                  title="Remove account"
-                  className="text-xs text-[var(--text-3)] hover:text-rose-400 p-1"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-end justify-between">
-                <div>
-                  <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-[var(--surface-3)] text-[var(--text-2)]">
-                    {account.type}
-                  </span>
-                  {account.mapping?.portfolioKey && (
-                    <span className="ml-2 text-[10px] text-purple-400 font-mono">
-                      ↳ maps to {account.mapping.portfolioKey}
-                    </span>
-                  )}
-                </div>
-
-                <div className="text-right">
-                  <p className="text-lg font-mono font-bold text-[var(--text-1)]">
-                    {formatMoney(account.balance, 2)}
-                  </p>
-                  <p className="text-[9px] text-emerald-400">
-                    Synced {account.lastSynced ? new Date(account.lastSynced).toLocaleDateString() : 'Active'}
-                  </p>
-                </div>
-              </div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-[11px] font-bold">
+              <span className="flex items-center gap-1.5 text-emerald-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                Assets {Math.round((totalAssets / (totalAssets + Math.abs(totalLiab) || 1)) * 100)}%
+              </span>
+              <span className="flex items-center gap-1.5 text-rose-400">
+                Liabilities {Math.round((Math.abs(totalLiab) / (totalAssets + Math.abs(totalLiab) || 1)) * 100)}%
+                <span className="w-2 h-2 rounded-full bg-rose-400" />
+              </span>
             </div>
-          ))}
+            <div className="h-2.5 rounded-full overflow-hidden flex bg-[var(--surface-3)]">
+              <div
+                className="h-full bg-emerald-500 transition-all duration-700"
+                style={{ width: `${Math.min(100, (totalAssets / (totalAssets + Math.abs(totalLiab) || 1)) * 100)}%` }}
+              />
+              <div
+                className="h-full bg-rose-500 transition-all duration-700"
+                style={{ width: `${Math.min(100, (Math.abs(totalLiab) / (totalAssets + Math.abs(totalLiab) || 1)) * 100)}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Money Breakdown Donut Chart */}
+        <div className="lg:col-span-2 card p-5 space-y-4">
+          <div>
+            <h3 className="font-bold text-sm text-[var(--text-1)]">Money Breakdown</h3>
+            <p className="text-[10px] text-[var(--text-3)]">Asset & liability distribution</p>
+          </div>
+          <div className="py-1">
+            <DonutChart
+              data={[
+                { label: 'Total Assets', value: totalAssets, color: '#10B981' },
+                { label: 'Total Liabilities', value: Math.abs(totalLiab), color: '#EF4444' }
+              ]}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Filter Chips & Add Button */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          {[
+            { id: 'all', label: 'All', icon: Layers },
+            { id: 'assets', label: 'Assets', icon: TrendingUp },
+            { id: 'liabilities', label: 'Liabilities', icon: TrendingDown },
+            { id: 'linked', label: 'Linked', icon: Link2 },
+            { id: 'manual', label: 'Manual', icon: Pencil },
+            { id: 'unmapped', label: 'Unmapped', icon: AlertCircle }
+          ].map(tab => {
+            const Icon = tab.icon;
+            const isActive = filter === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setFilter(tab.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-emerald-500 text-white shadow-sm'
+                    : 'bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)]'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          onClick={() => openModal('addAccount')}
+          className="btn-primary text-xs px-4 py-2 cursor-pointer flex items-center gap-1.5"
+        >
+          <Plus className="w-4 h-4 stroke-[3]" />
+          <span>Add Account</span>
+        </button>
+      </div>
+
+      {/* Accounts Table / List */}
+      <div className="card p-5 space-y-4">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-[var(--border)] text-[var(--text-3)]">
+                <th className="py-2.5 font-semibold">Account Name</th>
+                <th className="py-2.5 font-semibold">Institution</th>
+                <th className="py-2.5 font-semibold">Type</th>
+                <th className="py-2.5 font-semibold">Source</th>
+                <th className="py-2.5 font-semibold text-right">Balance</th>
+                <th className="py-2.5 font-semibold text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--border)]">
+              {filteredAccounts.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="py-8 text-center text-[var(--text-3)]">
+                    No accounts found matching this filter.
+                  </td>
+                </tr>
+              ) : (
+                filteredAccounts.map(acc => {
+                  const isNeg = Number(acc.balance) < 0 || acc.type === 'credit';
+                  return (
+                    <tr key={acc.id} className="hover:bg-[var(--surface-2)]/60 transition-colors">
+                      <td className="py-3.5 font-bold text-[var(--text-1)] flex items-center gap-3">
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs text-white shrink-0"
+                          style={{ backgroundColor: acc.color || '#8B5CF6' }}
+                        >
+                          {acc.institution?.[0] || 'A'}
+                        </div>
+                        <span>{acc.name}</span>
+                      </td>
+                      <td className="py-3.5 text-[var(--text-2)]">{acc.institution || 'Direct'}</td>
+                      <td className="py-3.5">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] uppercase font-semibold bg-[var(--surface-3)] text-[var(--text-2)]">
+                          {acc.type}
+                        </span>
+                      </td>
+                      <td className="py-3.5">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] uppercase font-semibold bg-emerald-500/10 text-emerald-400">
+                          {acc.source || 'Manual'}
+                        </span>
+                      </td>
+                      <td className={`py-3.5 text-right font-mono font-bold ${isNeg ? 'text-rose-400' : 'text-emerald-400'}`}>
+                        {formatMoney(acc.balance, 2)}
+                      </td>
+                      <td className="py-3.5 text-right">
+                        <button
+                          onClick={() => deleteAccount(acc.id)}
+                          className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

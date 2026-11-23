@@ -64,7 +64,7 @@ export const LoginView = () => {
         role,
         inviteCode: inviteCode.trim().toUpperCase()
       });
-      showToast('Account created successfully! Welcome to Executive Wealth.', 'success');
+      showToast('Account created successfully! Welcome to LedgerJourney.', 'success');
     } catch (err) {
       setErrorMsg(err.message || 'Error creating account. Please try again.');
     } finally {
@@ -109,7 +109,7 @@ export const LoginView = () => {
                 💎
               </span>
               <div>
-                <h1 className="text-xl font-black tracking-tight text-white">Executive Wealth</h1>
+                <h1 className="text-xl font-black tracking-tight text-white">LedgerJourney</h1>
                 <p className="text-xs font-semibold text-emerald-400">Personal Finance OS</p>
               </div>
             </div>

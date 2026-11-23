@@ -25,9 +25,10 @@ import { AddAccountModal } from './components/modals/AddAccountModal.jsx';
 import { AddTransactionModal } from './components/modals/AddTransactionModal.jsx';
 import { QuickAddModal } from './components/modals/QuickAddModal.jsx';
 import { CommandMenu } from './components/modals/CommandMenu.jsx';
+import { TourModal } from './components/TourModal.jsx';
 
 export const App = () => {
-  const { currentTab } = useApp();
+  const { currentTab, modals, closeModal } = useApp();
   const { user } = useAuth();
 
   // If user is not authenticated, display full-screen Login View
@@ -96,6 +97,7 @@ export const App = () => {
       <AddTransactionModal />
       <QuickAddModal />
       <CommandMenu />
+      <TourModal isOpen={modals.tour} onClose={() => closeModal('tour')} />
 
       {/* Toast Notification Container */}
       <Toast />

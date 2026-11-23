@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
+import { AnimatedNumber } from '../AnimatedNumber.jsx';
+import { DonutChart } from '../charts/DonutChart.jsx';
+import { AreaChart } from '../charts/AreaChart.jsx';
 
 export const PortfolioTab = () => {
   const { portfolioData, formatMoney, updatePortfolioYear, syncToCloud, isSyncing } = useApp();
@@ -70,7 +73,7 @@ export const PortfolioTab = () => {
             {activeYearData.year} Base Salary
           </span>
           <p className="text-xl font-black font-mono text-[var(--text-1)] mt-1">
-            {formatMoney(activeYearData.salary || 0)}
+            <AnimatedNumber value={activeYearData.salary || 0} />
           </p>
         </div>
         <div className="card p-4">
@@ -78,7 +81,7 @@ export const PortfolioTab = () => {
             Total Year-End Balance
           </span>
           <p className="text-xl font-black font-mono text-purple-400 mt-1">
-            {formatMoney(totalBalances)}
+            <AnimatedNumber value={totalBalances} />
           </p>
         </div>
         <div className="card p-4">
@@ -86,7 +89,7 @@ export const PortfolioTab = () => {
             Total Capital Invested
           </span>
           <p className="text-xl font-black font-mono text-emerald-400 mt-1">
-            {formatMoney(totalInvested)}
+            <AnimatedNumber value={totalInvested} />
           </p>
         </div>
         <div className="card p-4">
@@ -94,9 +97,30 @@ export const PortfolioTab = () => {
             Total Contributions
           </span>
           <p className="text-xl font-black font-mono text-blue-400 mt-1">
-            {formatMoney(totalContri)}
+            <AnimatedNumber value={totalContri} />
           </p>
         </div>
+      </div>
+
+      {/* Portfolio Analytics Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <DonutChart
+          title={`Asset Allocation Breakdown (${activeYearData.year})`}
+          data={categories.map(cat => ({
+            label: cat.label,
+            value: activeYearData.balances?.[cat.key] || 0,
+            color: cat.color
+          }))}
+        />
+        <AreaChart
+          title="Multi-Year Net Worth Growth History"
+          color="#8B5CF6"
+          height={220}
+          data={years.map(y => ({
+            label: y.year,
+            value: Object.values(y.balances || {}).reduce((sum, v) => sum + (Number(v) || 0), 0)
+          }))}
+        />
       </div>
 
       {/* Categories Breakdown Table */}

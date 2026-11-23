@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext.jsx';
+import { AnimatedNumber } from '../AnimatedNumber.jsx';
 
 export const ExpensesTab = () => {
   const { expensesData, setExpensesData, transactions, formatMoney, syncToCloud } = useApp();
@@ -52,7 +53,7 @@ export const ExpensesTab = () => {
             </span>
             <div className="flex items-center gap-3 mt-1">
               <span className="text-2xl sm:text-3xl font-black text-[var(--text-1)] font-mono">
-                {formatMoney(totalSpent, 2)}
+                <AnimatedNumber value={totalSpent} decimals={2} />
               </span>
               <span className="text-xs text-[var(--text-3)] font-semibold">of</span>
               <div className="flex items-center gap-1">
@@ -69,7 +70,7 @@ export const ExpensesTab = () => {
 
           <div className="text-right">
             <span className="text-xs font-bold text-emerald-400">
-              {formatMoney(remainingBudget, 2)}
+              <AnimatedNumber value={remainingBudget} decimals={2} />
             </span>
             <p className="text-[10px] text-[var(--text-3)]">Remaining allowance</p>
           </div>

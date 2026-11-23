@@ -27,17 +27,30 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove('light', 'glass-theme');
+    root.classList.remove('light', 'dark', 'glass-theme');
     if (theme === 'light') {
       root.classList.add('light');
+    } else if (theme === 'dark') {
+      root.classList.add('dark');
     } else if (theme === 'glass') {
       root.classList.add('glass-theme');
     }
     localStorage.setItem('ew_theme', theme);
   }, [theme]);
 
-  // 2. Active Tab
-  const [currentTab, setCurrentTab] = useState('tab-dashboard');
+  // 2. Active Tab (Persisted in localStorage and URL hash)
+  const [currentTab, setCurrentTab] = useState(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && hash.startsWith('tab-')) return hash;
+    return localStorage.getItem('ew_current_tab') || 'tab-dashboard';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('ew_current_tab', currentTab);
+    if (currentTab) {
+      window.location.hash = currentTab;
+    }
+  }, [currentTab]);
 
   // 3. Currency
   const [currentCurrency, setCurrentCurrency] = useState(() => {
@@ -96,6 +109,37 @@ export const AppProvider = ({ children }) => {
     const saved = localStorage.getItem(`ew_user_${user?.id}_transactions`);
     return saved ? JSON.parse(saved) : [];
   });
+
+  // 8. Notifications State
+  const [notifications, setNotifications] = useState(() => {
+    return [
+      {
+        id: '1',
+        title: 'Welcome to LedgerJourney 👋',
+        message: 'Use the dashboard checklist to set up your workspace. Tap the bell anytime to see important alerts.',
+        time: 'Just now',
+        type: 'info'
+      },
+      {
+        id: '2',
+        title: 'Portfolio Sync Complete 📈',
+        message: 'All 401(k), IRA, and linked depository accounts successfully synchronized.',
+        time: '1h ago',
+        type: 'success'
+      }
+    ];
+  });
+
+  const pushNotification = (notif) => {
+    setNotifications(prev => [
+      { id: Date.now().toString(), time: 'Just now', type: 'info', ...notif },
+      ...prev
+    ]);
+  };
+
+  const clearNotifications = () => {
+    setNotifications([]);
+  };
 
   // Load user data on user switch (Demo vs Real User)
   useEffect(() => {
@@ -235,7 +279,8 @@ export const AppProvider = ({ children }) => {
     addTx: false,
     quickAdd: false,
     category: false,
-    commandMenu: false
+    commandMenu: false,
+    tour: false
   });
 
   const openModal = (name) => setModals(prev => ({ ...prev, [name]: true }));
@@ -478,6 +523,9 @@ export const AppProvider = ({ children }) => {
         setExpensesData,
         transactions,
         setTransactions,
+        notifications,
+        pushNotification,
+        clearNotifications,
         addTransaction,
         deleteTransaction,
         updatePortfolioYear,

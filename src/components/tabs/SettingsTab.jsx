@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { checkSupabaseConnection, isSupabaseConfigured } from '../../services/supabase.js';
+import { LogOut } from 'lucide-react';
 
 export const SettingsTab = () => {
   const {
@@ -140,9 +141,9 @@ export const SettingsTab = () => {
               signOut();
             }
           }}
-          className="btn text-xs !py-2 !px-3.5 border-rose-500/30 text-rose-400 hover:bg-rose-500/10 self-start sm:self-auto cursor-pointer"
+          className="btn text-xs !py-2 !px-3.5 border-rose-500/30 text-rose-400 hover:bg-rose-500/10 self-start sm:self-auto cursor-pointer flex items-center gap-2"
         >
-          <span>🚪</span>
+          <LogOut className="w-4 h-4" />
           <span>Sign Out</span>
         </button>
       </div>
@@ -787,13 +788,13 @@ export const SettingsTab = () => {
           {activeSection === 'about' && (
             <div className="card p-6 space-y-4 animate-fadeIn">
               <div className="border-b border-[var(--border)] pb-4">
-                <h3 className="font-bold text-base text-[var(--text-1)]">About Executive Wealth</h3>
+                <h3 className="font-bold text-base text-[var(--text-1)]">About LedgerJourney</h3>
                 <p className="text-xs text-[var(--text-3)]">Personal Finance OS for serious households.</p>
               </div>
 
               <div className="space-y-2 text-xs text-[var(--text-2)] leading-relaxed">
                 <p>
-                  <b>Executive Wealth v4.5.1 (Household Edition)</b> is designed to give couples and individuals institutional-grade visibility over their net worth, portfolios, cash flows, and long-term financial independence horizons.
+                  <b>LedgerJourney v2.5.0 (Fintech Edition)</b> is designed to give couples and individuals institutional-grade visibility over their net worth, portfolios, cash flows, and long-term financial independence horizons.
                 </p>
                 <p>
                   Built with React, Vite, Tailwind CSS, and local-first encryption with optional Supabase cloud synchronization.
