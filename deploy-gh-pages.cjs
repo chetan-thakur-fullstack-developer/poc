@@ -30,6 +30,8 @@ try {
   const repoUrl = execSync('git remote get-url origin', { encoding: 'utf8' }).trim();
   process.chdir(distDir);
 
+  execSync('git config http.postBuffer 524288000', { stdio: 'inherit', env });
+  execSync('git config pack.windowMemory 256m', { stdio: 'inherit', env });
   execSync(`git push --force "${repoUrl}" gh-pages`, { stdio: 'inherit', env });
   console.log('[Deploy] ✓ Successfully deployed to gh-pages branch!');
 } catch (e) {

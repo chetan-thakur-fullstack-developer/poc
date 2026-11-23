@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef, useId } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { AreaChart } from '../charts/AreaChart.jsx';
 
 /* ═══════════════════════════════════════════════════════════
    SHARED UTILITIES
@@ -884,8 +885,6 @@ function ProjectionsCalc() {
   const [years, setYears] = useState(20);
   const [inflation, setInflation] = useState(2.5);
   const [compounding, setCompounding] = useState('monthly');
-  const canvasRef = useRef(null);
-  const chartRef = useRef(null);
 
   const calc = useMemo(() => {
     const n = compounding === 'daily' ? 365 : compounding === 'yearly' ? 1 : 12;
@@ -904,7 +903,7 @@ function ProjectionsCalc() {
     const growth = finalValue - starting - totalContributed;
     const realValue = finalValue / Math.pow(1 + inflation / 100, t);
 
-    // Yearly series for chart
+    // Yearly series for AreaChart
     const series = [];
     for (let y = 0; y <= t; y++) {
       const p = n * y;
@@ -912,39 +911,11 @@ function ProjectionsCalc() {
       const contrib = monthlyContriPerPeriod > 0 && periodicRate > 0
         ? monthlyContriPerPeriod * ((Math.pow(1 + periodicRate, p) - 1) / periodicRate)
         : monthlyContriPerPeriod * p;
-      series.push({ year: y, value: lump + contrib });
+      series.push({ label: `Yr ${y}`, value: lump + contrib });
     }
 
     return { finalValue, totalContributed, growth, realValue, series };
   }, [starting, monthlyContri, annualReturn, years, inflation, compounding]);
-
-  useEffect(() => {
-    if (!canvasRef.current || typeof Chart === 'undefined') return;
-    const ctx = canvasRef.current.getContext('2d');
-    if (chartRef.current) chartRef.current.destroy();
-    chartRef.current = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: calc.series.map(s => `Yr ${s.year}`),
-        datasets: [{
-          label: 'Projected Value',
-          data: calc.series.map(s => s.value),
-          borderColor: '#8B5CF6',
-          backgroundColor: 'rgba(139,92,246,0.12)',
-          fill: true, tension: 0.3,
-        }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { callback: (v) => '$' + (v / 1000).toFixed(0) + 'k' } },
-          x: { grid: { display: false } },
-        },
-      },
-    });
-    return () => { if (chartRef.current) { chartRef.current.destroy(); chartRef.current = null; } };
-  }, [calc.series]);
 
   return (
     <>
@@ -986,7 +957,7 @@ function ProjectionsCalc() {
               <span className="ps-receipt-badge">{annualReturn}% return · {years}y</span>
             </div>
             <div className="ps-receipt-body" style={{ padding: '1.25rem' }}>
-              <div style={{ height: 320 }}><canvas ref={canvasRef} /></div>
+              <AreaChart data={calc.series} height={300} color="#8B5CF6" />
             </div>
           </div>
         </div>
@@ -1260,8 +1231,23 @@ export function BlueprintTab() {
   };
 
   return (
-    <div id="tab-blueprint" className="main-tab-content space-y-5">
-      <div className="main-content-blur space-y-5">
+    <div id="tab-blueprint" className="main-tab-content space-y-6">
+      <div className="main-content-blur space-y-6">
+        {/* Section Header Banner */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20">
+          <div>
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+              FINANCIAL BLUEPRINT
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-[var(--text-1)] mt-1.5">
+              Advanced Calculators & Simulators
+            </h2>
+            <p className="text-xs text-[var(--text-3)] mt-0.5">
+              Model paychecks, compound growth, mortgages, FIRE targets, and tax impact with institutional precision.
+            </p>
+          </div>
+        </div>
+
         <div className="relative flex items-center">
           {/* Left Scroll Button */}
           <button
@@ -1302,7 +1288,7 @@ export function BlueprintTab() {
           </button>
         </div>
 
-        <div className="wb-content">
+        <div className="wb-content mt-6">
           <div className="wb-pane active">
             <ActivePane />
           </div>

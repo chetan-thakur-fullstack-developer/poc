@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
-import { Target, Flag, Plus, Sparkles, ShieldCheck, Trophy } from 'lucide-react';
+import { Target, Flag, Plus, Sparkles, ShieldCheck, Trophy, Pencil, Trash2, Check, X } from 'lucide-react';
 import { AnimatedNumber } from '../AnimatedNumber.jsx';
 
 export const GoalsTab = () => {
@@ -43,6 +43,13 @@ export const GoalsTab = () => {
   const [newTarget, setNewTarget] = useState('');
   const [newMonthly, setNewMonthly] = useState('');
 
+  // Editing state
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editTarget, setEditTarget] = useState('');
+  const [editCurrent, setEditCurrent] = useState('');
+  const [editMonthly, setEditMonthly] = useState('');
+
   const goalTemplates = [
     { title: 'Home Down Payment', target: 80000, current: 24000, monthly: 1500, category: 'Property', date: '2028-05-30', color: '#3B82F6' },
     { title: 'Dream Vacation (Europe)', target: 12000, current: 4500, monthly: 600, category: 'Lifestyle', date: '2026-09-15', color: '#EC4899' },
@@ -78,6 +85,39 @@ export const GoalsTab = () => {
     }
     setGoals([{ id: `g_${Date.now()}`, ...template }, ...goals]);
     showToast(`Added goal template: "${template.title}"`, 'success');
+  };
+
+  const startEditing = (goal) => {
+    setEditingId(goal.id);
+    setEditTitle(goal.title);
+    setEditTarget(goal.target);
+    setEditCurrent(goal.current);
+    setEditMonthly(goal.monthly || 500);
+  };
+
+  const saveEdit = (id) => {
+    setGoals(goals.map(g => g.id === id ? {
+      ...g,
+      title: editTitle,
+      target: parseFloat(editTarget) || g.target,
+      current: parseFloat(editCurrent) || g.current,
+      monthly: parseFloat(editMonthly) || g.monthly
+    } : g));
+    setEditingId(null);
+    showToast('Goal updated successfully', 'success');
+  };
+
+  const deleteGoal = (id) => {
+    setGoals(goals.filter(g => g.id !== id));
+    showToast('Goal removed successfully', 'info');
+  };
+
+  const addContribution = (id, amount = 500) => {
+    setGoals(goals.map(g => g.id === id ? {
+      ...g,
+      current: Math.min(g.target, g.current + amount)
+    } : g));
+    showToast(`Added +${formatMoney(amount)} deposit to goal!`, 'success');
   };
 
   const totalGoalValue = goals.reduce((sum, g) => sum + g.target, 0);
@@ -127,61 +167,150 @@ export const GoalsTab = () => {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-bold text-sm text-[var(--text-1)]">Your Active Goals</h3>
-            <p className="text-xs text-[var(--text-3)]">Contribute, adjust pacing, and celebrate milestones</p>
+            <p className="text-xs text-[var(--text-3)]">Contribute, edit details, adjust pacing, or delete milestones</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {goals.map(goal => {
             const pct = Math.min(100, Math.round((goal.current / goal.target) * 100));
+            const isEditing = editingId === goal.id;
 
             return (
               <div key={goal.id} className="card p-5 space-y-4 flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span
-                      className="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
-                      style={{ backgroundColor: `${goal.color}20`, color: goal.color }}
-                    >
-                      {goal.category}
-                    </span>
-                    <span className="text-[var(--text-3)] font-mono text-[10px]">
-                      Target: {goal.date}
-                    </span>
-                  </div>
-
-                  <h3 className="font-bold text-sm text-[var(--text-1)] mt-2">
-                    {goal.title}
-                  </h3>
-
-                  <div className="flex justify-between items-end mt-3 text-xs">
+                {isEditing ? (
+                  /* Edit Mode */
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-bold text-emerald-400">Editing Goal</span>
+                      <button onClick={() => setEditingId(null)} className="p-1 text-[var(--text-3)] hover:text-white">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                     <div>
-                      <span className="text-[10px] text-[var(--text-3)]">Saved</span>
-                      <p className="font-mono font-bold text-[var(--text-1)]">{formatMoney(goal.current)}</p>
+                      <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Title</label>
+                      <input
+                        type="text"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        className="input-field text-xs"
+                      />
                     </div>
-                    <div className="text-right">
-                      <span className="text-[10px] text-[var(--text-3)]">Target</span>
-                      <p className="font-mono font-bold text-[var(--text-2)]">{formatMoney(goal.target)}</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Target ($)</label>
+                        <input
+                          type="number"
+                          value={editTarget}
+                          onChange={(e) => setEditTarget(e.target.value)}
+                          className="input-field text-xs font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Saved ($)</label>
+                        <input
+                          type="number"
+                          value={editCurrent}
+                          onChange={(e) => setEditCurrent(e.target.value)}
+                          className="input-field text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Monthly Pacing ($)</label>
+                      <input
+                        type="number"
+                        value={editMonthly}
+                        onChange={(e) => setEditMonthly(e.target.value)}
+                        className="input-field text-xs font-mono"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={() => saveEdit(goal.id)}
+                        className="btn-primary text-xs !py-1.5 flex-1 justify-center cursor-pointer flex items-center gap-1"
+                      >
+                        <Check className="w-3.5 h-3.5" /> Save
+                      </button>
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="btn-secondary text-xs !py-1.5 flex-1 justify-center cursor-pointer"
+                      >
+                        Cancel
+                      </button>
                     </div>
                   </div>
+                ) : (
+                  /* Normal View Mode */
+                  <>
+                    <div>
+                      <div className="flex justify-between items-center text-xs">
+                        <span
+                          className="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+                          style={{ backgroundColor: `${goal.color}20`, color: goal.color }}
+                        >
+                          {goal.category}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => startEditing(goal)}
+                            className="p-1.5 rounded-lg bg-[var(--surface-2)] text-[var(--text-3)] hover:text-white transition-colors cursor-pointer"
+                            title="Edit goal"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => deleteGoal(goal.id)}
+                            className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
+                            title="Delete goal"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
 
-                  {/* Progress bar */}
-                  <div className="w-full bg-[var(--surface-3)] h-2 rounded-full mt-2.5 overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{ backgroundColor: goal.color, width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
+                      <h3 className="font-bold text-sm text-[var(--text-1)] mt-2">
+                        {goal.title}
+                      </h3>
 
-                <div className="flex items-center justify-between pt-2 border-t border-[var(--border)] text-xs">
-                  <span className="text-[10px] text-[var(--text-3)] font-medium">
-                    +{formatMoney(goal.monthly || 500)}/mo pacing
-                  </span>
-                  <span className="font-bold text-emerald-400 font-mono text-xs">
-                    {pct}% Achieved
-                  </span>
-                </div>
+                      <div className="flex justify-between items-end mt-3 text-xs">
+                        <div>
+                          <span className="text-[10px] text-[var(--text-3)]">Saved</span>
+                          <p className="font-mono font-bold text-[var(--text-1)]">{formatMoney(goal.current)}</p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[10px] text-[var(--text-3)]">Target</span>
+                          <p className="font-mono font-bold text-[var(--text-2)]">{formatMoney(goal.target)}</p>
+                        </div>
+                      </div>
+
+                      {/* Progress bar */}
+                      <div className="w-full bg-[var(--surface-3)] h-2 rounded-full mt-2.5 overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{ backgroundColor: goal.color, width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-[var(--border)] space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-[10px] text-[var(--text-3)] font-medium">
+                          +{formatMoney(goal.monthly || 500)}/mo pacing
+                        </span>
+                        <span className="font-bold text-emerald-400 font-mono text-xs">
+                          {pct}% Achieved
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => addContribution(goal.id, 500)}
+                        className="btn-secondary text-xs !py-1 !px-2 w-full justify-center text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer flex items-center gap-1"
+                      >
+                        + Deposit $500
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             );
           })}

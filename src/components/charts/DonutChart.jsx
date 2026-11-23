@@ -71,32 +71,34 @@ export const DonutChart = ({ data = [], title = '' }) => {
   };
 
   return (
-    <div className="card p-6 space-y-4">
+    <div className="card p-5 sm:p-6 space-y-4" style={{ backgroundColor: 'var(--app-bg-2)', backdropFilter: 'none', WebkitBackdropFilter: 'none' }}>
       {title && <h3 className="font-bold text-sm text-[var(--text-1)]">{title}</h3>}
       <div className="flex flex-col sm:flex-row items-center gap-6">
-        <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
-          <Doughnut data={chartData} options={options} />
+        <div className="relative w-36 h-36 sm:w-40 sm:h-40 shrink-0 flex items-center justify-center mx-auto sm:mx-0">
+          <div className="absolute inset-0 w-full h-full">
+            <Doughnut data={chartData} options={options} />
+          </div>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-2">
             <span className="text-[9px] uppercase font-bold text-[var(--text-3)] tracking-wider">Total</span>
-            <span className="text-xs sm:text-sm font-black font-mono text-[var(--text-1)] mt-0.5 truncate max-w-[110px]" title={`$${total.toLocaleString()}`}>
+            <span className="text-xs sm:text-sm font-black font-mono text-[var(--text-1)] mt-0.5" title={`$${total.toLocaleString()}`}>
               {formatCompact(total)}
             </span>
           </div>
         </div>
 
         {/* Legend */}
-        <div className="flex-1 w-full space-y-2">
+        <div className="flex-1 w-full space-y-2.5">
           {data.map((item, idx) => {
             const pct = Math.round((item.value / total) * 100);
             return (
-              <div key={idx} className="flex items-center justify-between gap-3 text-xs p-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-hover)] transition-all min-w-0">
-                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div key={idx} className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-sm">
+                <div className="flex items-center gap-2.5">
                   <span className="w-3 h-3 rounded-md shrink-0 shadow-sm" style={{ background: item.color || colorsList[idx % colorsList.length] }} />
-                  <span className="text-[var(--text-1)] font-semibold truncate">{item.label}</span>
+                  <span className="text-[var(--text-1)] font-bold">{item.label}</span>
                 </div>
-                <div className="flex items-center gap-2 shrink-0 font-mono">
-                  <span className="text-[var(--text-3)] text-[10px] font-bold px-1.5 py-0.5 rounded bg-[var(--surface-3)]">{pct}%</span>
-                  <span className="font-black text-[var(--text-1)] truncate max-w-[90px]">${item.value.toLocaleString()}</span>
+                <div className="flex items-center gap-2 font-mono font-black text-[var(--text-1)]">
+                  <span className="text-emerald-400 font-bold text-[11px]">{pct}%</span>
+                  <span className="text-xs">${item.value.toLocaleString()}</span>
                 </div>
               </div>
             );
