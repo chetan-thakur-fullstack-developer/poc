@@ -81,9 +81,16 @@ export const App = () => {
         <Header />
 
         {/* Scrollable View Container */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-28 lg:pb-8">
+          <div className="max-w-7xl mx-auto space-y-12">
             {renderActiveTab()}
+
+            {/* Financial Disclaimer Footer */}
+            <footer className="pt-6 border-t border-[var(--border)] text-center text-[10px] text-[var(--text-4)] leading-relaxed max-w-3xl mx-auto pb-4">
+              <p>
+                <strong className="text-[var(--text-3)]">Financial Disclaimer:</strong> LedgerJourney is a personal finance modeling, budgeting, and educational tool. We are not a registered investment advisor or broker-dealer. All projections, calculations, and simulations are for informational and educational purposes only and do not constitute formal financial, tax, or legal advice.
+              </p>
+            </footer>
           </div>
         </main>
       </div>

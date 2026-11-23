@@ -661,11 +661,15 @@ function VehicleCalc() {
   const [mode, setMode] = useState('lease');
   return (
     <>
-      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-        <div className="seg">
-          <button className={`seg-item${mode === 'lease' ? ' active' : ''}`} onClick={() => setMode('lease')}>Lease Check</button>
-          <button className={`seg-item${mode === 'valuation' ? ' active' : ''}`} onClick={() => setMode('valuation')}>Buy / Sell Value</button>
-        </div>
+      <div className="mb-5" style={{ maxWidth: 320 }}>
+        <Seg
+          value={mode}
+          onChange={setMode}
+          options={[
+            { value: 'lease', label: '🚗 Lease Check' },
+            { value: 'valuation', label: '🏷️ Buy / Sell Value' }
+          ]}
+        />
       </div>
       {mode === 'lease' ? <LeaseCalc /> : <ValuationCalc />}
     </>

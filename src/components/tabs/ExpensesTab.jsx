@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { AnimatedNumber } from '../AnimatedNumber.jsx';
+import { SubscriptionRadar } from '../SubscriptionRadar.jsx';
 
 export const ExpensesTab = () => {
   const { expensesData, setExpensesData, transactions, formatMoney, syncToCloud } = useApp();
@@ -114,6 +115,9 @@ export const ExpensesTab = () => {
           })}
         </div>
       </div>
+
+      {/* Subscription Ghost Radar */}
+      <SubscriptionRadar />
 
       {/* Credit Cards & Limits */}
       <div className="card p-5 space-y-4">

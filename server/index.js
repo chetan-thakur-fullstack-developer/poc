@@ -11,6 +11,7 @@ import accountsRoutes from './routes/accounts.js';
 import expensesRoutes from './routes/expenses.js';
 import transactionsRoutes from './routes/transactions.js';
 import syncRoutes from './routes/sync.js';
+import subscriptionsRoutes from './routes/subscriptions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,6 +60,7 @@ app.use('/api/accounts', accountsRoutes);
 app.use('/api/expenses', expensesRoutes);
 app.use('/api/transactions', transactionsRoutes);
 app.use('/api/sync', syncRoutes);
+app.use('/api/subscriptions', subscriptionsRoutes);
 
 // Serve static frontend build if it exists (for single-container/production deployments)
 const distPath = path.resolve(__dirname, '../dist');
