@@ -1,899 +1,1019 @@
-import React, { useMemo, useState } from 'react';
-import {
-  TrendingUp, Plus, Trash2, RotateCcw, Info, ChevronDown,
-} from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef, useId } from 'react';
 
 /* ═══════════════════════════════════════════════════════════
-   TAX DATA (2025 estimates — single source of truth)
+   SHARED UTILITIES
    ═══════════════════════════════════════════════════════════ */
-const FED_BRACKETS = {
-  single: [
-    [11925, 0.10], [48475, 0.12], [103350, 0.22], [197300, 0.24],
-    [250525, 0.32], [626350, 0.35], [Infinity, 0.37],
-  ],
-  married: [
-    [23850, 0.10], [96950, 0.12], [206700, 0.22], [394600, 0.24],
-    [501050, 0.32], [751600, 0.35], [Infinity, 0.37],
-  ],
-  hoh: [
-    [17000, 0.10], [64850, 0.12], [103350, 0.22], [197300, 0.24],
-    [250500, 0.32], [626350, 0.35], [Infinity, 0.37],
-  ],
-};
-
-const STD_DEDUCTION = { single: 15000, married: 30000, hoh: 22500 };
-const ADD_MEDICARE_THRESHOLD = { single: 200000, married: 250000, hoh: 200000 };
-
-const SS_WAGE_BASE = 176100;
-const SS_RATE = 0.062;
-const MEDICARE_RATE = 0.0145;
-const ADD_MEDICARE_RATE = 0.009;
-
-const K401_LIMIT = 23500;
-const HSA_LIMIT_FAMILY = 8550;
-
-const PAY_FREQ = {
-  weekly:      { periods: 52, label: 'week' },
-  biweekly:    { periods: 26, label: 'paycheck' },
-  semimonthly: { periods: 24, label: 'paycheck' },
-  monthly:     { periods: 12, label: 'month' },
-};
-
-const FILING_LABEL = {
-  single: 'Single',
-  married: 'Married filing jointly',
-  hoh: 'Head of household',
-};
-
-const STATE_RATES = {
-  'No state tax': 0, AL: 5.0, AK: 0, AZ: 2.5, AR: 4.4, CA: 9.3, CO: 4.4,
-  CT: 5.0, DE: 5.5, FL: 0, GA: 5.39, HI: 8.0, ID: 5.8, IL: 4.95, IN: 3.05,
-  IA: 6.0, KS: 5.7, KY: 4.0, LA: 4.25, ME: 7.15, MD: 5.0, MA: 5.0, MI: 4.25,
-  MN: 7.85, MS: 4.7, MO: 4.8, MT: 6.0, NE: 6.0, NV: 0, NH: 0, NJ: 6.37,
-  NM: 5.9, NY: 6.85, NC: 4.25, ND: 2.5, OH: 3.5, OK: 4.75, OR: 9.0, PA: 3.07,
-  RI: 5.99, SC: 6.4, SD: 0, TN: 0, TX: 0, UT: 4.55, VT: 7.0, VA: 5.75,
-  WA: 0, WV: 5.12, WI: 7.65, WY: 0,
-};
-
-/* ═══════════════════════════════════════════════════════════
-   HELPERS
-   ═══════════════════════════════════════════════════════════ */
-const safe = (n) => (Number.isFinite(n) ? n : 0);
 const fmt = (n, d = 0) =>
-  safe(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
-const money0 = (n) => `$${fmt(Math.round(safe(n)), 0)}`;
-const money2 = (n) => `$${fmt(safe(n), 2)}`;
+  new Intl.NumberFormat('en-US', {
+    style: 'currency', currency: 'USD',
+    minimumFractionDigits: d, maximumFractionDigits: d,
+  }).format(Number.isFinite(n) ? n : 0);
+const pct = (n, d = 2) => `${(Number.isFinite(n) ? n : 0).toFixed(d)}%`;
+const num = (v, fallback = 0) => { const n = parseFloat(v); return Number.isFinite(n) ? n : fallback; };
 
-function bracketTax(taxable, brackets) {
-  let tax = 0;
-  let lower = 0;
-  let marginal = 0;
-  for (const [upper, rate] of brackets) {
-    if (taxable > lower) {
-      tax += (Math.min(taxable, upper) - lower) * rate;
-      marginal = rate;
-    }
-    lower = upper;
-    if (taxable <= upper) break;
+const TABS = [
+  { key: 'paycheck',    label: 'Paycheck',      icon: 'receipt' },
+  { key: 'rule72',      label: 'Rule of 72',    icon: 'percent' },
+  { key: 'mortgage',    label: 'Mortgage',      icon: 'home' },
+  { key: 'vehicle',     label: 'Vehicle',       icon: 'car' },
+  { key: 'projections', label: 'Projections',   icon: 'rocket' },
+  { key: 'fire',        label: 'FIRE',          icon: 'flame' },
+  { key: 'emergency',   label: 'Emergency',     icon: 'shield' },
+  { key: 'inflation',   label: 'Inflation',     icon: 'trending-down' },
+  { key: 'insights',    label: 'Insights',      icon: 'lightbulb' },
+];
+
+const FREQ = {
+  52: 'Weekly', 26: 'Bi-Weekly', 24: 'Semi-Monthly', 12: 'Monthly',
+};
+
+const FED_BRACKETS_2024 = {
+  single: [[11600,.10],[47150,.12],[100525,.22],[191950,.24],[243725,.32],[609350,.35],[Infinity,.37]],
+  mfj:    [[23200,.10],[94300,.12],[201050,.22],[383900,.24],[487450,.32],[731200,.35],[Infinity,.37]],
+};
+const marginalTax = (income, filing) => {
+  let tax = 0, prev = 0;
+  for (const [cap, rate] of FED_BRACKETS_2024[filing]) {
+    if (income <= prev) break;
+    tax += (Math.min(income, cap) - prev) * rate;
+    prev = cap;
   }
-  return { tax: Math.max(0, tax), marginal };
+  return tax;
+};
+
+/* Dual slider + number input wrapper */
+function DualField({ label, hint, value, onChange, min, max, step, prefix, suffix, placeholder }) {
+  return (
+    <div className="ps-field">
+      <label className="ps-field-label">
+        <span>{label}</span>
+        {hint !== undefined && <span className="ps-field-hint">{hint}</span>}
+      </label>
+      <div className="ps-field-input">
+        <div style={{ position: 'relative' }}>
+          <input
+            type="number" className="ps-input"
+            value={value} min={min} max={max} step={step}
+            placeholder={placeholder}
+            onChange={(e) => onChange(num(e.target.value))}
+            style={suffix ? { paddingRight: '1.9rem' } : undefined}
+          />
+          {suffix && (
+            <span style={{
+              position: 'absolute', right: '.6rem', top: '50%',
+              transform: 'translateY(-50%)', fontSize: 11, fontWeight: 800,
+              color: 'var(--text-4)',
+            }}>{suffix}</span>
+          )}
+        </div>
+        {min !== undefined && max !== undefined && (
+          <input
+            type="range" className="slider-hero"
+            min={min} max={max} step={step || 1}
+            value={value}
+            onChange={(e) => onChange(num(e.target.value))}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* Segmented control */
+function Seg({ options, value, onChange }) {
+  return (
+    <div className="ps-seg">
+      {options.map(({ value: v, label }) => (
+        <button
+          key={v} type="button"
+          className={`ps-seg-item${value === v ? ' active' : ''}`}
+          onClick={() => onChange(v)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 /* ═══════════════════════════════════════════════════════════
-   COMPONENT  —  NOTE: named export (not default)
+   1. PAYCHECK CALCULATOR
    ═══════════════════════════════════════════════════════════ */
-export function BlueprintTab() {
-  // ── Income ─────────────────────────────────────────────
-  const [grossAnnual, setGrossAnnual] = useState(95000);
-  const [payFreq, setPayFreq] = useState('biweekly');
-
-  // ── Filing ─────────────────────────────────────────────
-  const [filing, setFiling] = useState('single');
-  const [stateName, setStateName] = useState('No state tax');
-  const [stateRate, setStateRate] = useState(0);
-  const [dependents, setDependents] = useState(0);
-
-  // ── Retirement & benefits ──────────────────────────────
-  const [k401TradPct, setK401TradPct] = useState(6);
-  const [k401RothPct, setK401RothPct] = useState(0);
-  const [hsaAnnual, setHsaAnnual] = useState(0);
-  const [matchRatePct, setMatchRatePct] = useState(50);
-  const [matchCapPct, setMatchCapPct] = useState(6);
-  const [startBalance, setStartBalance] = useState(0);
-  const [returnPct, setReturnPct] = useState(7);
-  const [salaryGrowthPct, setSalaryGrowthPct] = useState(3);
-  const [horizon, setHorizon] = useState(30);
-
-  // ── Custom deductions ──────────────────────────────────
-  const [deductions, setDeductions] = useState([
-    { id: 1, name: 'Health insurance', type: 'pretax', amount: 2400 },
+function PaycheckCalc() {
+  const [salary, setSalary] = useState(145000);
+  const [freq, setFreq] = useState(26);
+  const [filing, setFiling] = useState('mfj');
+  const [override, setOverride] = useState(false);
+  const [preTax, setPreTax] = useState([
+    { id: 'p1', label: '401(k)', method: 'percent', type: 'per_paycheck', amount: 6 },
+    { id: 'p2', label: 'Health Insurance', method: 'fixed', type: 'per_paycheck', amount: 220 },
   ]);
+  const [postTax, setPostTax] = useState([]);
+  const [extraFed, setExtraFed] = useState(0);
+  const [extraState, setExtraState] = useState(0);
+  const [extraLocal, setExtraLocal] = useState(0);
+  const [stateRate, setStateRate] = useState(0);
+  const [localRate, setLocalRate] = useState(0);
 
-  const addDeduction = () =>
-    setDeductions((d) => [
-      ...d,
-      { id: Date.now(), name: 'New deduction', type: 'pretax', amount: 0 },
-    ]);
+  const calc = useMemo(() => {
+    const grossPeriod = salary / freq;
+    const grossAnnual = salary;
+    const prePerPeriod = preTax.reduce((s, d) =>
+      s + (d.method === 'percent' ? grossPeriod * d.amount / 100
+        : d.type === 'per_paycheck' ? d.amount
+        : d.amount / freq), 0);
+    const postPerPeriod = postTax.reduce((s, d) =>
+      s + (d.method === 'percent' ? grossPeriod * d.amount / 100
+        : d.type === 'per_paycheck' ? d.amount
+        : d.amount / freq), 0);
 
-  const updateDeduction = (id, patch) =>
-    setDeductions((d) => d.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+    const taxableAnnual = Math.max(0, grossAnnual - prePerPeriod * freq);
+    const fedAnnual = marginalTax(taxableAnnual, filing);
+    const fedPerPeriod = fedAnnual / freq + extraFed;
+    const statePerPeriod = taxableAnnual * stateRate / 100 / freq + extraState;
+    const localPerPeriod = taxableAnnual * localRate / 100 / freq + extraLocal;
+    const ssBase = Math.min(taxableAnnual, 168600);
+    const ssPerPeriod = ssBase * .062 / freq;
+    const mediBase = taxableAnnual;
+    const mediPerPeriod = (mediBase * .0145 + Math.max(0, mediBase - 200000) * .009) / freq;
 
-  const removeDeduction = (id) =>
-    setDeductions((d) => d.filter((x) => x.id !== id));
+    const totalTax = fedPerPeriod + statePerPeriod + localPerPeriod + ssPerPeriod + mediPerPeriod;
+    const netPeriod = Math.max(0, grossPeriod - prePerPeriod - totalTax - postPerPeriod);
+    const effTax = grossAnnual > 0 ? (totalTax * freq / grossAnnual) * 100 : 0;
 
-  const resetAll = () => {
-    setGrossAnnual(95000);
-    setPayFreq('biweekly');
-    setFiling('single');
-    setStateName('No state tax');
-    setStateRate(0);
-    setDependents(0);
-    setK401TradPct(6);
-    setK401RothPct(0);
-    setHsaAnnual(0);
-    setMatchRatePct(50);
-    setMatchCapPct(6);
-    setStartBalance(0);
-    setReturnPct(7);
-    setSalaryGrowthPct(3);
-    setHorizon(30);
-    setDeductions([{ id: 1, name: 'Health insurance', type: 'pretax', amount: 2400 }]);
+    return {
+      grossPeriod, grossAnnual, prePerPeriod, postPerPeriod,
+      fedPerPeriod, statePerPeriod, localPerPeriod, ssPerPeriod, mediPerPeriod,
+      totalTax, netPeriod, netAnnual: netPeriod * freq, effTax,
+    };
+  }, [salary, freq, filing, preTax, postTax, extraFed, extraState, extraLocal, stateRate, localRate]);
+
+  const addDeduction = (kind) => {
+    const setter = kind === 'pre' ? setPreTax : setPostTax;
+    setter((arr) => [...arr, {
+      id: kind + '_' + Date.now(),
+      label: 'New Deduction', method: 'fixed', type: 'per_paycheck', amount: 0,
+    }]);
+  };
+  const updateDed = (kind, id, patch) => {
+    const setter = kind === 'pre' ? setPreTax : setPostTax;
+    setter((arr) => arr.map((d) => d.id === id ? { ...d, ...patch } : d));
+  };
+  const removeDed = (kind, id) => {
+    const setter = kind === 'pre' ? setPreTax : setPostTax;
+    setter((arr) => arr.filter((d) => d.id !== id));
   };
 
-  /* ═══════════════════════════════════════════════════════
-     PAYCHECK ENGINE
-     ═══════════════════════════════════════════════════════ */
-  const calc = useMemo(() => {
-    const gross = Math.max(0, safe(grossAnnual));
-    const periods = PAY_FREQ[payFreq].periods;
+  const renderDedList = (list, kind) => list.map((d) => (
+    <div key={d.id} className="ps-row">
+      <div className="ps-row-label-row">
+        <input className="ps-row-label-input" value={d.label}
+          onChange={(e) => updateDed(kind, d.id, { label: e.target.value })} />
+        <button className="cat-action-btn danger" onClick={() => removeDed(kind, d.id)} title="Remove">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div className="ps-row-controls">
+        <select value={d.method} onChange={(e) => updateDed(kind, d.id, { method: e.target.value })}>
+          <option value="fixed">$ fixed</option>
+          <option value="percent">% of gross</option>
+        </select>
+        <input type="number" value={d.amount} min={0}
+          onChange={(e) => updateDed(kind, d.id, { amount: num(e.target.value) })} />
+        <select value={d.type} onChange={(e) => updateDed(kind, d.id, { type: e.target.value })}>
+          <option value="per_paycheck">per paycheck</option>
+          <option value="annual">per year</option>
+        </select>
+      </div>
+    </div>
+  ));
 
-    const trad401k = Math.min((gross * safe(k401TradPct)) / 100, K401_LIMIT);
-    const roth401k = Math.min(
-      (gross * safe(k401RothPct)) / 100,
-      Math.max(0, K401_LIMIT - trad401k)
-    );
-
-    const hsa = Math.min(Math.max(0, safe(hsaAnnual)), HSA_LIMIT_FAMILY);
-
-    const otherPretax = deductions
-      .filter((d) => d.type === 'pretax')
-      .reduce((s, d) => s + safe(d.amount), 0);
-
-    const otherPosttax = deductions
-      .filter((d) => d.type === 'posttax')
-      .reduce((s, d) => s + safe(d.amount), 0);
-
-    const pretaxTotal = trad401k + hsa + otherPretax;
-
-    const fedTaxable = Math.max(0, gross - pretaxTotal - STD_DEDUCTION[filing]);
-    const { tax: fedTaxRaw, marginal } = bracketTax(fedTaxable, FED_BRACKETS[filing]);
-    const childCredit = Math.min(safe(dependents) * 2000, fedTaxRaw);
-    const fedTax = Math.max(0, fedTaxRaw - childCredit);
-
-    const ss = Math.min(gross, SS_WAGE_BASE) * SS_RATE;
-    const medicare =
-      gross * MEDICARE_RATE +
-      Math.max(0, gross - ADD_MEDICARE_THRESHOLD[filing]) * ADD_MEDICARE_RATE;
-    const fica = ss + medicare;
-
-    const stateTax = Math.max(0, gross - pretaxTotal) * (safe(stateRate) / 100);
-
-    const posttaxTotal = roth401k + otherPosttax;
-    const totalTax = fedTax + fica + stateTax;
-    const netAnnual = Math.max(0, gross - pretaxTotal - totalTax - posttaxTotal);
-
-    const per = (v) => v / periods;
-
-    const employeeContrib = trad401k + roth401k;
-    const employerMatch =
-      Math.min(employeeContrib, (gross * safe(matchCapPct)) / 100) *
-      (safe(matchRatePct) / 100);
-
-    const effectiveRate = gross > 0 ? (totalTax / gross) * 100 : 0;
-
-    return {
-      gross, periods, trad401k, roth401k, hsa, otherPretax, otherPosttax,
-      pretaxTotal, posttaxTotal, fedTax, fica, stateTax, totalTax,
-      netAnnual, netPerPeriod: per(netAnnual), grossPerPeriod: per(gross),
-      fedPerPeriod: per(fedTax), ficaPerPeriod: per(fica),
-      statePerPeriod: per(stateTax), marginal, effectiveRate,
-      employerMatch, employeeContrib,
-    };
-  }, [
-    grossAnnual, payFreq, filing, stateRate, dependents,
-    k401TradPct, k401RothPct, hsaAnnual, deductions, matchRatePct, matchCapPct,
-  ]);
-
-  const periodLabel = PAY_FREQ[payFreq].label;
-
-  /* ═══════════════════════════════════════════════════════
-     RETIREMENT PROJECTION
-     ═══════════════════════════════════════════════════════ */
-  const projection = useMemo(() => {
-    const years = Math.max(1, Math.min(50, safe(horizon)));
-    let balance = Math.max(0, safe(startBalance));
-    let salary = Math.max(0, safe(grossAnnual));
-    const contribPct = Math.max(0, safe(k401TradPct) + safe(k401RothPct));
-    const r = safe(returnPct) / 100;
-    const g = safe(salaryGrowthPct) / 100;
-
-    const points = [{ year: 0, balance }];
-    let totalEmployee = 0;
-    let totalMatch = 0;
-
-    for (let y = 1; y <= years; y++) {
-      const contrib = Math.min((salary * contribPct) / 100, K401_LIMIT);
-      const match =
-        Math.min(contrib, (salary * safe(matchCapPct)) / 100) *
-        (safe(matchRatePct) / 100);
-
-      totalEmployee += contrib;
-      totalMatch += match;
-
-      balance = balance * (1 + r) + contrib + match;
-      salary *= 1 + g;
-      points.push({ year: y, balance });
-    }
-
-    const step = Math.max(1, Math.round(years / 6));
-    const milestones = points.filter(
-      (p) => p.year > 0 && (p.year % step === 0 || p.year === years)
-    );
-    const maxBalance = Math.max(...milestones.map((m) => m.balance), 1);
-
-    return {
-      points, milestones, maxBalance,
-      finalBalance: balance, totalEmployee, totalMatch,
-    };
-  }, [
-    horizon, startBalance, grossAnnual, k401TradPct, k401RothPct,
-    returnPct, salaryGrowthPct, matchRatePct, matchCapPct,
-  ]);
-
-  /* ═══════════════════════════════════════════════════════
-     RENDER
-     ═══════════════════════════════════════════════════════ */
   return (
-    <div className="animate-in">
-      {/* ── HERO ───────────────────────────────────────── */}
+    <>
       <div className="ps-hero">
         <div className="ps-hero-main">
-          <div className="ps-hero-label">Estimated Take-Home</div>
-          <div className="ps-hero-value">{money2(calc.netPerPeriod)}</div>
-          <div className="ps-hero-sub">
-            per {periodLabel} · {money0(calc.netAnnual)} / year
-          </div>
+          <span className="ps-hero-label">Net Take-Home</span>
+          <div className="ps-hero-value">{fmt(calc.netPeriod)}</div>
+          <div className="ps-hero-sub">per paycheck ({FREQ[freq]})</div>
         </div>
-
         <div className="ps-hero-stats">
-          <div className="ps-stat">
-            <span className="ps-stat-label">Gross</span>
-            <div className="ps-stat-value">{money0(calc.gross)}</div>
-            <div className="ps-stat-sub">{money2(calc.grossPerPeriod)} / {periodLabel}</div>
-          </div>
-          <div className="ps-stat">
-            <span className="ps-stat-label">Total Tax</span>
-            <div className="ps-stat-value">{money0(calc.totalTax)}</div>
-            <div className="ps-stat-sub">{fmt(calc.effectiveRate, 1)}% effective</div>
-          </div>
-          <div className="ps-stat">
-            <span className="ps-stat-label">Marginal Bracket</span>
-            <div className="ps-stat-value">{fmt(calc.marginal * 100, 0)}%</div>
-            <div className="ps-stat-sub">{FILING_LABEL[filing]}</div>
-          </div>
-          <div className="ps-stat">
-            <span className="ps-stat-label">Retirement @ {horizon}y</span>
-            <div className="ps-stat-value">{money0(projection.finalBalance)}</div>
-            <div className="ps-stat-sub">{money0(projection.totalMatch)} employer match</div>
-          </div>
+          <div className="ps-stat"><span className="ps-stat-label">Gross</span><div className="ps-stat-value">{fmt(calc.grossPeriod)}</div><div className="ps-stat-sub">per period</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Effective Tax</span><div className="ps-stat-value">{pct(calc.effTax, 1)}</div><div className="ps-stat-sub">of gross</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Annual Net</span><div className="ps-stat-value">{fmt(calc.netAnnual)}</div><div className="ps-stat-sub">{freq} periods / yr</div></div>
         </div>
       </div>
 
-      {/* ── LAYOUT ─────────────────────────────────────── */}
       <div className="ps-layout">
-        {/* ══════════ CONTROLS ══════════ */}
         <div className="ps-controls">
           <div className="ps-block">
             <div className="ps-block-head">
-              <span className="ps-block-label">Income</span>
-              <button className="ps-mini-btn" onClick={resetAll} type="button">
-                <RotateCcw /> Reset
-              </button>
+              <span className="ps-block-label">Compensation</span>
+              {override && <button className="ps-mini-btn" onClick={() => { setOverride(false); setSalary(145000); }}>Reset</button>}
+            </div>
+
+            <DualField
+              label="Annual Salary" hint={fmt(salary)}
+              value={salary} onChange={setSalary}
+              min={0} max={500000} step={1000}
+            />
+
+            <div className="ps-field">
+              <label className="ps-field-label"><span>Pay Frequency</span></label>
+              <Seg value={freq} onChange={setFreq}
+                options={Object.entries(FREQ).map(([v, l]) => ({ value: Number(v), label: l }))} />
             </div>
 
             <div className="ps-field">
-              <div className="ps-field-label">
-                <span>Gross annual income</span>
-                <span className="ps-field-hint">{money0(calc.gross)}</span>
-              </div>
-              <div className="ps-field-input">
-                <input
-                  className="ps-input"
-                  type="number"
-                  min="0"
-                  step="1000"
-                  value={grossAnnual}
-                  onChange={(e) => setGrossAnnual(Math.max(0, +e.target.value || 0))}
-                />
-                <input
-                  className="ps-slider"
-                  type="range"
-                  min="0"
-                  max="400000"
-                  step="1000"
-                  value={Math.min(grossAnnual, 400000)}
-                  onChange={(e) => setGrossAnnual(+e.target.value)}
-                />
-              </div>
+              <label className="ps-field-label"><span>Filing Status</span></label>
+              <Seg value={filing} onChange={setFiling}
+                options={[{ value: 'single', label: 'Single' }, { value: 'mfj', label: 'Married Filing Jointly' }]} />
             </div>
 
-            <div className="ps-field">
-              <div className="ps-field-label">
-                <span>Pay frequency</span>
-                <span className="ps-field-hint">{calc.periods} periods / yr</span>
+            <label className="ps-check">
+              <input type="checkbox" checked={override} onChange={(e) => setOverride(e.target.checked)} />
+              <span>Simulate override</span>
+            </label>
+            {override && (
+              <div className="ps-banner">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M10 2v6l-4 8v4h12v-4l-4-8V2"/><line x1="8" y1="2" x2="16" y2="2"/></svg>
+                <span>Simulation mode — changes here don't affect your global Income Profile.</span>
               </div>
-              <div className="ps-seg">
-                {Object.entries(PAY_FREQ).map(([key]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    className={`ps-seg-item ${payFreq === key ? 'active' : ''}`}
-                    onClick={() => setPayFreq(key)}
-                  >
-                    {key === 'semimonthly'
-                      ? 'Semi-monthly'
-                      : key.charAt(0).toUpperCase() + key.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
+            )}
           </div>
 
-          <div className="ps-block">
-            <div className="ps-block-head">
-              <span className="ps-block-label">Filing & Location</span>
-            </div>
-
-            <div className="ps-field">
-              <div className="ps-field-label"><span>Filing status</span></div>
-              <div className="ps-seg">
-                {Object.entries(FILING_LABEL).map(([key]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    className={`ps-seg-item ${filing === key ? 'active' : ''}`}
-                    onClick={() => setFiling(key)}
-                  >
-                    {key === 'married' ? 'Married' : key === 'hoh' ? 'HoH' : 'Single'}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="ps-field">
-              <div className="ps-field-label">
-                <span>State</span>
-                <span className="ps-field-hint">{fmt(stateRate, 2)}% est.</span>
-              </div>
-              <div className="ps-row-controls">
-                <select
-                  value={stateName}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setStateName(v);
-                    setStateRate(STATE_RATES[v] ?? 0);
-                  }}
-                >
-                  {Object.keys(STATE_RATES).map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-                <input
-                  type="number"
-                  min="0"
-                  max="20"
-                  step="0.1"
-                  value={stateRate}
-                  onChange={(e) => setStateRate(Math.max(0, +e.target.value || 0))}
-                  title="State effective rate override"
-                />
-              </div>
-            </div>
-
-            <div className="ps-field">
-              <div className="ps-field-label">
-                <span>Dependents (under 17)</span>
-                <span className="ps-field-hint">$2,000 credit each</span>
-              </div>
-              <input
-                className="ps-input"
-                type="number"
-                min="0"
-                max="10"
-                value={dependents}
-                onChange={(e) =>
-                  setDependents(Math.max(0, Math.min(10, +e.target.value || 0)))
-                }
-              />
-            </div>
-          </div>
-
-          <div className="ps-block">
-            <div className="ps-block-head">
-              <span className="ps-block-label">Retirement & Benefits</span>
-            </div>
-
-            <div className="ps-field">
-              <div className="ps-field-label">
-                <span>Traditional 401(k)</span>
-                <span className="ps-field-hint">
-                  {money0(calc.trad401k)} / yr · pre-tax
-                </span>
-              </div>
-              <div className="ps-field-input">
-                <input
-                  className="ps-input"
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.5"
-                  value={k401TradPct}
-                  onChange={(e) => setK401TradPct(Math.max(0, +e.target.value || 0))}
-                />
-                <input
-                  className="ps-slider"
-                  type="range"
-                  min="0"
-                  max="50"
-                  step="0.5"
-                  value={Math.min(k401TradPct, 50)}
-                  onChange={(e) => setK401TradPct(+e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="ps-field">
-              <div className="ps-field-label">
-                <span>Roth 401(k)</span>
-                <span className="ps-field-hint">
-                  {money0(calc.roth401k)} / yr · post-tax
-                </span>
-              </div>
-              <div className="ps-field-input">
-                <input
-                  className="ps-input"
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.5"
-                  value={k401RothPct}
-                  onChange={(e) => setK401RothPct(Math.max(0, +e.target.value || 0))}
-                />
-                <input
-                  className="ps-slider"
-                  type="range"
-                  min="0"
-                  max="50"
-                  step="0.5"
-                  value={Math.min(k401RothPct, 50)}
-                  onChange={(e) => setK401RothPct(+e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="ps-field">
-              <div className="ps-field-label">
-                <span>HSA contribution</span>
-                <span className="ps-field-hint">{money0(calc.hsa)} / yr · pre-tax</span>
-              </div>
-              <input
-                className="ps-input"
-                type="number"
-                min="0"
-                step="100"
-                value={hsaAnnual}
-                onChange={(e) => setHsaAnnual(Math.max(0, +e.target.value || 0))}
-              />
-            </div>
-
-            <div className="ps-row">
-              <div className="ps-row-label-row">
-                <span className="ps-row-label">Employer match</span>
-              </div>
-              <div className="ps-row-controls">
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="5"
-                  value={matchRatePct}
-                  onChange={(e) => setMatchRatePct(Math.max(0, +e.target.value || 0))}
-                  title="Match rate %"
-                />
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.5"
-                  value={matchCapPct}
-                  onChange={(e) => setMatchCapPct(Math.max(0, +e.target.value || 0))}
-                  title="Match up to % of salary"
-                />
-                <input
-                  type="text"
-                  value={`${money0(calc.employerMatch)}/yr`}
-                  readOnly
-                  title="Estimated employer contribution"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* ── Advanced ── */}
           <details className="ps-adv">
             <summary className="ps-adv-summary">
-              <span>Deductions & growth assumptions</span>
-              <ChevronDown className="ps-adv-chevron" />
+              <span>Advanced Deductions &amp; Withholding</span>
+              <svg className="ps-adv-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>
             </summary>
-
             <div className="ps-adv-body">
               <div className="ps-sub-block">
                 <div className="ps-sub-head">
-                  <span className="ps-block-label">Custom deductions</span>
-                  <button className="ps-mini-btn" type="button" onClick={addDeduction}>
-                    <Plus /> Add
-                  </button>
+                  <span className="ps-block-label">Pre-Tax</span>
+                  <span className="ps-sub-hint">Applied before federal tax</span>
                 </div>
-
-                <div className="ps-rows">
-                  {deductions.map((d) => (
-                    <div className="ps-row" key={d.id}>
-                      <div className="ps-row-label-row">
-                        <input
-                          className="ps-row-label-input"
-                          value={d.name}
-                          onChange={(e) => updateDeduction(d.id, { name: e.target.value })}
-                          placeholder="Deduction name"
-                        />
-                        <button
-                          className="ps-mini-btn"
-                          type="button"
-                          onClick={() => removeDeduction(d.id)}
-                          title="Remove"
-                        >
-                          <Trash2 />
-                        </button>
-                      </div>
-                      <div className="ps-row-controls">
-                        <select
-                          value={d.type}
-                          onChange={(e) => updateDeduction(d.id, { type: e.target.value })}
-                        >
-                          <option value="pretax">Pre-tax</option>
-                          <option value="posttax">Post-tax</option>
-                        </select>
-                        <input
-                          type="number"
-                          min="0"
-                          step="100"
-                          value={d.amount}
-                          onChange={(e) =>
-                            updateDeduction(d.id, {
-                              amount: Math.max(0, +e.target.value || 0),
-                            })
-                          }
-                        />
-                        <input
-                          type="text"
-                          value="annual"
-                          readOnly
-                          tabIndex={-1}
-                          style={{ textAlign: 'center', color: 'var(--text-4)' }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                  {deductions.length === 0 && (
-                    <div className="settings-empty">No custom deductions added.</div>
-                  )}
-                </div>
+                <div className="ps-rows">{renderDedList(preTax, 'pre')}</div>
               </div>
-
               <div className="ps-sub-block">
                 <div className="ps-sub-head">
-                  <span className="ps-block-label">Projection assumptions</span>
+                  <span className="ps-block-label">Post-Tax</span>
+                  <button className="ps-mini-btn" onClick={() => addDeduction('post')}>+ Add</button>
                 </div>
+                <div className="ps-rows">{renderDedList(postTax, 'post')}</div>
+              </div>
+              <div className="ps-sub-block">
+                <div className="ps-sub-head"><span className="ps-block-label">Withholding &amp; Rates</span></div>
                 <div className="ps-withhold-grid">
-                  <div className="ps-field ps-field-sm">
-                    <div className="ps-field-label"><span>Starting balance</span></div>
-                    <input
-                      className="ps-input"
-                      type="number"
-                      min="0"
-                      step="1000"
-                      value={startBalance}
-                      onChange={(e) => setStartBalance(Math.max(0, +e.target.value || 0))}
-                    />
-                  </div>
-                  <div className="ps-field ps-field-sm">
-                    <div className="ps-field-label"><span>Annual return %</span></div>
-                    <input
-                      className="ps-input"
-                      type="number"
-                      min="0"
-                      max="20"
-                      step="0.5"
-                      value={returnPct}
-                      onChange={(e) => setReturnPct(Math.max(0, +e.target.value || 0))}
-                    />
-                  </div>
-                  <div className="ps-field ps-field-sm">
-                    <div className="ps-field-label"><span>Salary growth %</span></div>
-                    <input
-                      className="ps-input"
-                      type="number"
-                      min="0"
-                      max="15"
-                      step="0.5"
-                      value={salaryGrowthPct}
-                      onChange={(e) => setSalaryGrowthPct(Math.max(0, +e.target.value || 0))}
-                    />
-                  </div>
-                  <div className="ps-field ps-field-sm">
-                    <div className="ps-field-label"><span>Horizon (years)</span></div>
-                    <input
-                      className="ps-input"
-                      type="number"
-                      min="1"
-                      max="50"
-                      step="1"
-                      value={horizon}
-                      onChange={(e) =>
-                        setHorizon(Math.max(1, Math.min(50, +e.target.value || 1)))
-                      }
-                    />
-                  </div>
+                  <div className="ps-field ps-field-sm"><label className="ps-field-label"><span>Extra Fed / Period</span></label><input type="number" className="ps-input" value={extraFed} onChange={(e) => setExtraFed(num(e.target.value))} /></div>
+                  <div className="ps-field ps-field-sm"><label className="ps-field-label"><span>State / Period</span></label><input type="number" className="ps-input" value={extraState} onChange={(e) => setExtraState(num(e.target.value))} /></div>
+                  <div className="ps-field ps-field-sm"><label className="ps-field-label"><span>Local / Period</span></label><input type="number" className="ps-input" value={extraLocal} onChange={(e) => setExtraLocal(num(e.target.value))} /></div>
+                  <div className="ps-field ps-field-sm"><label className="ps-field-label"><span>State Tax %</span></label><input type="number" className="ps-input" value={stateRate} step={0.1} onChange={(e) => setStateRate(num(e.target.value))} /></div>
+                  <div className="ps-field ps-field-sm"><label className="ps-field-label"><span>Local Tax %</span></label><input type="number" className="ps-input" value={localRate} step={0.1} onChange={(e) => setLocalRate(num(e.target.value))} /></div>
                 </div>
               </div>
             </div>
           </details>
         </div>
 
-        {/* ══════════ RECEIPT ══════════ */}
-        <div>
-          <div className="ps-receipt-wrap">
-            <div className="ps-receipt">
-              <div className="ps-receipt-head">
-                <div>
-                  <div className="ps-receipt-eyebrow">Paycheck breakdown</div>
-                  <div className="ps-receipt-title">
-                    {FILING_LABEL[filing]}
-                    <span className="ps-receipt-sep">·</span>
-                    {stateName === 'No state tax' ? 'No state tax' : stateName}
-                  </div>
-                </div>
-                <div className="ps-receipt-badge">{calc.periods}× / year</div>
+        <div className="ps-receipt-wrap">
+          <div className="ps-receipt">
+            <div className="ps-receipt-head">
+              <div>
+                <div className="ps-receipt-eyebrow">Paystub Breakdown</div>
+                <div className="ps-receipt-title">Per Period<span className="ps-receipt-sep">·</span>Annual</div>
               </div>
+              <span className="ps-receipt-badge">{freq} periods / yr</span>
+            </div>
+            <div className="ps-receipt-body">
+              <table className="ps-receipt-table"><tbody>
+                <tr className="ps-receipt-section"><td colSpan={3}>Earnings</td></tr>
+                <tr className="ps-receipt-row"><td>Gross</td><td>{fmt(calc.grossAnnual)}</td><td>{fmt(calc.grossPeriod)}</td></tr>
 
-              <div className="ps-receipt-body">
-                <table className="ps-receipt-table">
-                  <tbody>
-                    <tr className="ps-receipt-section">
-                      <td colSpan={3}>Earnings</td>
-                    </tr>
-                    <tr className="ps-receipt-row">
-                      <td>Gross pay</td>
-                      <td>{money2(calc.grossPerPeriod)}</td>
-                      <td>{money0(calc.gross)}</td>
-                    </tr>
+                {preTax.length > 0 && (<>
+                  <tr className="ps-receipt-section"><td colSpan={3}>Pre-Tax Deductions</td></tr>
+                  {preTax.map((d) => {
+                    const per = d.method === 'percent' ? calc.grossPeriod * d.amount / 100 : d.type === 'per_paycheck' ? d.amount : d.amount / freq;
+                    return <tr key={d.id} className="ps-receipt-row is-neg"><td>{d.label}</td><td>{per * freq > 0 ? fmt(per * freq) : '—'}</td><td>− {fmt(per)}</td></tr>;
+                  })}
+                </>)}
 
-                    <tr className="ps-receipt-section">
-                      <td colSpan={3}>Pre-tax deductions</td>
-                    </tr>
-                    <tr className="ps-receipt-row is-neg">
-                      <td>Traditional 401(k)</td>
-                      <td>-{money2(calc.trad401k / calc.periods)}</td>
-                      <td>-{money0(calc.trad401k)}</td>
-                    </tr>
-                    {calc.hsa > 0 && (
-                      <tr className="ps-receipt-row is-neg">
-                        <td>HSA</td>
-                        <td>-{money2(calc.hsa / calc.periods)}</td>
-                        <td>-{money0(calc.hsa)}</td>
-                      </tr>
-                    )}
-                    {deductions.filter((d) => d.type === 'pretax').map((d) => (
-                      <tr className="ps-receipt-row is-neg" key={`pre-${d.id}`}>
-                        <td>{d.name || 'Deduction'}</td>
-                        <td>-{money2(safe(d.amount) / calc.periods)}</td>
-                        <td>-{money0(safe(d.amount))}</td>
-                      </tr>
-                    ))}
-                    <tr className="ps-receipt-subtotal">
-                      <td>Total pre-tax</td>
-                      <td>{money2(calc.pretaxTotal / calc.periods)}</td>
-                      <td>{money0(calc.pretaxTotal)}</td>
-                    </tr>
+                <tr className="ps-receipt-section"><td colSpan={3}>Taxes</td></tr>
+                <tr className="ps-receipt-row is-neg"><td>Federal</td><td>{fmt(calc.fedPerPeriod * freq)}</td><td>− {fmt(calc.fedPerPeriod)}</td></tr>
+                <tr className="ps-receipt-row is-neg"><td>State</td><td>{fmt(calc.statePerPeriod * freq)}</td><td>− {fmt(calc.statePerPeriod)}</td></tr>
+                <tr className="ps-receipt-row is-neg"><td>Local</td><td>{fmt(calc.localPerPeriod * freq)}</td><td>− {fmt(calc.localPerPeriod)}</td></tr>
+                <tr className="ps-receipt-row is-neg"><td>Social Security</td><td>{fmt(calc.ssPerPeriod * freq)}</td><td>− {fmt(calc.ssPerPeriod)}</td></tr>
+                <tr className="ps-receipt-row is-neg"><td>Medicare</td><td>{fmt(calc.mediPerPeriod * freq)}</td><td>− {fmt(calc.mediPerPeriod)}</td></tr>
 
-                    <tr className="ps-receipt-section">
-                      <td colSpan={3}>Taxes</td>
-                    </tr>
-                    <tr className="ps-receipt-row is-neg">
-                      <td>Federal income tax</td>
-                      <td>-{money2(calc.fedPerPeriod)}</td>
-                      <td>-{money0(calc.fedTax)}</td>
-                    </tr>
-                    <tr className="ps-receipt-row is-neg">
-                      <td>FICA (Social Security + Medicare)</td>
-                      <td>-{money2(calc.ficaPerPeriod)}</td>
-                      <td>-{money0(calc.fica)}</td>
-                    </tr>
-                    <tr className="ps-receipt-row is-neg">
-                      <td>State income tax</td>
-                      <td>-{money2(calc.statePerPeriod)}</td>
-                      <td>-{money0(calc.stateTax)}</td>
-                    </tr>
-                    <tr className="ps-receipt-subtotal">
-                      <td>Total taxes</td>
-                      <td>{money2(calc.totalTax / calc.periods)}</td>
-                      <td>{money0(calc.totalTax)}</td>
-                    </tr>
+                {postTax.length > 0 && (<>
+                  <tr className="ps-receipt-section"><td colSpan={3}>Post-Tax Deductions</td></tr>
+                  {postTax.map((d) => {
+                    const per = d.method === 'percent' ? calc.grossPeriod * d.amount / 100 : d.type === 'per_paycheck' ? d.amount : d.amount / freq;
+                    return <tr key={d.id} className="ps-receipt-row is-neg"><td>{d.label}</td><td>—</td><td>− {fmt(per)}</td></tr>;
+                  })}
+                </>)}
 
-                    {(calc.roth401k > 0 || deductions.some((d) => d.type === 'posttax')) && (
-                      <>
-                        <tr className="ps-receipt-section">
-                          <td colSpan={3}>Post-tax deductions</td>
-                        </tr>
-                        {calc.roth401k > 0 && (
-                          <tr className="ps-receipt-row is-neg">
-                            <td>Roth 401(k)</td>
-                            <td>-{money2(calc.roth401k / calc.periods)}</td>
-                            <td>-{money0(calc.roth401k)}</td>
-                          </tr>
-                        )}
-                        {deductions.filter((d) => d.type === 'posttax').map((d) => (
-                          <tr className="ps-receipt-row is-neg" key={`post-${d.id}`}>
-                            <td>{d.name || 'Deduction'}</td>
-                            <td>-{money2(safe(d.amount) / calc.periods)}</td>
-                            <td>-{money0(safe(d.amount))}</td>
-                          </tr>
-                        ))}
-                      </>
-                    )}
+                <tr className="ps-receipt-subtotal"><td>Total Deductions</td><td></td><td>{fmt(calc.grossPeriod - calc.netPeriod)}</td></tr>
+                <tr className="ps-receipt-net"><td>Net</td><td></td><td>{fmt(calc.netPeriod)}</td></tr>
+              </tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
 
-                    <tr className="ps-receipt-net">
-                      <td>Net pay</td>
-                      <td>{money2(calc.netPerPeriod)}</td>
-                      <td>{money0(calc.netAnnual)}</td>
-                    </tr>
-                  </tbody>
-                </table>
+/* ═══════════════════════════════════════════════════════════
+   2. RULE OF 72
+   ═══════════════════════════════════════════════════════════ */
+function Rule72Calc() {
+  const [mode, setMode] = useState('rate');
+  const [rate, setRate] = useState(8);
+  const [years, setYears] = useState(9);
+  const [initial, setInitial] = useState(10000);
+
+  const calc = useMemo(() => {
+    const r = mode === 'rate' ? rate : 72 / years;
+    const y = mode === 'rate' ? 72 / rate : years;
+    const exact = r > 0 ? Math.log(2) / Math.log(1 + r / 100) : Infinity;
+    return {
+      r, y,
+      ruleYears: y,
+      exactYears: exact,
+      finalAmount: initial * 2,
+    };
+  }, [mode, rate, years, initial]);
+
+  return (
+    <>
+      <div className="ps-hero">
+        <div className="ps-hero-main">
+          <span className="ps-hero-label">Doubling Result</span>
+          <div className="ps-hero-value">{calc.y.toFixed(1)} yrs</div>
+          <div className="ps-hero-sub">to double your money</div>
+        </div>
+        <div className="ps-hero-stats">
+          <div className="ps-stat"><span className="ps-stat-label">Rate</span><div className="ps-stat-value">{pct(calc.r, 2)}</div><div className="ps-stat-sub">annual return</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Exact Doubling</span><div className="ps-stat-value">{calc.exactYears.toFixed(2)} yrs</div><div className="ps-stat-sub">compounded</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Final Amount</span><div className="ps-stat-value">{fmt(calc.finalAmount)}</div><div className="ps-stat-sub">2× principal</div></div>
+        </div>
+      </div>
+
+      <div className="ps-layout">
+        <div className="ps-controls">
+          <div className="ps-block">
+            <div className="ps-block-head"><span className="ps-block-label">Solve For</span></div>
+            <Seg value={mode} onChange={setMode} options={[
+              { value: 'rate', label: 'Years from Rate' },
+              { value: 'years', label: 'Rate from Years' },
+            ]} />
+          </div>
+          <div className="ps-block">
+            <div className="ps-block-head"><span className="ps-block-label">Inputs</span>
+              <button className="ps-mini-btn" onClick={() => { setRate(8); setYears(9); setInitial(10000); }}>Reset</button>
+            </div>
+            {mode === 'rate' ? (
+              <DualField label="Annual Return / Interest Rate" hint={pct(rate)}
+                value={rate} onChange={setRate} min={0.1} max={30} step={0.1} suffix="%" />
+            ) : (
+              <DualField label="Desired Years to Double" hint={`${years} yrs`}
+                value={years} onChange={setYears} min={1} max={50} step={1} suffix="y" />
+            )}
+            <DualField label="Initial Investment (optional)" hint={fmt(initial)}
+              value={initial} onChange={setInitial} min={0} max={1000000} step={1000} />
+          </div>
+          <div className="ps-banner">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>The <b>Rule of 72</b> divides 72 by the annual rate to approximate doubling time. Most accurate near <b>8%</b>.</span>
+          </div>
+        </div>
+
+        <div className="ps-receipt-wrap">
+          <div className="ps-receipt">
+            <div className="ps-receipt-head">
+              <div><div className="ps-receipt-eyebrow">Rule of 72</div><div className="ps-receipt-title">Step-by-Step Breakdown</div></div>
+              <span className="ps-receipt-badge">{mode === 'rate' ? `${pct(rate)} → ${calc.y.toFixed(1)}y` : `${years}y → ${pct(calc.r)}`}</span>
+            </div>
+            <div className="ps-receipt-body">
+              <table className="ps-receipt-table"><tbody>
+                <tr className="ps-receipt-section"><td colSpan={2}>Formula</td></tr>
+                <tr className="ps-receipt-row"><td>Rule of 72</td><td>Years = 72 ÷ Rate%</td></tr>
+                <tr className="ps-receipt-row"><td>Exact Formula</td><td>ln(2) ÷ ln(1+r)</td></tr>
+                <tr className="ps-receipt-section"><td colSpan={2}>Your Numbers</td></tr>
+                <tr className="ps-receipt-row"><td>Rate</td><td>{pct(calc.r)}</td></tr>
+                <tr className="ps-receipt-row"><td>Rule-of-72 estimate</td><td>{calc.y.toFixed(2)} years</td></tr>
+                <tr className="ps-receipt-row"><td>Exact estimate</td><td>{calc.exactYears.toFixed(2)} years</td></tr>
+                <tr className="ps-receipt-row"><td>Accuracy</td><td>{pct(Math.abs(calc.exactYears - calc.y) / calc.exactYears * 100, 1)} error</td></tr>
+                <tr className="ps-receipt-net"><td>Final (2×)</td><td>{fmt(calc.finalAmount)}</td></tr>
+              </tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. MORTGAGE
+   ═══════════════════════════════════════════════════════════ */
+function MortgageCalc() {
+  const [propVal, setPropVal] = useState(622000);
+  const [downPct, setDownPct] = useState(5);
+  const [rate, setRate] = useState(5.5);
+  const [term, setTerm] = useState(30);
+  const [extra, setExtra] = useState(0);
+  const [utilities, setUtilities] = useState(0);
+  const [insurance, setInsurance] = useState(0);
+  const [taxPct, setTaxPct] = useState(2.3);
+  const [startDate, setStartDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [subTab, setSubTab] = useState('amortization');
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 12;
+
+  const calc = useMemo(() => {
+    const downAmt = propVal * downPct / 100;
+    const principal = Math.max(0, propVal - downAmt);
+    const monthlyRate = rate / 100 / 12;
+    const months = term * 12;
+    const monthlyPmt = principal > 0 && monthlyRate > 0
+      ? principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1)
+      : principal / Math.max(1, months);
+
+    // Amortization
+    const schedule = [];
+    let balance = principal, totalInterest = 0;
+    for (let m = 1; m <= months && balance > 0.01; m++) {
+      const interest = balance * monthlyRate;
+      const scheduled = Math.min(monthlyPmt - interest, balance);
+      const extraThis = Math.min(extra, balance - scheduled);
+      const newBalance = Math.max(0, balance - scheduled - extraThis);
+      totalInterest += interest;
+      schedule.push({
+        month: m, payment: interest + scheduled + extraThis,
+        interest, principal: scheduled, extra: extraThis,
+        balance: newBalance, cumInterest: totalInterest,
+      });
+      balance = newBalance;
+    }
+
+    const annualTax = propVal * taxPct / 100;
+    const monthlyTax = annualTax / 12;
+    const monthlyIns = insurance / 12;
+    const totalMonthly = monthlyPmt + monthlyTax + monthlyIns + utilities;
+
+    return {
+      principal, downAmt, monthlyPmt, schedule,
+      totalInterest, annualTax, monthlyTax, monthlyIns, totalMonthly,
+      monthsActual: schedule.length,
+      baseMonths: months,
+    };
+  }, [propVal, downPct, rate, term, extra, utilities, insurance, taxPct]);
+
+  const pageRows = calc.schedule.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const totalPages = Math.ceil(calc.schedule.length / PAGE_SIZE);
+
+  return (
+    <>
+      <div className="ps-hero">
+        <div className="ps-hero-main">
+          <span className="ps-hero-label">Monthly Out-of-Pocket</span>
+          <div className="ps-hero-value">{fmt(calc.totalMonthly)}</div>
+          <div className="ps-hero-sub">P&amp;I + tax + insurance + utilities</div>
+        </div>
+        <div className="ps-hero-stats">
+          <div className="ps-stat"><span className="ps-stat-label">Annual Property Tax</span><div className="ps-stat-value">{fmt(calc.annualTax)}</div><div className="ps-stat-sub">@ {pct(taxPct)}</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Insurance</span><div className="ps-stat-value">{fmt(calc.monthlyIns)}/mo</div><div className="ps-stat-sub">{fmt(insurance)}/yr</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Payoff</span><div className="ps-stat-value">{calc.monthsActual} mo</div><div className="ps-stat-sub">{calc.monthsActual < calc.baseMonths ? `saved ${calc.baseMonths - calc.monthsActual} mo` : 'on schedule'}</div></div>
+        </div>
+      </div>
+
+      <div className="mort-subtabs">
+        {['amortization', 'tax', 'formula'].map((k) => (
+          <button key={k} className={`mort-subtab${subTab === k ? ' active' : ''}`} onClick={() => setSubTab(k)}>
+            {k === 'amortization' ? 'Mortgage & Amortization' : k === 'tax' ? 'Property Tax Details' : 'Step-by-Step Formula'}
+          </button>
+        ))}
+      </div>
+
+      {subTab === 'amortization' && (
+        <>
+          <div className="ps-layout">
+            <div className="ps-controls">
+              <div className="ps-block">
+                <div className="ps-block-head"><span className="ps-block-label">Loan Parameters</span></div>
+                <DualField label="Property Value" hint={fmt(propVal)} value={propVal} onChange={setPropVal} min={50000} max={2500000} step={1000} />
+                <DualField label="Down Payment %" hint={`${downPct}% · ${fmt(calc.downAmt)}`} value={downPct} onChange={setDownPct} min={0} max={100} step={0.5} suffix="%" />
+                <DualField label="Interest Rate" hint={pct(rate)} value={rate} onChange={setRate} min={1} max={15} step={0.01} suffix="%" />
+                <DualField label="Loan Length" hint={`${term} years`} value={term} onChange={setTerm} min={1} max={40} step={1} suffix="y" />
+              </div>
+              <div className="ps-block">
+                <div className="ps-block-head"><span className="ps-block-label">Acceleration &amp; Carrying Costs</span></div>
+                <DualField label="Extra Monthly Principal" hint={fmt(extra)} value={extra} onChange={setExtra} min={0} max={25000} step={50} />
+                <DualField label="Monthly Utilities" hint={fmt(utilities)} value={utilities} onChange={setUtilities} min={0} max={1500} step={10} />
+                <DualField label="Home Insurance (Annual)" hint={`${fmt(insurance)}/yr`} value={insurance} onChange={setInsurance} min={0} max={12000} step={50} />
+                <DualField label="Property Tax Rate" hint={pct(taxPct)} value={taxPct} onChange={setTaxPct} min={0} max={15} step={0.01} suffix="%" />
               </div>
             </div>
-
-            <div className="ps-banner" style={{ marginTop: '0.85rem' }}>
-              <Info />
-              <span>
-                Estimates only. Federal brackets, standard deduction, and FICA use 2025
-                figures; state tax is a flat effective rate. Consult a tax professional
-                before making decisions.
-              </span>
+            <div className="ps-receipt-wrap">
+              <div className="ps-receipt">
+                <div className="ps-receipt-head">
+                  <div><div className="ps-receipt-eyebrow">Long-Term Cost Analysis</div><div className="ps-receipt-title">Traditional vs Accelerated</div></div>
+                  <span className="ps-receipt-badge">{fmt(calc.monthlyPmt)}/mo P&amp;I</span>
+                </div>
+                <div className="ps-receipt-body" style={{ padding: '1rem 0' }}>
+                  <table className="ps-receipt-table"><tbody>
+                    <tr className="ps-receipt-section"><td colSpan={2}>Loan Summary</td></tr>
+                    <tr className="ps-receipt-row"><td>Loan Amount</td><td>{fmt(calc.principal)}</td></tr>
+                    <tr className="ps-receipt-row"><td>Monthly P&amp;I</td><td>{fmt(calc.monthlyPmt)}</td></tr>
+                    <tr className="ps-receipt-row"><td>Total Interest</td><td>{fmt(calc.totalInterest)}</td></tr>
+                    <tr className="ps-receipt-row"><td>Total Paid</td><td>{fmt(calc.principal + calc.totalInterest)}</td></tr>
+                    <tr className="ps-receipt-section"><td colSpan={2}>Monthly Carry</td></tr>
+                    <tr className="ps-receipt-row"><td>P&amp;I</td><td>{fmt(calc.monthlyPmt)}</td></tr>
+                    <tr className="ps-receipt-row"><td>Property tax (escrow)</td><td>{fmt(calc.monthlyTax)}</td></tr>
+                    <tr className="ps-receipt-row"><td>Insurance</td><td>{fmt(calc.monthlyIns)}</td></tr>
+                    <tr className="ps-receipt-row"><td>Utilities</td><td>{fmt(utilities)}</td></tr>
+                    <tr className="ps-receipt-net"><td>Total Monthly</td><td>{fmt(calc.totalMonthly)}</td></tr>
+                  </tbody></table>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* ══════════ PROJECTION ══════════ */}
-          <div className="settings-card" style={{ marginTop: '1.25rem' }}>
-            <div className="settings-card-header">
-              <div className="settings-card-icon">
-                <TrendingUp size={16} />
+          <div className="surface p-5 lg:p-6" style={{ marginTop: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', paddingBottom: '.85rem', borderBottom: '1px solid var(--border)' }}>
+              <h3 style={{ fontSize: '.8125rem', fontWeight: 800, color: 'var(--text-1)' }}>Month-by-Month Amortization</h3>
+              <button className="btn btn-ghost" onClick={() => exportMortgageCSV(calc.schedule)}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export CSV
+              </button>
+            </div>
+            <div style={{ overflow: 'auto' }}>
+              <table className="ledger-table" style={{ width: '100%' }}>
+                <thead><tr>
+                  <th>Month</th><th>Payment</th><th>Scheduled Principal</th><th>Extra Principal</th><th>Interest</th><th>Balance</th><th>Cum. Interest</th>
+                </tr></thead>
+                <tbody>
+                  {pageRows.map((r) => (
+                    <tr key={r.month}>
+                      <td>{r.month}</td>
+                      <td style={{ fontFamily: 'JetBrains Mono' }}>{fmt(r.payment)}</td>
+                      <td style={{ fontFamily: 'JetBrains Mono' }}>{fmt(r.principal)}</td>
+                      <td style={{ fontFamily: 'JetBrains Mono', color: '#C4B5FD' }}>{r.extra > 0 ? fmt(r.extra) : '—'}</td>
+                      <td style={{ fontFamily: 'JetBrains Mono', color: '#FDA4AF' }}>{fmt(r.interest)}</td>
+                      <td style={{ fontFamily: 'JetBrains Mono' }}>{fmt(r.balance)}</td>
+                      <td style={{ fontFamily: 'JetBrains Mono', color: 'var(--text-3)' }}>{fmt(r.cumInterest)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mort-pager" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
+              <div className="mort-pager-info" style={{ fontSize: 11, color: 'var(--text-4)' }}>
+                Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, calc.schedule.length)} of {calc.schedule.length}
               </div>
-              <div>
-                <h3>Retirement Blueprint</h3>
-                <p>{horizon}-year projection at {fmt(returnPct, 1)}% return</p>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button className="btn btn-ghost" disabled={page === 0} onClick={() => setPage(p => Math.max(0, p - 1))}>← Prev</button>
+                <span style={{ fontSize: 11 }}>Page {page + 1} / {totalPages}</span>
+                <button className="btn btn-ghost" disabled={page >= totalPages - 1} onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}>Next →</button>
               </div>
             </div>
+          </div>
+        </>
+      )}
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
-              <div>
-                <div
-                  className="text-[0.6rem] font-extrabold uppercase tracking-wider"
-                  style={{ color: 'var(--text-4)' }}
-                >
-                  Projected balance
-                </div>
-                <div
-                  className="text-lg font-extrabold tabular-nums"
-                  style={{ color: 'var(--accent)' }}
-                >
-                  {money0(projection.finalBalance)}
-                </div>
+      {subTab === 'tax' && (
+        <div className="ps-layout">
+          <div className="ps-controls">
+            <div className="ps-block">
+              <div className="ps-block-head"><span className="ps-block-label">Regional Tax Evaluation</span></div>
+              <DualField label="Property Value" hint={fmt(propVal)} value={propVal} onChange={setPropVal} min={50000} max={2500000} step={1000} />
+              <DualField label="Property Tax Rate" hint={pct(taxPct)} value={taxPct} onChange={setTaxPct} min={0} max={15} step={0.01} suffix="%" />
+            </div>
+          </div>
+          <div className="ps-receipt-wrap">
+            <div className="ps-receipt">
+              <div className="ps-receipt-head">
+                <div><div className="ps-receipt-eyebrow">Tax Breakdown</div><div className="ps-receipt-title">Annual &amp; Monthly Liability</div></div>
+                <span className="ps-receipt-badge">ESCROW</span>
               </div>
-              <div>
-                <div
-                  className="text-[0.6rem] font-extrabold uppercase tracking-wider"
-                  style={{ color: 'var(--text-4)' }}
-                >
-                  Your contributions
-                </div>
-                <div className="text-lg font-extrabold tabular-nums">
-                  {money0(projection.totalEmployee)}
-                </div>
-              </div>
-              <div>
-                <div
-                  className="text-[0.6rem] font-extrabold uppercase tracking-wider"
-                  style={{ color: 'var(--text-4)' }}
-                >
-                  Employer match
-                </div>
-                <div className="text-lg font-extrabold tabular-nums">
-                  {money0(projection.totalMatch)}
-                </div>
-              </div>
-              <div>
-                <div
-                  className="text-[0.6rem] font-extrabold uppercase tracking-wider"
-                  style={{ color: 'var(--text-4)' }}
-                >
-                  Growth earned
-                </div>
-                <div className="text-lg font-extrabold tabular-nums">
-                  {money0(
-                    projection.finalBalance -
-                      projection.totalEmployee -
-                      projection.totalMatch -
-                      Math.max(0, startBalance)
-                  )}
-                </div>
+              <div className="ps-receipt-body" style={{ padding: '1.15rem 1.35rem' }}>
+                <table className="ps-receipt-table"><tbody>
+                  <tr className="ps-receipt-row"><td>Property Value Base</td><td>{fmt(propVal)}</td></tr>
+                  <tr className="ps-receipt-row"><td>Effective Tax Rate</td><td>{pct(taxPct)}</td></tr>
+                  <tr className="ps-receipt-row"><td>Annual Property Tax</td><td>{fmt(calc.annualTax)}</td></tr>
+                  <tr className="ps-receipt-row"><td>Monthly Escrow</td><td>{fmt(calc.monthlyTax)}</td></tr>
+                  <tr className="ps-receipt-row"><td>Daily Accrual</td><td>{fmt(calc.annualTax / 365, 2)}</td></tr>
+                  <tr className="ps-receipt-section"><td colSpan={2}>Benchmark</td></tr>
+                  <tr className="ps-receipt-row"><td>vs US National Avg (1.07%)</td><td>{taxPct > 1.07 ? '+' : ''}{pct(taxPct - 1.07)}</td></tr>
+                  <tr className="ps-receipt-row"><td>vs Baseline (2.30%)</td><td>{taxPct > 2.3 ? '+' : ''}{pct(taxPct - 2.3)}</td></tr>
+                </tbody></table>
               </div>
             </div>
+          </div>
+        </div>
+      )}
 
-            <div className="flex items-end gap-2 h-28 mt-2">
-              {projection.milestones.map((m) => {
-                const h = Math.max(4, (m.balance / projection.maxBalance) * 100);
-                return (
-                  <div
-                    key={m.year}
-                    className="flex-1 flex flex-col items-center gap-1.5 min-w-0"
-                  >
-                    <div
-                      className="w-full rounded-t-md transition-all"
-                      style={{
-                        height: `${h}%`,
-                        background:
-                          'linear-gradient(180deg, var(--accent), var(--accent-2))',
-                        opacity: 0.9,
-                      }}
-                      title={`Year ${m.year}: ${money0(m.balance)}`}
-                    />
-                    <div
-                      className="text-[0.55rem] font-extrabold tabular-nums"
-                      style={{ color: 'var(--text-4)' }}
-                    >
-                      {m.year}y
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+      {subTab === 'formula' && (
+        <div className="surface p-5 lg:p-6">
+          <div className="mort-formula" style={{ fontSize: 18, padding: '1.25rem', background: 'var(--surface-2)', borderRadius: 12, marginBottom: '1rem', textAlign: 'center', fontFamily: 'JetBrains Mono' }}>
+            M = P × [ r(1+r)<sup>n</sup> ] ÷ [ (1+r)<sup>n</sup> − 1 ]
+          </div>
+          <table className="ps-receipt-table"><tbody>
+            <tr className="ps-receipt-row"><td>P (Principal)</td><td>{fmt(calc.principal)}</td></tr>
+            <tr className="ps-receipt-row"><td>r (Monthly rate)</td><td>{(rate / 12).toFixed(4)}%</td></tr>
+            <tr className="ps-receipt-row"><td>n (Months)</td><td>{term * 12}</td></tr>
+            <tr className="ps-receipt-row"><td>(1+r)^n</td><td>{Math.pow(1 + rate / 100 / 12, term * 12).toFixed(4)}</td></tr>
+            <tr className="ps-receipt-net"><td>M (Monthly payment)</td><td>{fmt(calc.monthlyPmt)}</td></tr>
+          </tbody></table>
+        </div>
+      )}
+    </>
+  );
+}
 
-            <div
-              className="flex items-center justify-between mt-3 pt-3"
-              style={{ borderTop: '1px solid var(--border)' }}
-            >
-              <div
-                className="text-[0.65rem] font-semibold"
-                style={{ color: 'var(--text-4)' }}
-              >
-                Contributions grow with salary at {fmt(salaryGrowthPct, 1)}% / yr
-              </div>
-              <div
-                className="text-[0.65rem] font-extrabold tabular-nums"
-                style={{ color: 'var(--text-2)' }}
-              >
-                {money0(projection.finalBalance)}
+function exportMortgageCSV(schedule) {
+  const header = 'Month,Payment,Scheduled Principal,Extra Principal,Interest,Balance,Cum. Interest\n';
+  const rows = schedule.map(r =>
+    `${r.month},${r.payment.toFixed(2)},${r.principal.toFixed(2)},${r.extra.toFixed(2)},${r.interest.toFixed(2)},${r.balance.toFixed(2)},${r.cumInterest.toFixed(2)}`
+  ).join('\n');
+  const blob = new Blob([header + rows], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'mortgage-amortization.csv';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. VEHICLE (Lease + Valuation)
+   ═══════════════════════════════════════════════════════════ */
+function VehicleCalc() {
+  const [mode, setMode] = useState('lease');
+  return (
+    <>
+      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+        <div className="seg">
+          <button className={`seg-item${mode === 'lease' ? ' active' : ''}`} onClick={() => setMode('lease')}>Lease Check</button>
+          <button className={`seg-item${mode === 'valuation' ? ' active' : ''}`} onClick={() => setMode('valuation')}>Buy / Sell Value</button>
+        </div>
+      </div>
+      {mode === 'lease' ? <LeaseCalc /> : <ValuationCalc />}
+    </>
+  );
+}
+
+function LeaseCalc() {
+  const [msrp, setMsrp] = useState(45000);
+  const [monthly, setMonthly] = useState(499);
+  const [down, setDown] = useState(0);
+  const [term, setTerm] = useState(36);
+  const [miles, setMiles] = useState(12000);
+
+  const calc = useMemo(() => {
+    const totalCost = down + monthly * term;
+    const trueMonthly = totalCost / term;
+    const dealPct = msrp > 0 ? (trueMonthly / msrp) * 100 : 0;
+    const threshold = miles === 15000 ? 1.35 : miles === 10000 ? 1.20 : 1.25;
+    let grade = 'excellent';
+    if (dealPct > 2.0) grade = 'poor';
+    else if (dealPct > 1.5) grade = 'average';
+    else if (dealPct > threshold) grade = 'good';
+    return { totalCost, trueMonthly, dealPct, threshold, grade };
+  }, [msrp, monthly, down, term, miles]);
+
+  return (
+    <>
+      <div className="ps-hero">
+        <div className="ps-hero-main">
+          <span className="ps-hero-label">Deal Percentage</span>
+          <div className="ps-hero-value">{pct(calc.dealPct)}</div>
+          <div className="ps-hero-sub">
+            <b style={{ color: '#14B8A6' }}>Target: ≤ {pct(calc.threshold)}</b> · {term}mo · {miles.toLocaleString()} mi/yr
+          </div>
+        </div>
+        <div className="ps-hero-stats">
+          <div className="ps-stat"><span className="ps-stat-label">True Monthly</span><div className="ps-stat-value">{fmt(calc.trueMonthly)}</div><div className="ps-stat-sub">down amortized</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Quoted</span><div className="ps-stat-value">{fmt(monthly)}</div><div className="ps-stat-sub">as advertised</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Total Cost</span><div className="ps-stat-value">{fmt(calc.totalCost)}</div><div className="ps-stat-sub">over {term} months</div></div>
+        </div>
+      </div>
+
+      <div className="ps-layout">
+        <div className="ps-controls">
+          <div className="ps-block">
+            <div className="ps-block-head"><span className="ps-block-label">Deal Inputs</span></div>
+            <DualField label="Vehicle MSRP" hint={fmt(msrp)} value={msrp} onChange={setMsrp} min={0} max={200000} step={500} />
+            <DualField label="Quoted Monthly Payment" hint={fmt(monthly)} value={monthly} onChange={setMonthly} min={0} max={3000} step={5} />
+            <DualField label="Down Payment" hint={fmt(down)} value={down} onChange={setDown} min={0} max={20000} step={100} />
+            <div className="ps-field">
+              <label className="ps-field-label"><span>Lease Term</span></label>
+              <Seg value={term} onChange={setTerm} options={[
+                { value: 12, label: '12' }, { value: 24, label: '24' }, { value: 36, label: '36' }, { value: 39, label: '39' }, { value: 48, label: '48' },
+              ]} />
+            </div>
+            <div className="ps-field">
+              <label className="ps-field-label"><span>Annual Mileage</span></label>
+              <Seg value={miles} onChange={setMiles} options={[
+                { value: 10000, label: '10k' }, { value: 12000, label: '12k' }, { value: 15000, label: '15k' },
+              ]} />
+            </div>
+          </div>
+          <div className="ps-banner">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>The <b>1.25% rule</b>: a strong lease is ≤1.25% of MSRP/month with $0 down. 15k-mi gets a +0.10% leniency.</span>
+          </div>
+        </div>
+
+        <div className="ps-receipt-wrap">
+          <div className="ps-receipt">
+            <div className="ps-receipt-head">
+              <div><div className="ps-receipt-eyebrow">Deal Analysis</div><div className="ps-receipt-title">1.25% Rule Benchmark</div></div>
+              <span className="ps-receipt-badge" style={{ background: calc.grade === 'excellent' ? '#10B981' : calc.grade === 'good' ? '#14B8A6' : calc.grade === 'average' ? '#F59E0B' : '#F43F5E', color: '#fff' }}>{calc.grade.toUpperCase()}</span>
+            </div>
+            <div className="ps-receipt-body" style={{ padding: '1rem 1.35rem' }}>
+              <table className="ps-receipt-table"><tbody>
+                <tr className="ps-receipt-row"><td>MSRP</td><td>{fmt(msrp)}</td></tr>
+                <tr className="ps-receipt-row"><td>Quoted Monthly</td><td>{fmt(monthly)}</td></tr>
+                <tr className="ps-receipt-row"><td>Down Payment</td><td>{fmt(down)}</td></tr>
+                <tr className="ps-receipt-row"><td>Term</td><td>{term} months</td></tr>
+                <tr className="ps-receipt-row"><td>Total Cost</td><td>{fmt(calc.totalCost)}</td></tr>
+                <tr className="ps-receipt-row"><td>True Monthly</td><td>{fmt(calc.trueMonthly)}</td></tr>
+                <tr className="ps-receipt-row"><td>Deal %</td><td style={{ color: '#C4B5FD', fontWeight: 800 }}>{pct(calc.dealPct)}</td></tr>
+                <tr className="ps-receipt-row"><td>Target</td><td>≤ {pct(calc.threshold)}</td></tr>
+                <tr className="ps-receipt-net"><td>Verdict</td><td style={{ textTransform: 'capitalize' }}>{calc.grade} deal</td></tr>
+              </tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function ValuationCalc() {
+  const [perspective, setPerspective] = useState('buying');
+  const [msrp, setMsrp] = useState(35000);
+  const [age, setAge] = useState(3);
+  const [mileage, setMileage] = useState(36000);
+  const [condition, setCondition] = useState('good');
+  const [listed, setListed] = useState(25000);
+  const [final, setFinal] = useState(0);
+
+  const calc = useMemo(() => {
+    const condMult = { excellent: 1.05, good: 1.00, fair: 0.85, poor: 0.65 }[condition];
+    let value = msrp;
+    if (age >= 1) value *= 0.80;
+    for (let i = 1; i < age; i++) value *= 0.90;
+    const expectedMiles = age * 12000;
+    const mileAdj = 1 - Math.max(-0.15, Math.min(0.15, (mileage - expectedMiles) / 12000 * 0.03));
+    value *= mileAdj * condMult;
+    const target = final > 0 ? final : listed;
+    const variance = value > 0 ? ((target - value) / value) * 100 : 0;
+    let grade = 'average';
+    if (perspective === 'buying') {
+      if (variance < -10) grade = 'excellent';
+      else if (variance < 0) grade = 'good';
+      else if (variance < 10) grade = 'average';
+      else grade = 'poor';
+    } else {
+      if (variance > 10) grade = 'excellent';
+      else if (variance > 0) grade = 'good';
+      else if (variance > -10) grade = 'average';
+      else grade = 'poor';
+    }
+    return { value, target, variance, grade };
+  }, [msrp, age, mileage, condition, listed, final, perspective]);
+
+  return (
+    <>
+      <div className="ps-hero">
+        <div className="ps-hero-main">
+          <span className="ps-hero-label">Market Value</span>
+          <div className="ps-hero-value">{fmt(calc.value)}</div>
+          <div className="ps-hero-sub">Age · mileage · condition adjusted</div>
+        </div>
+        <div className="ps-hero-stats">
+          <div className="ps-stat"><span className="ps-stat-label">Listed</span><div className="ps-stat-value">{fmt(listed)}</div><div className="ps-stat-sub">asking</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Target</span><div className="ps-stat-value">{fmt(calc.target)}</div><div className="ps-stat-sub">effective</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Variance</span><div className="ps-stat-value">{calc.variance > 0 ? '+' : ''}{pct(calc.variance, 1)}</div><div className="ps-stat-sub">vs market</div></div>
+        </div>
+      </div>
+
+      <div className="ps-layout">
+        <div className="ps-controls">
+          <div className="ps-block">
+            <div className="ps-block-head"><span className="ps-block-label">Your Perspective</span></div>
+            <Seg value={perspective} onChange={setPerspective} options={[
+              { value: 'buying', label: 'I am Buying' },
+              { value: 'selling', label: 'I am Selling' },
+            ]} />
+          </div>
+          <div className="ps-block">
+            <div className="ps-block-head"><span className="ps-block-label">Vehicle Baseline</span></div>
+            <DualField label="Original MSRP" hint={fmt(msrp)} value={msrp} onChange={setMsrp} min={0} max={200000} step={500} />
+            <DualField label="Vehicle Age" hint={`${age} years`} value={age} onChange={setAge} min={0} max={15} step={1} suffix="y" />
+            <DualField label="Odometer Mileage" hint={`${mileage.toLocaleString()} mi`} value={mileage} onChange={setMileage} min={0} max={300000} step={1000} />
+            <div className="ps-field">
+              <label className="ps-field-label"><span>Condition</span></label>
+              <select className="input" value={condition} onChange={(e) => setCondition(e.target.value)}>
+                <option value="excellent">Excellent — 1.05×</option>
+                <option value="good">Good — 1.00×</option>
+                <option value="fair">Fair — 0.85×</option>
+                <option value="poor">Poor — 0.65×</option>
+              </select>
+            </div>
+          </div>
+          <div className="ps-block">
+            <div className="ps-block-head"><span className="ps-block-label">Pricing</span></div>
+            <DualField label="Listed Selling Price" hint={fmt(listed)} value={listed} onChange={setListed} min={0} max={200000} step={500} />
+            <div className="ps-field">
+              <label className="ps-field-label"><span>Final Sale Price (optional)</span></label>
+              <div className="ps-field-input">
+                <input type="number" className="ps-input" value={final} placeholder="0 = use listed"
+                  onChange={(e) => setFinal(num(e.target.value))} />
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="ps-receipt-wrap">
+          <div className="ps-receipt">
+            <div className="ps-receipt-head">
+              <div><div className="ps-receipt-eyebrow">Deal Analysis</div><div className="ps-receipt-title">Market Value &amp; Verdict</div></div>
+              <span className="ps-receipt-badge" style={{ background: calc.grade === 'excellent' ? '#10B981' : calc.grade === 'good' ? '#14B8A6' : calc.grade === 'average' ? '#F59E0B' : '#F43F5E', color: '#fff' }}>{calc.grade.toUpperCase()}</span>
+            </div>
+            <div className="ps-receipt-body" style={{ padding: '1rem 1.35rem' }}>
+              <table className="ps-receipt-table"><tbody>
+                <tr className="ps-receipt-row"><td>MSRP</td><td>{fmt(msrp)}</td></tr>
+                <tr className="ps-receipt-row"><td>Age ({age} yrs)</td><td>−20% yr1, −10% / yr</td></tr>
+                <tr className="ps-receipt-row"><td>Mileage adj ({mileage.toLocaleString()} mi)</td><td>±3% per 12k delta</td></tr>
+                <tr className="ps-receipt-row"><td>Condition ({condition})</td><td>× {({excellent:1.05,good:1,fair:.85,poor:.65})[condition]}</td></tr>
+                <tr className="ps-receipt-row"><td>Listed / final</td><td>{fmt(calc.target)}</td></tr>
+                <tr className="ps-receipt-net"><td>Market Value</td><td>{fmt(calc.value)}</td></tr>
+                <tr className="ps-receipt-row"><td>Variance</td><td style={{ color: (perspective === 'buying' ? calc.variance < 0 : calc.variance > 0) ? '#6EE7B7' : '#FDA4AF', fontWeight: 800 }}>{calc.variance > 0 ? '+' : ''}{pct(calc.variance, 1)}</td></tr>
+              </tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. PROJECTIONS (compound interest)
+   ═══════════════════════════════════════════════════════════ */
+function ProjectionsCalc() {
+  const [starting, setStarting] = useState(0);
+  const [monthlyContri, setMonthlyContri] = useState(0);
+  const [annualReturn, setAnnualReturn] = useState(7);
+  const [years, setYears] = useState(20);
+  const [inflation, setInflation] = useState(2.5);
+  const [compounding, setCompounding] = useState('monthly');
+  const canvasRef = useRef(null);
+  const chartRef = useRef(null);
+
+  const calc = useMemo(() => {
+    const n = compounding === 'daily' ? 365 : compounding === 'yearly' ? 1 : 12;
+    const r = annualReturn / 100;
+    const t = years;
+    const periodicRate = r / n;
+    const periods = n * t;
+
+    const fvLump = starting * Math.pow(1 + periodicRate, periods);
+    const monthlyContriPerPeriod = monthlyContri * (12 / n);
+    const fvContributions = monthlyContriPerPeriod > 0
+      ? monthlyContriPerPeriod * ((Math.pow(1 + periodicRate, periods) - 1) / periodicRate)
+      : 0;
+    const finalValue = fvLump + fvContributions;
+    const totalContributed = monthlyContri * 12 * t;
+    const growth = finalValue - starting - totalContributed;
+    const realValue = finalValue / Math.pow(1 + inflation / 100, t);
+
+    // Yearly series for chart
+    const series = [];
+    for (let y = 0; y <= t; y++) {
+      const p = n * y;
+      const lump = starting * Math.pow(1 + periodicRate, p);
+      const contrib = monthlyContriPerPeriod > 0 && periodicRate > 0
+        ? monthlyContriPerPeriod * ((Math.pow(1 + periodicRate, p) - 1) / periodicRate)
+        : monthlyContriPerPeriod * p;
+      series.push({ year: y, value: lump + contrib });
+    }
+
+    return { finalValue, totalContributed, growth, realValue, series };
+  }, [starting, monthlyContri, annualReturn, years, inflation, compounding]);
+
+  useEffect(() => {
+    if (!canvasRef.current || typeof Chart === 'undefined') return;
+    const ctx = canvasRef.current.getContext('2d');
+    if (chartRef.current) chartRef.current.destroy();
+    chartRef.current = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: calc.series.map(s => `Yr ${s.year}`),
+        datasets: [{
+          label: 'Projected Value',
+          data: calc.series.map(s => s.value),
+          borderColor: '#8B5CF6',
+          backgroundColor: 'rgba(139,92,246,0.10)',
+          fill: true, tension: 0.3,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { callback: (v) => '$' + (v / 1000).toFixed(0) + 'k' } },
+          x: { grid: { display: false } },
+        },
+      },
+    });
+    return () => { if (chartRef.current) { chartRef.current.destroy(); chartRef.current = null; } };
+  }, [calc.series]);
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="surface p-5 lg:p-6 space-y-4">
+        <h4 className="text-xs font-extrabold" style={{ color: 'var(--text-1)' }}>Assumptions</h4>
+        <DualField label="Starting Balance" value={starting} onChange={setStarting} min={0} max={5000000} step={1000} />
+        <DualField label="Monthly Contribution" value={monthlyContri} onChange={setMonthlyContri} min={0} max={20000} step={50} />
+        <DualField label="Annual Return (%)" value={annualReturn} onChange={setAnnualReturn} min={-5} max={20} step={0.1} suffix="%" />
+        <DualField label="Time Span (years)" value={years} onChange={setYears} min={1} max={50} step={1} suffix="y" />
+        <DualField label="Inflation (%)" value={inflation} onChange={setInflation} min={0} max={10} step={0.1} suffix="%" />
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {['daily', 'monthly', 'yearly'].map((k) => (
+            <button key={k} className={`chip${compounding === k ? ' active' : ''}`} onClick={() => setCompounding(k)}>
+              {k[0].toUpperCase() + k.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="lg:col-span-2 space-y-5">
+        <div className="surface p-5 lg:p-6">
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-4)' }}>Projected Value</div>
+              <div className="amount-hero" style={{ fontSize: 32, marginTop: 4, color: '#6D28D9' }}>{fmt(calc.finalValue)}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-4)' }}>In {years} years</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-4)' }}>Real Purchasing Power</div>
+              <div className="amount-hero" style={{ fontSize: 20, marginTop: 4 }}>{fmt(calc.realValue)}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-4)' }}>Adj. for inflation</div>
+            </div>
+          </div>
+          <div style={{ height: 280 }}><canvas ref={canvasRef} /></div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="surface p-4"><div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>Initial Capital</div><div className="amount-hero" style={{ fontSize: 18, marginTop: 4 }}>{fmt(starting)}</div><div style={{ fontSize: 10, color: 'var(--text-4)' }}>{pct(starting / calc.finalValue * 100 || 0, 1)} of total</div></div>
+          <div className="surface p-4"><div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>Contributions</div><div className="amount-hero" style={{ fontSize: 18, marginTop: 4, color: '#3B82F6' }}>{fmt(calc.totalContributed)}</div><div style={{ fontSize: 10, color: 'var(--text-4)' }}>{pct(calc.totalContributed / calc.finalValue * 100 || 0, 1)} of total</div></div>
+          <div className="surface p-4"><div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>Growth</div><div className="amount-hero" style={{ fontSize: 18, marginTop: 4, color: '#059669' }}>{fmt(calc.growth)}</div><div style={{ fontSize: 10, color: 'var(--text-4)' }}>{pct(calc.growth / calc.finalValue * 100 || 0, 1)} of total</div></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6. FIRE
+   ═══════════════════════════════════════════════════════════ */
+function FireCalc() {
+  const [annualExp, setAnnualExp] = useState(80000);
+  const [withdrawal, setWithdrawal] = useState(4);
+  const [currentAssets, setCurrentAssets] = useState(0);
+
+  const calc = useMemo(() => {
+    const target = annualExp / (withdrawal / 100);
+    const progress = target > 0 ? Math.min(100, (currentAssets / target) * 100) : 0;
+    return { target, progress };
+  }, [annualExp, withdrawal, currentAssets]);
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="surface p-5 lg:p-6 space-y-5">
+        <h4 className="text-xs font-extrabold">FIRE Assumptions</h4>
+        <DualField label="Annual Expenses" value={annualExp} onChange={setAnnualExp} min={0} max={500000} step={1000} />
+        <DualField label="Withdrawal Rate (%)" value={withdrawal} onChange={setWithdrawal} min={1} max={10} step={0.1} suffix="%" />
+        <DualField label="Current Assets" value={currentAssets} onChange={setCurrentAssets} min={0} max={10000000} step={5000} />
+      </div>
+      <div className="surface p-5 lg:p-6 space-y-5">
+        <h4 className="text-xs font-extrabold">FIRE Progress</h4>
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>Target Corpus</div>
+          <div className="amount-hero" style={{ fontSize: 30, marginTop: 4 }}>{fmt(calc.target)}</div>
+        </div>
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, marginBottom: 8 }}>
+            <span style={{ color: 'var(--text-2)' }}>Progress</span>
+            <span style={{ color: '#EC4899' }}>{pct(calc.progress, 1)}</span>
+          </div>
+          <div className="progress" style={{ height: 10 }}>
+            <div style={{ width: calc.progress + '%', background: 'linear-gradient(90deg,#EC4899,#F59E0B)' }} />
           </div>
         </div>
       </div>
@@ -901,5 +1021,121 @@ export function BlueprintTab() {
   );
 }
 
-// Keep default export as an alias so both import styles work.
-export default BlueprintTab;
+/* ═══════════════════════════════════════════════════════════
+   7. EMERGENCY FUND
+   ═══════════════════════════════════════════════════════════ */
+function EmergencyCalc() {
+  const [monthly, setMonthly] = useState(5000);
+  const [months, setMonths] = useState(6);
+  const target = monthly * months;
+  return (
+    <div className="surface p-5 lg:p-6 space-y-5" style={{ maxWidth: 640 }}>
+      <h4 className="text-xs font-extrabold">Emergency Fund Calculator</h4>
+      <DualField label="Monthly Expenses" value={monthly} onChange={setMonthly} min={0} max={50000} step={100} />
+      <div>
+        <label className="field-label">Runway (months)</label>
+        <input type="number" className="input font-mono" value={months} min={1} max={24} onChange={(e) => setMonths(Math.max(1, Math.min(24, num(e.target.value))))} style={{ textAlign: 'right' }} />
+      </div>
+      <div style={{ padding: 16, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 12 }}>
+        <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>Target Reserve</div>
+        <div className="amount-hero" style={{ fontSize: 30, marginTop: 6 }}>{fmt(target)}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   8. INFLATION
+   ═══════════════════════════════════════════════════════════ */
+function InflationCalc() {
+  const [rate, setRate] = useState(3);
+  const [years, setYears] = useState(20);
+  const [amount, setAmount] = useState(100000);
+
+  const realValue = amount / Math.pow(1 + rate / 100, years);
+  const checkpoints = [5, 10, 20, 30].map((y) => ({
+    years: y,
+    value: amount / Math.pow(1 + rate / 100, y),
+  }));
+
+  return (
+    <div className="surface p-5 lg:p-6 space-y-5" style={{ maxWidth: 720 }}>
+      <h4 className="text-xs font-extrabold">Inflation Erosion</h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div><label className="field-label">Inflation Rate (%)</label><input type="number" className="input font-mono" value={rate} step={0.1} onChange={(e) => setRate(num(e.target.value))} style={{ textAlign: 'right' }} /></div>
+        <div><label className="field-label">Time Horizon (years)</label><input type="number" className="input font-mono" value={years} onChange={(e) => setYears(num(e.target.value))} style={{ textAlign: 'right' }} /></div>
+      </div>
+      <DualField label="Amount" value={amount} onChange={setAmount} min={0} max={2000000} step={1000} />
+      <div style={{ padding: 16, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 12 }}>
+        <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>Real Value Today</div>
+        <div className="amount-hero" style={{ fontSize: 30, marginTop: 6, color: '#F59E0B' }}>{fmt(realValue)}</div>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {checkpoints.map((c) => (
+          <div key={c.years} style={{ padding: 12, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 12 }}>
+            <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>{c.years} yrs</div>
+            <div className="amount-hero" style={{ fontSize: 14, marginTop: 4 }}>{fmt(c.value)}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   9. INSIGHTS (placeholder)
+   ═══════════════════════════════════════════════════════════ */
+function InsightsCalc() {
+  return (
+    <div className="surface p-5 lg:p-6">
+      <div style={{ fontSize: 12, color: 'var(--text-3)', textAlign: 'center', padding: '2rem' }}>
+        ⚠️ The <b>Texas Accelerator</b> and <b>Macro Matrix</b> containers are populated by JS in your main app.<br />
+        Paste the corresponding JS module and I'll wire it into this component.
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN BLUEPRINT TAB
+   ═══════════════════════════════════════════════════════════ */
+const PANES = {
+  paycheck: PaycheckCalc,
+  rule72: Rule72Calc,
+  mortgage: MortgageCalc,
+  vehicle: VehicleCalc,
+  projections: ProjectionsCalc,
+  fire: FireCalc,
+  emergency: EmergencyCalc,
+  inflation: InflationCalc,
+  insights: InsightsCalc,
+};
+
+export function BlueprintTab() {
+  const [active, setActive] = useState('paycheck');
+  const ActivePane = PANES[active];
+
+  return (
+    <div id="tab-blueprint" className="main-tab-content space-y-5">
+      <div className="main-content-blur space-y-5">
+        <div className="wb-tabs">
+          {TABS.map((t) => (
+            <button
+              key={t.key}
+              className={`wb-tab${active === t.key ? ' active' : ''}`}
+              onClick={() => setActive(t.key)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="wb-content">
+          <div className="wb-pane active">
+            <ActivePane />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
