@@ -930,7 +930,7 @@ function ProjectionsCalc() {
           label: 'Projected Value',
           data: calc.series.map(s => s.value),
           borderColor: '#8B5CF6',
-          backgroundColor: 'rgba(139,92,246,0.10)',
+          backgroundColor: 'rgba(139,92,246,0.12)',
           fill: true, tension: 0.3,
         }],
       },
@@ -947,47 +947,51 @@ function ProjectionsCalc() {
   }, [calc.series]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-      <div className="surface p-5 lg:p-6 space-y-4">
-        <h4 className="text-xs font-extrabold" style={{ color: 'var(--text-1)' }}>Assumptions</h4>
-        <DualField label="Starting Balance" value={starting} onChange={setStarting} min={0} max={5000000} step={1000} />
-        <DualField label="Monthly Contribution" value={monthlyContri} onChange={setMonthlyContri} min={0} max={20000} step={50} />
-        <DualField label="Annual Return (%)" value={annualReturn} onChange={setAnnualReturn} min={-5} max={20} step={0.1} suffix="%" />
-        <DualField label="Time Span (years)" value={years} onChange={setYears} min={1} max={50} step={1} suffix="y" />
-        <DualField label="Inflation (%)" value={inflation} onChange={setInflation} min={0} max={10} step={0.1} suffix="%" />
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {['daily', 'monthly', 'yearly'].map((k) => (
-            <button key={k} className={`chip${compounding === k ? ' active' : ''}`} onClick={() => setCompounding(k)}>
-              {k[0].toUpperCase() + k.slice(1)}
-            </button>
-          ))}
+    <>
+      <div className="ps-hero">
+        <div className="ps-hero-main">
+          <span className="ps-hero-label">Projected Value</span>
+          <div className="ps-hero-value" style={{ color: '#8B5CF6' }}>{fmt(calc.finalValue)}</div>
+          <div className="ps-hero-sub">In {years} years</div>
+        </div>
+        <div className="ps-hero-stats">
+          <div className="ps-stat"><span className="ps-stat-label">Real Purchasing Power</span><div className="ps-stat-value">{fmt(calc.realValue)}</div><div className="ps-stat-sub">adj. for {inflation}% inflation</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Total Contributions</span><div className="ps-stat-value">{fmt(calc.totalContributed)}</div><div className="ps-stat-sub">{pct(calc.totalContributed / calc.finalValue * 100 || 0, 1)} of total</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Compound Growth</span><div className="ps-stat-value" style={{ color: '#10B981' }}>{fmt(calc.growth)}</div><div className="ps-stat-sub">{pct(calc.growth / calc.finalValue * 100 || 0, 1)} of total</div></div>
         </div>
       </div>
 
-      <div className="lg:col-span-2 space-y-5">
-        <div className="surface p-5 lg:p-6">
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-4)' }}>Projected Value</div>
-              <div className="amount-hero" style={{ fontSize: 32, marginTop: 4, color: '#6D28D9' }}>{fmt(calc.finalValue)}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-4)' }}>In {years} years</div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-4)' }}>Real Purchasing Power</div>
-              <div className="amount-hero" style={{ fontSize: 20, marginTop: 4 }}>{fmt(calc.realValue)}</div>
-              <div style={{ fontSize: 10, color: 'var(--text-4)' }}>Adj. for inflation</div>
+      <div className="ps-layout">
+        <div className="ps-controls">
+          <div className="ps-block">
+            <div className="ps-block-head"><span className="ps-block-label">Assumptions</span></div>
+            <DualField label="Starting Balance" hint={fmt(starting)} value={starting} onChange={setStarting} min={0} max={5000000} step={1000} />
+            <DualField label="Monthly Contribution" hint={fmt(monthlyContri)} value={monthlyContri} onChange={setMonthlyContri} min={0} max={20000} step={50} />
+            <DualField label="Annual Return (%)" hint={pct(annualReturn, 1)} value={annualReturn} onChange={setAnnualReturn} min={-5} max={20} step={0.1} suffix="%" />
+            <DualField label="Time Span (years)" hint={`${years} yrs`} value={years} onChange={setYears} min={1} max={50} step={1} suffix="y" />
+            <DualField label="Inflation (%)" hint={pct(inflation, 1)} value={inflation} onChange={setInflation} min={0} max={10} step={0.1} suffix="%" />
+            <div className="ps-field">
+              <label className="ps-field-label"><span>Compounding Frequency</span></label>
+              <Seg value={compounding} onChange={setCompounding} options={[
+                { value: 'daily', label: 'Daily' }, { value: 'monthly', label: 'Monthly' }, { value: 'yearly', label: 'Yearly' }
+              ]} />
             </div>
           </div>
-          <div style={{ height: 280 }}><canvas ref={canvasRef} /></div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="surface p-4"><div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>Initial Capital</div><div className="amount-hero" style={{ fontSize: 18, marginTop: 4 }}>{fmt(starting)}</div><div style={{ fontSize: 10, color: 'var(--text-4)' }}>{pct(starting / calc.finalValue * 100 || 0, 1)} of total</div></div>
-          <div className="surface p-4"><div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>Contributions</div><div className="amount-hero" style={{ fontSize: 18, marginTop: 4, color: '#3B82F6' }}>{fmt(calc.totalContributed)}</div><div style={{ fontSize: 10, color: 'var(--text-4)' }}>{pct(calc.totalContributed / calc.finalValue * 100 || 0, 1)} of total</div></div>
-          <div className="surface p-4"><div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>Growth</div><div className="amount-hero" style={{ fontSize: 18, marginTop: 4, color: '#059669' }}>{fmt(calc.growth)}</div><div style={{ fontSize: 10, color: 'var(--text-4)' }}>{pct(calc.growth / calc.finalValue * 100 || 0, 1)} of total</div></div>
+        <div className="ps-receipt-wrap">
+          <div className="ps-receipt">
+            <div className="ps-receipt-head">
+              <div><div className="ps-receipt-eyebrow">Growth Trajectory</div><div className="ps-receipt-title">Compound Horizon Chart</div></div>
+              <span className="ps-receipt-badge">{annualReturn}% return · {years}y</span>
+            </div>
+            <div className="ps-receipt-body" style={{ padding: '1.25rem' }}>
+              <div style={{ height: 320 }}><canvas ref={canvasRef} /></div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -1006,30 +1010,60 @@ function FireCalc() {
   }, [annualExp, withdrawal, currentAssets]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-      <div className="surface p-5 lg:p-6 space-y-5">
-        <h4 className="text-xs font-extrabold">FIRE Assumptions</h4>
-        <DualField label="Annual Expenses" value={annualExp} onChange={setAnnualExp} min={0} max={500000} step={1000} />
-        <DualField label="Withdrawal Rate (%)" value={withdrawal} onChange={setWithdrawal} min={1} max={10} step={0.1} suffix="%" />
-        <DualField label="Current Assets" value={currentAssets} onChange={setCurrentAssets} min={0} max={10000000} step={5000} />
-      </div>
-      <div className="surface p-5 lg:p-6 space-y-5">
-        <h4 className="text-xs font-extrabold">FIRE Progress</h4>
-        <div>
-          <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>Target Corpus</div>
-          <div className="amount-hero" style={{ fontSize: 30, marginTop: 4 }}>{fmt(calc.target)}</div>
+    <>
+      <div className="ps-hero">
+        <div className="ps-hero-main">
+          <span className="ps-hero-label">Target FIRE Corpus</span>
+          <div className="ps-hero-value" style={{ color: '#EC4899' }}>{fmt(calc.target)}</div>
+          <div className="ps-hero-sub">Based on {withdrawal}% SWR</div>
         </div>
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, marginBottom: 8 }}>
-            <span style={{ color: 'var(--text-2)' }}>Progress</span>
-            <span style={{ color: '#EC4899' }}>{pct(calc.progress, 1)}</span>
-          </div>
-          <div className="progress" style={{ height: 10 }}>
-            <div style={{ width: calc.progress + '%', background: 'linear-gradient(90deg,#EC4899,#F59E0B)' }} />
-          </div>
+        <div className="ps-hero-stats">
+          <div className="ps-stat"><span className="ps-stat-label">Current Progress</span><div className="ps-stat-value">{pct(calc.progress, 1)}</div><div className="ps-stat-sub">funded</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Current Assets</span><div className="ps-stat-value">{fmt(currentAssets)}</div><div className="ps-stat-sub">saved</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Remaining</span><div className="ps-stat-value">{fmt(Math.max(0, calc.target - currentAssets))}</div><div className="ps-stat-sub">to financial independence</div></div>
         </div>
       </div>
-    </div>
+
+      <div className="ps-layout">
+        <div className="ps-controls">
+          <div className="ps-block">
+            <div className="ps-block-head"><span className="ps-block-label">Assumptions</span></div>
+            <DualField label="Annual Expenses" hint={fmt(annualExp)} value={annualExp} onChange={setAnnualExp} min={0} max={500000} step={1000} />
+            <DualField label="Withdrawal Rate (%)" hint={pct(withdrawal, 1)} value={withdrawal} onChange={setWithdrawal} min={1} max={10} step={0.1} suffix="%" />
+            <DualField label="Current Assets" hint={fmt(currentAssets)} value={currentAssets} onChange={setCurrentAssets} min={0} max={10000000} step={5000} />
+          </div>
+        </div>
+
+        <div className="ps-receipt-wrap">
+          <div className="ps-receipt">
+            <div className="ps-receipt-head">
+              <div><div className="ps-receipt-eyebrow">FIRE Milestones</div><div className="ps-receipt-title">Progress &amp; Corpus Breakdown</div></div>
+              <span className="ps-receipt-badge">{withdrawal}% rule</span>
+            </div>
+            <div className="ps-receipt-body" style={{ padding: '1.35rem' }}>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-xs font-bold mb-2">
+                    <span className="text-[var(--text-2)]">Progress to Financial Independence</span>
+                    <span className="text-pink-400">{pct(calc.progress, 1)}</span>
+                  </div>
+                  <div className="w-full bg-[var(--surface-3)] h-3 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-pink-500 via-purple-500 to-amber-500" style={{ width: calc.progress + '%' }} />
+                  </div>
+                </div>
+                <table className="ps-receipt-table"><tbody>
+                  <tr className="ps-receipt-row"><td>Annual Expenses</td><td>{fmt(annualExp)}</td></tr>
+                  <tr className="ps-receipt-row"><td>Safe Withdrawal Rate</td><td>{pct(withdrawal, 1)}</td></tr>
+                  <tr className="ps-receipt-row"><td>Target FIRE Corpus</td><td>{fmt(calc.target)}</td></tr>
+                  <tr className="ps-receipt-row"><td>Current Assets</td><td>{fmt(currentAssets)}</td></tr>
+                  <tr className="ps-receipt-net"><td>Remaining Gap</td><td>{fmt(Math.max(0, calc.target - currentAssets))}</td></tr>
+                </tbody></table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -1040,19 +1074,55 @@ function EmergencyCalc() {
   const [monthly, setMonthly] = useState(5000);
   const [months, setMonths] = useState(6);
   const target = monthly * months;
+
   return (
-    <div className="surface p-5 lg:p-6 space-y-5" style={{ maxWidth: 640 }}>
-      <h4 className="text-xs font-extrabold">Emergency Fund Calculator</h4>
-      <DualField label="Monthly Expenses" value={monthly} onChange={setMonthly} min={0} max={50000} step={100} />
-      <div>
-        <label className="field-label">Runway (months)</label>
-        <input type="number" className="input font-mono" value={months} min={1} max={24} onChange={(e) => setMonths(Math.max(1, Math.min(24, num(e.target.value))))} style={{ textAlign: 'right' }} />
+    <>
+      <div className="ps-hero">
+        <div className="ps-hero-main">
+          <span className="ps-hero-label">Target Reserve</span>
+          <div className="ps-hero-value" style={{ color: '#10B981' }}>{fmt(target)}</div>
+          <div className="ps-hero-sub">{months}-month safety runway</div>
+        </div>
+        <div className="ps-hero-stats">
+          <div className="ps-stat"><span className="ps-stat-label">Monthly Expenses</span><div className="ps-stat-value">{fmt(monthly)}</div><div className="ps-stat-sub">baseline</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Runway</span><div className="ps-stat-value">{months} mos</div><div className="ps-stat-sub">recommended 3-6m</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Daily Burn</span><div className="ps-stat-value">{fmt(monthly / 30, 2)}</div><div className="ps-stat-sub">per day</div></div>
+        </div>
       </div>
-      <div style={{ padding: 16, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 12 }}>
-        <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>Target Reserve</div>
-        <div className="amount-hero" style={{ fontSize: 30, marginTop: 6 }}>{fmt(target)}</div>
+
+      <div className="ps-layout">
+        <div className="ps-controls">
+          <div className="ps-block">
+            <div className="ps-block-head"><span className="ps-block-label">Emergency Fund Inputs</span></div>
+            <DualField label="Monthly Expenses" hint={fmt(monthly)} value={monthly} onChange={setMonthly} min={0} max={50000} step={100} />
+            <div className="ps-field">
+              <label className="ps-field-label"><span>Runway Target (Months)</span></label>
+              <Seg value={months} onChange={setMonths} options={[
+                { value: 3, label: '3 mo' }, { value: 6, label: '6 mo' }, { value: 9, label: '9 mo' }, { value: 12, label: '12 mo' }
+              ]} />
+            </div>
+          </div>
+        </div>
+
+        <div className="ps-receipt-wrap">
+          <div className="ps-receipt">
+            <div className="ps-receipt-head">
+              <div><div className="ps-receipt-eyebrow">Safety Analysis</div><div className="ps-receipt-title">Liquidity Breakdown</div></div>
+              <span className="ps-receipt-badge">SECURE</span>
+            </div>
+            <div className="ps-receipt-body" style={{ padding: '1.35rem' }}>
+              <table className="ps-receipt-table"><tbody>
+                <tr className="ps-receipt-row"><td>Monthly Burn</td><td>{fmt(monthly)}</td></tr>
+                <tr className="ps-receipt-row"><td>Runway Length</td><td>{months} months</td></tr>
+                <tr className="ps-receipt-row"><td>Quarterly Equivalent</td><td>{fmt(monthly * 3)}</td></tr>
+                <tr className="ps-receipt-row"><td>Annual Equivalent</td><td>{fmt(monthly * 12)}</td></tr>
+                <tr className="ps-receipt-net"><td>Target Reserve</td><td>{fmt(target)}</td></tr>
+              </tbody></table>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -1071,26 +1141,49 @@ function InflationCalc() {
   }));
 
   return (
-    <div className="surface p-5 lg:p-6 space-y-5" style={{ maxWidth: 720 }}>
-      <h4 className="text-xs font-extrabold">Inflation Erosion</h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div><label className="field-label">Inflation Rate (%)</label><input type="number" className="input font-mono" value={rate} step={0.1} onChange={(e) => setRate(num(e.target.value))} style={{ textAlign: 'right' }} /></div>
-        <div><label className="field-label">Time Horizon (years)</label><input type="number" className="input font-mono" value={years} onChange={(e) => setYears(num(e.target.value))} style={{ textAlign: 'right' }} /></div>
+    <>
+      <div className="ps-hero">
+        <div className="ps-hero-main">
+          <span className="ps-hero-label">Real Purchasing Power</span>
+          <div className="ps-hero-value" style={{ color: '#F59E0B' }}>{fmt(realValue)}</div>
+          <div className="ps-hero-sub">After {years} years at {rate}% inflation</div>
+        </div>
+        <div className="ps-hero-stats">
+          <div className="ps-stat"><span className="ps-stat-label">Initial Amount</span><div className="ps-stat-value">{fmt(amount)}</div><div className="ps-stat-sub">today</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Loss of Value</span><div className="ps-stat-value" style={{ color: '#EF4444' }}>{pct((amount - realValue) / amount * 100, 1)}</div><div className="ps-stat-sub">eroded</div></div>
+          <div className="ps-stat"><span className="ps-stat-label">Horizon</span><div className="ps-stat-value">{years} yrs</div><div className="ps-stat-sub">compounded</div></div>
+        </div>
       </div>
-      <DualField label="Amount" value={amount} onChange={setAmount} min={0} max={2000000} step={1000} />
-      <div style={{ padding: 16, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 12 }}>
-        <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>Real Value Today</div>
-        <div className="amount-hero" style={{ fontSize: 30, marginTop: 6, color: '#F59E0B' }}>{fmt(realValue)}</div>
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {checkpoints.map((c) => (
-          <div key={c.years} style={{ padding: 12, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 12 }}>
-            <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-4)' }}>{c.years} yrs</div>
-            <div className="amount-hero" style={{ fontSize: 14, marginTop: 4 }}>{fmt(c.value)}</div>
+
+      <div className="ps-layout">
+        <div className="ps-controls">
+          <div className="ps-block">
+            <div className="ps-block-head"><span className="ps-block-label">Assumptions</span></div>
+            <DualField label="Starting Amount" hint={fmt(amount)} value={amount} onChange={setAmount} min={0} max={2000000} step={1000} />
+            <DualField label="Inflation Rate (%)" hint={pct(rate, 1)} value={rate} onChange={setRate} min={0.5} max={10} step={0.1} suffix="%" />
+            <DualField label="Time Horizon (years)" hint={`${years} yrs`} value={years} onChange={setYears} min={1} max={50} step={1} suffix="y" />
           </div>
-        ))}
+        </div>
+
+        <div className="ps-receipt-wrap">
+          <div className="ps-receipt">
+            <div className="ps-receipt-head">
+              <div><div className="ps-receipt-eyebrow">Inflation Timeline</div><div className="ps-receipt-title">Checkpoint Breakdown</div></div>
+              <span className="ps-receipt-badge">{rate}% inflation</span>
+            </div>
+            <div className="ps-receipt-body" style={{ padding: '1.35rem' }}>
+              <table className="ps-receipt-table"><tbody>
+                <tr className="ps-receipt-section"><td colSpan={2}>Checkpoints</td></tr>
+                {checkpoints.map((c) => (
+                  <tr key={c.years} className="ps-receipt-row"><td>At {c.years} years</td><td>{fmt(c.value)}</td></tr>
+                ))}
+                <tr className="ps-receipt-net"><td>Final Real Value</td><td>{fmt(realValue)}</td></tr>
+              </tbody></table>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
