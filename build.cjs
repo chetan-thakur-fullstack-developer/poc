@@ -1,32 +1,29 @@
+const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const distDir = path.join(__dirname, 'dist');
+console.log('[Build] Starting Vite production build for GitHub Pages...');
 
-console.log('[Build] Starting Executive Wealth build for GitHub Pages...');
+try {
+  // Use explicit npx path or system PATH with nvm
+  const nvmDir = process.env.HOME + '/.nvm';
+  const nodeBin = nvmDir + '/versions/node/v26.13.1/bin';
+  const env = Object.assign({}, process.env, { PATH: nodeBin + ':' + process.env.PATH });
 
-// Ensure dist directory exists and is clean
-if (fs.existsSync(distDir)) {
-  const oldFiles = fs.readdirSync(distDir);
-  for (const f of oldFiles) {
-    const p = path.join(distDir, f);
-    try {
-      if (fs.rmSync) {
-        fs.rmSync(p, { recursive: true, force: true });
-      } else if (fs.statSync(p).isDirectory()) {
-        fs.rmdirSync(p, { recursive: true });
-      } else {
-        fs.unlinkSync(p);
-      }
-    } catch (_) {}
-  }
-} else {
-  fs.mkdirSync(distDir, { recursive: true });
+  execSync('npx vite build', { stdio: 'inherit', env });
+} catch (e) {
+  console.error('[Build] Vite build failed:', e.message);
+  process.exit(1);
 }
 
-// Files to copy to dist
-const filesToCopy = [
-  'index.html',
+const distDir = path.join(__dirname, 'dist');
+
+// Ensure .nojekyll exists
+fs.writeFileSync(path.join(distDir, '.nojekyll'), '');
+console.log('[Build] ✓ Created dist/.nojekyll');
+
+// Copy JSON data files to dist so fetch requests succeed
+const dataFiles = [
   'accounts_data.json',
   'expense_tracker_data.json',
   'plaid_demo_data.json',
@@ -34,34 +31,13 @@ const filesToCopy = [
   '404.html'
 ];
 
-for (const file of filesToCopy) {
+for (const file of dataFiles) {
   const src = path.join(__dirname, file);
   const dest = path.join(distDir, file);
   if (fs.existsSync(src)) {
     fs.copyFileSync(src, dest);
-    const size = (fs.statSync(dest).size / 1024).toFixed(1);
-    console.log(`[Build] ✓ Copied ${file} -> dist/${file} (${size} KB)`);
-  } else {
-    console.warn(`[Build] ⚠ Warning: Source file ${file} not found!`);
+    console.log(`[Build] ✓ Copied ${file} -> dist/${file}`);
   }
 }
 
-// Ensure .nojekyll exists (bypasses GitHub Pages Jekyll processing)
-fs.writeFileSync(path.join(distDir, '.nojekyll'), '');
-console.log('[Build] ✓ Created dist/.nojekyll');
-
-// Copy public assets if public folder exists
-const publicDir = path.join(__dirname, 'public');
-if (fs.existsSync(publicDir)) {
-  const publicFiles = fs.readdirSync(publicDir);
-  for (const pf of publicFiles) {
-    const psrc = path.join(publicDir, pf);
-    const pdest = path.join(distDir, pf);
-    if (fs.statSync(psrc).isFile()) {
-      fs.copyFileSync(psrc, pdest);
-      console.log(`[Build] ✓ Copied public/${pf} -> dist/${pf}`);
-    }
-  }
-}
-
-console.log('[Build] ✨ Build completed successfully. Application ready in dist/');
+console.log('[Build] ✨ Vite Production Build Completed Successfully!');
