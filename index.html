@@ -23,22 +23,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>" />
     <style>
-      /* Prevent flash of unstyled content */
       html { background: #0B1120; }
       body { margin: 0; padding: 0; }
-      #root:empty::after {
-        content: '';
-        display: block;
-        width: 48px;
-        height: 48px;
-        margin: 48vh auto 0;
-        border-radius: 50%;
-        border: 3px solid rgba(16,185,129,0.2);
-        border-top-color: #10b981;
-        animation: spin 0.8s linear infinite;
-      }
-      @keyframes spin { to { transform: rotate(360deg); } }
     </style>
+    <!-- Catch any JS error and show it on-screen for debugging -->
+    <script>
+      window.__appErrors = [];
+      window.onerror = function(msg, src, line, col, err) {
+        var box = document.getElementById('root');
+        if (box) {
+          box.innerHTML = '<div style="color:#fb7185;padding:2rem;font-family:monospace;font-size:13px;line-height:1.6;max-width:800px;margin:0 auto"><h2 style="color:#f8fafc;font-family:sans-serif">App Error — please report this</h2><b>' + msg + '</b><br><br>' + (err && err.stack ? err.stack.replace(/</g,"&lt;") : src + ':' + line) + '</div>';
+        }
+        return false;
+      };
+      window.addEventListener('unhandledrejection', function(e) {
+        var box = document.getElementById('root');
+        if (box && box.children.length === 0) {
+          box.innerHTML = '<div style="color:#fb7185;padding:2rem;font-family:monospace;font-size:13px;line-height:1.6;max-width:800px;margin:0 auto"><h2 style="color:#f8fafc;font-family:sans-serif">Unhandled Promise Rejection</h2><pre>' + String(e.reason).replace(/</g,"&lt;") + '</pre></div>';
+        }
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
