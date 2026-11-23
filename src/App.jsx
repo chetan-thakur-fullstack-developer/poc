@@ -1,6 +1,5 @@
 import React from 'react';
 import { useApp } from './context/AppContext.jsx';
-import { useAuth } from './context/AuthContext.jsx';
 
 import { Header } from './components/Header.jsx';
 import { Sidebar } from './components/Sidebar.jsx';
@@ -27,33 +26,6 @@ import { CommandMenu } from './components/modals/CommandMenu.jsx';
 
 export const App = () => {
   const { currentTab } = useApp();
-  const { loading } = useAuth();
-
-  // Show spinner while auth initializes — but cap at 5s to never block the UI
-  const [forceShow, setForceShow] = React.useState(false);
-  React.useEffect(() => {
-    const t = setTimeout(() => setForceShow(true), 5000);
-    return () => clearTimeout(t);
-  }, []);
-
-  if (loading && !forceShow) {
-    return (
-      <div style={{
-        minHeight: '100vh', display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        background: 'var(--app-bg, #0d1117)', color: 'var(--text-1, #e6edf3)'
-      }}>
-        <div style={{
-          width: '48px', height: '48px', borderRadius: '50%',
-          border: '3px solid rgba(16,185,129,0.2)',
-          borderTopColor: '#10b981',
-          animation: 'spin 0.8s linear infinite'
-        }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        <p style={{ marginTop: '1rem', opacity: 0.6, fontSize: '0.875rem' }}>Loading Executive Wealth…</p>
-      </div>
-    );
-  }
 
   const renderActiveTab = () => {
     switch (currentTab) {

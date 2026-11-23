@@ -24,7 +24,8 @@ export const AuthProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [loading, setLoading] = useState(true);
+  // Start false — app renders immediately in demo mode; Supabase auth resolves async
+  const [loading, setLoading] = useState(false);
   const isCloudAuthAvailable = isSupabaseConfigured();
 
   const isDemoUser = Boolean(
