@@ -3,12 +3,20 @@ import { useApp } from '../../context/AppContext.jsx';
 import { AnimatedNumber } from '../AnimatedNumber.jsx';
 import { DonutChart } from '../charts/DonutChart.jsx';
 import { AreaChart } from '../charts/AreaChart.jsx';
+import { TrendingUp, TrendingDown, Plus, ChevronDown, ChevronUp, Calendar, Layers, ShieldCheck } from 'lucide-react';
 
 export const PortfolioTab = () => {
-  const { portfolioData, formatMoney, updatePortfolioYear, syncToCloud, isSyncing } = useApp();
+  const { portfolioData, formatMoney, updatePortfolioYear, addNewPortfolioYear, addNewPortfolioCategory, syncToCloud, isSyncing } = useApp();
   const [selectedYearIndex, setSelectedYearIndex] = useState(
     Math.max(0, (portfolioData?.defaultAccountData?.length || 1) - 1)
   );
+
+  const [newYearStr, setNewYearStr] = useState('2027');
+  const [showAddCat, setShowAddCat] = useState(false);
+  const [catLabel, setCatLabel] = useState('');
+  const [catType, setCatType] = useState('taxable');
+  const [catColor, setCatColor] = useState('#10B981');
+  const [expandedOldYears, setExpandedOldYears] = useState({});
 
   const categories = portfolioData?.categories || [];
   const years = portfolioData?.defaultAccountData || [];
@@ -27,18 +35,78 @@ export const PortfolioTab = () => {
     ? Object.values(activeYearData.contri).reduce((sum, v) => sum + (Number(v) || 0), 0)
     : 0;
 
+  const totalCatBalance = categories.reduce((sum, c) => sum + (activeYearData.balances?.[c.key] || 0), 0);
+  const totalCatInvested = categories.reduce((sum, c) => sum + (activeYearData.invested?.[c.key] || 0), 0);
+  const totalCatContri = categories.reduce((sum, c) => sum + (activeYearData.contri?.[c.key] || 0), 0);
+
+  // Growth calculation vs previous year
+  const prevYearData = selectedYearIndex > 0 ? years[selectedYearIndex - 1] : null;
+  const prevTotalBalances = prevYearData?.balances
+    ? Object.values(prevYearData.balances).reduce((sum, v) => sum + (Number(v) || 0), 0)
+    : 0;
+  const growthAmount = totalBalances - prevTotalBalances;
+  const growthPct = prevTotalBalances > 0 ? (growthAmount / prevTotalBalances) * 100 : 0;
+
+  const handleAddYear = (e) => {
+    e.preventDefault();
+    if (!newYearStr.trim()) return;
+    addNewPortfolioYear(newYearStr.trim());
+    // Select the newly added year index
+    const updatedYears = portfolioData?.defaultAccountData || [];
+    const idx = updatedYears.findIndex(y => y.year === newYearStr.trim());
+    if (idx !== -1) setSelectedYearIndex(idx);
+    setNewYearStr(String(Number(newYearStr) + 1));
+  };
+
+  const handleAddCategory = (e) => {
+    e.preventDefault();
+    if (!catLabel.trim()) return;
+    addNewPortfolioCategory(catLabel.trim(), catType, catColor);
+    setCatLabel('');
+    setShowAddCat(false);
+  };
+
+  const toggleExpandYear = (yr) => {
+    setExpandedOldYears(prev => ({ ...prev, [yr]: !prev[yr] }));
+  };
+
   return (
     <div className="space-y-6">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
-        <div className="flex items-center gap-3">
+      {/* Top Header & Year Filter / Growth Summary Banner */}
+      <div className="card p-5 sm:p-6 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/20 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              PORTFOLIO GROWTH INTELLIGENCE
+            </span>
+            <span className="text-xs font-mono text-[var(--text-3)]">Active Year: {activeYearData.year}</span>
+          </div>
+          <div className="flex items-baseline gap-3 mt-2">
+            <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-1)] font-mono">
+              {formatMoney(totalBalances)}
+            </h2>
+            {prevYearData && (
+              <div className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-lg ${
+                growthAmount >= 0 ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400'
+              }`}>
+                {growthAmount >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                <span>{growthAmount >= 0 ? '+' : ''}{growthPct.toFixed(1)}% vs {prevYearData.year}</span>
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-[var(--text-3)] mt-1">
+            Comparative multi-year asset growth, tax treatments, and contribution limits.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 flex-wrap">
           {/* Year selector buttons */}
-          <div className="flex p-1 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
+          <div className="flex p-1 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] overflow-x-auto">
             {years.map((y, idx) => (
               <button
                 key={y.year}
                 onClick={() => setSelectedYearIndex(idx)}
-                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                   selectedYearIndex === idx
                     ? 'bg-emerald-500 text-white shadow-sm'
                     : 'text-[var(--text-2)] hover:text-[var(--text-1)]'
@@ -49,12 +117,27 @@ export const PortfolioTab = () => {
             ))}
           </div>
 
+          {/* Add Year Form */}
+          <form onSubmit={handleAddYear} className="flex items-center gap-1.5">
+            <input
+              type="text"
+              placeholder="YYYY"
+              value={newYearStr}
+              onChange={(e) => setNewYearStr(e.target.value)}
+              maxLength={4}
+              className="w-16 px-2 py-1.5 text-xs font-mono font-bold text-center rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] outline-none"
+            />
+            <button type="submit" className="btn-secondary text-xs px-2.5 py-1.5 cursor-pointer" title="Add new portfolio year">
+              + Year
+            </button>
+          </form>
+
           <button
             onClick={syncToCloud}
             disabled={isSyncing}
-            className="btn-primary text-xs px-3 py-2 cursor-pointer"
+            className="btn-primary text-xs px-3.5 py-1.5 cursor-pointer"
           >
-            {isSyncing ? 'Saving...' : 'Save to Supabase'}
+            {isSyncing ? 'Saving...' : '🔄 Sync'}
           </button>
         </div>
       </div>
@@ -116,26 +199,87 @@ export const PortfolioTab = () => {
         />
       </div>
 
-      {/* Categories Breakdown Table */}
-      <div className="card p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-sm text-[var(--text-1)]">
-            Category Breakdown ({activeYearData.year})
-          </h3>
-          <span className="text-xs text-[var(--text-3)]">
-            Inputs auto-sync with Supabase
-          </span>
+      {/* CURRENT YEAR: Editable Categories Breakdown Table */}
+      <div className="card p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
+          <div>
+            <h3 className="font-bold text-sm text-[var(--text-1)] flex items-center gap-2">
+              <span>Category Breakdown ({activeYearData.year} — Active Editing)</span>
+              <span className="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                Live Edit
+              </span>
+            </h3>
+            <p className="text-xs text-[var(--text-3)] mt-0.5">
+              Modify balances, invested capital, and contributions for {activeYearData.year}.
+            </p>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => setShowAddCat(!showAddCat)}
+              className="btn-secondary text-xs px-3 py-1.5 cursor-pointer flex items-center gap-1.5"
+            >
+              <Plus className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Add Custom Category</span>
+            </button>
+            <span className="px-3 py-1.5 rounded-xl text-xs font-bold font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+              Total: {formatMoney(totalBalances)}
+            </span>
+          </div>
         </div>
 
+        {/* Add Category Form Drawer */}
+        {showAddCat && (
+          <form onSubmit={handleAddCategory} className="p-4 rounded-xl bg-[var(--surface-2)] border border-emerald-500/30 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+            <div>
+              <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Category Label</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Crypto / Real Estate"
+                value={catLabel}
+                onChange={(e) => setCatLabel(e.target.value)}
+                className="input-field text-xs"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Tax Treatment</label>
+              <select value={catType} onChange={(e) => setCatType(e.target.value)} className="input-field text-xs">
+                <option value="taxable">Taxable</option>
+                <option value="deferred">Tax-Deferred</option>
+                <option value="exempt">Tax-Exempt</option>
+                <option value="special">Special / Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Tag Color</label>
+              <input
+                type="color"
+                value={catColor}
+                onChange={(e) => setCatColor(e.target.value)}
+                className="w-full h-8 rounded-lg cursor-pointer bg-transparent border border-[var(--border)]"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button type="submit" className="btn-primary text-xs py-2 flex-1 justify-center cursor-pointer">
+                + Create
+              </button>
+              <button type="button" onClick={() => setShowAddCat(false)} className="btn-secondary text-xs py-2 px-3 cursor-pointer">
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-[var(--border)] text-[var(--text-3)]">
-                <th className="py-2.5 font-semibold">Category</th>
-                <th className="py-2.5 font-semibold">Tax Treatment</th>
-                <th className="py-2.5 font-semibold text-right">Balance</th>
-                <th className="py-2.5 font-semibold text-right">Invested</th>
-                <th className="py-2.5 font-semibold text-right">Contribution</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px]">Category</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px]">Tax Treatment</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right">Allocation</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right">Balance</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right">Invested</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right">Contribution</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
@@ -143,48 +287,165 @@ export const PortfolioTab = () => {
                 const bal = activeYearData.balances?.[cat.key] || 0;
                 const inv = activeYearData.invested?.[cat.key] || 0;
                 const con = activeYearData.contri?.[cat.key] || 0;
+                const sharePct = totalBalances > 0 ? Math.round((bal / totalBalances) * 100) : 0;
 
                 return (
-                  <tr key={cat.key} className="hover:bg-[var(--surface-2)]/60 transition-colors">
-                    <td className="py-3 font-bold text-[var(--text-1)] flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cat.color }} />
-                      <span>{cat.label}</span>
+                  <tr key={cat.key} className="hover:bg-[var(--surface-2)] transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-[var(--text-1)] flex items-center gap-3">
+                      <span className="w-3 h-3 rounded-md shrink-0 shadow-sm" style={{ backgroundColor: cat.color }} />
+                      <span className="text-sm font-semibold">{cat.label}</span>
                     </td>
-                    <td className="py-3">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] uppercase font-semibold bg-[var(--surface-3)] text-[var(--text-2)]">
+                    <td className="py-3.5 px-4">
+                      <span className="px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wide bg-[var(--surface-3)] text-[var(--text-2)] border border-[var(--border)]">
                         {cat.type}
                       </span>
                     </td>
-                    <td className="py-3 text-right">
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-[var(--text-3)]">
+                      {sharePct}%
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
                       <input
                         type="number"
                         value={bal}
                         onChange={(e) => updatePortfolioYear(selectedYearIndex, 'balances', cat.key, e.target.value)}
-                        className="w-28 text-right font-mono font-bold px-2 py-1 rounded bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] text-xs focus:border-emerald-500 outline-none"
+                        className="w-32 text-right font-mono font-bold px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-1)] text-xs focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                       />
                     </td>
-                    <td className="py-3 text-right">
+                    <td className="py-3.5 px-4 text-right">
                       <input
                         type="number"
                         value={inv}
                         onChange={(e) => updatePortfolioYear(selectedYearIndex, 'invested', cat.key, e.target.value)}
-                        className="w-28 text-right font-mono px-2 py-1 rounded bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] text-xs focus:border-emerald-500 outline-none"
+                        className="w-32 text-right font-mono px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-2)] text-xs focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                       />
                     </td>
-                    <td className="py-3 text-right">
+                    <td className="py-3.5 px-4 text-right">
                       <input
                         type="number"
                         value={con}
                         onChange={(e) => updatePortfolioYear(selectedYearIndex, 'contri', cat.key, e.target.value)}
-                        className="w-28 text-right font-mono px-2 py-1 rounded bg-[var(--surface-2)] border border-[var(--border)] text-emerald-400 font-semibold text-xs focus:border-emerald-500 outline-none"
+                        className="w-32 text-right font-mono px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-emerald-400 font-semibold text-xs focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                       />
                     </td>
                   </tr>
                 );
               })}
             </tbody>
+            <tfoot>
+              <tr className="border-t-2 border-[var(--border-strong)] bg-[var(--surface-2)] font-bold">
+                <td className="py-4 px-4 text-[var(--text-1)] uppercase tracking-wider text-[11px]">Total Portfolio</td>
+                <td className="py-4 px-4"></td>
+                <td className="py-4 px-4 text-right font-mono text-[var(--text-2)]">100%</td>
+                <td className="py-4 px-4 text-right font-mono text-purple-400 text-sm">{formatMoney(totalCatBalance)}</td>
+                <td className="py-4 px-4 text-right font-mono text-emerald-400 text-sm">{formatMoney(totalCatInvested)}</td>
+                <td className="py-4 px-4 text-right font-mono text-blue-400 text-sm">{formatMoney(totalCatContri)}</td>
+              </tr>
+            </tfoot>
           </table>
         </div>
+      </div>
+
+      {/* OLD YEARS ACCORDIONS (Collapsed by default, click to expand/edit) */}
+      <div className="space-y-3">
+        <h3 className="font-bold text-xs text-[var(--text-3)] uppercase tracking-wider px-1">
+          Historical Year Breakdown (Click to Expand &amp; Edit)
+        </h3>
+        {years.map((y, idx) => {
+          if (idx === selectedYearIndex) return null; // Active year is already shown above
+          const isExpanded = Boolean(expandedOldYears[y.year]);
+          const yrBalances = y.balances ? Object.values(y.balances).reduce((a, b) => a + Number(b), 0) : 0;
+
+          return (
+            <div key={y.year} className="card overflow-hidden transition-all">
+              <button
+                onClick={() => toggleExpandYear(y.year)}
+                className="w-full flex items-center justify-between p-4 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] transition-colors cursor-pointer text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
+                  <span className="font-extrabold text-sm text-[var(--text-1)]">Year {y.year} Portfolio Archive</span>
+                  <span className="text-xs font-mono text-[var(--text-3)] font-semibold">({formatMoney(yrBalances)})</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-3)]">
+                  <span>{isExpanded ? 'Collapse' : 'Expand to Edit'}</span>
+                  {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </div>
+              </button>
+
+              {isExpanded && (
+                <div className="p-5 space-y-4 bg-[var(--surface)] border-t border-[var(--border)] animate-in fade-in duration-200">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-bold text-[var(--text-2)]">Archived Breakdown for {y.year}</span>
+                    <button
+                      onClick={() => setSelectedYearIndex(idx)}
+                      className="text-xs font-bold text-emerald-400 hover:underline cursor-pointer"
+                    >
+                      Make Active Year →
+                    </button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="border-b border-[var(--border)] text-[var(--text-3)]">
+                          <th className="py-2.5 px-3 font-bold uppercase text-[10px]">Category</th>
+                          <th className="py-2.5 px-3 font-bold uppercase text-[10px]">Tax Treatment</th>
+                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] text-right">Balance</th>
+                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] text-right">Invested</th>
+                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] text-right">Contribution</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[var(--border)]">
+                        {categories.map(cat => {
+                          const bal = y.balances?.[cat.key] || 0;
+                          const inv = y.invested?.[cat.key] || 0;
+                          const con = y.contri?.[cat.key] || 0;
+
+                          return (
+                            <tr key={cat.key} className="hover:bg-[var(--surface-2)]">
+                              <td className="py-2.5 px-3 font-bold text-[var(--text-1)] flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-md" style={{ backgroundColor: cat.color }} />
+                                <span>{cat.label}</span>
+                              </td>
+                              <td className="py-2.5 px-3">
+                                <span className="px-2 py-0.5 rounded text-[9px] uppercase font-bold bg-[var(--surface-3)] text-[var(--text-2)]">
+                                  {cat.type}
+                                </span>
+                              </td>
+                              <td className="py-2.5 px-3 text-right">
+                                <input
+                                  type="number"
+                                  value={bal}
+                                  onChange={(e) => updatePortfolioYear(idx, 'balances', cat.key, e.target.value)}
+                                  className="w-28 text-right font-mono font-bold px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] text-xs outline-none"
+                                />
+                              </td>
+                              <td className="py-2.5 px-3 text-right">
+                                <input
+                                  type="number"
+                                  value={inv}
+                                  onChange={(e) => updatePortfolioYear(idx, 'invested', cat.key, e.target.value)}
+                                  className="w-28 text-right font-mono px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] text-xs outline-none"
+                                />
+                              </td>
+                              <td className="py-2.5 px-3 text-right">
+                                <input
+                                  type="number"
+                                  value={con}
+                                  onChange={(e) => updatePortfolioYear(idx, 'contri', cat.key, e.target.value)}
+                                  className="w-28 text-right font-mono px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-emerald-400 font-semibold text-xs outline-none"
+                                />
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* IRS Base Limits Overview */}

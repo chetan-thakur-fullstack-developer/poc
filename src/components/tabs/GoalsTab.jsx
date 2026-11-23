@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
-import { Target, Flag, Plus, Sparkles, ShieldCheck, Trophy, Pencil, Trash2, Check, X } from 'lucide-react';
+import { Target, Flag, Plus, Sparkles, ShieldCheck, Trophy, Pencil, Trash2, Check, X, Calendar } from 'lucide-react';
 import { AnimatedNumber } from '../AnimatedNumber.jsx';
 
 export const GoalsTab = () => {
@@ -42,6 +42,7 @@ export const GoalsTab = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newTarget, setNewTarget] = useState('');
   const [newMonthly, setNewMonthly] = useState('');
+  const [newDate, setNewDate] = useState('2027-12-31');
 
   // Editing state
   const [editingId, setEditingId] = useState(null);
@@ -49,6 +50,7 @@ export const GoalsTab = () => {
   const [editTarget, setEditTarget] = useState('');
   const [editCurrent, setEditCurrent] = useState('');
   const [editMonthly, setEditMonthly] = useState('');
+  const [editDate, setEditDate] = useState('');
 
   const goalTemplates = [
     { title: 'Home Down Payment', target: 80000, current: 24000, monthly: 1500, category: 'Property', date: '2028-05-30', color: '#3B82F6' },
@@ -67,7 +69,7 @@ export const GoalsTab = () => {
       target: parseFloat(newTarget),
       current: 0,
       monthly: parseFloat(newMonthly) || 500,
-      date: '2027-12-31',
+      date: newDate || '2027-12-31',
       color: '#10B981'
     };
 
@@ -75,6 +77,7 @@ export const GoalsTab = () => {
     setNewTitle('');
     setNewTarget('');
     setNewMonthly('');
+    setNewDate('2027-12-31');
     showToast('New financial goal created successfully', 'success');
   };
 
@@ -93,6 +96,7 @@ export const GoalsTab = () => {
     setEditTarget(goal.target);
     setEditCurrent(goal.current);
     setEditMonthly(goal.monthly || 500);
+    setEditDate(goal.date || '2027-12-31');
   };
 
   const saveEdit = (id) => {
@@ -101,7 +105,8 @@ export const GoalsTab = () => {
       title: editTitle,
       target: parseFloat(editTarget) || g.target,
       current: parseFloat(editCurrent) || g.current,
-      monthly: parseFloat(editMonthly) || g.monthly
+      monthly: parseFloat(editMonthly) || g.monthly,
+      date: editDate || g.date
     } : g));
     setEditingId(null);
     showToast('Goal updated successfully', 'success');
@@ -118,6 +123,31 @@ export const GoalsTab = () => {
       current: Math.min(g.target, g.current + amount)
     } : g));
     showToast(`Added +${formatMoney(amount)} deposit to goal!`, 'success');
+  };
+
+  const getGoalStatus = (goal) => {
+    const remaining = Math.max(0, goal.target - goal.current);
+    if (remaining === 0) return { label: '🎉 Achieved', color: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30' };
+
+    const now = new Date();
+    const targetD = new Date(goal.date || '2027-12-31');
+    const diffMonths = (targetD.getFullYear() - now.getFullYear()) * 12 + (targetD.getMonth() - now.getMonth());
+
+    if (diffMonths <= 0) {
+      return { label: '⚠️ Target date passed', color: 'text-rose-400 bg-rose-500/15 border-rose-500/30' };
+    }
+
+    const requiredMonthly = remaining / diffMonths;
+    const currentMonthly = goal.monthly || 500;
+
+    if (currentMonthly >= requiredMonthly) {
+      return { label: '🟢 On Track', color: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30' };
+    } else {
+      return {
+        label: `⚠️ Off Track (Need $${Math.ceil(requiredMonthly).toLocaleString()}/mo)`,
+        color: 'text-amber-400 bg-amber-500/15 border-amber-500/30'
+      };
+    }
   };
 
   const totalGoalValue = goals.reduce((sum, g) => sum + g.target, 0);
@@ -167,13 +197,14 @@ export const GoalsTab = () => {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-bold text-sm text-[var(--text-1)]">Your Active Goals</h3>
-            <p className="text-xs text-[var(--text-3)]">Contribute, edit details, adjust pacing, or delete milestones</p>
+            <p className="text-xs text-[var(--text-3)]">Contribute, track target dates, and check On-Track status</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {goals.map(goal => {
             const pct = Math.min(100, Math.round((goal.current / goal.target) * 100));
+            const status = getGoalStatus(goal);
             const isEditing = editingId === goal.id;
 
             return (
@@ -216,14 +247,25 @@ export const GoalsTab = () => {
                         />
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Monthly Pacing ($)</label>
-                      <input
-                        type="number"
-                        value={editMonthly}
-                        onChange={(e) => setEditMonthly(e.target.value)}
-                        className="input-field text-xs font-mono"
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Monthly ($)</label>
+                        <input
+                          type="number"
+                          value={editMonthly}
+                          onChange={(e) => setEditMonthly(e.target.value)}
+                          className="input-field text-xs font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Target Date</label>
+                        <input
+                          type="date"
+                          value={editDate}
+                          onChange={(e) => setEditDate(e.target.value)}
+                          className="input-field text-xs font-mono"
+                        />
+                      </div>
                     </div>
                     <div className="flex gap-2 pt-2">
                       <button
@@ -273,6 +315,11 @@ export const GoalsTab = () => {
                         {goal.title}
                       </h3>
 
+                      <div className="flex items-center gap-1.5 mt-1 text-[11px] text-[var(--text-3)]">
+                        <Calendar className="w-3 h-3 text-[var(--text-4)]" />
+                        <span>Target: {goal.date}</span>
+                      </div>
+
                       <div className="flex justify-between items-end mt-3 text-xs">
                         <div>
                           <span className="text-[10px] text-[var(--text-3)]">Saved</span>
@@ -293,13 +340,13 @@ export const GoalsTab = () => {
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-[var(--border)] space-y-2">
+                    <div className="pt-3 border-t border-[var(--border)] space-y-2.5">
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-[10px] text-[var(--text-3)] font-medium">
                           +{formatMoney(goal.monthly || 500)}/mo pacing
                         </span>
-                        <span className="font-bold text-emerald-400 font-mono text-xs">
-                          {pct}% Achieved
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${status.color}`}>
+                          {status.label}
                         </span>
                       </div>
                       <button
@@ -358,11 +405,11 @@ export const GoalsTab = () => {
           </div>
           <div>
             <h3 className="font-bold text-sm text-[var(--text-1)]">Add Custom Financial Goal</h3>
-            <p className="text-xs text-[var(--text-3)]">Create a personalized savings objective</p>
+            <p className="text-xs text-[var(--text-3)]">Create a personalized savings objective with target date</p>
           </div>
         </div>
 
-        <form onSubmit={handleAddGoal} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <form onSubmit={handleAddGoal} className="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <input
             type="text"
             required
@@ -377,6 +424,12 @@ export const GoalsTab = () => {
             placeholder="Target Amount ($)"
             value={newTarget}
             onChange={(e) => setNewTarget(e.target.value)}
+            className="input-field text-xs font-mono"
+          />
+          <input
+            type="date"
+            value={newDate}
+            onChange={(e) => setNewDate(e.target.value)}
             className="input-field text-xs font-mono"
           />
           <button type="submit" className="btn-primary text-xs py-2 justify-center cursor-pointer">

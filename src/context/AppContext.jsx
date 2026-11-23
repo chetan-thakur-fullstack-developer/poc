@@ -484,6 +484,52 @@ export const AppProvider = ({ children }) => {
     });
   };
 
+  const addNewPortfolioYear = (yearStr) => {
+    setPortfolioData(prev => {
+      if ((prev.defaultAccountData || []).some(y => y.year === yearStr)) return prev;
+      const categories = prev.categories || [];
+      const emptyBalances = {};
+      const emptyInvested = {};
+      const emptyContri = {};
+      categories.forEach(c => {
+        emptyBalances[c.key] = 0;
+        emptyInvested[c.key] = 0;
+        emptyContri[c.key] = 0;
+      });
+      const newYearObj = {
+        year: yearStr,
+        salary: 0,
+        balances: emptyBalances,
+        invested: emptyInvested,
+        contri: emptyContri
+      };
+      return {
+        ...prev,
+        defaultAccountData: [...(prev.defaultAccountData || []), newYearObj].sort((a,b) => Number(a.year) - Number(b.year))
+      };
+    });
+    showToast(`Added new portfolio year: ${yearStr}`, 'success');
+  };
+
+  const addNewPortfolioCategory = (label, type = 'taxable', color = '#10B981') => {
+    const key = 'cat_' + Date.now();
+    setPortfolioData(prev => {
+      const updatedCategories = [...(prev.categories || []), { key, label, color, type }];
+      const updatedYears = (prev.defaultAccountData || []).map(y => ({
+        ...y,
+        balances: { ...(y.balances || {}), [key]: 0 },
+        invested: { ...(y.invested || {}), [key]: 0 },
+        contri: { ...(y.contri || {}), [key]: 0 }
+      }));
+      return {
+        ...prev,
+        categories: updatedCategories,
+        defaultAccountData: updatedYears
+      };
+    });
+    showToast(`Added new category: "${label}"`, 'success');
+  };
+
   // Optional: Real user can import sample demo template if desired
   const loadDemoTemplate = () => {
     setPortfolioData(initialPortfolioData);
@@ -529,6 +575,8 @@ export const AppProvider = ({ children }) => {
         addTransaction,
         deleteTransaction,
         updatePortfolioYear,
+        addNewPortfolioYear,
+        addNewPortfolioCategory,
         modals,
         openModal,
         closeModal,
