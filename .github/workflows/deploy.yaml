@@ -33,12 +33,12 @@ jobs:
       - name: Add SPA 404 fallback
         run: cp 404.html dist/404.html
 
-      - name: Configure git
+      - name: Deploy to gh-pages branch
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Deploy to gh-pages
-        run: npx gh-pages@6 -d dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          cd dist
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Deploy to gh-pages"
+          git push -f https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:gh-pages
