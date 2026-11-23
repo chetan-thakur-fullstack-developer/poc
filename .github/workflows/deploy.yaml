@@ -30,8 +30,10 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: Add SPA 404 fallback
-        run: cp 404.html dist/404.html
+      - name: Add SPA 404 fallback and .nojekyll
+        run: |
+          cp 404.html dist/404.html
+          touch dist/.nojekyll
 
       - name: Deploy to gh-pages branch
         run: |
