@@ -286,6 +286,31 @@ export const AppProvider = ({ children }) => {
   const openModal = (name) => setModals(prev => ({ ...prev, [name]: true }));
   const closeModal = (name) => setModals(prev => ({ ...prev, [name]: false }));
 
+  // Custom Confirmation Modal State
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    confirmText: 'Confirm',
+    isDanger: false
+  });
+
+  const showConfirmModal = ({ title, message, onConfirm, confirmText = 'Confirm', isDanger = false }) => {
+    setConfirmModal({
+      isOpen: true,
+      title,
+      message,
+      onConfirm,
+      confirmText,
+      isDanger
+    });
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+  };
+
   // Toast Notifications
   const [toasts, setToasts] = useState([]);
   const showToast = (message, type = 'info', duration = 3500) => {
@@ -485,8 +510,16 @@ export const AppProvider = ({ children }) => {
   };
 
   const addNewPortfolioYear = (yearStr) => {
+    let targetIndex = 0;
+    let exists = false;
     setPortfolioData(prev => {
-      if ((prev.defaultAccountData || []).some(y => y.year === yearStr)) return prev;
+      const existing = prev.defaultAccountData || [];
+      const foundIdx = existing.findIndex(y => y.year === yearStr);
+      if (foundIdx !== -1) {
+        targetIndex = foundIdx;
+        exists = true;
+        return prev;
+      }
       const categories = prev.categories || [];
       const emptyBalances = {};
       const emptyInvested = {};
@@ -503,12 +536,19 @@ export const AppProvider = ({ children }) => {
         invested: emptyInvested,
         contri: emptyContri
       };
+      const sortedList = [...existing, newYearObj].sort((a,b) => Number(a.year) - Number(b.year));
+      targetIndex = sortedList.findIndex(y => y.year === yearStr);
       return {
         ...prev,
-        defaultAccountData: [...(prev.defaultAccountData || []), newYearObj].sort((a,b) => Number(a.year) - Number(b.year))
+        defaultAccountData: sortedList
       };
     });
-    showToast(`Added new portfolio year: ${yearStr}`, 'success');
+    if (exists) {
+      showToast(`Year ${yearStr} already added`, 'info');
+    } else {
+      showToast(`Added new portfolio year: ${yearStr}`, 'success');
+    }
+    return targetIndex;
   };
 
   const addNewPortfolioCategory = (label, type = 'taxable', color = '#10B981') => {
@@ -528,6 +568,45 @@ export const AppProvider = ({ children }) => {
       };
     });
     showToast(`Added new category: "${label}"`, 'success');
+  };
+
+  const deletePortfolioYear = (yearIndex) => {
+    setPortfolioData(prev => {
+      const list = [...(prev.defaultAccountData || [])];
+      if (list.length <= 1) {
+        showToast('Cannot delete the last remaining year', 'error');
+        return prev;
+      }
+      list.splice(yearIndex, 1);
+      return { ...prev, defaultAccountData: list };
+    });
+    showToast('Portfolio year deleted', 'info');
+  };
+
+  const resetPortfolioYearValues = (yearIndex) => {
+    setPortfolioData(prev => {
+      const list = [...(prev.defaultAccountData || [])];
+      if (list[yearIndex]) {
+        const yr = list[yearIndex].year;
+        const emptyBalances = {};
+        const emptyInvested = {};
+        const emptyContri = {};
+        (prev.categories || []).forEach(c => {
+          emptyBalances[c.key] = 0;
+          emptyInvested[c.key] = 0;
+          emptyContri[c.key] = 0;
+        });
+        list[yearIndex] = {
+          year: yr,
+          salary: 0,
+          balances: emptyBalances,
+          invested: emptyInvested,
+          contri: emptyContri
+        };
+      }
+      return { ...prev, defaultAccountData: list };
+    });
+    showToast('Portfolio year values reset to $0', 'success');
   };
 
   // Optional: Real user can import sample demo template if desired
@@ -577,9 +656,14 @@ export const AppProvider = ({ children }) => {
         updatePortfolioYear,
         addNewPortfolioYear,
         addNewPortfolioCategory,
+        deletePortfolioYear,
+        resetPortfolioYearValues,
         modals,
         openModal,
         closeModal,
+        confirmModal,
+        showConfirmModal,
+        closeConfirmModal,
         toasts,
         showToast,
         isSyncing,

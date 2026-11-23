@@ -110,7 +110,7 @@ export const LoginView = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[var(--app-bg)] text-[var(--text-1)] flex flex-col justify-center select-none">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[var(--app-bg)] text-[var(--text-1)] flex flex-col select-none">
       {/* Background Aurora Glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-emerald-500/15 blur-3xl" />
@@ -120,7 +120,7 @@ export const LoginView = () => {
       </div>
 
       {/* Top Header with Theme Switcher */}
-      <div className="absolute top-0 left-0 right-0 p-4 sm:p-6 flex items-center justify-between z-10 max-w-5xl mx-auto w-full">
+      <header className="relative z-10 w-full max-w-5xl mx-auto p-4 sm:p-6 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
           <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white font-black text-sm shadow-md">
             💎
@@ -135,9 +135,10 @@ export const LoginView = () => {
           {theme === 'dark' ? <Moon className="w-4 h-4 text-blue-400" /> : theme === 'light' ? <Sun className="w-4 h-4 text-amber-400" /> : <Sparkles className="w-4 h-4 text-purple-400" />}
           <span className="capitalize">{theme}</span>
         </button>
-      </div>
+      </header>
 
-      <div className="relative w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 my-auto pt-20">
+      {/* Main Login Card Container */}
+      <main className="relative z-10 w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 my-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center rounded-3xl border border-[var(--border)] bg-[var(--surface)] backdrop-blur-2xl p-6 sm:p-10 shadow-2xl">
 
           {/* RIGHT: Form Panel (Prioritized first on mobile for immediate access) */}
@@ -460,7 +461,7 @@ export const LoginView = () => {
           </div>
 
         </div>
-      </div>
+      </main>
     </div>
   );
 };

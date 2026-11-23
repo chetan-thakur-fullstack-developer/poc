@@ -26,10 +26,18 @@ import { AddTransactionModal } from './components/modals/AddTransactionModal.jsx
 import { QuickAddModal } from './components/modals/QuickAddModal.jsx';
 import { CommandMenu } from './components/modals/CommandMenu.jsx';
 import { TourModal } from './components/TourModal.jsx';
+import { ConfirmModal } from './components/modals/ConfirmModal.jsx';
 
 export const App = () => {
   const { currentTab, modals, closeModal } = useApp();
   const { user } = useAuth();
+  const mainScrollRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (mainScrollRef.current) {
+      mainScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentTab]);
 
   // If user is not authenticated, display full-screen Login View
   if (!user) {
@@ -81,7 +89,7 @@ export const App = () => {
         <Header />
 
         {/* Scrollable View Container */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-28 lg:pb-8">
+        <main ref={mainScrollRef} className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-28 lg:pb-8">
           <div className="max-w-7xl mx-auto space-y-12">
             {renderActiveTab()}
 
@@ -106,8 +114,9 @@ export const App = () => {
       <CommandMenu />
       <TourModal isOpen={modals.tour} onClose={() => closeModal('tour')} />
 
-      {/* Toast Notification Container */}
+      {/* Toast Notification Container & Custom Confirm Modal */}
       <Toast />
+      <ConfirmModal />
     </div>
   );
 };

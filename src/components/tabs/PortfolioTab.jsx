@@ -3,10 +3,10 @@ import { useApp } from '../../context/AppContext.jsx';
 import { AnimatedNumber } from '../AnimatedNumber.jsx';
 import { DonutChart } from '../charts/DonutChart.jsx';
 import { AreaChart } from '../charts/AreaChart.jsx';
-import { TrendingUp, TrendingDown, Plus, ChevronDown, ChevronUp, Calendar, Layers, ShieldCheck } from 'lucide-react';
+import { TrendingUp, TrendingDown, Plus, ChevronDown, ChevronUp, Calendar, Layers, Trash2, RotateCcw } from 'lucide-react';
 
 export const PortfolioTab = () => {
-  const { portfolioData, formatMoney, updatePortfolioYear, addNewPortfolioYear, addNewPortfolioCategory, syncToCloud, isSyncing } = useApp();
+  const { portfolioData, formatMoney, updatePortfolioYear, addNewPortfolioYear, addNewPortfolioCategory, deletePortfolioYear, resetPortfolioYearValues, syncToCloud, isSyncing, showConfirmModal } = useApp();
   const [selectedYearIndex, setSelectedYearIndex] = useState(
     Math.max(0, (portfolioData?.defaultAccountData?.length || 1) - 1)
   );
@@ -49,13 +49,11 @@ export const PortfolioTab = () => {
 
   const handleAddYear = (e) => {
     e.preventDefault();
-    if (!newYearStr.trim()) return;
-    addNewPortfolioYear(newYearStr.trim());
-    // Select the newly added year index
-    const updatedYears = portfolioData?.defaultAccountData || [];
-    const idx = updatedYears.findIndex(y => y.year === newYearStr.trim());
-    if (idx !== -1) setSelectedYearIndex(idx);
-    setNewYearStr(String(Number(newYearStr) + 1));
+    const yr = newYearStr.trim();
+    if (!yr) return;
+    const newIdx = addNewPortfolioYear(yr);
+    setSelectedYearIndex(newIdx);
+    setNewYearStr(String(Number(yr) + 1));
   };
 
   const handleAddCategory = (e) => {
@@ -66,9 +64,49 @@ export const PortfolioTab = () => {
     setShowAddCat(false);
   };
 
+  const handleDeleteCurrentYear = () => {
+    if (years.length <= 1) {
+      showConfirmModal({
+        title: 'Cannot Delete Year',
+        message: 'Cannot delete the last remaining portfolio year.',
+        confirmText: 'OK',
+        isDanger: false
+      });
+      return;
+    }
+    showConfirmModal({
+      title: `Delete Year ${activeYearData.year}?`,
+      message: `Are you sure you want to delete year ${activeYearData.year}? All archived balances and contributions for this year will be permanently removed.`,
+      confirmText: 'Delete Year',
+      isDanger: true,
+      onConfirm: () => {
+        const nextIndex = Math.max(0, selectedYearIndex - 1);
+        deletePortfolioYear(selectedYearIndex);
+        setSelectedYearIndex(nextIndex);
+      }
+    });
+  };
+
+  const handleResetCurrentYear = () => {
+    showConfirmModal({
+      title: `Reset ${activeYearData.year} to $0?`,
+      message: `Are you sure you want to reset all values for ${activeYearData.year} to $0? This will clear all balances, invested capital, and contributions for this year.`,
+      confirmText: 'Reset to $0',
+      isDanger: true,
+      onConfirm: () => {
+        resetPortfolioYearValues(selectedYearIndex);
+      }
+    });
+  };
+
   const toggleExpandYear = (yr) => {
     setExpandedOldYears(prev => ({ ...prev, [yr]: !prev[yr] }));
   };
+
+  // Sort archived years latest first
+  const sortedArchivedYears = [...years]
+    .map((y, idx) => ({ ...y, originalIndex: idx }))
+    .sort((a, b) => Number(b.year) - Number(a.year));
 
   return (
     <div className="space-y-6">
@@ -99,43 +137,51 @@ export const PortfolioTab = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Year selector buttons */}
-          <div className="flex p-1 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] overflow-x-auto">
-            {years.map((y, idx) => (
-              <button
-                key={y.year}
-                onClick={() => setSelectedYearIndex(idx)}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                  selectedYearIndex === idx
-                    ? 'bg-emerald-500 text-white shadow-sm'
-                    : 'text-[var(--text-2)] hover:text-[var(--text-1)]'
-                }`}
-              >
-                {y.year}
-              </button>
-            ))}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Year selector Dropdown */}
+          <div className="flex items-center gap-1.5">
+            <select
+              value={selectedYearIndex}
+              onChange={(e) => setSelectedYearIndex(Number(e.target.value))}
+              className="input-field text-xs font-mono font-bold w-28 py-1.5 cursor-pointer"
+            >
+              {years.map((y, idx) => (
+                <option key={y.year} value={idx}>
+                  {y.year} {idx === selectedYearIndex ? ' (Active)' : ''}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Add Year Form */}
-          <form onSubmit={handleAddYear} className="flex items-center gap-1.5">
+          {/* Interactive Add Year Form */}
+          <form onSubmit={handleAddYear} className="flex items-center gap-1 p-1 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
             <input
               type="text"
               placeholder="YYYY"
               value={newYearStr}
               onChange={(e) => setNewYearStr(e.target.value)}
               maxLength={4}
-              className="w-16 px-2 py-1.5 text-xs font-mono font-bold text-center rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] outline-none"
+              className="w-14 px-1.5 py-1 text-xs font-mono font-bold text-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-1)] outline-none"
             />
-            <button type="submit" className="btn-secondary text-xs px-2.5 py-1.5 cursor-pointer" title="Add new portfolio year">
-              + Year
+            <button
+              type="submit"
+              disabled={years.some(y => y.year === newYearStr.trim())}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg shadow-sm transition-all flex items-center gap-1 ${
+                years.some(y => y.year === newYearStr.trim())
+                  ? 'bg-slate-700 text-slate-400 opacity-50 cursor-not-allowed'
+                  : 'bg-emerald-500 hover:bg-emerald-400 text-white cursor-pointer'
+              }`}
+              title={years.some(y => y.year === newYearStr.trim()) ? 'Year already added' : 'Add new portfolio year'}
+            >
+              <Plus className="w-3 h-3" />
+              <span>{years.some(y => y.year === newYearStr.trim()) ? 'Added' : 'Add'}</span>
             </button>
           </form>
 
           <button
             onClick={syncToCloud}
             disabled={isSyncing}
-            className="btn-primary text-xs px-3.5 py-1.5 cursor-pointer"
+            className="btn-primary text-xs px-3 py-1.5 cursor-pointer shrink-0"
           >
             {isSyncing ? 'Saving...' : '🔄 Sync'}
           </button>
@@ -213,13 +259,29 @@ export const PortfolioTab = () => {
               Modify balances, invested capital, and contributions for {activeYearData.year}.
             </p>
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <button
               onClick={() => setShowAddCat(!showAddCat)}
               className="btn-secondary text-xs px-3 py-1.5 cursor-pointer flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5 text-emerald-400" />
               <span>Add Custom Category</span>
+            </button>
+            <button
+              onClick={handleResetCurrentYear}
+              className="btn-secondary text-xs px-3 py-1.5 cursor-pointer flex items-center gap-1.5 text-amber-400 hover:text-amber-300"
+              title="Reset all values to $0"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset Year ($0)</span>
+            </button>
+            <button
+              onClick={handleDeleteCurrentYear}
+              className="btn-secondary text-xs px-3 py-1.5 cursor-pointer flex items-center gap-1.5 text-rose-400 hover:text-rose-300"
+              title="Delete current year archive"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete Year</span>
             </button>
             <span className="px-3 py-1.5 rounded-xl text-xs font-bold font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
               Total: {formatMoney(totalBalances)}
@@ -345,13 +407,13 @@ export const PortfolioTab = () => {
         </div>
       </div>
 
-      {/* OLD YEARS ACCORDIONS (Collapsed by default, click to expand/edit) */}
+      {/* OLD YEARS ACCORDIONS (Sorted Latest Year First, Collapsed by default) */}
       <div className="space-y-3">
         <h3 className="font-bold text-xs text-[var(--text-3)] uppercase tracking-wider px-1">
-          Historical Year Breakdown (Click to Expand &amp; Edit)
+          Historical Year Archives (Latest First · Click to Expand &amp; Edit)
         </h3>
-        {years.map((y, idx) => {
-          if (idx === selectedYearIndex) return null; // Active year is already shown above
+        {sortedArchivedYears.map((y) => {
+          if (y.originalIndex === selectedYearIndex) return null; // Active year is shown above
           const isExpanded = Boolean(expandedOldYears[y.year]);
           const yrBalances = y.balances ? Object.values(y.balances).reduce((a, b) => a + Number(b), 0) : 0;
 
@@ -376,12 +438,48 @@ export const PortfolioTab = () => {
                 <div className="p-5 space-y-4 bg-[var(--surface)] border-t border-[var(--border)] animate-in fade-in duration-200">
                   <div className="flex justify-between items-center text-xs">
                     <span className="font-bold text-[var(--text-2)]">Archived Breakdown for {y.year}</span>
-                    <button
-                      onClick={() => setSelectedYearIndex(idx)}
-                      className="text-xs font-bold text-emerald-400 hover:underline cursor-pointer"
-                    >
-                      Make Active Year →
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => {
+                          showConfirmModal({
+                            title: `Reset ${y.year} to $0?`,
+                            message: `Are you sure you want to reset all values for ${y.year} to $0?`,
+                            confirmText: 'Reset to $0',
+                            isDanger: true,
+                            onConfirm: () => resetPortfolioYearValues(y.originalIndex)
+                          });
+                        }}
+                        className="text-xs font-bold text-amber-400 hover:underline cursor-pointer"
+                      >
+                        Reset Year ($0)
+                      </button>
+                      <button
+                        onClick={() => {
+                          showConfirmModal({
+                            title: `Delete Year ${y.year}?`,
+                            message: `Are you sure you want to delete year ${y.year}?`,
+                            confirmText: 'Delete Year',
+                            isDanger: true,
+                            onConfirm: () => {
+                              const targetIndex = y.originalIndex;
+                              deletePortfolioYear(targetIndex);
+                              if (selectedYearIndex >= targetIndex && selectedYearIndex > 0) {
+                                setSelectedYearIndex(selectedYearIndex - 1);
+                              }
+                            }
+                          });
+                        }}
+                        className="text-xs font-bold text-rose-400 hover:underline cursor-pointer"
+                      >
+                        Delete Year
+                      </button>
+                      <button
+                        onClick={() => setSelectedYearIndex(y.originalIndex)}
+                        className="text-xs font-bold text-emerald-400 hover:underline cursor-pointer"
+                      >
+                        Make Active Year →
+                      </button>
+                    </div>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs border-collapse">
@@ -415,7 +513,7 @@ export const PortfolioTab = () => {
                                 <input
                                   type="number"
                                   value={bal}
-                                  onChange={(e) => updatePortfolioYear(idx, 'balances', cat.key, e.target.value)}
+                                  onChange={(e) => updatePortfolioYear(y.originalIndex, 'balances', cat.key, e.target.value)}
                                   className="w-28 text-right font-mono font-bold px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] text-xs outline-none"
                                 />
                               </td>
@@ -423,7 +521,7 @@ export const PortfolioTab = () => {
                                 <input
                                   type="number"
                                   value={inv}
-                                  onChange={(e) => updatePortfolioYear(idx, 'invested', cat.key, e.target.value)}
+                                  onChange={(e) => updatePortfolioYear(y.originalIndex, 'invested', cat.key, e.target.value)}
                                   className="w-28 text-right font-mono px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] text-xs outline-none"
                                 />
                               </td>
@@ -431,7 +529,7 @@ export const PortfolioTab = () => {
                                 <input
                                   type="number"
                                   value={con}
-                                  onChange={(e) => updatePortfolioYear(idx, 'contri', cat.key, e.target.value)}
+                                  onChange={(e) => updatePortfolioYear(y.originalIndex, 'contri', cat.key, e.target.value)}
                                   className="w-28 text-right font-mono px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-emerald-400 font-semibold text-xs outline-none"
                                 />
                               </td>
