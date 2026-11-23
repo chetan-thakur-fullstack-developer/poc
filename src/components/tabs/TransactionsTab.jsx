@@ -24,6 +24,21 @@ import {
   ShieldCheck
 } from 'lucide-react';
 
+const MONTHS = [
+  { val: '01', label: 'January' },
+  { val: '02', label: 'February' },
+  { val: '03', label: 'March' },
+  { val: '04', label: 'April' },
+  { val: '05', label: 'May' },
+  { val: '06', label: 'June' },
+  { val: '07', label: 'July' },
+  { val: '08', label: 'August' },
+  { val: '09', label: 'September' },
+  { val: '10', label: 'October' },
+  { val: '11', label: 'November' },
+  { val: '12', label: 'December' },
+];
+
 export const TransactionsTab = () => {
   const { transactions, setTransactions, formatMoney, openModal, deleteTransaction, expensesData } = useApp();
 
@@ -33,6 +48,18 @@ export const TransactionsTab = () => {
   const [selectedCard, setSelectedCard] = useState('all');
   const [quickFilter, setQuickFilter] = useState('all'); // 'all', 'recurring', 'tax', 'flagged'
   const [kpiFilter, setKpiFilter] = useState('all'); // 'all', 'aboveAverage', 'recurringBurn'
+
+  // Date Range Filter State
+  const [dateFilter, setDateFilter] = useState({
+    mode: 'month', // 'all' | 'month' | 'year' | 'custom'
+    year: '2026',
+    month: '09',
+    startDate: '',
+    endDate: '',
+    label: 'Sep 2026'
+  });
+  const [showDatePopover, setShowDatePopover] = useState(false);
+  const datePopoverRef = useRef(null);
 
   // Bulk Selection State
   const [selectedTxIds, setSelectedTxIds] = useState([]);
@@ -48,6 +75,16 @@ export const TransactionsTab = () => {
 
   const categories = expensesData?.categories || [];
   const cards = expensesData?.cards || [];
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (datePopoverRef.current && !datePopoverRef.current.contains(e.target)) {
+        setShowDatePopover(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   // Filter logic
   const filtered = useMemo(() => {
@@ -73,9 +110,26 @@ export const TransactionsTab = () => {
       if (kpiFilter === 'aboveAverage') matchesKpi = totalAmt > avg;
       if (kpiFilter === 'recurringBurn') matchesKpi = t.isRecurring;
 
-      return matchesSearch && matchesCategory && matchesCard && matchesQuick && matchesKpi;
+      let matchesDate = true;
+      if (t.date) {
+        if (dateFilter.mode === 'year') {
+          matchesDate = t.date.startsWith(dateFilter.year);
+        } else if (dateFilter.mode === 'month') {
+          matchesDate = t.date.startsWith(`${dateFilter.year}-${dateFilter.month}`);
+        } else if (dateFilter.mode === 'custom') {
+          if (dateFilter.startDate && dateFilter.endDate) {
+            matchesDate = t.date >= dateFilter.startDate && t.date <= dateFilter.endDate;
+          } else if (dateFilter.startDate) {
+            matchesDate = t.date >= dateFilter.startDate;
+          } else if (dateFilter.endDate) {
+            matchesDate = t.date <= dateFilter.endDate;
+          }
+        }
+      }
+
+      return matchesSearch && matchesCategory && matchesCard && matchesQuick && matchesKpi && matchesDate;
     });
-  }, [transactions, search, selectedCategory, selectedCard, quickFilter, kpiFilter]);
+  }, [transactions, search, selectedCategory, selectedCard, quickFilter, kpiFilter, dateFilter]);
 
   // KPI Calculations
   const totalFilteredVolume = filtered.reduce((s, t) => s + (Number(t.amount) || 0), 0);
@@ -145,7 +199,7 @@ export const TransactionsTab = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Filtered Volume */}
         <div
-          onClick={() => setKpiFilter(kpiFilter === 'all' ? 'all' : 'all')}
+          onClick={() => setKpiFilter('all')}
           className="card p-4 flex items-center justify-between cursor-pointer hover:border-[var(--border-hover)] transition-all bg-[var(--surface)]"
         >
           <div>
@@ -213,7 +267,7 @@ export const TransactionsTab = () => {
       </div>
 
       {/* 2. Enriched Filter & Action Bar */}
-      <div className="card p-4 space-y-3 bg-[var(--surface)]">
+      <div className="card p-4 space-y-3 bg-[var(--surface)] relative z-20">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
           {/* Search Input */}
           <div className="relative w-full lg:w-72">
@@ -229,11 +283,106 @@ export const TransactionsTab = () => {
 
           {/* Date Range & Dropdowns */}
           <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-            {/* Date Range Selector */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-xs text-[var(--text-2)] font-semibold cursor-pointer">
-              <Calendar className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Sep 2026</span>
-              <ChevronDown className="w-3 h-3 opacity-60" />
+            {/* Interactive Calendar Date Range Popover */}
+            <div className="relative" ref={datePopoverRef}>
+              <button
+                onClick={() => setShowDatePopover(!showDatePopover)}
+                className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-xs text-[var(--text-1)] font-semibold cursor-pointer hover:border-[var(--border-hover)]"
+              >
+                <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{dateFilter.mode === 'all' ? 'All Time' : dateFilter.label}</span>
+                <ChevronDown className="w-3 h-3 opacity-60" />
+              </button>
+
+              {showDatePopover && (
+                <div className="absolute left-0 mt-2 w-80 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-4 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="flex items-center justify-between border-b border-[var(--border)] pb-2.5">
+                    <span className="text-xs font-bold text-[var(--text-1)]">Calendar & Date Filter</span>
+                    <button
+                      onClick={() => { setDateFilter({ mode: 'all', year: '2026', month: '09', startDate: '', endDate: '', label: 'All Time' }); setShowDatePopover(false); }}
+                      className="text-[10px] font-bold text-emerald-400 hover:underline cursor-pointer"
+                    >
+                      Reset All
+                    </button>
+                  </div>
+
+                  {/* Year Selector */}
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-3)]">Year</span>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {['2024', '2025', '2026'].map(y => (
+                        <button
+                          key={y}
+                          onClick={() => {
+                            const currentMonthName = MONTHS.find(m => m.val === dateFilter.month)?.label.slice(0, 3) || 'Sep';
+                            setDateFilter({ mode: 'month', year: y, month: dateFilter.month, startDate: '', endDate: '', label: `${currentMonthName} ${y}` });
+                          }}
+                          className={`py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            dateFilter.year === y && dateFilter.mode !== 'custom' ? 'bg-emerald-500 text-white shadow-sm' : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-white'
+                          }`}
+                        >
+                          {y}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Month Grid */}
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-3)]">Month</span>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {MONTHS.map(m => (
+                        <button
+                          key={m.val}
+                          onClick={() => {
+                            const monthLabel = `${m.label.slice(0, 3)} ${dateFilter.year}`;
+                            setDateFilter({ mode: 'month', year: dateFilter.year, month: m.val, startDate: '', endDate: '', label: monthLabel });
+                            setShowDatePopover(false);
+                          }}
+                          className={`py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                            dateFilter.month === m.val && dateFilter.mode === 'month'
+                              ? 'bg-emerald-500 text-white shadow-sm'
+                              : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-white'
+                          }`}
+                        >
+                          {m.label.slice(0, 3)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Date Range Picker */}
+                  <div className="space-y-2 pt-2 border-t border-[var(--border)]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-3)]">Custom Date Range</span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[9px] text-[var(--text-4)] block mb-1">Start Date</label>
+                        <input
+                          type="date"
+                          value={dateFilter.startDate}
+                          onChange={(e) => setDateFilter(prev => ({ ...prev, startDate: e.target.value, mode: 'custom', label: `${e.target.value} to ${prev.endDate || 'Now'}` }))}
+                          className="input-field text-[11px] py-1.5"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] text-[var(--text-4)] block mb-1">End Date</label>
+                        <input
+                          type="date"
+                          value={dateFilter.endDate}
+                          onChange={(e) => setDateFilter(prev => ({ ...prev, endDate: e.target.value, mode: 'custom', label: `${prev.startDate || 'Start'} to ${e.target.value}` }))}
+                          className="input-field text-[11px] py-1.5"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowDatePopover(false)}
+                      className="w-full mt-2 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-white shadow-sm cursor-pointer"
+                    >
+                      Apply Custom Range
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Account / Card Filter */}
@@ -306,7 +455,7 @@ export const TransactionsTab = () => {
           <div className="py-16 text-center text-xs text-[var(--text-3)]">
             <Receipt className="w-8 h-8 mx-auto mb-2 text-[var(--text-4)] opacity-50" />
             <p className="font-bold text-[var(--text-1)]">No transactions found</p>
-            <p className="text-[11px] text-[var(--text-4)] mt-0.5">Try adjusting your filters or search terms.</p>
+            <p className="text-[11px] text-[var(--text-4)] mt-0.5">Try adjusting your date range, filters, or search terms.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -413,7 +562,7 @@ export const TransactionsTab = () => {
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-[var(--text-2)] font-medium">
-                        {card ? `${card.name} (•${card.masked})` : 'Manual Entry'}
+                        {card ? `${card.name} (•{card.masked})` : 'Manual Entry'}
                       </td>
                       <td className={`py-3.5 px-4 font-mono font-black text-right text-sm ${isPositive ? 'text-emerald-400' : 'text-[var(--text-1)]'}`}>
                         {isPositive ? `+${formatMoney(Math.abs(tx.amount), 2)}` : formatMoney(tx.amount, 2)}

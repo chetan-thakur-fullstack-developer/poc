@@ -25,7 +25,16 @@ export const SettingsTab = () => {
   const { user, isDemoUser, signOut } = useAuth();
 
   // Active Settings Sub-Tab
-  const [activeSection, setActiveSection] = useState('profile');
+  const [activeSection, setActiveSection] = useState(() => {
+    return localStorage.getItem('ew_active_settings_section') || 'profile';
+  });
+
+  const handleSetActiveSection = (id) => {
+    setActiveSection(id);
+    try {
+      localStorage.setItem('ew_active_settings_section', id);
+    } catch (e) {}
+  };
 
   // Sub-navigation sections
   const sections = [
@@ -160,7 +169,7 @@ export const SettingsTab = () => {
             return (
               <button
                 key={s.id}
-                onClick={() => setActiveSection(s.id)}
+                onClick={() => handleSetActiveSection(s.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all text-left cursor-pointer ${
                   isActive
                     ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm'

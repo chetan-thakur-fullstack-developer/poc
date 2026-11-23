@@ -1124,11 +1124,20 @@ const PANES = {
 };
 
 export function BlueprintTab() {
-  const [active, setActive] = useState('paycheck');
+  const [active, setActive] = useState(() => {
+    return localStorage.getItem('ew_active_blueprint_subtab') || 'paycheck';
+  });
   const ActivePane = PANES[active];
   const tabsRef = useRef(null);
   const [showLeftChevron, setShowLeftChevron] = useState(false);
   const [showRightChevron, setShowRightChevron] = useState(true);
+
+  const handleSetActive = (key) => {
+    setActive(key);
+    try {
+      localStorage.setItem('ew_active_blueprint_subtab', key);
+    } catch (e) {}
+  };
 
   const checkScroll = () => {
     if (tabsRef.current) {
@@ -1181,7 +1190,7 @@ export function BlueprintTab() {
               <button
                 key={t.key}
                 className={`wb-tab${active === t.key ? ' active' : ''}`}
-                onClick={() => setActive(t.key)}
+                onClick={() => handleSetActive(t.key)}
               >
                 {t.label}
               </button>

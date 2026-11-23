@@ -59,7 +59,7 @@ export const AddAccountModal = () => {
               placeholder="e.g. Chase Sapphire or Fidelity Brokerage"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="input-field text-xs"
+              className="input-field text-base sm:text-xs"
             />
           </div>
 
@@ -71,7 +71,7 @@ export const AddAccountModal = () => {
               <select
                 value={institution}
                 onChange={(e) => setInstitution(e.target.value)}
-                className="input-field text-xs"
+                className="input-field text-base sm:text-xs"
               >
                 <option value="Chase">Chase</option>
                 <option value="Vanguard">Vanguard</option>
@@ -91,7 +91,7 @@ export const AddAccountModal = () => {
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="input-field text-xs"
+                className="input-field text-base sm:text-xs"
               >
                 <option value="checking">Checking</option>
                 <option value="savings">Savings / CD</option>

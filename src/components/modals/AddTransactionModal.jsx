@@ -60,7 +60,7 @@ export const AddTransactionModal = () => {
               placeholder="e.g. Whole Foods, Electricity Bill, Salary"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="input-field text-xs"
+              className="input-field text-base sm:text-xs"
             />
           </div>
 
@@ -89,7 +89,7 @@ export const AddTransactionModal = () => {
                 required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="input-field text-xs"
+                className="input-field text-base sm:text-xs"
               />
             </div>
           </div>
@@ -102,7 +102,7 @@ export const AddTransactionModal = () => {
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="input-field text-xs"
+                className="input-field text-base sm:text-xs"
               >
                 <option value="">Select category...</option>
                 {categories.map(c => (
@@ -118,7 +118,7 @@ export const AddTransactionModal = () => {
               <select
                 value={cardId}
                 onChange={(e) => setCardId(e.target.value)}
-                className="input-field text-xs"
+                className="input-field text-base sm:text-xs"
               >
                 <option value="">Select account...</option>
                 {cards.map(card => (
