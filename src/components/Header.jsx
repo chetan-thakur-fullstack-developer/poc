@@ -13,7 +13,10 @@ export const Header = () => {
     openModal,
     setCurrentTab,
     notifications,
-    clearNotifications
+    clearNotifications,
+    privacyMask,
+    setPrivacyMask,
+    showToast
   } = useApp();
 
   const { user, isDemoUser, signOut } = useAuth();
@@ -90,6 +93,22 @@ export const Header = () => {
 
       {/* Right Minimal Controls */}
       <div className="flex items-center gap-2.5">
+        {/* Privacy Shield Active Badge */}
+        {privacyMask && (
+          <div className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 animate-pulse">
+            <span>🛡️ Privacy Shield Active</span>
+            <button
+              onClick={() => {
+                setPrivacyMask(false);
+                showToast('Privacy mask disabled', 'info');
+              }}
+              className="text-[10px] underline ml-1 hover:text-white cursor-pointer font-bold"
+            >
+              Reveal
+            </button>
+          </div>
+        )}
+
         {/* Demo Mode Badge */}
         {isDemoUser && (
           <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">

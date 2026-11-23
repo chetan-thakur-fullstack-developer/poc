@@ -185,6 +185,9 @@ export const AuthProvider = ({ children }) => {
     setSession(null);
     localStorage.removeItem('ew_auth_session');
     localStorage.removeItem('ew_auth_user');
+    try {
+      window.history.pushState({}, '', '/login');
+    } catch (e) {}
   };
 
   return (

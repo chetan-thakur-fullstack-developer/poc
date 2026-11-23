@@ -38,28 +38,101 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('ew_theme', theme);
   }, [theme]);
 
-  // 2. Active Tab (Persisted in localStorage and URL hash)
+  const TAB_TO_PATH = {
+    'tab-dashboard': '/dashboard',
+    'tab-accounts': '/accounts',
+    'tab-overview': '/portfolio',
+    'tab-transactions': '/transactions',
+    'tab-expenses': '/expenses',
+    'tab-goals': '/goals',
+    'tab-tax': '/tax',
+    'tab-credit': '/credit',
+    'tab-blueprint': '/blueprint',
+    'tab-pricing': '/pricing',
+    'tab-settings': '/settings'
+  };
+
+  const PATH_TO_TAB = Object.entries(TAB_TO_PATH).reduce((acc, [tab, path]) => {
+    acc[path] = tab;
+    return acc;
+  }, {});
+  TAB_TO_PATH['/'] = '/dashboard';
+  PATH_TO_TAB['/'] = 'tab-dashboard';
+
+  const getCleanPathname = () => {
+    let p = window.location.pathname;
+    if (p.includes('/poc')) {
+      p = p.replace('/poc', '') || '/';
+    }
+    return p.replace(/\/$/, '') || '/';
+  };
+
+  // 2. Active Tab (HTML5 Path-based routing with route guards & base path support)
   const [currentTab, setCurrentTab] = useState(() => {
-    const hash = window.location.hash.replace('#', '');
-    if (hash && hash.startsWith('tab-')) return hash;
-    return localStorage.getItem('ew_current_tab') || 'tab-dashboard';
+    const cleanPath = getCleanPathname();
+    const segment = cleanPath.startsWith('/blueprint') ? '/blueprint' : cleanPath.startsWith('/settings') ? '/settings' : cleanPath;
+    return PATH_TO_TAB[segment] || 'tab-dashboard';
   });
 
+  // Route Guarding & Login Redirection
   useEffect(() => {
-    localStorage.setItem('ew_current_tab', currentTab);
-    if (currentTab) {
-      window.location.hash = currentTab;
-    }
-  }, [currentTab]);
+    const cleanPath = getCleanPathname();
+    const base = window.location.pathname.includes('/poc') ? '/poc' : '';
 
-  // 3. Currency
+    if (!user) {
+      if (cleanPath !== '/login' && cleanPath !== '/signup') {
+        try {
+          window.history.pushState({}, '', base + '/login');
+        } catch (e) {}
+      }
+    } else {
+      if (cleanPath === '/' || cleanPath === '/login' || cleanPath === '/signup') {
+        setCurrentTab('tab-dashboard');
+        try {
+          window.history.pushState({ tab: 'tab-dashboard' }, '', base + '/dashboard');
+        } catch (e) {}
+      }
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    const path = TAB_TO_PATH[currentTab] || '/dashboard';
+    const base = window.location.pathname.includes('/poc') ? '/poc' : '';
+    try {
+      window.history.pushState({ tab: currentTab }, '', base + path);
+    } catch (e) {}
+    localStorage.setItem('ew_current_tab', currentTab);
+  }, [currentTab, user]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const cleanPath = getCleanPathname();
+      const segment = cleanPath.startsWith('/blueprint') ? '/blueprint' : cleanPath.startsWith('/settings') ? '/settings' : cleanPath;
+      const matched = PATH_TO_TAB[segment] || 'tab-dashboard';
+      setCurrentTab(matched);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // 3. Currency & Privacy
   const [currentCurrency, setCurrentCurrency] = useState(() => {
     return localStorage.getItem('ew_currency') || 'USD';
   });
 
+  const [privacyMask, setPrivacyMask] = useState(() => {
+    return localStorage.getItem('ew_privacy_mask') === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('ew_privacy_mask', privacyMask);
+  }, [privacyMask]);
+
   const currencySymbol = CURRENCY_SYMBOLS[currentCurrency] || '$';
 
   const formatMoney = (amount, decimals = 0) => {
+    if (privacyMask) return '$••••••';
     const num = Number(amount) || 0;
     return `${currencySymbol}${num.toLocaleString('en-US', {
       minimumFractionDigits: decimals,
@@ -638,6 +711,8 @@ export const AppProvider = ({ children }) => {
         setCurrentCurrency,
         currencySymbol,
         formatMoney,
+        privacyMask,
+        setPrivacyMask,
         portfolioData,
         setPortfolioData,
         accountsData,

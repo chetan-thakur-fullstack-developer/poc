@@ -111,80 +111,82 @@ export const PortfolioTab = () => {
   return (
     <div className="space-y-6">
       {/* Top Header & Year Filter / Growth Summary Banner */}
-      <div className="card p-5 sm:p-6 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/20 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+      <div className="card p-6 sm:p-8 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-[var(--surface)] border border-emerald-500/30 space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               PORTFOLIO GROWTH INTELLIGENCE
-            </span>
-            <span className="text-xs font-mono text-[var(--text-3)]">Active Year: {activeYearData.year}</span>
-          </div>
-          <div className="flex items-baseline gap-3 mt-2">
-            <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-1)] font-mono">
-              {formatMoney(totalBalances)}
-            </h2>
-            {prevYearData && (
-              <div className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-lg ${
-                growthAmount >= 0 ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400'
-              }`}>
-                {growthAmount >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                <span>{growthAmount >= 0 ? '+' : ''}{growthPct.toFixed(1)}% vs {prevYearData.year}</span>
-              </div>
-            )}
-          </div>
-          <p className="text-xs text-[var(--text-3)] mt-1">
-            Comparative multi-year asset growth, tax treatments, and contribution limits.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Year selector Dropdown */}
-          <div className="flex items-center gap-1.5">
-            <select
-              value={selectedYearIndex}
-              onChange={(e) => setSelectedYearIndex(Number(e.target.value))}
-              className="input-field text-xs font-mono font-bold w-28 py-1.5 cursor-pointer"
-            >
-              {years.map((y, idx) => (
-                <option key={y.year} value={idx}>
-                  {y.year} {idx === selectedYearIndex ? ' (Active)' : ''}
-                </option>
-              ))}
-            </select>
+            </div>
+            <div className="flex flex-wrap items-baseline gap-3">
+              <h2 className="text-3xl sm:text-4xl font-black text-[var(--text-1)] font-mono tracking-tight">
+                {formatMoney(totalBalances)}
+              </h2>
+              {prevYearData && (
+                <div className={`flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-xl shadow-sm ${
+                  growthAmount >= 0 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                }`}>
+                  {growthAmount >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                  <span>{growthAmount >= 0 ? '+' : ''}{growthPct.toFixed(1)}% vs {prevYearData.year}</span>
+                </div>
+              )}
+            </div>
+            <p className="text-xs sm:text-sm text-[var(--text-3)] max-w-xl">
+              Comparative multi-year asset growth, tax treatments, and contribution limits for <b>{activeYearData.year}</b>.
+            </p>
           </div>
 
-          {/* Interactive Add Year Form */}
-          <form onSubmit={handleAddYear} className="flex items-center gap-1 p-1 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
-            <input
-              type="text"
-              placeholder="YYYY"
-              value={newYearStr}
-              onChange={(e) => setNewYearStr(e.target.value)}
-              maxLength={4}
-              className="w-14 px-1.5 py-1 text-xs font-mono font-bold text-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-1)] outline-none"
-            />
+          {/* Action Toolbar */}
+          <div className="flex flex-wrap items-center gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-[var(--border)]">
+            {/* Year selector Dropdown */}
+            <div className="flex items-center gap-2 bg-[var(--surface-2)] p-2 rounded-2xl border border-[var(--border-strong)]">
+              <span className="text-xs font-bold text-[var(--text-3)] pl-1">Year:</span>
+              <select
+                value={selectedYearIndex}
+                onChange={(e) => setSelectedYearIndex(Number(e.target.value))}
+                className="input-field text-xs font-mono font-bold w-28 py-1.5 cursor-pointer bg-[var(--surface)]"
+              >
+                {years.map((y, idx) => (
+                  <option key={y.year} value={idx}>
+                    {y.year} {idx === selectedYearIndex ? ' (Active)' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Interactive Add Year Form */}
+            <form onSubmit={handleAddYear} className="flex items-center gap-1.5 bg-[var(--surface-2)] p-2 rounded-2xl border border-[var(--border-strong)]">
+              <input
+                type="text"
+                placeholder="YYYY"
+                value={newYearStr}
+                onChange={(e) => setNewYearStr(e.target.value)}
+                maxLength={4}
+                className="w-16 px-2 py-1.5 text-xs font-mono font-bold text-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-1)] outline-none"
+              />
+              <button
+                type="submit"
+                disabled={years.some(y => y.year === newYearStr.trim())}
+                className={`px-3 py-1.5 text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1 cursor-pointer ${
+                  years.some(y => y.year === newYearStr.trim())
+                    ? 'bg-slate-700 text-slate-400 opacity-50 cursor-not-allowed'
+                    : 'bg-emerald-500 hover:bg-emerald-400 text-white'
+                }`}
+                title={years.some(y => y.year === newYearStr.trim()) ? 'Year already added' : 'Add new portfolio year'}
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{years.some(y => y.year === newYearStr.trim()) ? 'Added' : 'Add Year'}</span>
+              </button>
+            </form>
+
             <button
-              type="submit"
-              disabled={years.some(y => y.year === newYearStr.trim())}
-              className={`px-2.5 py-1 text-xs font-bold rounded-lg shadow-sm transition-all flex items-center gap-1 ${
-                years.some(y => y.year === newYearStr.trim())
-                  ? 'bg-slate-700 text-slate-400 opacity-50 cursor-not-allowed'
-                  : 'bg-emerald-500 hover:bg-emerald-400 text-white cursor-pointer'
-              }`}
-              title={years.some(y => y.year === newYearStr.trim()) ? 'Year already added' : 'Add new portfolio year'}
+              onClick={syncToCloud}
+              disabled={isSyncing}
+              className="btn-primary text-xs px-4 py-2.5 cursor-pointer shrink-0 shadow-lg"
             >
-              <Plus className="w-3 h-3" />
-              <span>{years.some(y => y.year === newYearStr.trim()) ? 'Added' : 'Add'}</span>
+              {isSyncing ? 'Saving...' : '🔄 Sync Portfolio'}
             </button>
-          </form>
-
-          <button
-            onClick={syncToCloud}
-            disabled={isSyncing}
-            className="btn-primary text-xs px-3 py-1.5 cursor-pointer shrink-0"
-          >
-            {isSyncing ? 'Saving...' : '🔄 Sync'}
-          </button>
+          </div>
         </div>
       </div>
 
@@ -460,13 +462,7 @@ export const PortfolioTab = () => {
                             message: `Are you sure you want to delete year ${y.year}?`,
                             confirmText: 'Delete Year',
                             isDanger: true,
-                            onConfirm: () => {
-                              const targetIndex = y.originalIndex;
-                              deletePortfolioYear(targetIndex);
-                              if (selectedYearIndex >= targetIndex && selectedYearIndex > 0) {
-                                setSelectedYearIndex(selectedYearIndex - 1);
-                              }
-                            }
+                            onConfirm: () => deletePortfolioYear(y.originalIndex)
                           });
                         }}
                         className="text-xs font-bold text-rose-400 hover:underline cursor-pointer"

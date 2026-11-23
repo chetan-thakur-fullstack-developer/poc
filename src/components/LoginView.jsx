@@ -7,7 +7,28 @@ export const LoginView = () => {
   const { signIn, signUp, loginAsDemo } = useAuth();
   const { showToast } = useApp();
 
-  const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
+  const [mode, setMode] = useState(() => {
+    return window.location.pathname.includes('signup') ? 'signup' : 'signin';
+  }); // 'signin' | 'signup'
+
+  useEffect(() => {
+    const targetPath = mode === 'signup' ? '/signup' : '/login';
+    try {
+      window.history.pushState({ mode }, '', targetPath);
+    } catch (e) {}
+  }, [mode]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (window.location.pathname.includes('signup')) {
+        setMode('signup');
+      } else if (window.location.pathname.includes('login') || window.location.pathname === '/') {
+        setMode('signin');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');

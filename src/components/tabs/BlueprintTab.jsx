@@ -1189,6 +1189,11 @@ const PANES = {
 
 export function BlueprintTab() {
   const [active, setActive] = useState(() => {
+    const pathname = window.location.pathname;
+    const parts = pathname.split('/');
+    if (parts[1] === 'blueprint' && parts[2] && PANES[parts[2]]) {
+      return parts[2];
+    }
     return localStorage.getItem('ew_active_blueprint_subtab') || 'paycheck';
   });
   const ActivePane = PANES[active];
@@ -1200,8 +1205,21 @@ export function BlueprintTab() {
     setActive(key);
     try {
       localStorage.setItem('ew_active_blueprint_subtab', key);
+      window.history.pushState({ subtab: key }, '', `/blueprint/${key}`);
     } catch (e) {}
   };
+
+  useEffect(() => {
+    const handlePop = () => {
+      const pathname = window.location.pathname;
+      const parts = pathname.split('/');
+      if (parts[1] === 'blueprint' && parts[2] && PANES[parts[2]]) {
+        setActive(parts[2]);
+      }
+    };
+    window.addEventListener('popstate', handlePop);
+    return () => window.removeEventListener('popstate', handlePop);
+  }, []);
 
   const checkScroll = () => {
     if (tabsRef.current) {

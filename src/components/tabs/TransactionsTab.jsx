@@ -266,31 +266,58 @@ export const TransactionsTab = () => {
         </div>
       </div>
 
-      {/* 2. Enriched Filter & Action Bar */}
-      <div className="card p-4 space-y-3 bg-[var(--surface)] relative z-20">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
-          {/* Search Input */}
-          <div className="relative w-full lg:w-72">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-[var(--text-4)] pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search merchants or amounts..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="input-field text-xs pl-9 py-2.5"
-            />
+      {/* UNIFIED MASTER CARD: Integrated Filter Bar + Transactions Table */}
+      <div className="card overflow-hidden bg-[var(--surface)] shadow-xl">
+        {/* Top Filter Toolbar Section inside Master Card */}
+        <div className="p-5 sm:p-6 border-b border-[var(--border)] space-y-4 bg-[var(--surface-2)]/40">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <button onClick={toggleSelectAll} className="text-[var(--text-3)] hover:text-[var(--text-1)] cursor-pointer" title="Select All">
+                {selectedTxIds.length > 0 && selectedTxIds.length === filtered.length ? (
+                  <CheckSquare className="w-4 h-4 text-emerald-400" />
+                ) : (
+                  <Square className="w-4 h-4" />
+                )}
+              </button>
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--text-2)]">
+                Ledger Entries ({filtered.length})
+              </h3>
+            </div>
+
+            {/* Bulk Action Bar (if items selected) */}
+            {selectedTxIds.length > 0 && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-xs animate-fadeIn">
+                <span className="font-bold text-emerald-400">{selectedTxIds.length} selected</span>
+                <button onClick={handleBulkTaxTag} className="btn-secondary text-[11px] !py-1 !px-2.5 cursor-pointer">Tag Tax</button>
+                <button onClick={handleBulkExportCSV} className="btn-secondary text-[11px] !py-1 !px-2.5 cursor-pointer">Export CSV</button>
+                <button onClick={handleBulkDelete} className="btn-secondary text-[11px] !py-1 !px-2.5 text-rose-400 hover:text-rose-300 cursor-pointer">Delete</button>
+              </div>
+            )}
           </div>
 
-          {/* Date Range & Dropdowns */}
-          <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-            {/* Interactive Calendar Date Range Popover */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+            {/* Search Input */}
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-3 w-4 h-4 text-[var(--text-4)] pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search merchants or amounts..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="input-field text-xs pl-9 py-2.5"
+              />
+            </div>
+
+            {/* Date Range & Calendar Popover */}
             <div className="relative" ref={datePopoverRef}>
               <button
                 onClick={() => setShowDatePopover(!showDatePopover)}
-                className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-xs text-[var(--text-1)] font-semibold cursor-pointer hover:border-[var(--border-hover)]"
+                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text-1)] font-semibold cursor-pointer hover:border-[var(--border-hover)]"
               >
-                <Calendar className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{dateFilter.mode === 'all' ? 'All Time' : dateFilter.label}</span>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{dateFilter.mode === 'all' ? 'All Time' : dateFilter.label}</span>
+                </div>
                 <ChevronDown className="w-3 h-3 opacity-60" />
               </button>
 
@@ -389,7 +416,7 @@ export const TransactionsTab = () => {
             <select
               value={selectedCard}
               onChange={(e) => setSelectedCard(e.target.value)}
-              className="input-field text-xs py-2 cursor-pointer w-auto"
+              className="input-field text-xs py-2.5 cursor-pointer w-full"
             >
               <option value="all">All Cards & Accounts</option>
               {cards.map(c => (
@@ -401,7 +428,7 @@ export const TransactionsTab = () => {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="input-field text-xs py-2 cursor-pointer w-auto"
+              className="input-field text-xs py-2.5 cursor-pointer w-full"
             >
               <option value="all">All Categories</option>
               {categories.map(c => (
@@ -409,48 +436,31 @@ export const TransactionsTab = () => {
               ))}
             </select>
           </div>
-        </div>
 
-        {/* Quick-Toggle Pills */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[var(--border)]">
-          {[
-            { id: 'all', label: 'All Entries' },
-            { id: 'recurring', label: 'Recurring Subscriptions' },
-            { id: 'tax', label: 'Tax Deductible' },
-            { id: 'flagged', label: 'Flagged / Review' }
-          ].map(pill => (
-            <button
-              key={pill.id}
-              onClick={() => setQuickFilter(pill.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                quickFilter === pill.id
-                  ? 'bg-emerald-500 text-white shadow-sm'
-                  : 'bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-3)] hover:text-[var(--text-1)]'
-              }`}
-            >
-              {pill.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 3 & 4. Transactions Table Container with Smart Merchant Rows & Hover Action Menu */}
-      <div className="card overflow-hidden bg-[var(--surface)]">
-        <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-2)]/40">
-          <div className="flex items-center gap-3">
-            <button onClick={toggleSelectAll} className="text-[var(--text-3)] hover:text-[var(--text-1)] cursor-pointer">
-              {selectedTxIds.length > 0 && selectedTxIds.length === filtered.length ? (
-                <CheckSquare className="w-4 h-4 text-emerald-400" />
-              ) : (
-                <Square className="w-4 h-4" />
-              )}
-            </button>
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--text-3)]">
-              Ledger Entries ({filtered.length})
-            </h3>
+          {/* Quick-Toggle Pills */}
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[var(--border)]">
+            {[
+              { id: 'all', label: 'All Entries' },
+              { id: 'recurring', label: 'Recurring Subscriptions' },
+              { id: 'tax', label: 'Tax Deductible' },
+              { id: 'flagged', label: 'Flagged / Review' }
+            ].map(pill => (
+              <button
+                key={pill.id}
+                onClick={() => setQuickFilter(pill.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  quickFilter === pill.id
+                    ? 'bg-emerald-500 text-white shadow-sm'
+                    : 'bg-[var(--surface)] border border-[var(--border)] text-[var(--text-3)] hover:text-[var(--text-1)]'
+                }`}
+              >
+                {pill.label}
+              </button>
+            ))}
           </div>
         </div>
 
+        {/* Transactions Table */}
         {filtered.length === 0 ? (
           <div className="py-16 text-center text-xs text-[var(--text-3)]">
             <Receipt className="w-8 h-8 mx-auto mb-2 text-[var(--text-4)] opacity-50" />
@@ -493,7 +503,6 @@ export const TransactionsTab = () => {
                       <td className="py-3.5 px-4 font-mono text-[var(--text-3)] text-[11px]">{tx.date}</td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          {/* Circular Brand Favicon */}
                           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-slate-800 to-slate-700 border border-[var(--border)] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
                             {merchantInitial}
                           </div>
@@ -514,7 +523,6 @@ export const TransactionsTab = () => {
                         </div>
                       </td>
                       <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
-                        {/* Inline Category Popover trigger */}
                         <div className="relative">
                           <button
                             onClick={() => setPopoverTxId(popoverTxId === tx.id ? null : tx.id)}
@@ -568,7 +576,6 @@ export const TransactionsTab = () => {
                         {isPositive ? `+${formatMoney(Math.abs(tx.amount), 2)}` : formatMoney(tx.amount, 2)}
                       </td>
                       <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-                        {/* Hover-revealed action menu */}
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => setSplitModalTx(tx)}
@@ -743,42 +750,6 @@ export const TransactionsTab = () => {
                 Confirm Split
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* 6. Bulk Selection Floating Toolbar */}
-      {selectedTxIds.length > 0 && (
-        <div className="fixed bottom-20 lg:bottom-8 left-1/2 -translate-x-1/2 z-40 bg-[var(--surface)]/90 border border-[var(--border-strong)] backdrop-blur-xl px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-4 animate-in slide-in-from-bottom duration-200">
-          <div className="flex items-center gap-2 border-r border-[var(--border)] pr-4">
-            <span className="w-5 h-5 rounded-full bg-emerald-500 text-white font-mono text-xs font-bold flex items-center justify-center">
-              {selectedTxIds.length}
-            </span>
-            <span className="text-xs font-bold text-[var(--text-1)]">Selected</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleBulkTaxTag}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] hover:bg-[var(--surface-3)] transition-all cursor-pointer flex items-center gap-1.5"
-            >
-              <Tag className="w-3.5 h-3.5 text-purple-400" />
-              <span>Tag Tax Deductible</span>
-            </button>
-            <button
-              onClick={handleBulkExportCSV}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] hover:bg-[var(--surface-3)] transition-all cursor-pointer flex items-center gap-1.5"
-            >
-              <Download className="w-3.5 h-3.5 text-blue-400" />
-              <span>Export CSV</span>
-            </button>
-            <button
-              onClick={handleBulkDelete}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 transition-all cursor-pointer flex items-center gap-1.5"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Delete</span>
-            </button>
           </div>
         </div>
       )}

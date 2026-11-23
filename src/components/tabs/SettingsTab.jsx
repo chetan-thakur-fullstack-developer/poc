@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { checkSupabaseConnection, isSupabaseConfigured } from '../../services/supabase.js';
@@ -24,8 +24,13 @@ export const SettingsTab = () => {
 
   const { user, isDemoUser, signOut } = useAuth();
 
-  // Active Settings Sub-Tab
+  // Active Settings Sub-Tab with URL path sync
   const [activeSection, setActiveSection] = useState(() => {
+    const pathname = window.location.pathname;
+    const parts = pathname.split('/');
+    if (parts[1] === 'settings' && parts[2]) {
+      return parts[2];
+    }
     return localStorage.getItem('ew_active_settings_section') || 'profile';
   });
 
@@ -33,8 +38,21 @@ export const SettingsTab = () => {
     setActiveSection(id);
     try {
       localStorage.setItem('ew_active_settings_section', id);
+      window.history.pushState({ section: id }, '', `/settings/${id}`);
     } catch (e) {}
   };
+
+  useEffect(() => {
+    const handlePop = () => {
+      const pathname = window.location.pathname;
+      const parts = pathname.split('/');
+      if (parts[1] === 'settings' && parts[2]) {
+        setActiveSection(parts[2]);
+      }
+    };
+    window.addEventListener('popstate', handlePop);
+    return () => window.removeEventListener('popstate', handlePop);
+  }, []);
 
   // Sub-navigation sections
   const sections = [
@@ -188,7 +206,7 @@ export const SettingsTab = () => {
 
         {/* Right Content Panel */}
         <div className="lg:col-span-8 space-y-6">
-          
+
           {/* ─────────────────────────────────────────────────────────────
               1. PROFILE SECTION
               ───────────────────────────────────────────────────────────── */}
