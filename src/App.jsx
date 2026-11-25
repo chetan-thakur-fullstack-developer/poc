@@ -37,7 +37,7 @@ export const App = () => {
 
   React.useEffect(() => {
     if (mainScrollRef.current) {
-      mainScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      mainScrollRef.current.scrollTop = 0;
     }
   }, [currentTab]);
 
@@ -80,18 +80,30 @@ export const App = () => {
     }
   };
 
+  const handleClick = (e) => {
+    const btn = e.target.closest('button, [role="button"], a');
+    if (btn) {
+      setTimeout(() => {
+        if (document.activeElement && document.activeElement !== document.body) {
+          document.activeElement.blur();
+        }
+      }, 30);
+    }
+  };
+
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[var(--app-bg)] text-[var(--text-1)] select-none">
+    <div className="flex h-screen w-screen overflow-hidden bg-[var(--app-bg)] text-[var(--text-1)] select-none relative" onClick={handleClick}>
+      <div id="portal-root" />
       {/* Left Sidebar (Desktop View Only) */}
       <Sidebar />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-full min-h-0 overflow-hidden">
         {/* Header Bar */}
         <Header />
 
         {/* Scrollable View Container */}
-        <main ref={mainScrollRef} className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 lg:pb-12">
+        <main ref={mainScrollRef} className="flex-1 overflow-y-auto min-h-0 [overflow-anchor:none] px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 lg:pb-12">
           <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
             {renderActiveTab()}
 

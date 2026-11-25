@@ -24,7 +24,11 @@ export const AccountsTab = () => {
         setMenuPos(null);
       }
     };
-    const handleScroll = () => {
+    const handleScroll = (e) => {
+      const target = e.target instanceof Element ? e.target : e.target?.parentElement;
+      if (target?.closest('.row-menu-container')) {
+        return;
+      }
       if (openRowMenuId) {
         setOpenRowMenuId(null);
         setMenuPos(null);
@@ -413,7 +417,7 @@ export const AccountsTab = () => {
                           {isMenuOpen && menuPos && createPortal(
                             <div
                               style={{ position: 'fixed', top: menuPos.top, left: menuPos.left, zIndex: 999999 }}
-                              className="w-52 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150"
+                              className="w-52 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150 max-h-60 overflow-y-auto"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <button
@@ -439,7 +443,7 @@ export const AccountsTab = () => {
                                 <span>Remove Account</span>
                               </button>
                             </div>,
-                            document.body
+                            document.getElementById('portal-root') || document.body
                           )}
                         </td>
                       </tr>

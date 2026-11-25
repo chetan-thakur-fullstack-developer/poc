@@ -64,10 +64,14 @@ export const TransactionsTab = () => {
   const [showDatePopover, setShowDatePopover] = useState(false);
   const [showCardDropdown, setShowCardDropdown] = useState(false);
   const [showCatDropdown, setShowCatDropdown] = useState(false);
+  const [cardSearchQuery, setCardSearchQuery] = useState('');
+  const [catSearchQuery, setCatSearchQuery] = useState('');
+  const [rowCatSearchQuery, setRowCatSearchQuery] = useState('');
 
   const datePopoverRef = useRef(null);
   const cardDropdownRef = useRef(null);
   const catDropdownRef = useRef(null);
+  const isHoveringDropdown = useRef(false);
 
   // Bulk Selection State
   const [selectedTxIds, setSelectedTxIds] = useState([]);
@@ -114,12 +118,16 @@ export const TransactionsTab = () => {
       }
     };
     const handleScroll = () => {
-      if (openRowMenuId || popoverTxId) {
-        setOpenRowMenuId(null);
-        setMenuPos(null);
-        setPopoverTxId(null);
-        setPopoverPos(null);
+      if (isHoveringDropdown.current) {
+        return;
       }
+      setOpenRowMenuId(null);
+      setMenuPos(null);
+      setPopoverTxId(null);
+      setPopoverPos(null);
+      setShowDatePopover(false);
+      setShowCardDropdown(false);
+      setShowCatDropdown(false);
     };
     document.addEventListener('click', handleClickOutside);
     window.addEventListener('scroll', handleScroll, true);
@@ -393,7 +401,11 @@ export const TransactionsTab = () => {
               </button>
 
               {showDatePopover && (
-                <div className="absolute left-0 mt-2 w-72 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-4 space-y-3 animate-in fade-in zoom-in-95 duration-150">
+                <div
+                  onMouseEnter={() => { isHoveringDropdown.current = true; }}
+                  onMouseLeave={() => { isHoveringDropdown.current = false; }}
+                  className="absolute left-0 mt-2 w-72 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-4 space-y-3 animate-in fade-in zoom-in-95 duration-150 dropdown-menu-portal"
+                >
                   <div className="flex items-center justify-between border-b border-[var(--border)] pb-2.5">
                     <span className="text-xs font-bold text-[var(--text-1)]">Date Filter</span>
                     <button
@@ -513,9 +525,23 @@ export const TransactionsTab = () => {
               </button>
 
               {showCardDropdown && (
-                <div className="absolute left-0 mt-2 w-64 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-[var(--text-4)] border-b border-[var(--border)]">
-                    Filter by Card / Account
+                <div
+                  onMouseEnter={() => { isHoveringDropdown.current = true; }}
+                  onMouseLeave={() => { isHoveringDropdown.current = false; }}
+                  className="absolute left-0 mt-2 w-64 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150 dropdown-menu-portal"
+                >
+                  <div className="p-2 border-b border-[var(--border)]">
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-[var(--text-4)] pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder="Search cards/accounts..."
+                        value={cardSearchQuery}
+                        onChange={(e) => setCardSearchQuery(e.target.value)}
+                        className="input-field text-xs pl-8 py-1.5 w-full"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
                   </div>
                   <div className="max-h-56 overflow-y-auto space-y-0.5 py-1">
                     <button
@@ -527,7 +553,7 @@ export const TransactionsTab = () => {
                       <span>All Cards &amp; Accounts</span>
                       {selectedCard === 'all' && <Check className="w-3.5 h-3.5 text-white" />}
                     </button>
-                    {cards.map(c => (
+                    {cards.filter(c => c.name.toLowerCase().includes(cardSearchQuery.toLowerCase()) || c.masked.includes(cardSearchQuery)).map(c => (
                       <button
                         key={c.id}
                         onClick={() => { setSelectedCard(c.id); setShowCardDropdown(false); }}
@@ -563,9 +589,23 @@ export const TransactionsTab = () => {
               </button>
 
               {showCatDropdown && (
-                <div className="absolute left-0 mt-2 w-64 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-[var(--text-4)] border-b border-[var(--border)]">
-                    Filter by Category
+                <div
+                  onMouseEnter={() => { isHoveringDropdown.current = true; }}
+                  onMouseLeave={() => { isHoveringDropdown.current = false; }}
+                  className="absolute left-0 mt-2 w-64 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150 dropdown-menu-portal"
+                >
+                  <div className="p-2 border-b border-[var(--border)]">
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-[var(--text-4)] pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder="Search categories..."
+                        value={catSearchQuery}
+                        onChange={(e) => setCatSearchQuery(e.target.value)}
+                        className="input-field text-xs pl-8 py-1.5 w-full"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
                   </div>
                   <div className="max-h-56 overflow-y-auto space-y-0.5 py-1">
                     <button
@@ -577,7 +617,7 @@ export const TransactionsTab = () => {
                       <span>All Categories</span>
                       {selectedCategory === 'all' && <Check className="w-3.5 h-3.5 text-white" />}
                     </button>
-                    {categories.map(c => (
+                    {categories.filter(c => c.label.toLowerCase().includes(catSearchQuery.toLowerCase())).map(c => (
                       <button
                         key={c.id}
                         onClick={() => { setSelectedCategory(c.id); setShowCatDropdown(false); }}
@@ -721,59 +761,53 @@ export const TransactionsTab = () => {
                               <ChevronDown className="w-3 h-3 opacity-90 stroke-[2.5]" />
                             </button>
 
-                            {popoverTxId === tx.id && popoverPos && (
+                            {popoverTxId === tx.id && popoverPos && createPortal(
                               <div
-                                style={{ position: 'fixed', top: popoverPos.top, left: popoverPos.left, zIndex: 99999 }}
-                                className="w-48 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1"
+                                style={{ position: 'fixed', top: popoverPos.top, left: popoverPos.left, zIndex: 999999 }}
+                                onMouseEnter={() => { isHoveringDropdown.current = true; }}
+                                onMouseLeave={() => { isHoveringDropdown.current = false; }}
+                                className="w-56 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150 max-h-60 overflow-y-auto dropdown-menu-portal"
+                                onClick={(e) => e.stopPropagation()}
                               >
-                                <div className="px-2 py-1 text-[9px] font-bold uppercase text-[var(--text-4)]">Change Category</div>
-                                {categories.map(c => (
-                                  <button
-                                    key={c.id}
-                                    onClick={() => {
-                                      setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, categoryId: c.id } : t));
-                                      setPopoverTxId(null);
-                                      setPopoverPos(null);
-                                    }}
-                                    className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-2 cursor-pointer"
-                                  >
-                                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.color }} />
-                                    <span>{c.label}</span>
-                                  </button>
-                                ))}
-                                <div className="border-t border-[var(--border)] pt-1 mt-1 space-y-1">
-                                  <button
-                                    onClick={() => {
-                                      setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isExpense: !isExpense } : t));
-                                      setPopoverTxId(null);
-                                      setPopoverPos(null);
-                                    }}
-                                    className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-bold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-1.5 cursor-pointer"
-                                  >
-                                    <span>{isExpense ? '🟢 Mark as Payment / Refund' : '🔴 Mark as Expense'}</span>
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isExcluded: !tx.isExcluded } : t));
-                                      setPopoverTxId(null);
-                                      setPopoverPos(null);
-                                    }}
-                                    className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-bold text-[var(--text-3)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-1.5 cursor-pointer"
-                                  >
-                                    <span>{tx.isExcluded ? '📥 Include in Budget & Tracking' : '📤 Exclude from Budget & Tracking'}</span>
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      setPopoverTxId(null);
-                                      setSplitModalTx(tx);
-                                    }}
-                                    className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-bold text-indigo-400 hover:bg-indigo-500/10 flex items-center gap-1.5 cursor-pointer"
-                                  >
-                                    <Split className="w-3.5 h-3.5" />
-                                    <span>Split Transaction...</span>
-                                  </button>
+                                <div className="p-2 border-b border-[var(--border)]">
+                                  <div className="relative">
+                                    <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-[var(--text-4)] pointer-events-none" />
+                                    <input
+                                      type="text"
+                                      placeholder="Search categories..."
+                                      value={rowCatSearchQuery}
+                                      onChange={(e) => setRowCatSearchQuery(e.target.value)}
+                                      className="input-field text-xs pl-8 py-1.5 w-full"
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                  </div>
                                 </div>
-                              </div>
+                                <div className="max-h-56 overflow-y-auto space-y-0.5 py-1">
+                                  {categories.filter(c => c.label.toLowerCase().includes(rowCatSearchQuery.toLowerCase())).map(c => {
+                                    const isSelected = tx.categoryId === c.id;
+                                    return (
+                                      <button
+                                        key={c.id}
+                                        onClick={() => {
+                                          setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, categoryId: c.id } : t));
+                                          setPopoverTxId(null);
+                                          setPopoverPos(null);
+                                        }}
+                                        className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
+                                          isSelected ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-[var(--text-2)] hover:bg-[var(--surface-2)] hover:text-white'
+                                        }`}
+                                      >
+                                        <div className="flex items-center gap-2 truncate">
+                                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
+                                          <span className="truncate">{c.label}</span>
+                                        </div>
+                                        {isSelected && <Check className="w-3.5 h-3.5 text-white shrink-0" />}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>,
+                              document.getElementById('portal-root') || document.body
                             )}
                           </div>
                         </td>
@@ -809,7 +843,7 @@ export const TransactionsTab = () => {
                           {openRowMenuId === tx.id && menuPos && createPortal(
                             <div
                               style={{ position: 'fixed', top: menuPos.top, left: menuPos.left, zIndex: 999999 }}
-                              className="w-52 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150"
+                              className="w-52 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150 max-h-60 overflow-y-auto"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <button

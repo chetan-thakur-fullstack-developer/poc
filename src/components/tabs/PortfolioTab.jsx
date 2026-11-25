@@ -484,7 +484,7 @@ export const PortfolioTab = () => {
                       </button>
                     </div>
                   </div>,
-                  document.body
+                  document.getElementById('portal-root') || document.body
                 )}
               </div>
 
