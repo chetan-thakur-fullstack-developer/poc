@@ -17,6 +17,7 @@ export const PortfolioTab = () => {
   const [catType, setCatType] = useState('taxable');
   const [catColor, setCatColor] = useState('#10B981');
   const [expandedOldYears, setExpandedOldYears] = useState({});
+  const [expandedMobileCategories, setExpandedMobileCategories] = useState({});
 
   const categories = portfolioData?.categories || [];
   const years = portfolioData?.defaultAccountData || [];
@@ -113,22 +114,27 @@ export const PortfolioTab = () => {
     setExpandedOldYears(prev => ({ ...prev, [yr]: !prev[yr] }));
   };
 
+  const toggleMobileCategory = (key) => {
+    setExpandedMobileCategories(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
   // Sort archived years latest first
   const sortedArchivedYears = [...years]
     .map((y, idx) => ({ ...y, originalIndex: idx }))
     .sort((a, b) => Number(b.year) - Number(a.year));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-40 select-none">
       {/* Top Header & Year Filter / Growth Summary Banner */}
       <div className="card p-6 sm:p-8 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-[var(--surface)] border border-emerald-500/30 space-y-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="flex flex-col gap-5">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               PORTFOLIO GROWTH INTELLIGENCE
             </div>
             <div className="flex flex-wrap items-baseline gap-3">
+              {/* Stacked total balance & sync button on mobile */}
               <h2 className="text-3xl sm:text-4xl font-black text-[var(--text-1)] font-mono tracking-tight">
                 {formatMoney(totalBalances)}
               </h2>
@@ -146,9 +152,8 @@ export const PortfolioTab = () => {
             </p>
           </div>
 
-          {/* Action Toolbar */}
-          <div className="flex flex-wrap items-center gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-[var(--border)]">
-            {/* Year selector Dropdown */}
+          {/* Action Toolbar (Stacked on mobile) */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-4 border-t border-[var(--border)]">
             <div className="flex items-center gap-2 bg-[var(--surface-2)] p-2 rounded-2xl border border-[var(--border-strong)]">
               <span className="text-xs font-bold text-[var(--text-3)] pl-1">Year:</span>
               <select
@@ -164,7 +169,6 @@ export const PortfolioTab = () => {
               </select>
             </div>
 
-            {/* Interactive Add Year Form */}
             <form onSubmit={handleAddYear} className="flex items-center gap-1.5 bg-[var(--surface-2)] p-2 rounded-2xl border border-[var(--border-strong)]">
               <input
                 type="text"
@@ -182,7 +186,6 @@ export const PortfolioTab = () => {
                     ? 'bg-slate-700 text-slate-400 opacity-50 cursor-not-allowed'
                     : 'btn-secondary !py-1.5 !px-3'
                 }`}
-                title={years.some(y => y.year === newYearStr.trim()) ? 'Year already added' : 'Add new portfolio year'}
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{years.some(y => y.year === newYearStr.trim()) ? 'Added' : 'Add Year'}</span>
@@ -192,7 +195,7 @@ export const PortfolioTab = () => {
             <button
               onClick={syncToCloud}
               disabled={isSyncing}
-              className="btn-primary text-xs px-4 py-2.5 cursor-pointer shrink-0 shadow-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white"
+              className="btn-primary text-xs px-4 py-3 cursor-pointer shrink-0 shadow-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white min-h-[44px]"
             >
               {isSyncing ? 'Saving...' : '🔄 Sync Portfolio'}
             </button>
@@ -200,44 +203,44 @@ export const PortfolioTab = () => {
         </div>
       </div>
 
-      {/* KPI Cards for Selected Year */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      {/* KPI Cards for Selected Year: 2x2 Grid on mobile */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="card p-4">
-          <span className="text-[10px] font-bold uppercase text-[var(--text-3)]">
-            {activeYearData.year} Base Salary
+          <span className="text-[10px] font-bold uppercase text-[var(--text-3)] block truncate">
+            {activeYearData.year} Salary
           </span>
-          <p className="text-xl font-black font-mono text-[var(--text-1)] mt-1">
+          <p className="text-lg sm:text-xl font-black font-mono text-[var(--text-1)] mt-1 truncate">
             <AnimatedNumber value={activeYearData.salary || 0} />
           </p>
         </div>
         <div className="card p-4">
-          <span className="text-[10px] font-bold uppercase text-[var(--text-3)]">
-            Total Year-End Balance
+          <span className="text-[10px] font-bold uppercase text-[var(--text-3)] block truncate">
+            Year-End Balance
           </span>
-          <p className="text-xl font-black font-mono text-purple-400 mt-1">
+          <p className="text-lg sm:text-xl font-black font-mono text-purple-400 mt-1 truncate">
             <AnimatedNumber value={totalBalances} />
           </p>
         </div>
         <div className="card p-4">
-          <span className="text-[10px] font-bold uppercase text-[var(--text-3)]">
-            Total Capital Invested
+          <span className="text-[10px] font-bold uppercase text-[var(--text-3)] block truncate">
+            Invested Capital
           </span>
-          <p className="text-xl font-black font-mono text-emerald-400 mt-1">
+          <p className="text-lg sm:text-xl font-black font-mono text-emerald-400 mt-1 truncate">
             <AnimatedNumber value={totalInvested} />
           </p>
         </div>
         <div className="card p-4">
-          <span className="text-[10px] font-bold uppercase text-[var(--text-3)]">
-            Total Contributions
+          <span className="text-[10px] font-bold uppercase text-[var(--text-3)] block truncate">
+            Contributions
           </span>
-          <p className="text-xl font-black font-mono text-blue-400 mt-1">
+          <p className="text-lg sm:text-xl font-black font-mono text-blue-400 mt-1 truncate">
             <AnimatedNumber value={totalContri} />
           </p>
         </div>
       </div>
 
-      {/* Portfolio Analytics Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Visuals: Stack Donut Chart and Line Chart vertically on mobile */}
+      <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6">
         <DonutChart
           title={`Asset Allocation Breakdown (${activeYearData.year})`}
           data={categories.map(cat => ({
@@ -257,12 +260,12 @@ export const PortfolioTab = () => {
         />
       </div>
 
-      {/* CURRENT YEAR: Editable Categories Breakdown Table */}
-      <div className="card p-6 space-y-5">
+      {/* Category Breakdown: Accordion List on Mobile, Table on Desktop */}
+      <div className="card p-5 sm:p-6 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
           <div>
             <h3 className="font-bold text-sm text-[var(--text-1)] flex items-center gap-2">
-              <span>Category Breakdown ({activeYearData.year} — Active Editing)</span>
+              <span>Category Breakdown ({activeYearData.year})</span>
               <span className="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                 Live Edit
               </span>
@@ -271,33 +274,28 @@ export const PortfolioTab = () => {
               Modify balances, invested capital, and contributions for {activeYearData.year}.
             </p>
           </div>
-          <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setShowAddCat(!showAddCat)}
-              className="btn-secondary text-xs px-3 py-1.5 cursor-pointer flex items-center gap-1.5"
+              className="btn-secondary text-xs px-3 py-2 cursor-pointer flex items-center gap-1.5 min-h-[44px]"
             >
               <Plus className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Add Custom Category</span>
+              <span>Add Category</span>
             </button>
             <button
               onClick={handleResetCurrentYear}
-              className="btn-secondary text-xs px-3 py-1.5 cursor-pointer flex items-center gap-1.5 text-amber-400 hover:text-amber-300"
-              title="Reset all values to $0"
+              className="btn-secondary text-xs px-3 py-2 cursor-pointer flex items-center gap-1.5 text-amber-400 min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset Year ($0)</span>
+              <span>Reset ($0)</span>
             </button>
             <button
               onClick={handleDeleteCurrentYear}
-              className="btn-secondary text-xs px-3 py-1.5 cursor-pointer flex items-center gap-1.5 text-rose-400 hover:text-rose-300"
-              title="Delete current year archive"
+              className="btn-secondary text-xs px-3 py-2 cursor-pointer flex items-center gap-1.5 text-rose-400 min-h-[44px]"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>Delete Year</span>
+              <span>Delete</span>
             </button>
-            <span className="px-3 py-1.5 rounded-xl text-xs font-bold font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-              Total: {formatMoney(totalBalances)}
-            </span>
           </div>
         </div>
 
@@ -334,17 +332,94 @@ export const PortfolioTab = () => {
               />
             </div>
             <div className="flex gap-2">
-              <button type="submit" className="btn-primary text-xs py-2 flex-1 justify-center cursor-pointer">
+              <button type="submit" className="btn-primary text-xs py-2 flex-1 justify-center cursor-pointer min-h-[44px]">
                 + Create
               </button>
-              <button type="button" onClick={() => setShowAddCat(false)} className="btn-secondary text-xs py-2 px-3 cursor-pointer">
+              <button type="button" onClick={() => setShowAddCat(false)} className="btn-secondary text-xs py-2 px-3 cursor-pointer min-h-[44px]">
                 Cancel
               </button>
             </div>
           </form>
         )}
 
-        <div className="max-h-[600px] overflow-y-auto overflow-x-auto relative">
+        {/* Mobile View: Accordion List */}
+        <div className="block lg:hidden space-y-3">
+          {categories.map(cat => {
+            const bal = activeYearData.balances?.[cat.key] || 0;
+            const inv = activeYearData.invested?.[cat.key] || 0;
+            const con = activeYearData.contri?.[cat.key] || 0;
+            const sharePct = totalBalances > 0 ? Math.round((bal / totalBalances) * 100) : 0;
+            const isExpanded = Boolean(expandedMobileCategories[cat.key]);
+
+            return (
+              <div key={cat.key} className="rounded-2xl bg-[var(--surface-2)] border border-[var(--border)] overflow-hidden shadow-sm">
+                {/* Tappable Row Header: Category Name + Balance + Chevron Arrow */}
+                <button
+                  onClick={() => toggleMobileCategory(cat.key)}
+                  className="w-full flex items-center justify-between p-4 cursor-pointer text-left min-h-[44px]"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="w-3.5 h-3.5 rounded-md shrink-0 shadow-sm" style={{ backgroundColor: cat.color }} />
+                    <span className="font-extrabold text-sm text-[var(--text-1)] truncate">{cat.label}</span>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="font-mono font-black text-sm text-purple-400">{formatMoney(bal)}</span>
+                    {isExpanded ? <ChevronUp className="w-4 h-4 text-[var(--text-3)]" /> : <ChevronDown className="w-4 h-4 text-[var(--text-3)]" />}
+                  </div>
+                </button>
+
+                {/* Expanded Details: Tax Treatment, Allocation %, Invested, Contribution */}
+                {isExpanded && (
+                  <div className="p-4 bg-[var(--surface)] border-t border-[var(--border)] space-y-4 animate-in fade-in duration-150">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-[var(--text-3)]">Tax Treatment:</span>
+                      <span className="px-2.5 py-1 rounded-md text-[10px] uppercase font-bold bg-[var(--surface-3)] text-[var(--text-2)] border border-[var(--border)]">
+                        {cat.type}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-[var(--text-3)]">Allocation Share:</span>
+                      <span className="font-mono font-bold text-[var(--text-1)]">{sharePct}%</span>
+                    </div>
+
+                    <div className="space-y-3 pt-2 border-t border-[var(--border)]">
+                      <div>
+                        <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Balance</label>
+                        <input
+                          type="text"
+                          value={formatInputValue(bal)}
+                          onChange={(e) => updatePortfolioYear(selectedYearIndex, 'balances', cat.key, parseInputValue(e.target.value))}
+                          className="w-full text-right font-mono font-bold px-3 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-1)] text-xs outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Invested Capital</label>
+                        <input
+                          type="text"
+                          value={formatInputValue(inv)}
+                          onChange={(e) => updatePortfolioYear(selectedYearIndex, 'invested', cat.key, parseInputValue(e.target.value))}
+                          className="w-full text-right font-mono px-3 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-2)] text-xs outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-[var(--text-3)] mb-1">Contributions</label>
+                        <input
+                          type="text"
+                          value={formatInputValue(con)}
+                          onChange={(e) => updatePortfolioYear(selectedYearIndex, 'contri', cat.key, parseInputValue(e.target.value))}
+                          className="w-full text-right font-mono px-3 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-1)] font-semibold text-xs outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop View: Table */}
+        <div className="hidden lg:block max-h-[600px] overflow-y-auto overflow-x-auto relative">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-[var(--border)] text-[var(--text-3)]">
@@ -382,7 +457,7 @@ export const PortfolioTab = () => {
                         type="text"
                         value={formatInputValue(bal)}
                         onChange={(e) => updatePortfolioYear(selectedYearIndex, 'balances', cat.key, parseInputValue(e.target.value))}
-                        className="w-32 text-right font-mono font-bold px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-1)] text-xs focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-glow)] outline-none transition-all"
+                        className="w-32 text-right font-mono font-bold px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-1)] text-xs focus:border-[var(--accent)] outline-none transition-all"
                       />
                     </td>
                     <td className="py-3.5 px-4 text-right">
@@ -390,7 +465,7 @@ export const PortfolioTab = () => {
                         type="text"
                         value={formatInputValue(inv)}
                         onChange={(e) => updatePortfolioYear(selectedYearIndex, 'invested', cat.key, parseInputValue(e.target.value))}
-                        className="w-32 text-right font-mono px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-2)] text-xs focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-glow)] outline-none transition-all"
+                        className="w-32 text-right font-mono px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-2)] text-xs outline-none transition-all"
                       />
                     </td>
                     <td className="py-3.5 px-4 text-right">
@@ -398,7 +473,7 @@ export const PortfolioTab = () => {
                         type="text"
                         value={formatInputValue(con)}
                         onChange={(e) => updatePortfolioYear(selectedYearIndex, 'contri', cat.key, parseInputValue(e.target.value))}
-                        className="w-32 text-right font-mono px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-1)] font-semibold text-xs focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-glow)] outline-none transition-all"
+                        className="w-32 text-right font-mono px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-1)] font-semibold text-xs outline-none transition-all"
                       />
                     </td>
                   </tr>
@@ -419,137 +494,16 @@ export const PortfolioTab = () => {
         </div>
       </div>
 
-      {/* OLD YEARS ACCORDIONS (Sorted Latest Year First, Collapsed by default) */}
-      <div className="space-y-3">
-        <h3 className="font-bold text-xs text-[var(--text-3)] uppercase tracking-wider px-1">
-          Historical Year Archives (Latest First · Click to Expand &amp; Edit)
-        </h3>
-        {sortedArchivedYears.map((y) => {
-          if (y.originalIndex === selectedYearIndex) return null; // Active year is shown above
-          const isExpanded = Boolean(expandedOldYears[y.year]);
-          const yrBalances = y.balances ? Object.values(y.balances).reduce((a, b) => a + Number(b), 0) : 0;
-
-          return (
-            <div key={y.year} className="card overflow-hidden transition-all">
-              <button
-                onClick={() => toggleExpandYear(y.year)}
-                className="w-full flex items-center justify-between p-4 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] transition-colors cursor-pointer text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
-                  <span className="font-extrabold text-sm text-[var(--text-1)]">Year {y.year} Portfolio Archive</span>
-                  <span className="text-xs font-mono text-[var(--text-3)] font-semibold">({formatMoney(yrBalances)})</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-3)]">
-                  <span>{isExpanded ? 'Collapse' : 'Expand to Edit'}</span>
-                  {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </div>
-              </button>
-
-              {isExpanded && (
-                <div className="p-5 space-y-4 bg-[var(--surface)] border-t border-[var(--border)] animate-in fade-in duration-200">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-[var(--text-2)]">Archived Breakdown for {y.year}</span>
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => {
-                          showConfirmModal({
-                            title: `Reset ${y.year} to $0?`,
-                            message: `Are you sure you want to reset all values for ${y.year} to $0?`,
-                            confirmText: 'Reset to $0',
-                            isDanger: true,
-                            onConfirm: () => resetPortfolioYearValues(y.originalIndex)
-                          });
-                        }}
-                        className="text-xs font-bold text-amber-400 hover:underline cursor-pointer"
-                      >
-                        Reset Year ($0)
-                      </button>
-                      <button
-                        onClick={() => {
-                          showConfirmModal({
-                            title: `Delete Year ${y.year}?`,
-                            message: `Are you sure you want to delete year ${y.year}?`,
-                            confirmText: 'Delete Year',
-                            isDanger: true,
-                            onConfirm: () => deletePortfolioYear(y.originalIndex)
-                          });
-                        }}
-                        className="text-xs font-bold text-rose-400 hover:underline cursor-pointer"
-                      >
-                        Delete Year
-                      </button>
-                      <button
-                        onClick={() => setSelectedYearIndex(y.originalIndex)}
-                        className="text-xs font-bold text-emerald-400 hover:underline cursor-pointer"
-                      >
-                        Make Active Year →
-                      </button>
-                    </div>
-                  </div>
-                  <div className="max-h-[500px] overflow-y-auto overflow-x-auto relative">
-                    <table className="w-full text-left text-xs border-collapse">
-                      <thead>
-                        <tr className="border-b border-[var(--border)] text-[var(--text-3)]">
-                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Category</th>
-                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Tax Treatment</th>
-                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Balance</th>
-                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Invested</th>
-                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Contribution</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[var(--border)]">
-                        {categories.map(cat => {
-                          const bal = y.balances?.[cat.key] || 0;
-                          const inv = y.invested?.[cat.key] || 0;
-                          const con = y.contri?.[cat.key] || 0;
-
-                          return (
-                            <tr key={cat.key} className="hover:bg-[var(--surface-2)]">
-                              <td className="py-2.5 px-3 font-bold text-[var(--text-1)] flex items-center gap-2">
-                                <span className="w-2.5 h-2.5 rounded-md" style={{ backgroundColor: cat.color }} />
-                                <span>{cat.label}</span>
-                              </td>
-                              <td className="py-2.5 px-3">
-                                <span className="px-2 py-0.5 rounded text-[9px] uppercase font-bold bg-[var(--surface-3)] text-[var(--text-2)]">
-                                  {cat.type}
-                                </span>
-                              </td>
-                              <td className="py-2.5 px-3 text-right">
-                                <input
-                                  type="text"
-                                  value={formatInputValue(bal)}
-                                  onChange={(e) => updatePortfolioYear(y.originalIndex, 'balances', cat.key, parseInputValue(e.target.value))}
-                                  className="w-28 text-right font-mono font-bold px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] text-xs outline-none"
-                                />
-                              </td>
-                              <td className="py-2.5 px-3 text-right">
-                                <input
-                                  type="text"
-                                  value={formatInputValue(inv)}
-                                  onChange={(e) => updatePortfolioYear(y.originalIndex, 'invested', cat.key, parseInputValue(e.target.value))}
-                                  className="w-28 text-right font-mono px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] text-xs outline-none"
-                                />
-                              </td>
-                              <td className="py-2.5 px-3 text-right">
-                                <input
-                                  type="text"
-                                  value={formatInputValue(con)}
-                                  onChange={(e) => updatePortfolioYear(y.originalIndex, 'contri', cat.key, parseInputValue(e.target.value))}
-                                  className="w-28 text-right font-mono px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] font-semibold text-xs outline-none"
-                                />
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+      {/* Sticky Bottom Bar showing the "Total Portfolio" summary on mobile */}
+      <div className="lg:hidden fixed bottom-20 left-0 right-0 z-30 bg-[var(--surface)]/95 backdrop-blur-xl border-t border-[var(--border)] p-4 flex items-center justify-between shadow-2xl select-none">
+        <div>
+          <span className="text-[10px] font-black uppercase text-[var(--text-3)] block">Total Portfolio</span>
+          <span className="text-sm sm:text-base font-black font-mono text-purple-400">{formatMoney(totalCatBalance)}</span>
+        </div>
+        <div className="text-right">
+          <span className="text-[10px] font-black uppercase text-[var(--text-3)] block">Invested / Contrib</span>
+          <span className="text-xs font-mono font-bold text-emerald-400">{formatMoney(totalCatInvested)}</span>
+        </div>
       </div>
 
       {/* IRS Base Limits Overview */}

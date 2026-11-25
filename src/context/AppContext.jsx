@@ -457,6 +457,7 @@ export const AppProvider = ({ children }) => {
 
   const [detailGoal, setDetailGoal] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showMenuDrawer, setShowMenuDrawer] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
   const [isDetailEditing, setIsDetailEditing] = useState(false);
 
@@ -1197,6 +1198,8 @@ export const AppProvider = ({ children }) => {
         setDetailGoal,
         showCreateModal,
         setShowCreateModal,
+        showMenuDrawer,
+        setShowMenuDrawer,
         editingGoal,
         setEditingGoal,
         isDetailEditing,

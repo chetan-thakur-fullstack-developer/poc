@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { Bell, Plus, ChevronDown, Sparkles, Search, Sun, Moon, Settings, LogOut } from 'lucide-react';
+import { Bell, Plus, ChevronDown, Sparkles, Search, Sun, Moon, Settings, LogOut, Menu } from 'lucide-react';
 
 export const Header = () => {
   const {
@@ -18,7 +18,9 @@ export const Header = () => {
     setTheme,
     loadDemoTemplate,
     resetToCleanWorkspace,
-    showConfirmModal
+    showConfirmModal,
+    showMenuDrawer,
+    setShowMenuDrawer
   } = useApp();
 
   const { user, isDemoUser, signOut } = useAuth();
@@ -77,17 +79,25 @@ export const Header = () => {
   const activeSubtitle = TAB_SUBTITLES[currentTab] || 'Manage your financial life';
 
   return (
-    <header className="sticky top-0 z-40 h-16 w-full border-b border-[var(--border)] bg-[var(--surface)]/85 backdrop-blur-xl px-4 sm:px-8 flex items-center justify-between transition-all gap-4">
-      {/* Left: Active Section Title & Subheading */}
-      <div className="flex items-center gap-4 shrink-0">
-        <div className="flex items-center gap-2.5 lg:hidden font-black text-base tracking-tight">
+    <header className="sticky top-0 z-40 h-16 w-full border-b border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-xl px-4 sm:px-8 flex items-center justify-between transition-all gap-4 select-none">
+      {/* Left: Top-Left Hamburger Menu & Active Section Title */}
+      <div className="flex items-center gap-3 shrink-0">
+        <button
+          onClick={() => setShowMenuDrawer(!showMenuDrawer)}
+          className="min-w-[44px] min-h-[44px] p-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] hover:bg-[var(--surface-3)] transition-all cursor-pointer flex items-center justify-center shadow-sm active:scale-95"
+          title="Open Menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center gap-2.5 font-black text-base tracking-tight">
           <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex items-center justify-center shadow-md">
             LJ
           </span>
-          <span>LedgerJourney</span>
+          <span className="hidden md:inline">LedgerJourney</span>
         </div>
 
-        <div className="hidden sm:flex flex-col">
+        <div className="hidden sm:flex flex-col ml-2">
           <h2 className="text-xs sm:text-sm font-black text-[var(--text-1)] tracking-tight leading-tight">
             {activeTitle}
           </h2>
@@ -97,17 +107,16 @@ export const Header = () => {
         </div>
       </div>
 
-      {/* Middle: SaaS Standard Search Bar / Cmd+K Trigger */}
-      <div className="flex-1 max-w-md hidden md:block">
+      {/* Middle: Global Search Icon / Cmd+K Trigger */}
+      <div className="flex items-center">
         <button
           onClick={() => openModal('commandMenu')}
-          className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-3)] hover:text-[var(--text-1)] hover:border-[var(--border-strong)] transition-all cursor-pointer shadow-xs group"
+          className="min-w-[44px] min-h-[44px] p-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-strong)] transition-all cursor-pointer flex items-center justify-center shadow-sm gap-2 px-3.5"
+          title="Search (Cmd+K)"
         >
-          <div className="flex items-center gap-2.5">
-            <Search className="w-4 h-4 text-[var(--text-4)] group-hover:text-[var(--accent)] transition-colors" />
-            <span className="text-xs font-medium">Search accounts, transactions, calculators...</span>
-          </div>
-          <kbd className="px-2 py-0.5 rounded-md bg-[var(--surface)] border border-[var(--border)] text-[10px] font-mono font-bold text-[var(--text-3)] shadow-xs">
+          <Search className="w-4 h-4 text-emerald-400" />
+          <span className="text-xs font-medium hidden md:inline">Search accounts, transactions...</span>
+          <kbd className="hidden lg:inline px-1.5 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[10px] font-mono font-bold text-[var(--text-3)] shadow-xs">
             ⌘K
           </kbd>
         </button>
@@ -135,7 +144,7 @@ export const Header = () => {
         <div className="relative" ref={newDropdownRef}>
           <button
             onClick={() => setShowNewDropdown(!showNewDropdown)}
-            className="btn-primary text-xs px-3.5 py-2 shadow-sm cursor-pointer flex items-center gap-1.5 font-bold"
+            className="btn-primary text-xs px-3.5 min-h-[44px] shadow-sm cursor-pointer flex items-center gap-1.5 font-bold"
           >
             <Plus className="w-3.5 h-3.5 stroke-[3]" />
             <span className="hidden sm:inline">New</span>
@@ -153,7 +162,7 @@ export const Header = () => {
                     openModal('addTx');
                     setShowNewDropdown(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left min-h-[44px]"
                 >
                   <span className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xs">💸</span>
                   <span>Record Transaction</span>
@@ -163,7 +172,7 @@ export const Header = () => {
                     openModal('addAccount');
                     setShowNewDropdown(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left min-h-[44px]"
                 >
                   <span className="w-6 h-6 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center text-xs">🏦</span>
                   <span>Link Account</span>
@@ -173,7 +182,7 @@ export const Header = () => {
                     setShowCreateModal(true);
                     setShowNewDropdown(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left min-h-[44px]"
                 >
                   <span className="w-6 h-6 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center text-xs">🎯</span>
                   <span>Create Goal</span>
@@ -183,20 +192,10 @@ export const Header = () => {
                     openModal('quickAdd');
                     setShowNewDropdown(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left min-h-[44px]"
                 >
                   <span className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center text-xs">⚡</span>
                   <span>Quick Add Wizard</span>
-                </button>
-                <button
-                  onClick={() => {
-                    openModal('commandMenu');
-                    setShowNewDropdown(false);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left border-t border-[var(--border)] mt-1 pt-1.5"
-                >
-                  <span className="w-6 h-6 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center text-xs">🔍</span>
-                  <span>Command Search (Cmd+K)</span>
                 </button>
               </div>
             </div>
@@ -207,7 +206,7 @@ export const Header = () => {
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setShowNotifPopover(!showNotifPopover)}
-            className="p-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-hover)] transition-all cursor-pointer active:scale-95 shadow-sm relative"
+            className="min-w-[44px] min-h-[44px] p-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-hover)] transition-all cursor-pointer flex items-center justify-center active:scale-95 shadow-sm relative"
             title="Notifications"
           >
             <Bell className="w-4 h-4" />
@@ -261,11 +260,11 @@ export const Header = () => {
           )}
         </div>
 
-        {/* Profile Avatar & Profile Popover Menu (with Theme Switcher, Load Sample Data, Reset Workspace) */}
+        {/* Profile Avatar & Profile Popover Menu */}
         <div className="relative" ref={profileRef}>
           <button
             onClick={() => setShowProfilePopover(!showProfilePopover)}
-            className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm border border-white/20 hover:scale-105 transition-transform cursor-pointer"
+            className="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm border border-white/20 hover:scale-105 transition-transform cursor-pointer min-w-[44px] min-h-[44px]"
             title="Open Profile & Menu"
           >
             {isDemoUser ? 'D' : (user?.user_metadata?.full_name || user?.email || 'U')[0]}
@@ -286,7 +285,7 @@ export const Header = () => {
                 <div className="grid grid-cols-3 gap-1.5">
                   <button
                     onClick={() => setTheme('light')}
-                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer min-h-[44px] ${
                       theme === 'light' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-xs' : 'bg-[var(--surface-2)] text-[var(--text-3)] hover:text-[var(--text-1)]'
                     }`}
                   >
@@ -295,7 +294,7 @@ export const Header = () => {
                   </button>
                   <button
                     onClick={() => setTheme('dark')}
-                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer min-h-[44px] ${
                       theme === 'dark' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-xs' : 'bg-[var(--surface-2)] text-[var(--text-3)] hover:text-[var(--text-1)]'
                     }`}
                   >
@@ -304,7 +303,7 @@ export const Header = () => {
                   </button>
                   <button
                     onClick={() => setTheme('glass')}
-                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer min-h-[44px] ${
                       theme === 'glass' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/40 shadow-xs' : 'bg-[var(--surface-2)] text-[var(--text-3)] hover:text-[var(--text-1)]'
                     }`}
                   >
@@ -321,7 +320,7 @@ export const Header = () => {
                     loadDemoTemplate();
                     setShowProfilePopover(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer text-left"
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer text-left min-h-[44px]"
                 >
                   <span className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xs">📥</span>
                   <span>Load Sample Data</span>
@@ -339,7 +338,7 @@ export const Header = () => {
                       }
                     });
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-amber-400 hover:bg-amber-500/10 transition-colors cursor-pointer text-left"
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-amber-400 hover:bg-amber-500/10 transition-colors cursor-pointer text-left min-h-[44px]"
                 >
                   <span className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center text-xs">🔄</span>
                   <span>Reset Workspace</span>
@@ -349,7 +348,7 @@ export const Header = () => {
                     setCurrentTab('tab-settings');
                     setShowProfilePopover(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left border-t border-[var(--border)] mt-1 pt-1.5"
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left border-t border-[var(--border)] mt-1 pt-1.5 min-h-[44px]"
                 >
                   <Settings className="w-3.5 h-3.5 text-[var(--text-3)]" />
                   <span>Settings & Preferences</span>
@@ -361,7 +360,7 @@ export const Header = () => {
                     }
                     setShowProfilePopover(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer text-left border-t border-[var(--border)] mt-1 pt-1.5"
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer text-left border-t border-[var(--border)] mt-1 pt-1.5 min-h-[44px]"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out</span>

@@ -1,16 +1,21 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '../../context/AppContext.jsx';
 import { AnimatedNumber } from '../AnimatedNumber.jsx';
 import { DonutChart } from '../charts/DonutChart.jsx';
-import { Plus, Link2, Layers, TrendingUp, TrendingDown, Pencil, AlertCircle, ShieldCheck, Sparkles, Zap, Trash2, MoreVertical } from 'lucide-react';
+import { Plus, Link2, Layers, TrendingUp, TrendingDown, Pencil, AlertCircle, ShieldCheck, Sparkles, Zap, Trash2, MoreVertical, X, Check } from 'lucide-react';
 
 export const AccountsTab = () => {
-  const { accountsData, setAccountsData, formatMoney, openModal, deleteAccount, syncToCloud, isSyncing } = useApp();
+  const { accountsData, setAccountsData, formatMoney, openModal, deleteAccount, syncToCloud, isSyncing, showToast } = useApp();
   const [filter, setFilter] = useState('all');
   const [monthlySavingsInput, setMonthlySavingsInput] = useState(1500);
   const [openRowMenuId, setOpenRowMenuId] = useState(null);
   const [menuPos, setMenuPos] = useState(null);
+
+  // Mobile Edit Account Bottom Sheet State
+  const [editingAccount, setEditingAccount] = useState(null);
+  const [editAccName, setEditAccName] = useState('');
+  const [editAccBalance, setEditAccBalance] = useState('');
 
   React.useEffect(() => {
     const handleClickOutside = (e) => {
@@ -66,12 +71,25 @@ export const AccountsTab = () => {
   const projected3Yr = netWorth + monthlySavingsInput * 36 * 1.07;
   const projected5Yr = netWorth + monthlySavingsInput * 60 * 1.07;
 
+  const handleSaveAccountEdit = (e) => {
+    e.preventDefault();
+    if (!editingAccount) return;
+    const updatedLinked = linked.map(a => a.id === editingAccount.id ? {
+      ...a,
+      name: editAccName || a.name,
+      balance: parseFloat(editAccBalance) || 0
+    } : a);
+    setAccountsData(prev => ({ ...prev, linked: updatedLinked }));
+    showToast(`Account "${editAccName}" updated successfully`, 'success');
+    setEditingAccount(null);
+  };
+
   return (
-    <div className="space-y-6 pb-32">
-      {/* Header & Net Worth Overview Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div className="space-y-6 pb-36 select-none relative">
+      {/* Top Summary: Stack Net Worth card and Donut chart vertically on mobile */}
+      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 items-start">
         {/* Main Net Worth Card */}
-        <div className="lg:col-span-7 card p-6 relative overflow-hidden bg-gradient-to-br from-[var(--surface)] via-[var(--surface)] to-emerald-500/10 border border-emerald-500/25 space-y-5">
+        <div className="w-full lg:col-span-7 card p-6 relative overflow-hidden bg-gradient-to-br from-[var(--surface)] via-[var(--surface)] to-emerald-500/10 border border-emerald-500/25 space-y-5">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-[var(--text-3)]">Total Household Net Worth</span>
@@ -94,7 +112,7 @@ export const AccountsTab = () => {
                 Total Assets: {formatMoney(totalAssets)}
               </span>
               <span className="flex items-center gap-1.5 text-rose-400">
-                Total Liabilities: {formatMoney(Math.abs(totalLiab))}
+                Liabilities: {formatMoney(Math.abs(totalLiab))}
                 <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
               </span>
             </div>
@@ -112,7 +130,7 @@ export const AccountsTab = () => {
         </div>
 
         {/* Money Breakdown Donut Chart */}
-        <div className="lg:col-span-5">
+        <div className="w-full lg:col-span-5">
           <DonutChart
             title="Asset & Liability Distribution"
             data={[
@@ -123,9 +141,9 @@ export const AccountsTab = () => {
         </div>
       </div>
 
-      {/* Filter Chips & Add Button */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-2">
+      {/* Filters: Horizontally scrollable pill menu on mobile */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="overflow-x-auto flex flex-nowrap gap-2 py-1 scrollbar-none whitespace-nowrap">
           {[
             { id: 'all', label: 'All Accounts', icon: Layers },
             { id: 'assets', label: 'Assets', icon: TrendingUp },
@@ -140,166 +158,233 @@ export const AccountsTab = () => {
               <button
                 key={tab.id}
                 onClick={() => setFilter(tab.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                className={`px-4 py-2.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer min-h-[44px] shrink-0 ${
                   isActive
-                    ? 'bg-[#8B5CF6] text-white shadow-sm font-bold'
+                    ? 'bg-[#8B5CF6] text-white shadow-md font-bold'
                     : 'bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)]'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-3.5 h-3.5 shrink-0" />
                 <span>{tab.label}</span>
               </button>
             );
           })}
         </div>
 
+        {/* Desktop Add Account Button (Hidden on Mobile since FAB is used) */}
         <button
           onClick={() => openModal('addAccount')}
-          className="btn-primary text-xs px-4 py-2.5 cursor-pointer flex items-center gap-2 shadow-sm"
+          className="hidden sm:flex btn-primary text-xs px-4 py-2.5 cursor-pointer items-center gap-2 shadow-sm shrink-0"
         >
           <Plus className="w-4 h-4 stroke-[3]" />
           <span>Add Account</span>
         </button>
       </div>
 
-      {/* Accounts Table / List (Placed higher for better user workflow) */}
+      {/* Account List: Stacked Card List Item on Mobile (with tap-to-edit), Table on Desktop */}
       <div className="card overflow-visible">
         <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-2)]/40">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--text-3)]">
-            Linked Accounts & Assets ({filteredAccounts.length})
+            Linked Accounts &amp; Assets ({filteredAccounts.length})
           </h3>
         </div>
 
-        <div
-          onScroll={() => {
-            setOpenRowMenuId(null);
-            setMenuPos(null);
-          }}
-          className="max-h-[600px] overflow-y-auto overflow-x-auto relative"
-        >
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-[var(--border)] text-[var(--text-4)] uppercase tracking-wider text-[10px] font-extrabold">
-                <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Account Name</th>
-                <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Institution</th>
-                <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Type</th>
-                <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Source</th>
-                <th className="py-3.5 px-6 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Balance</th>
-                <th className="py-3.5 px-6 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--border)]">
-              {filteredAccounts.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="py-16 text-center text-[var(--text-3)]">
-                    <div className="max-w-xs mx-auto space-y-1.5">
-                      <p className="font-bold text-[var(--text-1)] text-sm">No accounts linked yet</p>
-                      <p className="text-xs text-[var(--text-3)] leading-relaxed">
-                        Link your bank accounts, investment portfolios, or credit cards using the "Add Account" button above to automatically track net worth and asset allocations.
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filteredAccounts.map(acc => {
-                  const isNeg = Number(acc.balance) < 0 || acc.type === 'credit';
-                  const isMenuOpen = openRowMenuId === acc.id;
-                  return (
-                    <tr key={acc.id} className="odd:bg-[var(--surface)] even:bg-[var(--surface-2)]/40 hover:bg-[var(--surface-2)] transition-colors group relative">
-                      <td className="py-4 px-6 font-bold text-[var(--text-1)] flex items-center gap-3">
+        {filteredAccounts.length === 0 ? (
+          <div className="py-16 text-center text-[var(--text-3)]">
+            <div className="max-w-xs mx-auto space-y-1.5 px-4">
+              <p className="font-bold text-[var(--text-1)] text-sm">No accounts linked yet</p>
+              <p className="text-xs text-[var(--text-3)] leading-relaxed">
+                Link your bank accounts, investment portfolios, or credit cards using the "+ Add Account" button below.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Mobile View: Stacked Card List Items (Tap to open Edit Bottom Sheet) */}
+            <div className="block lg:hidden divide-y divide-[var(--border)] p-3 space-y-2.5">
+              {filteredAccounts.map(acc => {
+                const isNeg = Number(acc.balance) < 0 || acc.type === 'credit';
+                return (
+                  <div
+                    key={acc.id}
+                    onClick={() => {
+                      setEditingAccount(acc);
+                      setEditAccName(acc.name);
+                      setEditAccBalance(acc.balance);
+                    }}
+                    className="p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)] space-y-2 shadow-sm cursor-pointer hover:border-emerald-500/50 transition-all active:scale-[0.99]"
+                  >
+                    {/* Top Row: Icon + Account Name + Balance (right-aligned) */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
                         <div
-                          className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs text-white shrink-0 shadow-sm"
+                          className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs text-white shrink-0 shadow-sm"
                           style={{ backgroundColor: acc.color || '#8B5CF6' }}
                         >
                           {acc.institution?.[0] || 'A'}
                         </div>
-                        <div>
-                          <span className={`text-sm ${acc.isExcluded ? 'line-through opacity-60' : ''}`}>{acc.name}</span>
-                          <div className="text-[10px] text-[var(--text-3)] font-normal flex items-center gap-1.5">
-                            <span>Updated live via API</span>
-                            {acc.isExcluded && <span className="text-amber-400 font-bold">· (Excluded)</span>}
-                          </div>
+                        <div className="min-w-0">
+                          <h4 className={`text-sm font-bold text-[var(--text-1)] truncate ${acc.isExcluded ? 'line-through opacity-60' : ''}`}>
+                            {acc.name}
+                          </h4>
+                          <span className="text-[10px] text-emerald-400 font-semibold">Tap to edit details &amp; actions</span>
                         </div>
-                      </td>
-                      <td className="py-4 px-6 text-[var(--text-2)] font-semibold">{acc.institution || 'Direct Bank'}</td>
-                      <td className="py-4 px-6">
-                        <span className="px-2.5 py-1 rounded-full text-[10px] uppercase font-bold bg-[var(--surface-3)] text-[var(--text-2)] border border-[var(--border)]">
+                      </div>
+                      <div className={`font-mono font-black text-sm shrink-0 ${isNeg ? 'text-rose-400' : 'text-emerald-400'}`}>
+                        {formatMoney(acc.balance, 2)}
+                      </div>
+                    </div>
+
+                    {/* Bottom Row: Institution, Type, and Source badge */}
+                    <div className="flex items-center justify-between pt-1 border-t border-[var(--border)] text-[11px] text-[var(--text-3)]">
+                      <div className="flex items-center gap-2 truncate">
+                        <span className="font-semibold text-[var(--text-2)]">{acc.institution || 'Direct Bank'}</span>
+                        <span>•</span>
+                        <span className="uppercase text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface-3)] text-[var(--text-3)]">
                           {acc.type}
                         </span>
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className="px-2.5 py-1 rounded-full text-[10px] uppercase font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
-                          {acc.source || 'Manual'}
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="px-2 py-0.5 text-[9px] font-bold rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 uppercase">
+                          {acc.source === 'plaid' ? 'Plaid' : (acc.source || 'Manual')}
                         </span>
-                      </td>
-                      <td className={`py-4 px-6 text-right font-mono font-black text-sm ${isNeg ? 'text-rose-400' : 'text-emerald-400'}`}>
-                        {formatMoney(acc.balance, 2)}
-                      </td>
-                      <td className="py-4 px-6 text-right relative row-menu-container">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (isMenuOpen) {
-                              setOpenRowMenuId(null);
-                              setMenuPos(null);
-                            } else {
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              setOpenRowMenuId(acc.id);
-                              const menuWidth = 208;
-                              let left = rect.right - menuWidth;
-                              if (left < 12) left = 12;
-                              if (left + menuWidth > window.innerWidth - 12) left = window.innerWidth - menuWidth - 12;
-                              setMenuPos({ top: rect.bottom + 4, left: left });
-                            }
+                            deleteAccount(acc.id);
                           }}
-                          className="p-2 rounded-lg text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--surface-3)] transition-colors cursor-pointer"
-                          title="Account Options"
+                          className="p-1 rounded text-rose-400 hover:bg-rose-500/10 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+                          title="Remove Account"
                         >
-                          <MoreVertical className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
-                        {isMenuOpen && menuPos && createPortal(
+            {/* Desktop View: Table */}
+            <div
+              onScroll={() => {
+                setOpenRowMenuId(null);
+                setMenuPos(null);
+              }}
+              className="hidden lg:block max-h-[600px] overflow-y-auto overflow-x-auto relative"
+            >
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-[var(--border)] text-[var(--text-4)] uppercase tracking-wider text-[10px] font-extrabold">
+                    <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Account Name</th>
+                    <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Institution</th>
+                    <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Type</th>
+                    <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Source</th>
+                    <th className="py-3.5 px-6 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Balance</th>
+                    <th className="py-3.5 px-6 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {filteredAccounts.map(acc => {
+                    const isNeg = Number(acc.balance) < 0 || acc.type === 'credit';
+                    const isMenuOpen = openRowMenuId === acc.id;
+                    return (
+                      <tr key={acc.id} className="odd:bg-[var(--surface)] even:bg-[var(--surface-2)]/40 hover:bg-[var(--surface-2)] transition-colors group relative">
+                        <td className="py-4 px-6 font-bold text-[var(--text-1)] flex items-center gap-3">
                           <div
-                            style={{ position: 'fixed', top: menuPos.top, left: menuPos.left, zIndex: 999999 }}
-                            className="w-52 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150"
-                            onClick={(e) => e.stopPropagation()}
+                            className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs text-white shrink-0 shadow-sm"
+                            style={{ backgroundColor: acc.color || '#8B5CF6' }}
                           >
-                            <button
-                              onClick={() => {
-                                const updatedLinked = linked.map(a => a.id === acc.id ? { ...a, isExcluded: !a.isExcluded } : a);
-                                setAccountsData(prev => ({ ...prev, linked: updatedLinked }));
+                            {acc.institution?.[0] || 'A'}
+                          </div>
+                          <div>
+                            <span className={`text-sm ${acc.isExcluded ? 'line-through opacity-60' : ''}`}>{acc.name}</span>
+                            <div className="text-[10px] text-[var(--text-3)] font-normal flex items-center gap-1.5">
+                              <span>Updated live via API</span>
+                              {acc.isExcluded && <span className="text-amber-400 font-bold">· (Excluded)</span>}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-[var(--text-2)] font-semibold">{acc.institution || 'Direct Bank'}</td>
+                        <td className="py-4 px-6">
+                          <span className="px-2.5 py-1 rounded-full text-[10px] uppercase font-bold bg-[var(--surface-3)] text-[var(--text-2)] border border-[var(--border)]">
+                            {acc.type}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className="px-2.5 py-1 rounded-full text-[10px] uppercase font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
+                            {acc.source || 'Manual'}
+                          </span>
+                        </td>
+                        <td className={`py-4 px-6 text-right font-mono font-black text-sm ${isNeg ? 'text-rose-400' : 'text-emerald-400'}`}>
+                          {formatMoney(acc.balance, 2)}
+                        </td>
+                        <td className="py-4 px-6 text-right relative row-menu-container">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (isMenuOpen) {
                                 setOpenRowMenuId(null);
                                 setMenuPos(null);
-                              }}
-                              className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-3)] flex items-center gap-2 cursor-pointer transition-colors"
+                              } else {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setOpenRowMenuId(acc.id);
+                                const menuWidth = 208;
+                                let left = rect.right - menuWidth;
+                                if (left < 12) left = 12;
+                                if (left + menuWidth > window.innerWidth - 12) left = window.innerWidth - menuWidth - 12;
+                                setMenuPos({ top: rect.bottom + 4, left: left });
+                              }
+                            }}
+                            className="p-2 rounded-lg text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--surface-3)] transition-colors cursor-pointer"
+                            title="Account Options"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+
+                          {isMenuOpen && menuPos && createPortal(
+                            <div
+                              style={{ position: 'fixed', top: menuPos.top, left: menuPos.left, zIndex: 999999 }}
+                              className="w-52 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150"
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              <span>{acc.isExcluded ? '📥 Include in Net Worth' : '📤 Exclude from Net Worth'}</span>
-                            </button>
-                            <button
-                              onClick={() => {
-                                deleteAccount(acc.id);
-                                setOpenRowMenuId(null);
-                                setMenuPos(null);
-                              }}
-                              className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-3)] hover:text-rose-400 hover:bg-rose-500/10 flex items-center gap-2 cursor-pointer transition-colors"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                              <span>Remove Account</span>
-                            </button>
-                          </div>,
-                          document.body
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                              <button
+                                onClick={() => {
+                                  const updatedLinked = linked.map(a => a.id === acc.id ? { ...a, isExcluded: !a.isExcluded } : a);
+                                  setAccountsData(prev => ({ ...prev, linked: updatedLinked }));
+                                  setOpenRowMenuId(null);
+                                  setMenuPos(null);
+                                }}
+                                className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-3)] flex items-center gap-2 cursor-pointer transition-colors"
+                              >
+                                <span>{acc.isExcluded ? '📥 Include in Net Worth' : '📤 Exclude from Net Worth'}</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  deleteAccount(acc.id);
+                                  setOpenRowMenuId(null);
+                                  setMenuPos(null);
+                                }}
+                                className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-3)] hover:text-rose-400 hover:bg-rose-500/10 flex items-center gap-2 cursor-pointer transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Remove Account</span>
+                              </button>
+                            </div>,
+                            document.body
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </div>
 
-      {/* Wealth Velocity & Net Worth Simulator (Positioned below accounts table) */}
+      {/* Wealth Velocity & Net Worth Simulator */}
       <div className="card p-6 space-y-5 bg-gradient-to-br from-[var(--surface)] to-indigo-500/10 border-indigo-500/30">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[var(--border)] pb-4">
           <div className="flex items-center gap-2.5">
@@ -307,13 +392,13 @@ export const AccountsTab = () => {
               <Zap className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-[var(--text-1)]">Wealth Velocity & Net Worth Simulator</h3>
+              <h3 className="font-bold text-sm text-[var(--text-1)]">Wealth Velocity &amp; Net Worth Simulator</h3>
               <p className="text-[10px] text-[var(--text-3)]">Project your future net worth based on monthly compounding savings (7% APY)</p>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
+            <div className="flex items-center justify-between sm:justify-start gap-2">
               <span className="text-xs font-bold text-[var(--text-2)]">Monthly Savings:</span>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-[var(--accent)]">$</span>
@@ -325,18 +410,28 @@ export const AccountsTab = () => {
                 />
               </div>
             </div>
-            <input
-              type="range"
-              min="100"
-              max="10000"
-              step="100"
-              value={monthlySavingsInput}
-              onChange={(e) => setMonthlySavingsInput(Number(e.target.value))}
-              className="w-full sm:w-40 h-2 bg-[var(--surface-3)] rounded-lg appearance-none cursor-pointer accent-[var(--accent)]"
-            />
           </div>
         </div>
 
+        {/* Full-width slider for easy thumb control */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-[10px] font-mono text-[var(--text-3)]">
+            <span>$100/mo</span>
+            <span>$5,000/mo</span>
+            <span>$10,000/mo</span>
+          </div>
+          <input
+            type="range"
+            min="100"
+            max="10000"
+            step="100"
+            value={monthlySavingsInput}
+            onChange={(e) => setMonthlySavingsInput(Number(e.target.value))}
+            className="w-full h-3 bg-[var(--surface-3)] rounded-lg appearance-none cursor-pointer accent-[var(--accent)]"
+          />
+        </div>
+
+        {/* 1/3/5 Year Projections Stacked Vertically or Horizontally Swipe on mobile */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
           <div className="card-inner p-4 space-y-1 border border-[var(--border)]">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-4)]">1-Year Horizon</span>
@@ -355,6 +450,117 @@ export const AccountsTab = () => {
           </div>
         </div>
       </div>
+
+      {/* Floating Action Button (FAB) for "+ Add Account" at bottom right on mobile */}
+      <button
+        onClick={() => openModal('addAccount')}
+        className="sm:hidden fixed bottom-24 right-4 z-30 w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 flex items-center justify-center text-2xl font-black shadow-2xl shadow-emerald-500/50 cursor-pointer active:scale-95 transition-transform"
+        title="Add Account"
+      >
+        <Plus className="w-7 h-7 stroke-[3]" />
+      </button>
+
+      {/* Mobile Edit Account Bottom Sheet Modal */}
+      {editingAccount && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex flex-col justify-end animate-in fade-in duration-200 select-none">
+          <form
+            onSubmit={handleSaveAccountEdit}
+            className="bg-[var(--app-bg-2)] border-t border-[var(--border-strong)] rounded-t-3xl p-6 space-y-5 shadow-2xl animate-in slide-in-from-bottom duration-300"
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 1rem) + 2rem)' }}
+          >
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs text-white shrink-0"
+                  style={{ backgroundColor: editingAccount.color || '#8B5CF6' }}
+                >
+                  {editingAccount.institution?.[0] || 'A'}
+                </div>
+                <div>
+                  <h3 className="font-black text-sm text-[var(--text-1)]">Edit Account Details</h3>
+                  <p className="text-[10px] text-[var(--text-3)]">{editingAccount.institution || 'Direct Bank'} • {editingAccount.type}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingAccount(null)}
+                className="p-2 rounded-full bg-[var(--surface-2)] text-[var(--text-2)] cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-wider text-[var(--text-3)] block mb-1">
+                  Account Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editAccName}
+                  onChange={(e) => setEditAccName(e.target.value)}
+                  className="input-field text-xs py-3 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-wider text-[var(--text-3)] block mb-1">
+                  Account Balance ($)
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  required
+                  value={editAccBalance}
+                  onChange={(e) => setEditAccBalance(e.target.value)}
+                  className="input-field text-xs py-3 w-full font-mono font-bold"
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-[var(--border)]">
+                <div>
+                  <p className="text-xs font-bold text-[var(--text-1)]">Exclude from Net Worth</p>
+                  <p className="text-[10px] text-[var(--text-3)]">Hide this account balance from your totals</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={Boolean(editingAccount.isExcluded)}
+                  onChange={(e) => {
+                    const isEx = e.target.checked;
+                    setAccountsData(prev => ({
+                      ...prev,
+                      linked: prev.linked.map(a => a.id === editingAccount.id ? { ...a, isExcluded: isEx } : a)
+                    }));
+                    setEditingAccount(prev => ({ ...prev, isExcluded: isEx }));
+                  }}
+                  className="w-5 h-5 accent-emerald-500 cursor-pointer"
+                />
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  deleteAccount(editingAccount.id);
+                  setEditingAccount(null);
+                }}
+                className="btn-secondary text-xs px-4 py-3 text-rose-400 hover:text-rose-300 cursor-pointer"
+              >
+                Remove Account
+              </button>
+              <button
+                type="submit"
+                className="btn-primary text-xs flex-1 py-3 cursor-pointer font-bold flex items-center justify-center gap-2"
+              >
+                <Check className="w-4 h-4 stroke-[3]" />
+                <span>Save Changes</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 };

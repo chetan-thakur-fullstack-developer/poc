@@ -296,36 +296,85 @@ function PaycheckCalc() {
               <span className="ps-receipt-badge">{freq} periods / yr</span>
             </div>
             <div className="ps-receipt-body">
-              <table className="ps-receipt-table"><tbody>
-                <tr className="ps-receipt-section"><td colSpan={3}>Earnings</td></tr>
-                <tr className="ps-receipt-row"><td>Gross</td><td>{fmt(calc.grossAnnual)}</td><td>{fmt(calc.grossPeriod)}</td></tr>
+              <div className="space-y-3 p-1">
+                {/* Accordion 1: Earnings */}
+                <details open className="group card-inner p-3 rounded-xl border border-[var(--border)]">
+                  <summary className="font-bold text-xs cursor-pointer flex justify-between items-center text-[var(--text-1)] select-none min-h-[44px]">
+                    <span>Earnings ({fmt(calc.grossPeriod)})</span>
+                    <span className="text-[10px] text-[var(--text-3)] group-open:rotate-180 transition-transform">▼</span>
+                  </summary>
+                  <div className="pt-2 border-t border-[var(--border)] mt-2">
+                    <table className="ps-receipt-table w-full"><tbody>
+                      <tr className="ps-receipt-row"><td>Gross</td><td>{fmt(calc.grossAnnual)}</td><td>{fmt(calc.grossPeriod)}</td></tr>
+                    </tbody></table>
+                  </div>
+                </details>
 
-                {preTax.length > 0 && (<>
-                  <tr className="ps-receipt-section"><td colSpan={3}>Pre-Tax Deductions</td></tr>
-                  {preTax.map((d) => {
-                    const per = d.method === 'percent' ? calc.grossPeriod * d.amount / 100 : d.type === 'per_paycheck' ? d.amount : d.amount / freq;
-                    return <tr key={d.id} className="ps-receipt-row is-neg"><td>{d.label}</td><td>{per * freq > 0 ? fmt(per * freq) : '—'}</td><td>− {fmt(per)}</td></tr>;
-                  })}
-                </>)}
+                {/* Accordion 2: Pre-Tax Deductions */}
+                {preTax.length > 0 && (
+                  <details open className="group card-inner p-3 rounded-xl border border-[var(--border)]">
+                    <summary className="font-bold text-xs cursor-pointer flex justify-between items-center text-[var(--text-1)] select-none min-h-[44px]">
+                      <span>Pre-Tax Deductions</span>
+                      <span className="text-[10px] text-[var(--text-3)] group-open:rotate-180 transition-transform">▼</span>
+                    </summary>
+                    <div className="pt-2 border-t border-[var(--border)] mt-2">
+                      <table className="ps-receipt-table w-full"><tbody>
+                        {preTax.map((d) => {
+                          const per = d.method === 'percent' ? calc.grossPeriod * d.amount / 100 : d.type === 'per_paycheck' ? d.amount : d.amount / freq;
+                          return <tr key={d.id} className="ps-receipt-row is-neg"><td>{d.label}</td><td>{per * freq > 0 ? fmt(per * freq) : '—'}</td><td>− {fmt(per)}</td></tr>;
+                        })}
+                      </tbody></table>
+                    </div>
+                  </details>
+                )}
 
-                <tr className="ps-receipt-section"><td colSpan={3}>Taxes</td></tr>
-                <tr className="ps-receipt-row is-neg"><td>Federal</td><td>{fmt(calc.fedPerPeriod * freq)}</td><td>− {fmt(calc.fedPerPeriod)}</td></tr>
-                <tr className="ps-receipt-row is-neg"><td>State</td><td>{fmt(calc.statePerPeriod * freq)}</td><td>− {fmt(calc.statePerPeriod)}</td></tr>
-                <tr className="ps-receipt-row is-neg"><td>Local</td><td>{fmt(calc.localPerPeriod * freq)}</td><td>− {fmt(calc.localPerPeriod)}</td></tr>
-                <tr className="ps-receipt-row is-neg"><td>Social Security</td><td>{fmt(calc.ssPerPeriod * freq)}</td><td>− {fmt(calc.ssPerPeriod)}</td></tr>
-                <tr className="ps-receipt-row is-neg"><td>Medicare</td><td>{fmt(calc.mediPerPeriod * freq)}</td><td>− {fmt(calc.mediPerPeriod)}</td></tr>
+                {/* Accordion 3: Taxes */}
+                <details open className="group card-inner p-3 rounded-xl border border-[var(--border)]">
+                  <summary className="font-bold text-xs cursor-pointer flex justify-between items-center text-[var(--text-1)] select-none min-h-[44px]">
+                    <span>Taxes ({fmt(calc.totalTax)}/period)</span>
+                    <span className="text-[10px] text-[var(--text-3)] group-open:rotate-180 transition-transform">▼</span>
+                  </summary>
+                  <div className="pt-2 border-t border-[var(--border)] mt-2">
+                    <table className="ps-receipt-table w-full"><tbody>
+                      <tr className="ps-receipt-row is-neg"><td>Federal</td><td>{fmt(calc.fedPerPeriod * freq)}</td><td>− {fmt(calc.fedPerPeriod)}</td></tr>
+                      <tr className="ps-receipt-row is-neg"><td>State</td><td>{fmt(calc.statePerPeriod * freq)}</td><td>− {fmt(calc.statePerPeriod)}</td></tr>
+                      <tr className="ps-receipt-row is-neg"><td>Local</td><td>{fmt(calc.localPerPeriod * freq)}</td><td>− {fmt(calc.localPerPeriod)}</td></tr>
+                      <tr className="ps-receipt-row is-neg"><td>Social Security</td><td>{fmt(calc.ssPerPeriod * freq)}</td><td>− {fmt(calc.ssPerPeriod)}</td></tr>
+                      <tr className="ps-receipt-row is-neg"><td>Medicare</td><td>{fmt(calc.mediPerPeriod * freq)}</td><td>− {fmt(calc.mediPerPeriod)}</td></tr>
+                    </tbody></table>
+                  </div>
+                </details>
 
-                {postTax.length > 0 && (<>
-                  <tr className="ps-receipt-section"><td colSpan={3}>Post-Tax Deductions</td></tr>
-                  {postTax.map((d) => {
-                    const per = d.method === 'percent' ? calc.grossPeriod * d.amount / 100 : d.type === 'per_paycheck' ? d.amount : d.amount / freq;
-                    return <tr key={d.id} className="ps-receipt-row is-neg"><td>{d.label}</td><td>—</td><td>− {fmt(per)}</td></tr>;
-                  })}
-                </>)}
+                {/* Accordion 4: Post-Tax Deductions */}
+                {postTax.length > 0 && (
+                  <details open className="group card-inner p-3 rounded-xl border border-[var(--border)]">
+                    <summary className="font-bold text-xs cursor-pointer flex justify-between items-center text-[var(--text-1)] select-none min-h-[44px]">
+                      <span>Post-Tax Deductions</span>
+                      <span className="text-[10px] text-[var(--text-3)] group-open:rotate-180 transition-transform">▼</span>
+                    </summary>
+                    <div className="pt-2 border-t border-[var(--border)] mt-2">
+                      <table className="ps-receipt-table w-full"><tbody>
+                        {postTax.map((d) => {
+                          const per = d.method === 'percent' ? calc.grossPeriod * d.amount / 100 : d.type === 'per_paycheck' ? d.amount : d.amount / freq;
+                          return <tr key={d.id} className="ps-receipt-row is-neg"><td>{d.label}</td><td>—</td><td>− {fmt(per)}</td></tr>;
+                        })}
+                      </tbody></table>
+                    </div>
+                  </details>
+                )}
 
-                <tr className="ps-receipt-subtotal"><td>Total Deductions</td><td></td><td>{fmt(calc.grossPeriod - calc.netPeriod)}</td></tr>
-                <tr className="ps-receipt-net"><td>Net</td><td></td><td>{fmt(calc.netPeriod)}</td></tr>
-              </tbody></table>
+                {/* Always visible totals */}
+                <div className="pt-3 border-t border-[var(--border)] space-y-1.5 text-xs px-2">
+                  <div className="flex justify-between font-bold text-[var(--text-2)]">
+                    <span>Total Deductions:</span>
+                    <span className="font-mono text-rose-400">{fmt(calc.grossPeriod - calc.netPeriod)}</span>
+                  </div>
+                  <div className="flex justify-between font-black text-sm text-[var(--text-1)] pt-2 border-t border-[var(--border)]">
+                    <span>Net Take-Home:</span>
+                    <span className="font-mono text-emerald-400 text-base">{fmt(calc.netPeriod)}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

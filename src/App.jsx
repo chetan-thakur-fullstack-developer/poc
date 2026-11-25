@@ -5,7 +5,7 @@ import { useAuth } from './context/AuthContext.jsx';
 import { LoginView } from './components/LoginView.jsx';
 import { Header } from './components/Header.jsx';
 import { Sidebar } from './components/Sidebar.jsx';
-import { MobileNav } from './components/MobileNav.jsx';
+import { BottomNav } from './components/BottomNav.jsx';
 import { Toast } from './components/Toast.jsx';
 
 import { DashboardTab } from './components/tabs/DashboardTab.jsx';
@@ -82,7 +82,7 @@ export const App = () => {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[var(--app-bg)] text-[var(--text-1)] select-none">
-      {/* Left Sidebar (Desktop) */}
+      {/* Left Sidebar (Desktop View Only) */}
       <Sidebar />
 
       {/* Main Content Area */}
@@ -91,12 +91,12 @@ export const App = () => {
         <Header />
 
         {/* Scrollable View Container */}
-        <main ref={mainScrollRef} className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-40 lg:pb-12">
+        <main ref={mainScrollRef} className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 pt-6 pb-36 lg:pb-12">
           <div className="max-w-7xl mx-auto space-y-12">
             {renderActiveTab()}
 
             {/* Financial Disclaimer Footer */}
-            <footer className="pt-6 border-t border-[var(--border)] text-center text-[10px] text-[var(--text-4)] leading-relaxed max-w-3xl mx-auto pb-4">
+            <footer className="pt-8 border-t border-[var(--border)] text-center text-[10px] text-[var(--text-4)] leading-relaxed max-w-3xl mx-auto pb-8">
               <p>
                 <strong className="text-[var(--text-3)]">Financial Disclaimer:</strong> LedgerJourney is a personal finance modeling, budgeting, and educational tool. We are not a registered investment advisor or broker-dealer. All projections, calculations, and simulations are for informational and educational purposes only and do not constitute formal financial, tax, or legal advice.
               </p>
@@ -105,8 +105,10 @@ export const App = () => {
         </main>
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <MobileNav />
+      {/* Mobile Bottom Navigation (Mobile View Only) */}
+      <div className="lg:hidden">
+        <BottomNav />
+      </div>
 
       {/* Modals & Dialogs */}
       <AuthModal />

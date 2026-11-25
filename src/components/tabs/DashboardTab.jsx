@@ -5,7 +5,7 @@ import { AnimatedNumber } from '../AnimatedNumber.jsx';
 import { AreaChart } from '../charts/AreaChart.jsx';
 import { DonutChart } from '../charts/DonutChart.jsx';
 import { GettingStartedChecklist } from '../GettingStartedChecklist.jsx';
-import { SlidersHorizontal, RotateCcw, Check, EyeOff, Eye, ArrowUp, ArrowDown, Calendar, Settings, ChevronDown } from 'lucide-react';
+import { SlidersHorizontal, RotateCcw, Check, EyeOff, Eye, ArrowUp, ArrowDown, Calendar, Settings, ChevronDown, Filter, X } from 'lucide-react';
 
 export const DashboardTab = () => {
   const {
@@ -30,6 +30,8 @@ export const DashboardTab = () => {
   // Global Time Frame Filter State
   const [timeFrame, setTimeFrame] = useState('ytd');
   const [showActionMenu, setShowActionMenu] = useState(false);
+  const [showMobileFilterModal, setShowMobileFilterModal] = useState(false);
+  const [showAllTxModal, setShowAllTxModal] = useState(false);
   const actionMenuRef = useRef(null);
 
   useEffect(() => {
@@ -90,23 +92,34 @@ export const DashboardTab = () => {
   };
 
   return (
-    <div className="space-y-6 pb-32">
-      {/* Top Banner / Welcome & Clean Action Toolbar */}
-      <div className="card p-6 sm:p-8 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-transparent border border-emerald-500/30 flex flex-col xl:flex-row xl:items-center justify-between gap-6 shadow-xl">
-        <div className="space-y-1.5 max-w-xl">
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-            HOUSEHOLD DASHBOARD
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-1)] tracking-tight">
-            Welcome back, {userName}
-          </h2>
-          <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed">
-            Your net worth is up <strong className="text-emerald-400 font-bold">14.8% ({timeFrame.toUpperCase()})</strong>. You are on track to hit your FIRE milestone by <strong className="text-purple-400 font-bold">2038</strong>.
-          </p>
+    <div className="space-y-6 pb-36 select-none">
+      {/* Mobile Compact Welcome Banner */}
+      <div className="card p-4 sm:p-8 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-transparent border border-emerald-500/30 flex flex-col xl:flex-row xl:items-center justify-between gap-4 shadow-xl">
+        <div className="flex items-center justify-between w-full xl:w-auto">
+          <div className="space-y-1">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              DASHBOARD
+            </span>
+            <h2 className="text-xl sm:text-3xl font-black text-[var(--text-1)] tracking-tight">
+              Welcome, {userName}
+            </h2>
+            <p className="text-xs text-[var(--text-2)] leading-relaxed">
+              Net worth up <strong className="text-emerald-400 font-bold">14.8% ({timeFrame.toUpperCase()})</strong>. FIRE milestone: <strong className="text-purple-400 font-bold">2038</strong>.
+            </p>
+          </div>
+
+          {/* Mobile Filter Icon Button */}
+          <button
+            onClick={() => setShowMobileFilterModal(true)}
+            className="lg:hidden min-w-[44px] min-h-[44px] p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-emerald-400 flex items-center justify-center shadow-sm cursor-pointer active:scale-95"
+            title="Filter & Options"
+          >
+            <Filter className="w-5 h-5" />
+          </button>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap shrink-0">
-          {/* Global Time Filter Dropdown */}
+        {/* Desktop Controls (Hidden on Mobile) */}
+        <div className="hidden lg:flex items-center gap-3 shrink-0">
           <div className="flex items-center gap-2 bg-[var(--surface-2)] px-3.5 py-2 rounded-xl border border-[var(--border)] shadow-sm">
             <Calendar className="w-4 h-4 text-emerald-400" />
             <select
@@ -121,7 +134,6 @@ export const DashboardTab = () => {
             </select>
           </div>
 
-          {/* Secondary Actions Dropdown Menu */}
           <div className="relative" ref={actionMenuRef}>
             <button
               onClick={() => setShowActionMenu(!showActionMenu)}
@@ -154,7 +166,6 @@ export const DashboardTab = () => {
             )}
           </div>
 
-          {/* Primary High-Contrast CTA */}
           <button
             onClick={() => openModal('quickAdd')}
             className="btn-primary text-xs px-5 py-2.5 cursor-pointer shadow-md"
@@ -165,6 +176,68 @@ export const DashboardTab = () => {
         </div>
       </div>
 
+      {/* Mobile Filter & Options Popover Modal */}
+      {showMobileFilterModal && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex flex-col justify-end animate-in fade-in duration-200">
+          <div className="bg-[var(--app-bg-2)] border-t border-[var(--border-strong)] rounded-t-3xl p-6 space-y-5 shadow-2xl animate-in slide-in-from-bottom duration-300">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <h3 className="font-black text-sm text-[var(--text-1)] flex items-center gap-2">
+                <Filter className="w-4 h-4 text-emerald-400" />
+                <span>Filter &amp; Dashboard Options</span>
+              </h3>
+              <button
+                onClick={() => setShowMobileFilterModal(false)}
+                className="p-2 rounded-full bg-[var(--surface-2)] text-[var(--text-2)] cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-wider text-[var(--text-3)] block mb-1.5">
+                  Timeframe Filter
+                </label>
+                <select
+                  value={timeFrame}
+                  onChange={(e) => setTimeFrame(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs font-bold text-[var(--text-1)] outline-none cursor-pointer"
+                >
+                  <option value="month">This Month</option>
+                  <option value="30days">Last 30 Days</option>
+                  <option value="ytd">Year to Date (YTD)</option>
+                  <option value="all">All Time</option>
+                </select>
+              </div>
+
+              <div className="space-y-2 pt-2 border-t border-[var(--border)]">
+                <button
+                  onClick={() => { setIsCustomizing(!isCustomizing); setShowMobileFilterModal(false); }}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs font-bold text-[var(--text-1)] cursor-pointer min-h-[44px]"
+                >
+                  <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
+                  <span>{isCustomizing ? 'Done Customizing Layout' : 'Customize Dashboard Layout'}</span>
+                </button>
+                <button
+                  onClick={() => { syncToCloud(); setShowMobileFilterModal(false); }}
+                  disabled={isSyncing}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs font-bold text-[var(--text-1)] cursor-pointer min-h-[44px]"
+                >
+                  <span className="text-base">🔄</span>
+                  <span>{isSyncing ? 'Syncing...' : 'Synchronize to Cloud'}</span>
+                </button>
+                <button
+                  onClick={() => { openModal('quickAdd'); setShowMobileFilterModal(false); }}
+                  className="w-full flex items-center justify-center gap-2 p-3.5 rounded-xl text-xs font-bold bg-blue-600 text-white cursor-pointer min-h-[44px]"
+                >
+                  <span>+ Quick Entry Wizard</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Customize Panel Drawer */}
       {isCustomizing && (
         <div className="card p-5 space-y-3 bg-[var(--app-bg-2)] border border-emerald-500/30 animate-in fade-in duration-200">
@@ -173,7 +246,7 @@ export const DashboardTab = () => {
               <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
               <span>Dashboard Layout Manager</span>
             </h3>
-            <span className="text-[10px] text-[var(--text-3)] font-mono">Reorder or toggle visibility of widgets</span>
+            <span className="text-[10px] text-[var(--text-3)] font-mono">Reorder or toggle widgets</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-2">
             {widgetOrder.map((key, idx) => {
@@ -187,13 +260,13 @@ export const DashboardTab = () => {
                     </span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => moveWidget(idx, -1)} disabled={idx === 0} className="p-1 rounded hover:bg-[var(--surface-2)] text-[var(--text-3)] disabled:opacity-30 cursor-pointer">
+                    <button onClick={() => moveWidget(idx, -1)} disabled={idx === 0} className="p-1 rounded hover:bg-[var(--surface-2)] text-[var(--text-3)] disabled:opacity-30 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center">
                       <ArrowUp className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => moveWidget(idx, 1)} disabled={idx === widgetOrder.length - 1} className="p-1 rounded hover:bg-[var(--surface-2)] text-[var(--text-3)] disabled:opacity-30 cursor-pointer">
+                    <button onClick={() => moveWidget(idx, 1)} disabled={idx === widgetOrder.length - 1} className="p-1 rounded hover:bg-[var(--surface-2)] text-[var(--text-3)] disabled:opacity-30 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center">
                       <ArrowDown className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => toggleHideWidget(key)} className={`p-1 rounded hover:bg-[var(--surface-2)] cursor-pointer ${isHidden ? 'text-emerald-400' : 'text-[var(--text-3)]'}`} title={isHidden ? 'Show widget' : 'Hide widget'}>
+                    <button onClick={() => toggleHideWidget(key)} className={`p-1 rounded hover:bg-[var(--surface-2)] cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center ${isHidden ? 'text-emerald-400' : 'text-[var(--text-3)]'}`}>
                       {isHidden ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                     </button>
                   </div>
@@ -204,7 +277,7 @@ export const DashboardTab = () => {
         </div>
       )}
 
-      {/* Render Widgets Dynamically according to widgetOrder */}
+      {/* Render Widgets Dynamically */}
       {widgetOrder.map(key => {
         if (hiddenWidgets.includes(key)) return null;
 
@@ -214,76 +287,75 @@ export const DashboardTab = () => {
 
         if (key === 'kpis') {
           return (
-            <div key="kpis" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div key="kpis" className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {/* Total Net Worth */}
-              <div className="card p-5">
-                <div className="flex items-center justify-between text-xs text-[var(--text-2)] mb-1">
-                  <span className="font-semibold uppercase tracking-wider text-[var(--text-2)]">Total Net Worth</span>
-                  <span className="text-emerald-400 font-bold text-sm">▲ 14.8% ({timeFrame.toUpperCase()})</span>
-                </div>
-                <div className="text-2xl sm:text-3xl font-black text-[var(--text-1)] font-mono">
-                  <AnimatedNumber value={netWorth} />
-                </div>
-                <p className="text-xs text-[var(--text-2)] mt-2">
-                  Aggregated across {accounts.length} linked accounts & assets
-                </p>
-              </div>
-
-              {/* Invested Retirement */}
-              <div className="card p-5">
-                <div className="flex items-center justify-between text-xs text-[var(--text-2)] mb-1">
-                  <span className="font-semibold uppercase tracking-wider text-[var(--text-2)]">Invested Portfolio</span>
-                  <span className="text-purple-400 font-bold">401k · IRA · HSA</span>
-                </div>
-                <div className="text-2xl sm:text-3xl font-black text-[var(--text-1)] font-mono">
-                  <AnimatedNumber value={
-                    latestYear?.balances
-                      ? Object.values(latestYear.balances).reduce((a, b) => a + Number(b), 0)
-                      : 0
-                  } />
-                </div>
-                <p className="text-xs text-[var(--text-2)] mt-2">
-                  Target retirement horizon: 2038
-                </p>
-              </div>
-
-              {/* Monthly Budget Pace */}
-              <div className="card p-5">
-                <div className="flex items-center justify-between text-xs text-[var(--text-2)] mb-1">
-                  <span className="font-semibold uppercase tracking-wider text-[var(--text-2)]">Monthly Spend</span>
-                  <span className={`font-bold ${budgetPacePct >= 90 ? 'text-rose-400' : budgetPacePct >= 75 ? 'text-amber-400' : 'text-emerald-400'}`}>
-                    {budgetPacePct}% of budget
+              <div className="card p-4 sm:p-5 flex flex-col justify-between">
+                <div>
+                  <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[var(--text-2)] block truncate">
+                    Total Net Worth
                   </span>
+                  <div className="text-xl sm:text-3xl font-black text-[var(--text-1)] font-mono mt-1">
+                    <AnimatedNumber value={netWorth} />
+                  </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-black text-[var(--text-1)] font-mono">
-                  <AnimatedNumber value={currentMonthSpent} />
+                <div className="mt-2 pt-2 border-t border-[var(--border)] flex items-center justify-between text-[10px] sm:text-xs">
+                  <span className="text-emerald-400 font-bold">▲ 14.8%</span>
+                  <span className="text-[var(--text-3)]">{accounts.length} accounts</span>
                 </div>
-                <div className="w-full bg-[var(--surface-3)] h-3 rounded-full mt-3 overflow-hidden shadow-inner">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      budgetPacePct >= 90 ? 'bg-rose-500' : budgetPacePct >= 75 ? 'bg-amber-500' : 'bg-emerald-500'
-                    }`}
-                    style={{ width: `${Math.min(100, budgetPacePct)}%` }}
-                  />
-                </div>
-                <p className="text-xs text-[var(--text-2)] mt-2.5 font-medium">
-                  {budgetPacePct}% of {formatMoney(monthlyBudget)} budget used ({formatMoney(remainingBudget)} left).
-                </p>
               </div>
 
-              {/* Credit & Liabilities */}
-              <div className="card p-5">
-                <div className="flex items-center justify-between text-xs text-[var(--text-2)] mb-1">
-                  <span className="font-semibold uppercase tracking-wider text-[var(--text-2)]">Total Liabilities</span>
-                  <span className="text-emerald-400 font-bold text-sm">▼ 2.4% ({timeFrame.toUpperCase()})</span>
+              {/* Invested Portfolio */}
+              <div className="card p-4 sm:p-5 flex flex-col justify-between">
+                <div>
+                  <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[var(--text-2)] block truncate">
+                    Invested Portfolio
+                  </span>
+                  <div className="text-xl sm:text-3xl font-black text-[var(--text-1)] font-mono mt-1">
+                    <AnimatedNumber value={
+                      latestYear?.balances
+                        ? Object.values(latestYear.balances).reduce((a, b) => a + Number(b), 0)
+                        : 0
+                    } />
+                  </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-black text-[var(--text-1)] font-mono">
-                  <AnimatedNumber value={totalDebts} />
+                <div className="mt-2 pt-2 border-t border-[var(--border)] flex items-center justify-between text-[10px] sm:text-xs">
+                  <span className="text-purple-400 font-bold">Retirement</span>
+                  <span className="text-[var(--text-3)]">FIRE 2038</span>
                 </div>
-                <p className="text-xs text-[var(--text-2)] mt-2.5 font-medium flex items-center justify-between">
-                  <span>Credit Score: <strong className="text-emerald-400">782</strong></span>
+              </div>
+
+              {/* Monthly Budget Spend */}
+              <div className="card p-4 sm:p-5 flex flex-col justify-between">
+                <div>
+                  <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[var(--text-2)] block truncate">
+                    Monthly Spend
+                  </span>
+                  <div className="text-xl sm:text-3xl font-black text-[var(--text-1)] font-mono mt-1">
+                    <AnimatedNumber value={currentMonthSpent} />
+                  </div>
+                </div>
+                <div className="mt-2 pt-2 border-t border-[var(--border)] flex items-center justify-between text-[10px] sm:text-xs">
+                  <span className={`font-bold ${budgetPacePct >= 90 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                    {budgetPacePct}% budget
+                  </span>
+                  <span className="text-[var(--text-3)]">{formatMoney(remainingBudget)} left</span>
+                </div>
+              </div>
+
+              {/* Total Liabilities */}
+              <div className="card p-4 sm:p-5 flex flex-col justify-between">
+                <div>
+                  <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[var(--text-2)] block truncate">
+                    Liabilities
+                  </span>
+                  <div className="text-xl sm:text-3xl font-black text-[var(--text-1)] font-mono mt-1">
+                    <AnimatedNumber value={totalDebts} />
+                  </div>
+                </div>
+                <div className="mt-2 pt-2 border-t border-[var(--border)] flex items-center justify-between text-[10px] sm:text-xs">
+                  <span className="text-emerald-400 font-bold">FICO 782</span>
                   <span className="text-[var(--text-3)]">Excellent</span>
-                </p>
+                </div>
               </div>
             </div>
           );
@@ -291,7 +363,8 @@ export const DashboardTab = () => {
 
         if (key === 'charts') {
           return (
-            <div key="charts" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div key="charts" className="flex flex-col lg:grid lg:grid-cols-3 gap-6">
+              {/* Stack Net Worth Growth and Asset Allocation vertically on mobile */}
               <div className="lg:col-span-2">
                 <AreaChart
                   title="Multi-Year Net Worth Growth Trajectory"
@@ -318,18 +391,19 @@ export const DashboardTab = () => {
         }
 
         if (key === 'recent') {
+          const topTxs = (transactions || []).slice(0, 3);
           return (
             <div key="recent" className="card p-6 space-y-4">
               <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
                 <h3 className="font-bold text-sm text-[var(--text-1)] flex items-center gap-2">
-                  <span>Recent Activity &amp; Live Insights</span>
-                  <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-400">Live Feed</span>
+                  <span>Recent Activity</span>
+                  <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-400">Top 3</span>
                 </h3>
                 <button
-                  onClick={() => setCurrentTab('tab-transactions')}
-                  className="text-xs font-bold text-emerald-400 hover:underline cursor-pointer"
+                  onClick={() => setShowAllTxModal(true)}
+                  className="text-xs font-bold text-emerald-400 hover:underline cursor-pointer min-h-[44px] flex items-center"
                 >
-                  View All Ledger →
+                  View All ({transactions.length}) →
                 </button>
               </div>
 
@@ -342,7 +416,7 @@ export const DashboardTab = () => {
                     </p>
                   </div>
                 ) : (
-                  (transactions || []).slice(0, 4).map((tx, idx) => {
+                  topTxs.map((tx, idx) => {
                     const isPositive = Number(tx.amount) > 0 && (tx.description?.toLowerCase().includes('refund') || tx.description?.toLowerCase().includes('deposit'));
                     return (
                       <div key={tx.id || idx} className="p-3.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-between text-xs hover:border-[var(--border-hover)] transition-all">
@@ -369,6 +443,62 @@ export const DashboardTab = () => {
 
         return null;
       })}
+
+      {/* Full-Screen Transactions List Modal (View All) */}
+      {showAllTxModal && (
+        <div className="fixed inset-0 z-50 bg-[var(--app-bg)] overflow-y-auto p-4 sm:p-6 space-y-6 animate-in fade-in duration-200 select-none">
+          <div className="max-w-4xl mx-auto space-y-6 pb-24">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-4">
+              <div>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  FULL LEDGER
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-[var(--text-1)] tracking-tight mt-1">
+                  All Transactions ({transactions.length})
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowAllTxModal(false)}
+                className="min-w-[44px] min-h-[44px] p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] hover:bg-[var(--surface-3)] cursor-pointer flex items-center justify-center shadow-sm"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2.5">
+              {(transactions || []).map((tx, idx) => {
+                const isPositive = Number(tx.amount) > 0 && (tx.description?.toLowerCase().includes('refund') || tx.description?.toLowerCase().includes('deposit'));
+                return (
+                  <div key={tx.id || idx} className="p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
+                        {tx.description?.[0] || 'M'}
+                      </div>
+                      <div>
+                        <p className="font-bold text-[var(--text-1)] text-sm">{tx.description}</p>
+                        <p className="text-[11px] text-[var(--text-3)]">{tx.date} • {tx.source || 'Manual Entry'}</p>
+                      </div>
+                    </div>
+                    <div className={`font-mono font-black text-sm ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {isPositive ? `+${formatMoney(Math.abs(tx.amount), 2)}` : formatMoney(tx.amount, 2)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="text-center pt-4">
+              <button
+                onClick={() => setShowAllTxModal(false)}
+                className="btn-primary px-6 py-3 text-xs font-bold cursor-pointer"
+              >
+                Close &amp; Return to Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
