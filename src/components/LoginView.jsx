@@ -8,26 +8,26 @@ export const LoginView = () => {
   const { showToast } = useApp();
 
   const [mode, setMode] = useState(() => {
-    return window.location.pathname.includes('signup') ? 'signup' : 'signin';
+    return window.location.hash.includes('signup') ? 'signup' : 'signin';
   }); // 'signin' | 'signup'
 
   useEffect(() => {
-    const targetPath = mode === 'signup' ? '/signup' : '/login';
-    try {
-      window.history.pushState({ mode }, '', targetPath);
-    } catch (e) {}
+    const targetHash = mode === 'signup' ? '#/signup' : '#/login';
+    if (window.location.hash !== targetHash) {
+      window.location.hash = targetHash;
+    }
   }, [mode]);
 
   useEffect(() => {
-    const handlePopState = () => {
-      if (window.location.pathname.includes('signup')) {
+    const handleHashChange = () => {
+      if (window.location.hash.includes('signup')) {
         setMode('signup');
-      } else if (window.location.pathname.includes('login') || window.location.pathname === '/') {
+      } else if (window.location.hash.includes('login') || window.location.hash === '#/') {
         setMode('signin');
       }
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

@@ -36,20 +36,24 @@ export const AreaChart = ({ data = [], height = 260, color = '#0066FF', title = 
         fill: true,
         data: values,
         borderColor: color,
-        borderWidth: 2.5,
+        borderWidth: 3,
+        borderDash: (context) => {
+          // Dash future projection years (e.g., >= 2026)
+          return context.p0 && labels[context.p0DataIndex]?.includes('2026') ? [6, 6] : undefined;
+        },
         backgroundColor: (context) => {
           const ctx = context.chart.ctx;
           const gradient = ctx.createLinearGradient(0, 0, 0, height);
-          gradient.addColorStop(0, color + '55');
+          gradient.addColorStop(0, color + '66');
           gradient.addColorStop(1, color + '00');
           return gradient;
         },
         tension: 0.35,
         pointBackgroundColor: color,
         pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        pointRadius: 4,
-        pointHoverRadius: 6
+        pointBorderWidth: 2.5,
+        pointRadius: 5,
+        pointHoverRadius: 7
       }
     ]
   };
@@ -60,28 +64,29 @@ export const AreaChart = ({ data = [], height = 260, color = '#0066FF', title = 
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: 'rgba(11, 17, 32, 0.9)',
-        titleColor: '#ffffff',
-        bodyColor: '#10B981',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+        titleColor: '#F8FAFC',
+        bodyColor: '#34D399',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
         borderWidth: 1,
-        padding: 12,
+        padding: 14,
         displayColors: false,
         callbacks: {
-          label: (context) => ` $${Number(context.raw).toLocaleString()}`
+          title: (context) => `Date / Period: ${context[0].label}`,
+          label: (context) => ` Net Worth: $${Number(context.raw).toLocaleString()}`
         }
       }
     },
     scales: {
       x: {
         grid: { display: false },
-        ticks: { color: '#94A3B8', font: { size: 10, family: 'Inter' } }
+        ticks: { color: '#E2E8F0', font: { size: 11, weight: 'bold', family: 'Inter' } }
       },
       y: {
-        grid: { color: 'rgba(148, 163, 184, 0.1)' },
+        grid: { color: 'rgba(148, 163, 184, 0.15)' },
         ticks: {
-          color: '#94A3B8',
-          font: { size: 10, family: 'Inter' },
+          color: '#E2E8F0',
+          font: { size: 11, weight: 'bold', family: 'Inter' },
           callback: (val) => `$${Number(val).toLocaleString()}`
         }
       }
@@ -93,8 +98,8 @@ export const AreaChart = ({ data = [], height = 260, color = '#0066FF', title = 
       {title && (
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-sm text-[var(--text-1)]">{title}</h3>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-3)] border border-[var(--border)]">
-            Chart.js Engine
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] font-bold">
+            Actual &amp; Projected History
           </span>
         </div>
       )}

@@ -24,12 +24,12 @@ export const SettingsTab = () => {
 
   const { user, isDemoUser, signOut } = useAuth();
 
-  // Active Settings Sub-Tab with URL path sync
+  // Active Settings Sub-Tab with URL hash sync
   const [activeSection, setActiveSection] = useState(() => {
-    const pathname = window.location.pathname;
-    const parts = pathname.split('/');
-    if (parts[1] === 'settings' && parts[2]) {
-      return parts[2];
+    const rawHash = window.location.hash.replace('#/', '').replace('#', '');
+    const parts = rawHash.split('/');
+    if (parts[0] === 'settings' && parts[1]) {
+      return parts[1];
     }
     return localStorage.getItem('ew_active_settings_section') || 'profile';
   });
@@ -38,20 +38,20 @@ export const SettingsTab = () => {
     setActiveSection(id);
     try {
       localStorage.setItem('ew_active_settings_section', id);
-      window.history.pushState({ section: id }, '', `/settings/${id}`);
+      window.location.hash = `#/settings/${id}`;
     } catch (e) {}
   };
 
   useEffect(() => {
-    const handlePop = () => {
-      const pathname = window.location.pathname;
-      const parts = pathname.split('/');
-      if (parts[1] === 'settings' && parts[2]) {
-        setActiveSection(parts[2]);
+    const handleHashChange = () => {
+      const rawHash = window.location.hash.replace('#/', '').replace('#', '');
+      const parts = rawHash.split('/');
+      if (parts[0] === 'settings' && parts[1]) {
+        setActiveSection(parts[1]);
       }
     };
-    window.addEventListener('popstate', handlePop);
-    return () => window.removeEventListener('popstate', handlePop);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   // Sub-navigation sections

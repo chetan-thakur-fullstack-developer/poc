@@ -112,7 +112,9 @@ body {
   padding: 0;
   background-color: var(--app-bg);
   color: var(--text-1);
-  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.875rem; /* 14px standard body */
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
@@ -120,7 +122,9 @@ body {
   transition: background-color 0.35s cubic-bezier(0.25, 1, 0.5, 1), color 0.35s ease;
 }
 
-/* Tabular numbers for all monetary amounts and numeric displays */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.025em;
+}
 .tabular-nums, .font-mono, [class*="text-"] {
   font-variant-numeric: tabular-nums;
 }
@@ -235,6 +239,7 @@ input[type="search"],
 input[type="date"],
 input[type="tel"],
 input[type="url"],
+input[type="color"],
 select,
 textarea,
 .input,
@@ -249,6 +254,19 @@ textarea,
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input[type="color"] {
+  padding: 4px;
+  cursor: pointer;
+  height: 42px;
+}
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+input[type="color"]::-webkit-color-swatch {
+  border: 1px solid var(--border);
+  border-radius: 6px;
 }
 
 input:hover, select:hover, textarea:hover, .input:hover, .input-field:hover {

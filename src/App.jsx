@@ -27,6 +27,8 @@ import { QuickAddModal } from './components/modals/QuickAddModal.jsx';
 import { CommandMenu } from './components/modals/CommandMenu.jsx';
 import { TourModal } from './components/TourModal.jsx';
 import { ConfirmModal } from './components/modals/ConfirmModal.jsx';
+import { CreateGoalModal } from './components/modals/CreateGoalModal.jsx';
+import { GoalDetailModal } from './components/modals/GoalDetailModal.jsx';
 
 export const App = () => {
   const { currentTab, modals, closeModal } = useApp();
@@ -114,9 +116,11 @@ export const App = () => {
       <CommandMenu />
       <TourModal isOpen={modals.tour} onClose={() => closeModal('tour')} />
 
-      {/* Toast Notification Container & Custom Confirm Modal */}
+      {/* Toast Notification Container & Custom Modals */}
       <Toast />
       <ConfirmModal />
+      <CreateGoalModal />
+      <GoalDetailModal />
     </div>
   );
 };

@@ -109,15 +109,6 @@ export const Header = () => {
           </div>
         )}
 
-        {/* Demo Mode Badge */}
-        {isDemoUser && (
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Demo Mode</span>
-            <button onClick={signOut} className="text-[10px] underline ml-1 hover:text-white cursor-pointer font-bold">Exit</button>
-          </div>
-        )}
-
         {/* Theme Switcher Button */}
         <button
           onClick={toggleTheme}

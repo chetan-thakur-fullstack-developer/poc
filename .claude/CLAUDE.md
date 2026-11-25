@@ -8,6 +8,7 @@
   - `src/adapters/` — Database repositories, external API clients, and third-party integrations
   - `src/api/` — Route handlers, input validation, and transport-layer serialization
 - Do not update my build and deploy functionality as it should be same as it is wworking as expected 
+- Also apply best ui design in term of user interactive and user engamenet persecpective
 
 ## Commands
 - **Dev server:** `pnpm dev`

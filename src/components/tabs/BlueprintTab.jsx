@@ -1189,10 +1189,10 @@ const PANES = {
 
 export function BlueprintTab() {
   const [active, setActive] = useState(() => {
-    const pathname = window.location.pathname;
-    const parts = pathname.split('/');
-    if (parts[1] === 'blueprint' && parts[2] && PANES[parts[2]]) {
-      return parts[2];
+    const rawHash = window.location.hash.replace('#/', '').replace('#', '');
+    const parts = rawHash.split('/');
+    if (parts[0] === 'blueprint' && parts[1] && PANES[parts[1]]) {
+      return parts[1];
     }
     return localStorage.getItem('ew_active_blueprint_subtab') || 'paycheck';
   });
@@ -1205,20 +1205,20 @@ export function BlueprintTab() {
     setActive(key);
     try {
       localStorage.setItem('ew_active_blueprint_subtab', key);
-      window.history.pushState({ subtab: key }, '', `/blueprint/${key}`);
+      window.location.hash = `#/blueprint/${key}`;
     } catch (e) {}
   };
 
   useEffect(() => {
-    const handlePop = () => {
-      const pathname = window.location.pathname;
-      const parts = pathname.split('/');
-      if (parts[1] === 'blueprint' && parts[2] && PANES[parts[2]]) {
-        setActive(parts[2]);
+    const handleHashChange = () => {
+      const rawHash = window.location.hash.replace('#/', '').replace('#', '');
+      const parts = rawHash.split('/');
+      if (parts[0] === 'blueprint' && parts[1] && PANES[parts[1]]) {
+        setActive(parts[1]);
       }
     };
-    window.addEventListener('popstate', handlePop);
-    return () => window.removeEventListener('popstate', handlePop);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const checkScroll = () => {

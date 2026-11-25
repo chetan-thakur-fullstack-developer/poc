@@ -185,9 +185,11 @@ export const AuthProvider = ({ children }) => {
     setSession(null);
     localStorage.removeItem('ew_auth_session');
     localStorage.removeItem('ew_auth_user');
-    try {
-      window.history.pushState({}, '', '/login');
-    } catch (e) {}
+    const origin = window.location.origin;
+    const pathname = window.location.pathname;
+    const lastSlash = pathname.lastIndexOf('/');
+    const dir = lastSlash !== -1 ? pathname.substring(0, lastSlash + 1) : '/';
+    window.location.href = origin + dir + '#/login';
   };
 
   return (

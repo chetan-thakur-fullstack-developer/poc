@@ -38,83 +38,102 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('ew_theme', theme);
   }, [theme]);
 
-  const TAB_TO_PATH = {
-    'tab-dashboard': '/dashboard',
-    'tab-accounts': '/accounts',
-    'tab-overview': '/portfolio',
-    'tab-transactions': '/transactions',
-    'tab-expenses': '/expenses',
-    'tab-goals': '/goals',
-    'tab-tax': '/tax',
-    'tab-credit': '/credit',
-    'tab-blueprint': '/blueprint',
-    'tab-pricing': '/pricing',
-    'tab-settings': '/settings'
+  const HASH_TO_TAB = {
+    'dashboard': 'tab-dashboard',
+    'accounts': 'tab-accounts',
+    'portfolio': 'tab-overview',
+    'transactions': 'tab-transactions',
+    'expenses': 'tab-expenses',
+    'goals': 'tab-goals',
+    'tax': 'tab-tax',
+    'credit': 'tab-credit',
+    'blueprint': 'tab-blueprint',
+    'pricing': 'tab-pricing',
+    'settings': 'tab-settings',
+    'login': 'tab-dashboard',
+    'signup': 'tab-dashboard'
   };
 
-  const PATH_TO_TAB = Object.entries(TAB_TO_PATH).reduce((acc, [tab, path]) => {
-    acc[path] = tab;
-    return acc;
-  }, {});
-  TAB_TO_PATH['/'] = '/dashboard';
-  PATH_TO_TAB['/'] = 'tab-dashboard';
-
-  const getCleanPathname = () => {
-    let p = window.location.pathname;
-    if (p.includes('/poc')) {
-      p = p.replace('/poc', '') || '/';
-    }
-    return p.replace(/\/$/, '') || '/';
+  const TAB_TO_HASH = {
+    'tab-dashboard': '#/dashboard',
+    'tab-accounts': '#/accounts',
+    'tab-overview': '#/portfolio',
+    'tab-transactions': '#/transactions',
+    'tab-expenses': '#/expenses',
+    'tab-goals': '#/goals',
+    'tab-tax': '#/tax',
+    'tab-credit': '#/credit',
+    'tab-blueprint': '#/blueprint/paycheck',
+    'tab-pricing': '#/pricing',
+    'tab-settings': '#/settings/profile'
   };
 
-  // 2. Active Tab (HTML5 Path-based routing with route guards & base path support)
+  // 2. Active Tab (Hash-based routing with route guards - 100% GitHub Pages 404 proof)
   const [currentTab, setCurrentTab] = useState(() => {
-    const cleanPath = getCleanPathname();
-    const segment = cleanPath.startsWith('/blueprint') ? '/blueprint' : cleanPath.startsWith('/settings') ? '/settings' : cleanPath;
-    return PATH_TO_TAB[segment] || 'tab-dashboard';
+    const rawHash = window.location.hash.replace('#/', '').replace('#', '');
+    const mainSegment = rawHash.split('/')[0] || 'dashboard';
+    return HASH_TO_TAB[mainSegment] || 'tab-dashboard';
   });
 
-  // Route Guarding & Login Redirection
+  const navigateToHash = (hashRoute) => {
+    const origin = window.location.origin;
+    const pathname = window.location.pathname;
+    const lastSlash = pathname.lastIndexOf('/');
+    const dir = lastSlash !== -1 ? pathname.substring(0, lastSlash + 1) : '/';
+    const target = origin + dir + hashRoute;
+    if (window.location.href !== target) {
+      window.location.href = target;
+    }
+  };
+
+  // Strict Route Guarding & Login Redirection
   useEffect(() => {
-    const cleanPath = getCleanPathname();
-    const base = window.location.pathname.includes('/poc') ? '/poc' : '';
+    const rawHash = window.location.hash.replace('#/', '').replace('#', '');
+    const isAuthRoute = rawHash === 'login' || rawHash === 'signup';
 
     if (!user) {
-      if (cleanPath !== '/login' && cleanPath !== '/signup') {
-        try {
-          window.history.pushState({}, '', base + '/login');
-        } catch (e) {}
+      if (!isAuthRoute) {
+        navigateToHash('#/login');
       }
     } else {
-      if (cleanPath === '/' || cleanPath === '/login' || cleanPath === '/signup') {
+      if (!rawHash || isAuthRoute) {
         setCurrentTab('tab-dashboard');
-        try {
-          window.history.pushState({ tab: 'tab-dashboard' }, '', base + '/dashboard');
-        } catch (e) {}
+        navigateToHash('#/dashboard');
       }
     }
   }, [user]);
 
   useEffect(() => {
     if (!user) return;
-    const path = TAB_TO_PATH[currentTab] || '/dashboard';
-    const base = window.location.pathname.includes('/poc') ? '/poc' : '';
-    try {
-      window.history.pushState({ tab: currentTab }, '', base + path);
-    } catch (e) {}
+    const targetHash = TAB_TO_HASH[currentTab] || '#/dashboard';
+    const currentKey = currentTab.replace('tab-', '').replace('overview', 'portfolio');
+    if (!window.location.hash.includes(currentKey)) {
+      navigateToHash(targetHash);
+    }
     localStorage.setItem('ew_current_tab', currentTab);
   }, [currentTab, user]);
 
   useEffect(() => {
-    const handlePopState = () => {
-      const cleanPath = getCleanPathname();
-      const segment = cleanPath.startsWith('/blueprint') ? '/blueprint' : cleanPath.startsWith('/settings') ? '/settings' : cleanPath;
-      const matched = PATH_TO_TAB[segment] || 'tab-dashboard';
-      setCurrentTab(matched);
+    const handleHashChange = () => {
+      const rawHash = window.location.hash.replace('#/', '').replace('#', '');
+      const isAuthRoute = rawHash === 'login' || rawHash === 'signup';
+      if (!user && !isAuthRoute) {
+        navigateToHash('#/login');
+        return;
+      }
+      if (user && isAuthRoute) {
+        navigateToHash('#/dashboard');
+        return;
+      }
+      const mainSegment = rawHash.split('/')[0] || 'dashboard';
+      const matched = HASH_TO_TAB[mainSegment] || 'tab-dashboard';
+      if (user) {
+        setCurrentTab(matched);
+      }
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [user]);
 
   // 3. Currency & Privacy
   const [currentCurrency, setCurrentCurrency] = useState(() => {
@@ -358,6 +377,360 @@ export const AppProvider = ({ children }) => {
 
   const openModal = (name) => setModals(prev => ({ ...prev, [name]: true }));
   const closeModal = (name) => setModals(prev => ({ ...prev, [name]: false }));
+
+  // Goals & Milestones State (Global root level state to prevent sidebar/header clipping)
+  const [goals, setGoals] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ew_goals');
+      return saved ? JSON.parse(saved) : [
+        {
+          id: 'g_1',
+          title: 'Emergency Reserve (6 Months)',
+          category: 'Safety',
+          type: 'save',
+          target: 50000,
+          current: 45000,
+          monthly: 1200,
+          date: '2026-12-31',
+          color: '#10B981',
+          linkedAccountId: 'acc_1',
+          linkedAccountName: 'Ally High-Yield Savings',
+          allocatedPct: 60,
+          transactions: [
+            { id: 'tx_1', date: '2026-11-01', description: 'Monthly Auto-Deposit', amount: 1200, type: 'deposit', source: 'Ally Savings' },
+            { id: 'tx_2', date: '2026-10-01', description: 'Monthly Auto-Deposit', amount: 1200, type: 'deposit', source: 'Ally Savings' }
+          ]
+        },
+        {
+          id: 'g_2',
+          title: 'Real Estate / Vacation Home',
+          category: 'Property',
+          type: 'save',
+          target: 120000,
+          current: 78000,
+          monthly: 2500,
+          date: '2027-06-30',
+          color: '#3B82F6',
+          linkedAccountId: 'acc_2',
+          linkedAccountName: 'Marcus Invest Marcus',
+          allocatedPct: 40,
+          transactions: [
+            { id: 'tx_3', date: '2026-11-05', description: 'Bonus Deposit', amount: 2500, type: 'deposit', source: 'Manual Entry' }
+          ]
+        },
+        {
+          id: 'g_3',
+          title: 'Chase Sapphire Reserve Paydown',
+          category: 'Debt',
+          type: 'paydown',
+          target: 8500,
+          current: 2384,
+          monthly: 800,
+          date: '2026-08-30',
+          color: '#EF4444',
+          apr: 24.99,
+          minPayment: 250,
+          linkedAccountId: '',
+          linkedAccountName: 'None',
+          allocatedPct: 0,
+          transactions: [
+            { id: 'tx_4', date: '2026-11-10', description: 'Credit Card Payment', amount: 800, type: 'payment', source: 'Checking' }
+          ]
+        }
+      ];
+    } catch (_) {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('ew_goals', JSON.stringify(goals));
+    } catch (_) {}
+  }, [goals]);
+
+  const [detailGoal, setDetailGoal] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingGoal, setEditingGoal] = useState(null);
+  const [isDetailEditing, setIsDetailEditing] = useState(false);
+
+  const [formTitle, setFormTitle] = useState('');
+  const [formCategory, setFormCategory] = useState('Property');
+  const [formType, setFormType] = useState('save');
+  const [formTarget, setFormTarget] = useState('');
+  const [formDate, setFormDate] = useState('2027-12-31');
+  const [formAccountId, setFormAccountId] = useState('');
+  const [formAllocPct, setFormAllocPct] = useState(0);
+  const [formMonthly, setFormMonthly] = useState('');
+  const [formColor, setFormColor] = useState('#10B981');
+  const [formApr, setFormApr] = useState('18.99');
+  const [formMinPayment, setFormMinPayment] = useState('150');
+
+  const [showAddTxModal, setShowAddTxModal] = useState(false);
+  const [txDesc, setTxDesc] = useState('');
+  const [txAmount, setTxAmount] = useState('');
+  const [txType, setTxType] = useState('deposit');
+
+  const getAccountCapacity = (accountId, currentGoalId = null) => {
+    const linkedAccounts = accountsData?.linked || [];
+    const acc = linkedAccounts.find(a => a.id === accountId);
+    if (!acc) return { total: 0, usedPct: 0, availablePct: 100, availableBal: 0 };
+    const otherGoals = goals.filter(g => g.linkedAccountId === accountId && g.id !== currentGoalId);
+    const usedPct = otherGoals.reduce((s, g) => s + (g.allocatedPct || 0), 0);
+    const availablePct = Math.max(0, 100 - usedPct);
+    const availableBal = Number(acc.balance || 0) * (availablePct / 100);
+    return { total: Number(acc.balance || 0), usedPct, availablePct, availableBal };
+  };
+
+  const handleOpenCreate = (goalType = 'save') => {
+    setEditingGoal(null);
+    setFormTitle('');
+    setFormCategory(goalType === 'save' ? 'Property' : 'Debt');
+    setFormType(goalType);
+    setFormTarget('');
+    setFormDate('2027-12-31');
+    setFormAccountId('');
+    setFormAllocPct(0);
+    setFormMonthly('');
+    setFormColor(goalType === 'save' ? '#10B981' : '#EF4444');
+    setFormApr('18.99');
+    setFormMinPayment('150');
+    setShowCreateModal(true);
+  };
+
+  const handleOpenEdit = (goal) => {
+    setEditingGoal(goal);
+    setFormTitle(goal.title);
+    setFormCategory(goal.category);
+    setFormType(goal.type || 'save');
+    setFormTarget(goal.target);
+    setFormDate(goal.date);
+    setFormAccountId(goal.linkedAccountId || '');
+    setFormAllocPct(goal.allocatedPct || 0);
+    setFormMonthly(goal.monthly || 500);
+    setFormColor(goal.color || (goal.type === 'paydown' ? '#EF4444' : '#10B981'));
+    setFormApr(goal.apr || '18.99');
+    setFormMinPayment(goal.minPayment || '150');
+    setShowCreateModal(true);
+  };
+
+  const handleOpenDetailWithEdit = (goal) => {
+    setDetailGoal(goal);
+    setIsDetailEditing(true);
+    setFormTitle(goal.title);
+    setFormCategory(goal.category);
+    setFormType(goal.type || 'save');
+    setFormTarget(goal.target);
+    setFormDate(goal.date);
+    setFormMonthly(goal.monthly || 500);
+    setFormColor(goal.color || (goal.type === 'paydown' ? '#EF4444' : '#10B981'));
+    setFormApr(goal.apr || '18.99');
+    setFormMinPayment(goal.minPayment || '150');
+  };
+
+  const handleToggleDetailEdit = () => {
+    if (!isDetailEditing && detailGoal) {
+      setFormTitle(detailGoal.title);
+      setFormCategory(detailGoal.category);
+      setFormType(detailGoal.type || 'save');
+      setFormTarget(detailGoal.target);
+      setFormDate(detailGoal.date);
+      setFormMonthly(detailGoal.monthly || 500);
+      setFormColor(detailGoal.color || (detailGoal.type === 'paydown' ? '#EF4444' : '#10B981'));
+      setFormApr(detailGoal.apr || '18.99');
+      setFormMinPayment(detailGoal.minPayment || '150');
+    }
+    setIsDetailEditing(!isDetailEditing);
+  };
+
+  const handleSaveGoal = (e) => {
+    e.preventDefault();
+    if (!formTitle || !formTarget) return;
+
+    const targetVal = parseFloat(formTarget) || 0;
+    const monthlyVal = parseFloat(formMonthly) || 500;
+    const linkedAccounts = accountsData?.linked || [];
+
+    let startingSaved = 0;
+    let linkedName = 'None';
+    if (formAccountId) {
+      const acc = linkedAccounts.find(a => a.id === formAccountId);
+      if (acc) {
+        linkedName = acc.name;
+        startingSaved = Number(acc.balance || 0) * (formAllocPct / 100);
+      }
+    }
+
+    if (detailGoal && isDetailEditing) {
+      const updated = {
+        ...detailGoal,
+        title: formTitle,
+        category: formCategory,
+        type: formType,
+        target: targetVal,
+        monthly: monthlyVal,
+        date: formDate,
+        color: formColor,
+        apr: formType === 'paydown' ? parseFloat(formApr) || 0 : undefined,
+        minPayment: formType === 'paydown' ? parseFloat(formMinPayment) || 0 : undefined
+      };
+      setGoals(goals.map(g => g.id === detailGoal.id ? updated : g));
+      setDetailGoal(updated);
+      setIsDetailEditing(false);
+      showToast(`Milestone "${formTitle}" updated successfully!`, 'success');
+    } else if (editingGoal) {
+      setGoals(goals.map(g => g.id === editingGoal.id ? {
+        ...g,
+        title: formTitle,
+        category: formCategory,
+        type: formType,
+        target: targetVal,
+        monthly: monthlyVal,
+        date: formDate,
+        color: formColor,
+        linkedAccountId: formAccountId,
+        linkedAccountName: linkedName,
+        allocatedPct: formAccountId ? formAllocPct : 0,
+        apr: formType === 'paydown' ? parseFloat(formApr) || 0 : undefined,
+        minPayment: formType === 'paydown' ? parseFloat(formMinPayment) || 0 : undefined
+      } : g));
+      showToast(`Goal "${formTitle}" updated successfully!`, 'success');
+      setShowCreateModal(false);
+    } else {
+      const newGoal = {
+        id: `g_${Date.now()}`,
+        title: formTitle,
+        category: formCategory,
+        type: formType,
+        target: targetVal,
+        current: startingSaved,
+        monthly: monthlyVal,
+        date: formDate,
+        color: formColor,
+        linkedAccountId: formAccountId,
+        linkedAccountName: linkedName,
+        allocatedPct: formAccountId ? formAllocPct : 0,
+        apr: formType === 'paydown' ? parseFloat(formApr) || 0 : undefined,
+        minPayment: formType === 'paydown' ? parseFloat(formMinPayment) || 0 : undefined,
+        transactions: [
+          { id: `tx_${Date.now()}`, date: new Date().toISOString().slice(0, 10), description: formType === 'paydown' ? 'Existing Debt Balance Logged' : 'Initial Allocation', amount: startingSaved, type: 'deposit', source: linkedName }
+        ]
+      };
+      setGoals([newGoal, ...goals]);
+      showToast(formType === 'paydown' ? `💳 Debt liability "${formTitle}" added successfully!` : `🎉 Goal locked in! You're officially on the path to your ${formTitle}.`, 'success');
+      setShowCreateModal(false);
+    }
+  };
+
+  const applyTemplate = (tpl) => {
+    if (goals.some(g => g.title === tpl.title)) {
+      showToast('Goal template already exists in your active list', 'info');
+      return;
+    }
+    const newGoal = {
+      id: `g_${Date.now()}`,
+      ...tpl,
+      current: tpl.current || 0,
+      allocatedPct: 0,
+      transactions: []
+    };
+    setGoals([newGoal, ...goals]);
+    showToast(`Added template: "${tpl.title}"`, 'success');
+  };
+
+  const handleDeletePrompt = (goal) => {
+    showConfirmModal({
+      title: `Delete '${goal.title}'?`,
+      message: `Removing this milestone deletes your tracking and frees up its allocated account percentage (${goal.allocatedPct || 0}%), while your actual bank account balances remain completely untouched.`,
+      confirmText: 'Delete Milestone',
+      isDanger: true,
+      onConfirm: () => {
+        setGoals(goals.filter(g => g.id !== goal.id));
+        if (detailGoal?.id === goal.id) setDetailGoal(null);
+        showToast('Milestone removed successfully', 'info');
+      }
+    });
+  };
+
+  const handleDeposit = (goalId, amount = 500) => {
+    setGoals(goals.map(g => {
+      if (g.id === goalId) {
+        const newCurrent = g.type === 'paydown'
+          ? Math.max(0, g.current - amount)
+          : Math.min(g.target, g.current + amount);
+        const newTx = {
+          id: `tx_${Date.now()}`,
+          date: new Date().toISOString().slice(0, 10),
+          description: g.type === 'paydown' ? 'Principal Payment' : 'Quick Deposit',
+          amount,
+          type: g.type === 'paydown' ? 'payment' : 'deposit',
+          source: 'Manual Entry'
+        };
+        const updated = { ...g, current: newCurrent, transactions: [newTx, ...(g.transactions || [])] };
+        if (detailGoal?.id === goalId) setDetailGoal(updated);
+        return updated;
+      }
+      return g;
+    }));
+    showToast(goalId => goals.find(g => g.id === goalId)?.type === 'paydown' ? `Paid down -$${amount} principal!` : `Added +$${amount} deposit!`, 'success');
+  };
+
+  const handleAddManualTx = (e) => {
+    e.preventDefault();
+    if (!detailGoal || !txDesc || !txAmount) return;
+    const amt = parseFloat(txAmount) || 0;
+
+    setGoals(goals.map(g => {
+      if (g.id === detailGoal.id) {
+        const isPay = g.type === 'paydown';
+        const newCurrent = isPay
+          ? (txType === 'deposit' || txType === 'payment' ? Math.max(0, g.current - amt) : g.current + amt)
+          : (txType === 'deposit' || txType === 'payment' ? Math.min(g.target, g.current + amt) : Math.max(0, g.current - amt));
+        const newTx = {
+          id: `tx_${Date.now()}`,
+          date: new Date().toISOString().slice(0, 10),
+          description: txDesc,
+          amount: amt,
+          type: txType,
+          source: 'Manual Entry'
+        };
+        const updated = { ...g, current: newCurrent, transactions: [newTx, ...(g.transactions || [])] };
+        setDetailGoal(updated);
+        return updated;
+      }
+      return g;
+    }));
+    setTxDesc('');
+    setTxAmount('');
+    setShowAddTxModal(false);
+    showToast('Transaction recorded successfully', 'success');
+  };
+
+  const getGoalStatus = (goal) => {
+    const isPaydown = goal.type === 'paydown';
+    const remaining = isPaydown ? goal.current : Math.max(0, goal.target - goal.current);
+    if (remaining === 0) return { label: isPaydown ? '🎉 Debt Free!' : '🎉 Achieved', color: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30' };
+
+    const now = new Date();
+    const targetD = new Date(goal.date || '2027-12-31');
+    const diffMonths = (targetD.getFullYear() - now.getFullYear()) * 12 + (targetD.getMonth() - now.getMonth());
+
+    if (diffMonths <= 0) {
+      return { label: '⚠️ Target date passed', color: 'text-rose-400 bg-rose-500/15 border-rose-500/30' };
+    }
+
+    const requiredMonthly = remaining / diffMonths;
+    const currentMonthly = goal.monthly || 500;
+
+    if (currentMonthly >= requiredMonthly) {
+      return { label: '🟢 On Track', color: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30' };
+    } else {
+      return {
+        label: `⚠️ Off Track (Need $${Math.ceil(requiredMonthly).toLocaleString()}/mo)`,
+        color: 'text-amber-400 bg-amber-500/15 border-amber-500/30'
+      };
+    }
+  };
 
   // Custom Confirmation Modal State
   const [confirmModal, setConfirmModal] = useState({
@@ -733,6 +1106,57 @@ export const AppProvider = ({ children }) => {
         addNewPortfolioCategory,
         deletePortfolioYear,
         resetPortfolioYearValues,
+        goals,
+        setGoals,
+        detailGoal,
+        setDetailGoal,
+        showCreateModal,
+        setShowCreateModal,
+        editingGoal,
+        setEditingGoal,
+        isDetailEditing,
+        setIsDetailEditing,
+        getAccountCapacity,
+        handleOpenCreate,
+        handleOpenEdit,
+        handleOpenDetailWithEdit,
+        handleToggleDetailEdit,
+        handleSaveGoal,
+        applyTemplate,
+        handleDeletePrompt,
+        handleDeposit,
+        handleAddManualTx,
+        getGoalStatus,
+        formTitle,
+        setFormTitle,
+        formCategory,
+        setFormCategory,
+        formType,
+        setFormType,
+        formTarget,
+        setFormTarget,
+        formDate,
+        setFormDate,
+        formAccountId,
+        setFormAccountId,
+        formAllocPct,
+        setFormAllocPct,
+        formMonthly,
+        setFormMonthly,
+        formColor,
+        setFormColor,
+        formApr,
+        setFormApr,
+        formMinPayment,
+        setFormMinPayment,
+        showAddTxModal,
+        setShowAddTxModal,
+        txDesc,
+        setTxDesc,
+        txAmount,
+        setTxAmount,
+        txType,
+        setTxType,
         modals,
         openModal,
         closeModal,
