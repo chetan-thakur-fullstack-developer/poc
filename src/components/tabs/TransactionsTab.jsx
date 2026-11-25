@@ -766,7 +766,7 @@ export const TransactionsTab = () => {
                                 style={{ position: 'fixed', top: popoverPos.top, left: popoverPos.left, zIndex: 999999 }}
                                 onMouseEnter={() => { isHoveringDropdown.current = true; }}
                                 onMouseLeave={() => { isHoveringDropdown.current = false; }}
-                                className="w-56 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150 max-h-60 overflow-y-auto dropdown-menu-portal"
+                                className="w-56 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150 dropdown-menu-portal"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <div className="p-2 border-b border-[var(--border)]">
