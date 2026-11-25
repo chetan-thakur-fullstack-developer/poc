@@ -1,25 +1,67 @@
 {
-  "monthlyBudget": 3000,
+  "monthlyBudget": 4500,
   "categories": [
     {
-      "id": "cat_1788699891018",
-      "label": "12",
-      "color": "#3b82f6",
-      "icon": "tag",
-      "limit": 12
+      "id": "cat_groceries",
+      "label": "Groceries",
+      "color": "#10B981",
+      "icon": "shopping-cart",
+      "limit": 800
     },
     {
-      "id": "cat_1788788872263",
-      "label": "Grocery",
-      "color": "#3b82f6",
-      "icon": "tag",
-      "limit": 0
+      "id": "cat_dining",
+      "label": "Dining & Restaurants",
+      "color": "#F59E0B",
+      "icon": "utensils",
+      "limit": 500
+    },
+    {
+      "id": "cat_subs",
+      "label": "Subscriptions & SaaS",
+      "color": "#8B5CF6",
+      "icon": "repeat",
+      "limit": 150
+    },
+    {
+      "id": "cat_shopping",
+      "label": "Shopping & Retail",
+      "color": "#3B82F6",
+      "icon": "shopping-bag",
+      "limit": 600
+    },
+    {
+      "id": "cat_transport",
+      "label": "Transport & Gas",
+      "color": "#EC4899",
+      "icon": "car",
+      "limit": 300
+    },
+    {
+      "id": "cat_travel",
+      "label": "Travel & Lodging",
+      "color": "#6366F1",
+      "icon": "plane",
+      "limit": 1000
+    },
+    {
+      "id": "cat_bills",
+      "label": "Utilities & Bills",
+      "color": "#14B8A6",
+      "icon": "zap",
+      "limit": 400
+    },
+    {
+      "id": "cat_ent",
+      "label": "Entertainment",
+      "color": "#EF4444",
+      "icon": "film",
+      "limit": 250
     }
   ],
   "cards": [
     {
       "id": "card_1788699872709",
-      "name": "Chetan Chase Sapphier",
+      "name": "Chetan Chase Sapphire",
       "issuer": "VISA",
       "masked": "5674",
       "limit": 17600,
@@ -46,7 +88,7 @@
     },
     {
       "id": "card_1788788234637",
-      "name": "Chetan Apple",
+      "name": "Chetan Apple Card",
       "issuer": "MASTERCARD",
       "masked": "8927",
       "limit": 6000,
@@ -55,7 +97,7 @@
     },
     {
       "id": "card_1788788284174",
-      "name": "Chetan Bofa",
+      "name": "Chetan Bofa Premium",
       "issuer": "MASTERCARD",
       "masked": "6921",
       "limit": 35000,
@@ -65,13 +107,254 @@
   ],
   "transactions": [
     {
-      "id": "tx_1788699895167",
-      "amount": 75,
-      "description": "Balance 1st week",
+      "id": "tx_001",
+      "amount": 142.50,
+      "description": "Whole Foods Market",
       "cardId": "card_1788699872709",
-      "categoryId": "cat_1788788872263",
+      "categoryId": "cat_groceries",
+      "date": "2026-09-01",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_002",
+      "amount": 68.20,
+      "description": "Blue Bottle Coffee & Bakery",
+      "cardId": "card_1788788234637",
+      "categoryId": "cat_dining",
+      "date": "2026-09-02",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_003",
+      "amount": 15.99,
+      "description": "Netflix Subscription",
+      "cardId": "card_1788788234637",
+      "categoryId": "cat_subs",
+      "date": "2026-09-02",
+      "isRecurring": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_004",
+      "amount": 215.40,
+      "description": "Trader Joe's Groceries",
+      "cardId": "card_1788788149446",
+      "categoryId": "cat_groceries",
+      "date": "2026-09-03",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_005",
+      "amount": 45.00,
+      "description": "Chevron Gas Station",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_transport",
+      "date": "2026-09-04",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_006",
+      "amount": 89.50,
+      "description": "Nobu Dinner Reservation",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_dining",
+      "date": "2026-09-05",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_007",
+      "amount": 320.00,
+      "description": "Amazon Prime Electronics & Office",
+      "cardId": "card_1788788094313",
+      "categoryId": "cat_shopping",
       "date": "2026-09-06",
-      "isRecurring": false
+      "isRecurring": false,
+      "isTaxDeductible": true
+    },
+    {
+      "id": "tx_008",
+      "amount": 12.99,
+      "description": "Spotify Family Premium",
+      "cardId": "card_1788788234637",
+      "categoryId": "cat_subs",
+      "date": "2026-09-07",
+      "isRecurring": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_009",
+      "amount": 185.00,
+      "description": "PG&E Electric & Gas Utility",
+      "cardId": "card_1788788284174",
+      "categoryId": "cat_bills",
+      "date": "2026-09-08",
+      "isRecurring": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_010",
+      "amount": 54.30,
+      "description": "Safeway Supermarket",
+      "cardId": "card_1788788149446",
+      "categoryId": "cat_groceries",
+      "date": "2026-09-09",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_011",
+      "amount": 420.00,
+      "description": "Delta Air Lines Flight Booking",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_travel",
+      "date": "2026-09-10",
+      "isRecurring": false,
+      "isTaxDeductible": true
+    },
+    {
+      "id": "tx_012",
+      "amount": 95.00,
+      "description": "IMAX Movie & IMAX Concessions",
+      "cardId": "card_1788788234637",
+      "categoryId": "cat_ent",
+      "date": "2026-09-11",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_013",
+      "amount": 129.50,
+      "description": "Target Superstore",
+      "cardId": "card_1788788094313",
+      "categoryId": "cat_shopping",
+      "date": "2026-09-12",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_014",
+      "amount": 29.99,
+      "description": "GitHub Copilot Subscription",
+      "cardId": "card_1788788234637",
+      "categoryId": "cat_subs",
+      "date": "2026-09-13",
+      "isRecurring": true,
+      "isTaxDeductible": true
+    },
+    {
+      "id": "tx_015",
+      "amount": 165.20,
+      "description": "Costco Wholesale Bulk Run",
+      "cardId": "card_1788788149446",
+      "categoryId": "cat_groceries",
+      "date": "2026-09-14",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_016",
+      "amount": 78.40,
+      "description": "Uber Ride to Airport",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_transport",
+      "date": "2026-09-15",
+      "isRecurring": false,
+      "isTaxDeductible": true
+    },
+    {
+      "id": "tx_017",
+      "amount": 240.00,
+      "description": "Marriott Hotel & Resort",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_travel",
+      "date": "2026-09-16",
+      "isRecurring": false,
+      "isTaxDeductible": true
+    },
+    {
+      "id": "tx_018",
+      "amount": 110.00,
+      "description": "Osteria Mozza Dinner",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_dining",
+      "date": "2026-09-17",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_019",
+      "amount": 65.00,
+      "description": "Shell Oil Gas Station",
+      "cardId": "card_1788788094313",
+      "categoryId": "cat_transport",
+      "date": "2026-09-18",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_020",
+      "amount": 195.00,
+      "description": "Nordstrom Apparel & Shoes",
+      "cardId": "card_1788788284174",
+      "categoryId": "cat_shopping",
+      "date": "2026-09-19",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_021",
+      "amount": 85.00,
+      "description": "Comcast High-Speed Internet",
+      "cardId": "card_1788788284174",
+      "categoryId": "cat_bills",
+      "date": "2026-09-20",
+      "isRecurring": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_022",
+      "amount": 134.50,
+      "description": "Whole Foods Market Weekly",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_groceries",
+      "date": "2026-09-21",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_023",
+      "amount": 52.10,
+      "description": "Sweetgreen Salads",
+      "cardId": "card_1788788234637",
+      "categoryId": "cat_dining",
+      "date": "2026-09-22",
+      "isRecurring": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_024",
+      "amount": 499.00,
+      "description": "Apple Store iPad Accessories",
+      "cardId": "card_1788788234637",
+      "categoryId": "cat_shopping",
+      "date": "2026-09-23",
+      "isRecurring": false,
+      "isTaxDeductible": true
+    },
+    {
+      "id": "tx_025",
+      "amount": 115.00,
+      "description": "Concert Tickets Live Nation",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_ent",
+      "date": "2026-09-24",
+      "isRecurring": false,
+      "isTaxDeductible": false
     }
   ],
   "selectedCurrency": "USD"
