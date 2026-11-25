@@ -56,6 +56,20 @@
       "color": "#EF4444",
       "icon": "film",
       "limit": 250
+    },
+    {
+      "id": "cat_refunds",
+      "label": "Refunds & Credits",
+      "color": "#10B981",
+      "icon": "arrow-down-left",
+      "limit": 0
+    },
+    {
+      "id": "cat_payments",
+      "label": "Card Payments & Transfers",
+      "color": "#64748B",
+      "icon": "credit-card",
+      "limit": 0
     }
   ],
   "cards": [
@@ -107,6 +121,160 @@
   ],
   "transactions": [
     {
+      "id": "tx_2025_01",
+      "amount": 135.00,
+      "description": "Whole Foods Market",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_groceries",
+      "date": "2025-11-15",
+      "isRecurring": false,
+      "isExpense": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2025_02",
+      "amount": 45.00,
+      "description": "Shell Gas Station",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_transport",
+      "date": "2025-12-10",
+      "isRecurring": false,
+      "isExpense": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_jan_01",
+      "amount": -3475.12,
+      "description": "ACME Corp Payroll Deposit",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_payments",
+      "date": "2026-01-05",
+      "isRecurring": true,
+      "isExpense": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_jan_02",
+      "amount": 120.50,
+      "description": "Trader Joe's Groceries",
+      "cardId": "card_1788788149446",
+      "categoryId": "cat_groceries",
+      "date": "2026-01-12",
+      "isRecurring": false,
+      "isExpense": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_jan_03",
+      "amount": -45.00,
+      "description": "Amazon Return & Refund",
+      "cardId": "card_1788788094313",
+      "categoryId": "cat_refunds",
+      "date": "2026-01-18",
+      "isRecurring": false,
+      "isExpense": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_jan_04",
+      "amount": 85.00,
+      "description": "Comcast Internet Utility",
+      "cardId": "card_1788788284174",
+      "categoryId": "cat_bills",
+      "date": "2026-01-20",
+      "isRecurring": true,
+      "isExpense": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_feb_01",
+      "amount": 142.50,
+      "description": "Whole Foods Market",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_groceries",
+      "date": "2026-02-01",
+      "isRecurring": false,
+      "isExpense": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_feb_02",
+      "amount": 68.20,
+      "description": "Blue Bottle Coffee",
+      "cardId": "card_1788788234637",
+      "categoryId": "cat_dining",
+      "date": "2026-02-05",
+      "isRecurring": false,
+      "isExpense": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_feb_03",
+      "amount": -1500.00,
+      "description": "Chase Sapphire Credit Card Payment",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_payments",
+      "date": "2026-02-10",
+      "isRecurring": false,
+      "isExpense": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_mar_01",
+      "amount": 215.40,
+      "description": "Trader Joe's Groceries",
+      "cardId": "card_1788788149446",
+      "categoryId": "cat_groceries",
+      "date": "2026-03-04",
+      "isRecurring": false,
+      "isExpense": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_mar_02",
+      "amount": -120.00,
+      "description": "Delta Air Lines Flight Refund",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_refunds",
+      "date": "2026-03-15",
+      "isRecurring": false,
+      "isExpense": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_jul_01",
+      "amount": 310.00,
+      "description": "Nordstrom Summer Apparel",
+      "cardId": "card_1788788284174",
+      "categoryId": "cat_shopping",
+      "date": "2026-07-22",
+      "isRecurring": false,
+      "isExpense": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_aug_01",
+      "amount": 450.00,
+      "description": "Airbnb Summer Vacation Lodging",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_travel",
+      "date": "2026-08-14",
+      "isRecurring": false,
+      "isExpense": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_aug_02",
+      "amount": -85.00,
+      "description": "Hotel Resort Credit Refund",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_refunds",
+      "date": "2026-08-18",
+      "isRecurring": false,
+      "isExpense": false,
+      "isTaxDeductible": false
+    },
+    {
       "id": "tx_001",
       "amount": 142.50,
       "description": "Whole Foods Market",
@@ -114,6 +282,7 @@
       "categoryId": "cat_groceries",
       "date": "2026-09-01",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -124,6 +293,7 @@
       "categoryId": "cat_dining",
       "date": "2026-09-02",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -134,6 +304,7 @@
       "categoryId": "cat_subs",
       "date": "2026-09-02",
       "isRecurring": true,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -144,6 +315,7 @@
       "categoryId": "cat_groceries",
       "date": "2026-09-03",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -154,6 +326,7 @@
       "categoryId": "cat_transport",
       "date": "2026-09-04",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -164,6 +337,7 @@
       "categoryId": "cat_dining",
       "date": "2026-09-05",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -174,6 +348,7 @@
       "categoryId": "cat_shopping",
       "date": "2026-09-06",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": true
     },
     {
@@ -184,6 +359,7 @@
       "categoryId": "cat_subs",
       "date": "2026-09-07",
       "isRecurring": true,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -194,6 +370,7 @@
       "categoryId": "cat_bills",
       "date": "2026-09-08",
       "isRecurring": true,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -204,6 +381,7 @@
       "categoryId": "cat_groceries",
       "date": "2026-09-09",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -214,6 +392,7 @@
       "categoryId": "cat_travel",
       "date": "2026-09-10",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": true
     },
     {
@@ -224,6 +403,7 @@
       "categoryId": "cat_ent",
       "date": "2026-09-11",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -234,6 +414,7 @@
       "categoryId": "cat_shopping",
       "date": "2026-09-12",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -244,6 +425,7 @@
       "categoryId": "cat_subs",
       "date": "2026-09-13",
       "isRecurring": true,
+      "isExpense": true,
       "isTaxDeductible": true
     },
     {
@@ -254,6 +436,7 @@
       "categoryId": "cat_groceries",
       "date": "2026-09-14",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -264,6 +447,7 @@
       "categoryId": "cat_transport",
       "date": "2026-09-15",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": true
     },
     {
@@ -274,6 +458,7 @@
       "categoryId": "cat_travel",
       "date": "2026-09-16",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": true
     },
     {
@@ -284,6 +469,7 @@
       "categoryId": "cat_dining",
       "date": "2026-09-17",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -294,6 +480,7 @@
       "categoryId": "cat_transport",
       "date": "2026-09-18",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -304,6 +491,7 @@
       "categoryId": "cat_shopping",
       "date": "2026-09-19",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -314,6 +502,7 @@
       "categoryId": "cat_bills",
       "date": "2026-09-20",
       "isRecurring": true,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -324,6 +513,7 @@
       "categoryId": "cat_groceries",
       "date": "2026-09-21",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -334,6 +524,7 @@
       "categoryId": "cat_dining",
       "date": "2026-09-22",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     },
     {
@@ -344,6 +535,7 @@
       "categoryId": "cat_shopping",
       "date": "2026-09-23",
       "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": true
     },
     {
@@ -354,6 +546,40 @@
       "categoryId": "cat_ent",
       "date": "2026-09-24",
       "isRecurring": false,
+      "isExpense": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_oct_01",
+      "amount": 178.50,
+      "description": "Trader Joe's Groceries",
+      "cardId": "card_1788788149446",
+      "categoryId": "cat_groceries",
+      "date": "2026-10-05",
+      "isRecurring": false,
+      "isExpense": true,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_nov_01",
+      "amount": -2500.00,
+      "description": "Year-End Bonus Payroll Deposit",
+      "cardId": "card_1788699872709",
+      "categoryId": "cat_payments",
+      "date": "2026-11-20",
+      "isRecurring": false,
+      "isExpense": false,
+      "isTaxDeductible": false
+    },
+    {
+      "id": "tx_2026_dec_01",
+      "amount": 450.00,
+      "description": "Holiday Shopping Best Buy",
+      "cardId": "card_1788788094313",
+      "categoryId": "cat_shopping",
+      "date": "2026-12-15",
+      "isRecurring": false,
+      "isExpense": true,
       "isTaxDeductible": false
     }
   ],
