@@ -16,7 +16,7 @@ export const TaxTab = () => {
   const totalTaxSavings = k401TaxSavings + hsaTaxSavings;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 sm:space-y-8 select-none">
 
       {/* Tax Savings Summary Card */}
       <div className="card p-6 bg-gradient-to-br from-emerald-500/15 via-[var(--surface)] to-[var(--surface)] border-emerald-500/30 space-y-4">

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { AnimatedNumber } from '../AnimatedNumber.jsx';
 import { SubscriptionRadar } from '../SubscriptionRadar.jsx';
+import { Pencil, Check, X, Target } from 'lucide-react';
 
 export const ExpensesTab = () => {
   const { expensesData, setExpensesData, transactions, formatMoney, syncToCloud, showToast } = useApp();
@@ -12,12 +13,20 @@ export const ExpensesTab = () => {
 
   const [initialBudget, setInitialBudget] = useState(monthlyBudget);
   const [hasChanged, setHasChanged] = useState(false);
+  const [isEditingBudget, setIsEditingBudget] = useState(false);
+  const [editBudgetInput, setEditBudgetInput] = useState(monthlyBudget);
 
   useEffect(() => {
     if (expensesData?.monthlyBudget !== undefined && !hasChanged) {
       setInitialBudget(expensesData.monthlyBudget);
     }
   }, [expensesData?.monthlyBudget]);
+
+  useEffect(() => {
+    if (!isEditingBudget) {
+      setEditBudgetInput(monthlyBudget);
+    }
+  }, [monthlyBudget, isEditingBudget]);
 
   // Calculate spent per category and per card (excluding excluded transactions)
   const spentPerCat = {};
@@ -51,58 +60,124 @@ export const ExpensesTab = () => {
     showToast('Monthly spending target saved to Supabase successfully!', 'success');
   };
 
-  return (
-    <div className="space-y-6 pb-36 select-none">
-      {/* Main Budget Pace Card (Prominent at top) */}
-      <div className="card p-6 space-y-4 bg-gradient-to-br from-[var(--surface)] via-[var(--surface)] to-emerald-500/10 border border-emerald-500/30">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-[var(--text-3)]">
-              Monthly Spending Target
-            </span>
-            <div className="flex items-center gap-3 flex-wrap mt-1">
-              <span className="text-2xl sm:text-4xl font-black text-[var(--text-1)] font-mono">
-                <AnimatedNumber value={totalSpent} decimals={2} />
-              </span>
-              <span className="text-xs text-[var(--text-3)] font-semibold">of</span>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-[var(--text-2)]">$</span>
-                <input
-                  type="number"
-                  value={monthlyBudget}
-                  onChange={(e) => updateBudget(e.target.value)}
-                  className="w-28 px-3 py-2 text-sm font-bold font-mono rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] outline-none"
-                />
-              </div>
+  const handleSaveBudget = async () => {
+    const num = Number(editBudgetInput) || 0;
+    updateBudget(num);
+    await syncToCloud();
+    setInitialBudget(num);
+    setHasChanged(false);
+    setIsEditingBudget(false);
+    showToast('Monthly spending target saved to Supabase successfully!', 'success');
+  };
 
-              {/* Save to Supabase Button */}
-              <button
-                onClick={handleSaveToSupabase}
-                disabled={!hasChanged}
-                className={`btn-primary text-xs px-4 py-2.5 cursor-pointer flex items-center gap-1.5 font-bold shadow-sm transition-all min-h-[44px] ${
-                  !hasChanged ? 'opacity-40 cursor-not-allowed bg-gray-500 hover:bg-gray-500 border-none' : 'bg-emerald-600 hover:bg-emerald-500'
-                }`}
-                title={!hasChanged ? 'Modify monthly budget amount above to enable saving' : 'Save updated target to Supabase'}
-              >
-                <span>Save Target</span>
-              </button>
+  const handleCancelBudget = () => {
+    setEditBudgetInput(monthlyBudget);
+    setIsEditingBudget(false);
+  };
+
+  return (
+    <div className="space-y-6 sm:space-y-8 select-none">
+      {/* Main Budget Pace Card (Ultra-Compact & Space-Saving) */}
+      <div className="card p-4 sm:p-5 space-y-2.5 bg-gradient-to-br from-[var(--surface)] via-[var(--surface)] to-emerald-500/10 border border-emerald-500/30 shadow-lg relative overflow-hidden">
+        {/* Header Row: Title & Target Edit Inline */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+              <Target className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[var(--text-1)]">
+                Monthly Budget Overview
+              </h3>
+              <p className="hidden sm:block text-[10px] text-[var(--text-3)]">
+                Tracking household spending pace &amp; allowance
+              </p>
             </div>
           </div>
 
-          <div className="text-right">
-            <span className="text-xs font-bold text-emerald-400 font-mono text-base">
-              <AnimatedNumber value={remainingBudget} decimals={2} />
-            </span>
-            <p className="text-[10px] text-[var(--text-3)]">Remaining allowance</p>
+          {/* Target Display & Inline Edit */}
+          <div className="flex items-center gap-1.5 bg-[var(--surface-2)] px-3 py-1.5 rounded-xl border border-[var(--border)] text-xs">
+            <span className="text-[var(--text-3)] font-bold">Target:</span>
+            {isEditingBudget ? (
+              <div className="flex items-center gap-1.5">
+                <span className="font-mono font-bold text-[var(--text-1)]">$</span>
+                <input
+                  type="number"
+                  value={editBudgetInput}
+                  onChange={(e) => setEditBudgetInput(e.target.value)}
+                  className="w-20 px-2 py-0.5 text-xs font-bold font-mono rounded-lg bg-[var(--surface)] border border-emerald-500 text-[var(--text-1)] outline-none"
+                  autoFocus
+                />
+                <button
+                  onClick={handleSaveBudget}
+                  className="p-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white transition-all cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
+                  title="Save target"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={handleCancelBudget}
+                  className="p-1 rounded-md bg-[var(--surface-3)] hover:bg-rose-500/20 text-[var(--text-2)] hover:text-rose-400 transition-all cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
+                  title="Cancel"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <span className="font-black font-mono text-[var(--text-1)]">
+                  {formatMoney(monthlyBudget)}
+                </span>
+                <button
+                  onClick={() => { setIsEditingBudget(true); setEditBudgetInput(monthlyBudget); }}
+                  className="p-1 rounded-lg hover:bg-[var(--surface-3)] text-[var(--text-3)] hover:text-[var(--text-1)] transition-all cursor-pointer min-h-[36px] min-w-[36px] sm:min-h-[28px] sm:min-w-[28px] flex items-center justify-center"
+                  title="Edit monthly target"
+                >
+                  <Pencil className="w-3 h-3" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="w-full bg-[var(--surface-3)] h-3 rounded-full overflow-hidden shadow-inner">
-          <div
-            className={`h-full rounded-full transition-all ${budgetPace > 90 ? 'bg-rose-500' : budgetPace > 75 ? 'bg-amber-400' : 'bg-emerald-500'}`}
-            style={{ width: `${budgetPace}%` }}
-          />
+        {/* Horizontal Main Numbers (Remaining & Spent Side-by-Side) */}
+        <div className="flex items-end justify-between border-t border-[var(--border)] pt-2 pb-0">
+          <div className="space-y-0.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-3)]">
+              Remaining Allowance
+            </span>
+            <div className="text-3xl sm:text-4xl font-black font-mono text-emerald-400 tracking-tight">
+              <AnimatedNumber value={remainingBudget} decimals={2} />
+            </div>
+          </div>
+
+          <div className="text-right space-y-0.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-3)]">
+              Total Spent
+            </span>
+            <div className="text-xl sm:text-2xl font-black font-mono text-[var(--text-1)] tracking-tight">
+              <AnimatedNumber value={totalSpent} decimals={2} />
+            </div>
+          </div>
+        </div>
+
+        {/* Compact Progress Bar */}
+        <div className="space-y-1 pt-0">
+          <div className="flex justify-between text-[11px] font-bold font-mono">
+            <span className="text-[var(--text-3)]">0%</span>
+            <span className={budgetPace > 90 ? 'text-rose-400' : budgetPace > 75 ? 'text-amber-400' : 'text-emerald-400'}>
+              {budgetPace}% Used ({100 - budgetPace}% left)
+            </span>
+            <span className="text-[var(--text-3)]">100%</span>
+          </div>
+          <div className="w-full bg-[var(--surface-3)] h-3 rounded-full overflow-hidden shadow-inner p-0.5">
+            <div
+              className={`h-full rounded-full transition-all duration-500 shadow-sm ${
+                budgetPace > 90 ? 'bg-gradient-to-r from-amber-500 to-rose-500' : budgetPace > 75 ? 'bg-gradient-to-r from-emerald-500 to-amber-400' : 'bg-gradient-to-r from-emerald-600 to-emerald-400'
+              }`}
+              style={{ width: `${Math.min(100, budgetPace)}%` }}
+            />
+          </div>
         </div>
       </div>
 

@@ -79,25 +79,25 @@ export const Header = () => {
   const activeSubtitle = TAB_SUBTITLES[currentTab] || 'Manage your financial life';
 
   return (
-    <header className="sticky top-0 z-40 h-16 w-full border-b border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-xl px-4 sm:px-8 flex items-center justify-between transition-all gap-4 select-none">
-      {/* Left: Top-Left Hamburger Menu & Active Section Title */}
-      <div className="flex items-center gap-3 shrink-0">
+    <header className="sticky top-0 z-40 h-16 w-full border-b border-[var(--border)] bg-[var(--surface)]/85 backdrop-blur-xl px-3 sm:px-6 lg:px-8 flex items-center justify-between transition-all gap-2 sm:gap-4 select-none">
+      {/* Left: Active Section Title & Subheading (Hamburger menu only visible on mobile lg:hidden) */}
+      <div className="flex items-center gap-2.5 shrink-0">
         <button
           onClick={() => setShowMenuDrawer(!showMenuDrawer)}
-          className="min-w-[44px] min-h-[44px] p-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] hover:bg-[var(--surface-3)] transition-all cursor-pointer flex items-center justify-center shadow-sm active:scale-95"
+          className="lg:hidden min-w-[40px] min-h-[40px] p-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] hover:bg-[var(--surface-3)] transition-all cursor-pointer flex items-center justify-center shadow-sm active:scale-95"
           title="Open Menu"
         >
           <Menu className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2.5 font-black text-base tracking-tight">
-          <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex items-center justify-center shadow-md">
+        <div className="flex items-center gap-2 lg:hidden font-black text-base tracking-tight">
+          <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex items-center justify-center shadow-md shrink-0">
             LJ
           </span>
           <span className="hidden md:inline">LedgerJourney</span>
         </div>
 
-        <div className="hidden sm:flex flex-col ml-2">
+        <div className="hidden sm:flex flex-col">
           <h2 className="text-xs sm:text-sm font-black text-[var(--text-1)] tracking-tight leading-tight">
             {activeTitle}
           </h2>
@@ -107,16 +107,17 @@ export const Header = () => {
         </div>
       </div>
 
-      {/* Middle: Global Search Icon / Cmd+K Trigger */}
-      <div className="flex items-center">
+      {/* Middle: SaaS Standard Search Bar / Cmd+K Trigger (Initial desktop search bar) */}
+      <div className="flex-1 max-w-md hidden md:block">
         <button
           onClick={() => openModal('commandMenu')}
-          className="min-w-[44px] min-h-[44px] p-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-strong)] transition-all cursor-pointer flex items-center justify-center shadow-sm gap-2 px-3.5"
-          title="Search (Cmd+K)"
+          className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-3)] hover:text-[var(--text-1)] hover:border-[var(--border-strong)] transition-all cursor-pointer shadow-xs group"
         >
-          <Search className="w-4 h-4 text-emerald-400" />
-          <span className="text-xs font-medium hidden md:inline">Search accounts, transactions...</span>
-          <kbd className="hidden lg:inline px-1.5 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[10px] font-mono font-bold text-[var(--text-3)] shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <Search className="w-4 h-4 text-[var(--text-4)] group-hover:text-[var(--accent)] transition-colors" />
+            <span className="text-xs font-medium">Search accounts, transactions, calculators...</span>
+          </div>
+          <kbd className="px-2 py-0.5 rounded-md bg-[var(--surface)] border border-[var(--border)] text-[10px] font-mono font-bold text-[var(--text-3)] shadow-xs">
             ⌘K
           </kbd>
         </button>
@@ -144,7 +145,7 @@ export const Header = () => {
         <div className="relative" ref={newDropdownRef}>
           <button
             onClick={() => setShowNewDropdown(!showNewDropdown)}
-            className="btn-primary text-xs px-3.5 min-h-[44px] shadow-sm cursor-pointer flex items-center gap-1.5 font-bold"
+            className="btn-primary text-xs px-3.5 py-2 shadow-sm cursor-pointer flex items-center gap-1.5 font-bold min-h-[44px] md:min-h-0"
           >
             <Plus className="w-3.5 h-3.5 stroke-[3]" />
             <span className="hidden sm:inline">New</span>
@@ -162,7 +163,7 @@ export const Header = () => {
                     openModal('addTx');
                     setShowNewDropdown(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left min-h-[44px]"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
                 >
                   <span className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xs">💸</span>
                   <span>Record Transaction</span>
@@ -172,7 +173,7 @@ export const Header = () => {
                     openModal('addAccount');
                     setShowNewDropdown(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left min-h-[44px]"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
                 >
                   <span className="w-6 h-6 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center text-xs">🏦</span>
                   <span>Link Account</span>
@@ -182,7 +183,7 @@ export const Header = () => {
                     setShowCreateModal(true);
                     setShowNewDropdown(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left min-h-[44px]"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
                 >
                   <span className="w-6 h-6 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center text-xs">🎯</span>
                   <span>Create Goal</span>
@@ -192,7 +193,7 @@ export const Header = () => {
                     openModal('quickAdd');
                     setShowNewDropdown(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left min-h-[44px]"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
                 >
                   <span className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center text-xs">⚡</span>
                   <span>Quick Add Wizard</span>
@@ -206,7 +207,7 @@ export const Header = () => {
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setShowNotifPopover(!showNotifPopover)}
-            className="min-w-[44px] min-h-[44px] p-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-hover)] transition-all cursor-pointer flex items-center justify-center active:scale-95 shadow-sm relative"
+            className="p-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-hover)] transition-all cursor-pointer active:scale-95 shadow-sm relative"
             title="Notifications"
           >
             <Bell className="w-4 h-4" />
@@ -264,7 +265,7 @@ export const Header = () => {
         <div className="relative" ref={profileRef}>
           <button
             onClick={() => setShowProfilePopover(!showProfilePopover)}
-            className="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm border border-white/20 hover:scale-105 transition-transform cursor-pointer min-w-[44px] min-h-[44px]"
+            className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm border border-white/20 hover:scale-105 transition-transform cursor-pointer"
             title="Open Profile & Menu"
           >
             {isDemoUser ? 'D' : (user?.user_metadata?.full_name || user?.email || 'U')[0]}
@@ -285,7 +286,7 @@ export const Header = () => {
                 <div className="grid grid-cols-3 gap-1.5">
                   <button
                     onClick={() => setTheme('light')}
-                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer min-h-[44px] ${
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       theme === 'light' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-xs' : 'bg-[var(--surface-2)] text-[var(--text-3)] hover:text-[var(--text-1)]'
                     }`}
                   >
@@ -294,7 +295,7 @@ export const Header = () => {
                   </button>
                   <button
                     onClick={() => setTheme('dark')}
-                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer min-h-[44px] ${
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       theme === 'dark' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-xs' : 'bg-[var(--surface-2)] text-[var(--text-3)] hover:text-[var(--text-1)]'
                     }`}
                   >
@@ -303,7 +304,7 @@ export const Header = () => {
                   </button>
                   <button
                     onClick={() => setTheme('glass')}
-                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer min-h-[44px] ${
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       theme === 'glass' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/40 shadow-xs' : 'bg-[var(--surface-2)] text-[var(--text-3)] hover:text-[var(--text-1)]'
                     }`}
                   >
@@ -320,7 +321,7 @@ export const Header = () => {
                     loadDemoTemplate();
                     setShowProfilePopover(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer text-left min-h-[44px]"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer text-left"
                 >
                   <span className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xs">📥</span>
                   <span>Load Sample Data</span>
@@ -338,7 +339,7 @@ export const Header = () => {
                       }
                     });
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-amber-400 hover:bg-amber-500/10 transition-colors cursor-pointer text-left min-h-[44px]"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-amber-400 hover:bg-amber-500/10 transition-colors cursor-pointer text-left"
                 >
                   <span className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center text-xs">🔄</span>
                   <span>Reset Workspace</span>
@@ -348,7 +349,7 @@ export const Header = () => {
                     setCurrentTab('tab-settings');
                     setShowProfilePopover(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left border-t border-[var(--border)] mt-1 pt-1.5 min-h-[44px]"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left border-t border-[var(--border)] mt-1 pt-1.5"
                 >
                   <Settings className="w-3.5 h-3.5 text-[var(--text-3)]" />
                   <span>Settings & Preferences</span>
@@ -360,7 +361,7 @@ export const Header = () => {
                     }
                     setShowProfilePopover(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer text-left border-t border-[var(--border)] mt-1 pt-1.5 min-h-[44px]"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer text-left border-t border-[var(--border)] mt-1 pt-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out</span>

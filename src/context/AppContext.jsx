@@ -164,9 +164,11 @@ export const AppProvider = ({ children }) => {
 
   // User storage key prefixes (separating real user from demo account)
   const getStoragePrefix = () => isDemoUser ? 'ew_demo_' : `ew_user_${user?.id || 'real'}_`;
+  const isResetWorkspace = localStorage.getItem('ew_workspace_reset') === 'true';
 
   // 4. Portfolio State
   const [portfolioData, setPortfolioData] = useState(() => {
+    if (isResetWorkspace) return getCleanPortfolio();
     if (isDemoUser) {
       const saved = localStorage.getItem('ew_demo_portfolio');
       return saved ? JSON.parse(saved) : initialPortfolioData;
@@ -177,6 +179,7 @@ export const AppProvider = ({ children }) => {
 
   // 5. Accounts State
   const [accountsData, setAccountsData] = useState(() => {
+    if (isResetWorkspace) return getCleanAccounts();
     if (isDemoUser) {
       const saved = localStorage.getItem('ew_demo_accounts');
       return saved ? JSON.parse(saved) : initialAccountsData;
@@ -189,6 +192,7 @@ export const AppProvider = ({ children }) => {
 
   // 6. Expenses State
   const [expensesData, setExpensesData] = useState(() => {
+    if (isResetWorkspace) return getCleanExpenses();
     if (isDemoUser) {
       const saved = localStorage.getItem('ew_demo_expenses');
       return saved ? JSON.parse(saved) : initialExpensesData;
@@ -199,6 +203,7 @@ export const AppProvider = ({ children }) => {
 
   // 7. Transactions State
   const [transactions, setTransactions] = useState(() => {
+    if (isResetWorkspace) return [];
     if (isDemoUser) {
       const saved = localStorage.getItem('ew_demo_transactions');
       return saved ? JSON.parse(saved) : (initialExpensesData.transactions || []);
@@ -458,6 +463,7 @@ export const AppProvider = ({ children }) => {
   const [detailGoal, setDetailGoal] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showMenuDrawer, setShowMenuDrawer] = useState(false);
+  const [workspaceResetKey, setWorkspaceResetKey] = useState(0);
   const [editingGoal, setEditingGoal] = useState(null);
   const [isDetailEditing, setIsDetailEditing] = useState(false);
 
@@ -1064,6 +1070,7 @@ export const AppProvider = ({ children }) => {
 
   // Optional: Real user can import sample demo template if desired
   const loadDemoTemplate = () => {
+    localStorage.removeItem('ew_workspace_reset');
     setPortfolioData(portfolioJson);
     setAccountsData(accountsJson);
     setExpensesData(expenseJson);
@@ -1137,7 +1144,9 @@ export const AppProvider = ({ children }) => {
     setExpensesData(cleanE);
     setTransactions([]);
     setGoals([]);
+    setWorkspaceResetKey(prev => prev + 1);
     try {
+      localStorage.setItem('ew_workspace_reset', 'true');
       const prefix = getStoragePrefix();
       localStorage.setItem(prefix + 'portfolio', JSON.stringify(cleanP));
       localStorage.setItem(prefix + 'accounts', JSON.stringify(cleanA));
@@ -1155,7 +1164,7 @@ export const AppProvider = ({ children }) => {
       localStorage.removeItem('ew_transactions');
       localStorage.removeItem('ew_goals');
     } catch (e) {}
-    showToast('Workspace reset to clean slate', 'success');
+    showToast('Workspace reset to clean slate ($0 / empty)', 'success');
   };
 
   return (
@@ -1200,6 +1209,7 @@ export const AppProvider = ({ children }) => {
         setShowCreateModal,
         showMenuDrawer,
         setShowMenuDrawer,
+        workspaceResetKey,
         editingGoal,
         setEditingGoal,
         isDetailEditing,

@@ -60,7 +60,7 @@ export const PricingTab = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 sm:space-y-8 select-none">
       {/* Header */}
       <div className="text-center max-w-xl mx-auto space-y-2">
         <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">

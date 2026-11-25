@@ -142,8 +142,11 @@ body {
 h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.025em;
 }
-.tabular-nums, .font-mono, [class*="text-"] {
+.tabular-nums, .font-mono, [class*="text-"], input[type="number"], .ps-input {
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "zero" 1;
+  -webkit-font-feature-settings: "zero" 1;
+  -moz-font-feature-settings: "zero" 1;
 }
 
 /* Atmospheric Aurora Mesh Gradients */
@@ -346,9 +349,8 @@ select option {
   background-clip: padding-box;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   BLUEPRINT / PAYCHECK CALCULATOR & RECEIPT SYSTEM (.ps-)
-   ═══════════════════════════════════════════════════════════ */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .ps-hero {
   display: flex; align-items: stretch; gap: 1.5rem; flex-wrap: wrap;
   padding: 1.5rem 1.75rem; border-radius: var(--radius-lg);

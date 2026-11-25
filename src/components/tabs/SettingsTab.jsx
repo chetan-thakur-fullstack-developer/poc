@@ -152,7 +152,7 @@ export const SettingsTab = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 sm:space-y-8 select-none">
       {/* Main Settings Grid: Sub-nav on Left, Content on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Sub-nav */}

@@ -1,6 +1,5 @@
 import React from 'react';
-import { useApp } from '../context/AppContext.jsx';
-import { useAuth } from '../context/AuthContext.jsx';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
   CreditCard,
@@ -18,6 +17,8 @@ import {
   LogOut,
   Sparkles
 } from 'lucide-react';
+import { useApp } from '../context/AppContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export const BottomNav = () => {
   const { currentTab, setCurrentTab, openModal, accountsData, transactions, showMenuDrawer, setShowMenuDrawer } = useApp();
@@ -42,7 +43,7 @@ export const BottomNav = () => {
       ]
     },
     {
-      title: 'Planning & Calculators',
+      title: 'Planning',
       items: [
         { id: 'tab-expenses', label: 'Budget & Spend', icon: Wallet },
         { id: 'tab-goals', label: 'Goals', icon: Target },
@@ -52,7 +53,7 @@ export const BottomNav = () => {
       ]
     },
     {
-      title: 'System & Billing',
+      title: 'System',
       items: [
         { id: 'tab-pricing', label: 'Plans & Billing', icon: Gem, tag: 'PRO' },
         { id: 'tab-settings', label: 'Settings & Cloud', icon: Settings }
@@ -67,78 +68,80 @@ export const BottomNav = () => {
 
   return (
     <>
-      {/* Mobile Bottom Tab Bar (Includes Dashboard, Accounts, Portfolio, Transactions, Budget, Goals) */}
+      {/* Mobile Bottom Tab Bar (Taller height & extra bottom safe-area padding for curved screens) */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-40 h-20 border-t border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-xl px-1 sm:px-4 flex items-center justify-around shadow-2xl select-none"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 1rem)' }}
+        className="fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface)]/95 backdrop-blur-2xl border-t border-[var(--border)] px-1 sm:px-4 py-3 shadow-2xl select-none"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 2rem) + 0.75rem)' }}
       >
-        <button
-          onClick={() => setCurrentTab('tab-dashboard')}
-          className={`flex flex-col items-center justify-center gap-0.5 min-w-[36px] min-h-[44px] px-1.5 py-2 rounded-xl text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
-            currentTab === 'tab-dashboard' ? 'text-emerald-400 font-black scale-105' : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
-          }`}
-        >
-          <LayoutDashboard className="w-5 h-5 shrink-0" />
-          <span>Home</span>
-        </button>
+        <div className="flex items-center justify-around w-full max-w-lg mx-auto">
+          <button
+            onClick={() => setCurrentTab('tab-dashboard')}
+            className={`flex flex-col items-center justify-center gap-1 min-w-[40px] min-h-[48px] px-1.5 py-1.5 rounded-2xl text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
+              currentTab === 'tab-dashboard' ? 'text-emerald-400 font-black scale-105' : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+            }`}
+          >
+            <LayoutDashboard className="w-5 h-5 shrink-0" />
+            <span>Home</span>
+          </button>
 
-        <button
-          onClick={() => setCurrentTab('tab-accounts')}
-          className={`flex flex-col items-center justify-center gap-0.5 min-w-[36px] min-h-[44px] px-1.5 py-2 rounded-xl text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
-            currentTab === 'tab-accounts' ? 'text-emerald-400 font-black scale-105' : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
-          }`}
-        >
-          <CreditCard className="w-5 h-5 shrink-0" />
-          <span>Accounts</span>
-        </button>
+          <button
+            onClick={() => setCurrentTab('tab-accounts')}
+            className={`flex flex-col items-center justify-center gap-1 min-w-[40px] min-h-[48px] px-1.5 py-1.5 rounded-2xl text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
+              currentTab === 'tab-accounts' ? 'text-emerald-400 font-black scale-105' : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+            }`}
+          >
+            <CreditCard className="w-5 h-5 shrink-0" />
+            <span>Accounts</span>
+          </button>
 
-        <button
-          onClick={() => setCurrentTab('tab-overview')}
-          className={`flex flex-col items-center justify-center gap-0.5 min-w-[36px] min-h-[44px] px-1.5 py-2 rounded-xl text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
-            currentTab === 'tab-overview' ? 'text-emerald-400 font-black scale-105' : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
-          }`}
-        >
-          <TrendingUp className="w-5 h-5 shrink-0" />
-          <span>Portfolio</span>
-        </button>
+          <button
+            onClick={() => setCurrentTab('tab-overview')}
+            className={`flex flex-col items-center justify-center gap-1 min-w-[40px] min-h-[48px] px-1.5 py-1.5 rounded-2xl text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
+              currentTab === 'tab-overview' ? 'text-emerald-400 font-black scale-105' : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+            }`}
+          >
+            <TrendingUp className="w-5 h-5 shrink-0" />
+            <span>Portfolio</span>
+          </button>
 
-        <button
-          onClick={() => setCurrentTab('tab-transactions')}
-          className={`flex flex-col items-center justify-center gap-0.5 min-w-[36px] min-h-[44px] px-1.5 py-2 rounded-xl text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
-            currentTab === 'tab-transactions' ? 'text-emerald-400 font-black scale-105' : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
-          }`}
-        >
-          <ArrowLeftRight className="w-5 h-5 shrink-0" />
-          <span>Txns</span>
-        </button>
+          <button
+            onClick={() => setCurrentTab('tab-transactions')}
+            className={`flex flex-col items-center justify-center gap-1 min-w-[40px] min-h-[48px] px-1.5 py-1.5 rounded-2xl text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
+              currentTab === 'tab-transactions' ? 'text-emerald-400 font-black scale-105' : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+            }`}
+          >
+            <ArrowLeftRight className="w-5 h-5 shrink-0" />
+            <span>Txns</span>
+          </button>
 
-        <button
-          onClick={() => setCurrentTab('tab-expenses')}
-          className={`flex flex-col items-center justify-center gap-0.5 min-w-[36px] min-h-[44px] px-1.5 py-2 rounded-xl text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
-            currentTab === 'tab-expenses' ? 'text-emerald-400 font-black scale-105' : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
-          }`}
-        >
-          <Wallet className="w-5 h-5 shrink-0" />
-          <span>Budget</span>
-        </button>
+          <button
+            onClick={() => setCurrentTab('tab-expenses')}
+            className={`flex flex-col items-center justify-center gap-1 min-w-[40px] min-h-[48px] px-1.5 py-1.5 rounded-2xl text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
+              currentTab === 'tab-expenses' ? 'text-emerald-400 font-black scale-105' : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+            }`}
+          >
+            <Wallet className="w-5 h-5 shrink-0" />
+            <span>Budget</span>
+          </button>
 
-        <button
-          onClick={() => setCurrentTab('tab-goals')}
-          className={`flex flex-col items-center justify-center gap-0.5 min-w-[36px] min-h-[44px] px-1.5 py-2 rounded-xl text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
-            currentTab === 'tab-goals' ? 'text-emerald-400 font-black scale-105' : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
-          }`}
-        >
-          <Target className="w-5 h-5 shrink-0" />
-          <span>Goals</span>
-        </button>
+          <button
+            onClick={() => setCurrentTab('tab-goals')}
+            className={`flex flex-col items-center justify-center gap-1 min-w-[40px] min-h-[48px] px-1.5 py-1.5 rounded-2xl text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
+              currentTab === 'tab-goals' ? 'text-emerald-400 font-black scale-105' : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+            }`}
+          >
+            <Target className="w-5 h-5 shrink-0" />
+            <span>Goals</span>
+          </button>
+        </div>
       </nav>
 
       {/* Hamburger Menu Drawer */}
       {showMenuDrawer && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex flex-col justify-end animate-in fade-in duration-200 select-none">
           <div
-            className="bg-[var(--app-bg-2)] border-t border-[var(--border-strong)] rounded-t-3xl max-h-[88vh] overflow-y-auto p-5 pb-28 space-y-6 shadow-2xl animate-in slide-in-from-bottom duration-300"
-            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 1rem) + 5rem)' }}
+            className="bg-[var(--app-bg-2)] border-t border-[var(--border-strong)] rounded-t-3xl max-h-[88vh] overflow-y-auto p-5 pb-32 space-y-6 shadow-2xl animate-in slide-in-from-bottom duration-300"
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 2rem) + 6rem)' }}
           >
             {/* Drawer Header */}
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-4">
@@ -148,7 +151,7 @@ export const BottomNav = () => {
                 </div>
                 <div>
                   <h3 className="font-black text-sm text-[var(--text-1)]">LedgerJourney Navigation</h3>
-                  <p className="text-[10px] text-[var(--text-3)]">All tools, calculators, tax &amp; settings</p>
+                  <p className="text-[10px] text-[var(--text-3)]">All tabs, calculators, tax &amp; settings</p>
                 </div>
               </div>
               <button

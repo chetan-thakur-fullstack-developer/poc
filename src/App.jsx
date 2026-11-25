@@ -91,8 +91,8 @@ export const App = () => {
         <Header />
 
         {/* Scrollable View Container */}
-        <main ref={mainScrollRef} className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 pt-6 pb-36 lg:pb-12">
-          <div className="max-w-7xl mx-auto space-y-12">
+        <main ref={mainScrollRef} className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 lg:pb-12">
+          <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
             {renderActiveTab()}
 
             {/* Financial Disclaimer Footer */}

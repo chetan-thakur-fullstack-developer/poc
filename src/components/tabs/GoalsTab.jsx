@@ -53,16 +53,16 @@ export const GoalsTab = () => {
   const totalMonthly = filteredGoals.reduce((sum, g) => sum + (g.monthly || 0), 0);
 
   return (
-    <div className="space-y-6 pb-36 select-none">
-      {/* 1. Top Section: Clean Tabs [Save Up] [Debt Payoff] & Primary Action */}
+    <div className="space-y-6 sm:space-y-8 select-none">
+      {/* 1. Top Section: Clean Tabs [Save Up] [Debt Payoff] covering full row width on mobile & Desktop Create Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Sub-tabs: Save Up vs Pay Down */}
-        <div role="tablist" className="flex rounded-xl bg-[var(--surface-2)] p-1 border border-[var(--border)] shrink-0 w-fit">
+        {/* Sub-tabs: Save Up vs Pay Down (full width 50/50 split on mobile) */}
+        <div role="tablist" className="flex w-full sm:w-auto rounded-xl bg-[var(--surface-2)] p-1 border border-[var(--border)] shrink-0">
           <button
             role="tab"
             aria-selected={goalTypeTab === 'save'}
             onClick={() => setGoalTypeTab('save')}
-            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap min-h-[44px] ${
+            className={`flex-1 sm:flex-initial px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap min-h-[44px] ${
               goalTypeTab === 'save' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-[var(--text-3)] hover:text-white'
             }`}
           >
@@ -73,7 +73,7 @@ export const GoalsTab = () => {
             role="tab"
             aria-selected={goalTypeTab === 'paydown'}
             onClick={() => setGoalTypeTab('paydown')}
-            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap min-h-[44px] ${
+            className={`flex-1 sm:flex-initial px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap min-h-[44px] ${
               goalTypeTab === 'paydown' ? 'bg-rose-600 text-white shadow-sm' : 'text-[var(--text-3)] hover:text-white'
             }`}
           >
@@ -82,9 +82,10 @@ export const GoalsTab = () => {
           </button>
         </div>
 
+        {/* Desktop Create Button (Hidden on mobile, visible on desktop) */}
         <button
           onClick={() => handleOpenCreate(goalTypeTab)}
-          className={`btn-primary text-xs px-4 py-2.5 cursor-pointer flex items-center gap-1.5 text-white shadow-sm shrink-0 whitespace-nowrap min-h-[44px] ${
+          className={`hidden sm:flex btn-primary text-xs px-4 py-2.5 cursor-pointer items-center gap-1.5 text-white shadow-sm shrink-0 whitespace-nowrap min-h-[44px] ${
             goalTypeTab === 'save' ? 'bg-[#8B5CF6] hover:bg-[#7c4dff]' : 'bg-rose-600 hover:bg-rose-500'
           }`}
         >
@@ -172,7 +173,7 @@ export const GoalsTab = () => {
           </div>
         </div>
       ) : (
-        /* Active Cards Grid: Stacked vertically on mobile (grid-cols-1) with full-width progress & buttons */
+        /* Active Cards Grid: 3-column grid structure on desktop, 1-col on mobile */
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -185,7 +186,7 @@ export const GoalsTab = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredGoals.map(goal => {
               const isPaydown = goal.type === 'paydown';
               const pct = isPaydown
@@ -337,6 +338,17 @@ export const GoalsTab = () => {
           })}
         </div>
       </div>
+
+      {/* Floating Action Button (FAB) for Mobile */}
+      <button
+        onClick={() => handleOpenCreate(goalTypeTab)}
+        className={`fixed right-5 bottom-24 z-30 sm:hidden w-14 h-14 rounded-full text-white shadow-2xl flex items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95 ${
+          goalTypeTab === 'save' ? 'bg-[#8B5CF6] hover:bg-[#7c4dff]' : 'bg-rose-600 hover:bg-rose-500'
+        }`}
+        title={goalTypeTab === 'save' ? 'Create Goal' : 'Add Debt Liability'}
+      >
+        {goalTypeTab === 'save' ? <Target className="w-6 h-6 stroke-[2.5]" /> : <CreditCard className="w-6 h-6 stroke-[2.5]" />}
+      </button>
     </div>
   );
 };

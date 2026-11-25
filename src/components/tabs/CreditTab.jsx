@@ -12,7 +12,7 @@ export const CreditTab = () => {
   const utilizationPct = totalLimit > 0 ? Math.round((totalBalance / totalLimit) * 100) : 3;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 sm:space-y-8 select-none">
 
       {/* Credit Score Top Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

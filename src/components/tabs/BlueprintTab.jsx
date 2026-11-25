@@ -1,6 +1,7 @@
-import React, { useState, useMemo, useEffect, useRef, useId } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Home, Landmark, Sigma, Car, Tag, TrendingUp, Calendar } from 'lucide-react';
 import { AreaChart } from '../charts/AreaChart.jsx';
+import { useApp } from '../../context/AppContext.jsx';
 
 /* ═══════════════════════════════════════════════════════════
    SHARED UTILITIES
@@ -109,6 +110,7 @@ function Seg({ options, value, onChange }) {
    1. PAYCHECK CALCULATOR
    ═══════════════════════════════════════════════════════════ */
 function PaycheckCalc() {
+  const { workspaceResetKey } = useApp();
   const [salary, setSalary] = useState(145000);
   const [freq, setFreq] = useState(26);
   const [filing, setFiling] = useState('mfj');
@@ -123,6 +125,19 @@ function PaycheckCalc() {
   const [extraLocal, setExtraLocal] = useState(0);
   const [stateRate, setStateRate] = useState(0);
   const [localRate, setLocalRate] = useState(0);
+
+  useEffect(() => {
+    if (workspaceResetKey > 0) {
+      setSalary(0);
+      setPreTax([]);
+      setPostTax([]);
+      setExtraFed(0);
+      setExtraState(0);
+      setExtraLocal(0);
+      setStateRate(0);
+      setLocalRate(0);
+    }
+  }, [workspaceResetKey]);
 
   const calc = useMemo(() => {
     const grossPeriod = salary / freq;
@@ -219,7 +234,7 @@ function PaycheckCalc() {
           <div className="ps-block">
             <div className="ps-block-head">
               <span className="ps-block-label">Compensation</span>
-              {override && <button className="ps-mini-btn" onClick={() => { setOverride(false); setSalary(145000); }}>Reset</button>}
+              {override && <button className="ps-mini-btn" onClick={() => { setOverride(false); setSalary(0); }}>Reset</button>}
             </div>
 
             <DualField
@@ -387,10 +402,19 @@ function PaycheckCalc() {
    2. RULE OF 72
    ═══════════════════════════════════════════════════════════ */
 function Rule72Calc() {
+  const { workspaceResetKey } = useApp();
   const [mode, setMode] = useState('rate');
   const [rate, setRate] = useState(8);
   const [years, setYears] = useState(9);
   const [initial, setInitial] = useState(10000);
+
+  useEffect(() => {
+    if (workspaceResetKey > 0) {
+      setRate(0);
+      setYears(0);
+      setInitial(0);
+    }
+  }, [workspaceResetKey]);
 
   const calc = useMemo(() => {
     const r = mode === 'rate' ? rate : 72 / years;
@@ -437,7 +461,7 @@ function Rule72Calc() {
           </div>
           <div className="ps-block">
             <div className="ps-block-head"><span className="ps-block-label">Inputs</span>
-              <button className="ps-mini-btn" onClick={() => { setRate(8); setYears(9); setInitial(10000); }}>Reset</button>
+              <button className="ps-mini-btn" onClick={() => { setRate(0); setYears(0); setInitial(0); }}>Reset</button>
             </div>
             {mode === 'rate' ? (
               <DualField label="Annual Return / Interest Rate" hint={pct(rate)}
@@ -485,6 +509,7 @@ function Rule72Calc() {
    3. MORTGAGE
    ═══════════════════════════════════════════════════════════ */
 function MortgageCalc() {
+  const { workspaceResetKey } = useApp();
   const [propVal, setPropVal] = useState(622000);
   const [downPct, setDownPct] = useState(5);
   const [rate, setRate] = useState(5.5);
@@ -497,6 +522,19 @@ function MortgageCalc() {
   const [subTab, setSubTab] = useState('amortization');
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 12;
+
+  useEffect(() => {
+    if (workspaceResetKey > 0) {
+      setPropVal(0);
+      setDownPct(0);
+      setRate(0);
+      setTerm(0);
+      setExtra(0);
+      setUtilities(0);
+      setInsurance(0);
+      setTaxPct(0);
+    }
+  }, [workspaceResetKey]);
 
   const calc = useMemo(() => {
     const downAmt = propVal * downPct / 100;
@@ -740,11 +778,22 @@ function VehicleCalc() {
 }
 
 function LeaseCalc() {
+  const { workspaceResetKey } = useApp();
   const [msrp, setMsrp] = useState(45000);
   const [monthly, setMonthly] = useState(499);
   const [down, setDown] = useState(0);
   const [term, setTerm] = useState(36);
   const [miles, setMiles] = useState(12000);
+
+  useEffect(() => {
+    if (workspaceResetKey > 0) {
+      setMsrp(0);
+      setMonthly(0);
+      setDown(0);
+      setTerm(0);
+      setMiles(0);
+    }
+  }, [workspaceResetKey]);
 
   const calc = useMemo(() => {
     const totalCost = down + monthly * term;
@@ -828,6 +877,7 @@ function LeaseCalc() {
 }
 
 function ValuationCalc() {
+  const { workspaceResetKey } = useApp();
   const [perspective, setPerspective] = useState('buying');
   const [msrp, setMsrp] = useState(35000);
   const [age, setAge] = useState(3);
@@ -835,6 +885,16 @@ function ValuationCalc() {
   const [condition, setCondition] = useState('good');
   const [listed, setListed] = useState(25000);
   const [final, setFinal] = useState(0);
+
+  useEffect(() => {
+    if (workspaceResetKey > 0) {
+      setMsrp(0);
+      setAge(0);
+      setMileage(0);
+      setListed(0);
+      setFinal(0);
+    }
+  }, [workspaceResetKey]);
 
   const calc = useMemo(() => {
     const condMult = { excellent: 1.05, good: 1.00, fair: 0.85, poor: 0.65 }[condition];
@@ -941,12 +1001,23 @@ function ValuationCalc() {
    5. PROJECTIONS (compound interest)
    ═══════════════════════════════════════════════════════════ */
 function ProjectionsCalc() {
+  const { workspaceResetKey } = useApp();
   const [starting, setStarting] = useState(0);
   const [monthlyContri, setMonthlyContri] = useState(0);
   const [annualReturn, setAnnualReturn] = useState(7);
   const [years, setYears] = useState(20);
   const [inflation, setInflation] = useState(2.5);
   const [compounding, setCompounding] = useState('monthly');
+
+  useEffect(() => {
+    if (workspaceResetKey > 0) {
+      setStarting(0);
+      setMonthlyContri(0);
+      setAnnualReturn(0);
+      setYears(0);
+      setInflation(0);
+    }
+  }, [workspaceResetKey]);
 
   const calc = useMemo(() => {
     const n = compounding === 'daily' ? 365 : compounding === 'yearly' ? 1 : 12;
@@ -1032,9 +1103,18 @@ function ProjectionsCalc() {
    6. FIRE
    ═══════════════════════════════════════════════════════════ */
 function FireCalc() {
+  const { workspaceResetKey } = useApp();
   const [annualExp, setAnnualExp] = useState(80000);
   const [withdrawal, setWithdrawal] = useState(4);
   const [currentAssets, setCurrentAssets] = useState(0);
+
+  useEffect(() => {
+    if (workspaceResetKey > 0) {
+      setAnnualExp(0);
+      setWithdrawal(0);
+      setCurrentAssets(0);
+    }
+  }, [workspaceResetKey]);
 
   const calc = useMemo(() => {
     const target = annualExp / (withdrawal / 100);
@@ -1104,8 +1184,17 @@ function FireCalc() {
    7. EMERGENCY FUND
    ═══════════════════════════════════════════════════════════ */
 function EmergencyCalc() {
+  const { workspaceResetKey } = useApp();
   const [monthly, setMonthly] = useState(5000);
   const [months, setMonths] = useState(6);
+
+  useEffect(() => {
+    if (workspaceResetKey > 0) {
+      setMonthly(0);
+      setMonths(0);
+    }
+  }, [workspaceResetKey]);
+
   const target = monthly * months;
 
   return (
@@ -1163,9 +1252,18 @@ function EmergencyCalc() {
    8. INFLATION
    ═══════════════════════════════════════════════════════════ */
 function InflationCalc() {
+  const { workspaceResetKey } = useApp();
   const [rate, setRate] = useState(3);
   const [years, setYears] = useState(20);
   const [amount, setAmount] = useState(100000);
+
+  useEffect(() => {
+    if (workspaceResetKey > 0) {
+      setRate(0);
+      setYears(0);
+      setAmount(0);
+    }
+  }, [workspaceResetKey]);
 
   const realValue = amount / Math.pow(1 + rate / 100, years);
   const checkpoints = [5, 10, 20, 30].map((y) => ({

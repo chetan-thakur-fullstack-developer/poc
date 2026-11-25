@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '../../context/AppContext.jsx';
 import { AnimatedNumber } from '../AnimatedNumber.jsx';
-import { DonutChart } from '../charts/DonutChart.jsx';
 import { Plus, Link2, Layers, TrendingUp, TrendingDown, Pencil, AlertCircle, ShieldCheck, Sparkles, Zap, Trash2, MoreVertical, X, Check } from 'lucide-react';
 
 export const AccountsTab = () => {
-  const { accountsData, setAccountsData, formatMoney, openModal, deleteAccount, syncToCloud, isSyncing, showToast } = useApp();
+  const { accountsData, setAccountsData, transactions, formatMoney, openModal, deleteAccount, syncToCloud, isSyncing, showToast } = useApp();
   const [filter, setFilter] = useState('all');
   const [monthlySavingsInput, setMonthlySavingsInput] = useState(1500);
   const [openRowMenuId, setOpenRowMenuId] = useState(null);
@@ -66,10 +65,25 @@ export const AccountsTab = () => {
 
   const netWorth = totalAssets - totalLiab;
 
+  // Dynamic Monthly Change calculation from transactions in current month
+  const currentMonthPrefix = new Date().toISOString().slice(0, 7);
+  const monthlyChange = (transactions || [])
+    .filter(t => !t.isExcluded && t.date?.startsWith(currentMonthPrefix))
+    .reduce((sum, t) => {
+      const amt = Number(t.amount) || 0;
+      const isExp = t.isExpense !== undefined ? t.isExpense : (amt >= 0);
+      return isExp ? sum - amt : sum + Math.abs(amt);
+    }, 0);
+
+  // Dynamic APY & Health Status based on assets
+  const effectiveAPY = totalAssets > 0 ? 7.0 : 0.0;
+  const debtToAssetRatio = totalAssets > 0 ? ((Math.abs(totalLiab) / totalAssets) * 100).toFixed(1) : '0';
+  const healthStatus = linked.length === 0 ? 'Clean Slate — Ready' : Number(debtToAssetRatio) < 30 ? 'Strong Financial Health' : 'Moderate Leverage';
+
   // 1-Year, 3-Year, 5-Year Net Worth Projection based on monthly savings
-  const projected1Yr = netWorth + monthlySavingsInput * 12 * 1.07;
-  const projected3Yr = netWorth + monthlySavingsInput * 36 * 1.07;
-  const projected5Yr = netWorth + monthlySavingsInput * 60 * 1.07;
+  const projected1Yr = netWorth + monthlySavingsInput * 12 * (1 + effectiveAPY / 100);
+  const projected3Yr = netWorth + monthlySavingsInput * 36 * (1 + effectiveAPY / 100);
+  const projected5Yr = netWorth + monthlySavingsInput * 60 * (1 + effectiveAPY / 100);
 
   const handleSaveAccountEdit = (e) => {
     e.preventDefault();
@@ -85,59 +99,113 @@ export const AccountsTab = () => {
   };
 
   return (
-    <div className="space-y-6 pb-36 select-none relative">
-      {/* Top Summary: Stack Net Worth card and Donut chart vertically on mobile */}
-      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 items-start">
-        {/* Main Net Worth Card */}
-        <div className="w-full lg:col-span-7 card p-6 relative overflow-hidden bg-gradient-to-br from-[var(--surface)] via-[var(--surface)] to-emerald-500/10 border border-emerald-500/25 space-y-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[var(--text-3)]">Total Household Net Worth</span>
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[var(--text-1)] font-mono my-1.5">
-                <AnimatedNumber value={netWorth} />
-              </div>
-              <p className="text-xs font-semibold text-[var(--text-3)]">
-                Aggregated across {linked.length} linked accounts & assets
-              </p>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold text-xl shadow-inner">
-              💎
-            </div>
+    <div className="space-y-6 sm:space-y-8 select-none relative">
+      {/* =========================================================
+         DESKTOP VIEW: Balanced 3-Column Hero Section
+         ========================================================= */}
+      <div className="hidden lg:grid grid-cols-3 gap-6 card p-6 sm:p-8 bg-gradient-to-br from-[var(--surface)] via-[var(--surface)] to-emerald-500/10 border border-emerald-500/25 shadow-xl items-center">
+        {/* Column 1: Net Worth Hero */}
+        <div className="space-y-2 border-r border-[var(--border)] pr-6">
+          <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-3)]">
+            Total Household Net Worth
+          </span>
+          <div className="text-4xl lg:text-5xl font-black tracking-tight text-[var(--text-1)] font-mono my-1">
+            <AnimatedNumber value={netWorth} />
           </div>
-
-          <div className="space-y-2 pt-2 border-t border-[var(--border)]">
-            <div className="flex justify-between text-xs font-bold">
-              <span className="flex items-center gap-1.5 text-emerald-400">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                Total Assets: {formatMoney(totalAssets)}
-              </span>
-              <span className="flex items-center gap-1.5 text-rose-400">
-                Liabilities: {formatMoney(Math.abs(totalLiab))}
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
-              </span>
-            </div>
-            <div className="h-3 rounded-full overflow-hidden flex bg-[var(--surface-3)]">
-              <div
-                className="h-full bg-emerald-500 transition-all duration-700"
-                style={{ width: `${Math.max(4, Math.min(96, (totalAssets / (totalAssets + Math.abs(totalLiab) || 1)) * 100))}%` }}
-              />
-              <div
-                className="h-full bg-rose-500 transition-all duration-700"
-                style={{ width: `${Math.max(4, Math.min(96, (Math.abs(totalLiab) / (totalAssets + Math.abs(totalLiab) || 1)) * 100))}%` }}
-              />
-            </div>
+          <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
+            <span>{monthlyChange >= 0 ? '▲ +' : '▼ '}{formatMoney(monthlyChange)} this month</span>
+            <span className="text-[var(--text-4)]">•</span>
+            <span className="text-[var(--text-3)]">{linked.length} accounts</span>
           </div>
         </div>
 
-        {/* Money Breakdown Donut Chart */}
-        <div className="w-full lg:col-span-5">
-          <DonutChart
-            title="Asset & Liability Distribution"
-            data={[
-              { label: 'Total Assets', value: totalAssets, color: '#10B981' },
-              { label: 'Total Liabilities', value: Math.abs(totalLiab), color: '#EF4444' }
-            ]}
-          />
+        {/* Column 2: Assets & Liabilities Breakdown with Segmented Bar */}
+        <div className="space-y-3 border-r border-[var(--border)] pr-6 pl-2">
+          <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-3)]">
+            Asset vs Liability Split
+          </span>
+          <div className="flex justify-between text-xs font-bold">
+            <span className="flex items-center gap-1.5 text-emerald-400">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+              Assets: <strong className="font-mono">{formatMoney(totalAssets)}</strong>
+            </span>
+            <span className="flex items-center gap-1.5 text-rose-400">
+              Liabilities: <strong className="font-mono">{formatMoney(Math.abs(totalLiab))}</strong>
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+            </span>
+          </div>
+          <div className="h-3 rounded-full overflow-hidden flex bg-[var(--surface-3)] shadow-inner w-full">
+            <div
+              className="h-full bg-emerald-500 transition-all duration-700 shadow-sm"
+              style={{ width: `${Math.max(4, Math.min(96, (totalAssets / (totalAssets + Math.abs(totalLiab) || 1)) * 100))}%` }}
+            />
+            <div
+              className="h-full bg-rose-500 transition-all duration-700 shadow-sm"
+              style={{ width: `${Math.max(4, Math.min(96, (Math.abs(totalLiab) / (totalAssets + Math.abs(totalLiab) || 1)) * 100))}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Column 3: Financial Health & Velocity Context */}
+        <div className="space-y-2 pl-2">
+          <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-3)]">
+            Health Ratio &amp; Velocity
+          </span>
+          <div className="flex items-center justify-between text-xs font-bold text-[var(--text-1)]">
+            <span>Debt-to-Asset Ratio:</span>
+            <span className="font-mono text-emerald-400">
+              {debtToAssetRatio}%
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-xs font-bold text-[var(--text-1)]">
+            <span>Annual Compounding APY:</span>
+            <span className="font-mono text-purple-400">{effectiveAPY.toFixed(1)}%</span>
+          </div>
+          <p className="text-[10px] text-[var(--text-3)] pt-1">
+            Status: <strong className="text-emerald-400">{healthStatus}</strong>
+          </p>
+        </div>
+      </div>
+
+      {/* =========================================================
+         MOBILE VIEW: Streamlined Single Hero Card
+         ========================================================= */}
+      <div className="block lg:hidden card p-6 relative overflow-hidden bg-gradient-to-br from-[var(--surface)] via-[var(--surface)] to-emerald-500/10 border border-emerald-500/25 space-y-5 shadow-xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-3)]">
+              Total Household Net Worth
+            </span>
+            <div className="text-3xl font-black tracking-tight text-[var(--text-1)] font-mono my-1.5">
+              <AnimatedNumber value={netWorth} />
+            </div>
+            <p className="text-xs font-semibold text-[var(--text-3)]">
+              Aggregated across {linked.length} linked accounts &amp; assets
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-2 pt-2 border-t border-[var(--border)]">
+          <div className="flex justify-between text-xs font-bold">
+            <span className="flex items-center gap-1.5 text-emerald-400">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+              Assets: {formatMoney(totalAssets)}
+            </span>
+            <span className="flex items-center gap-1.5 text-rose-400">
+              Liabilities: {formatMoney(Math.abs(totalLiab))}
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+            </span>
+          </div>
+          <div className="h-3 rounded-full overflow-hidden flex bg-[var(--surface-3)] shadow-inner">
+            <div
+              className="h-full bg-emerald-500 transition-all duration-700"
+              style={{ width: `${Math.max(4, Math.min(96, (totalAssets / (totalAssets + Math.abs(totalLiab) || 1)) * 100))}%` }}
+            />
+            <div
+              className="h-full bg-rose-500 transition-all duration-700"
+              style={{ width: `${Math.max(4, Math.min(96, (Math.abs(totalLiab) / (totalAssets + Math.abs(totalLiab) || 1)) * 100))}%` }}
+            />
+          </div>
         </div>
       </div>
 
@@ -393,7 +461,7 @@ export const AccountsTab = () => {
             </div>
             <div>
               <h3 className="font-bold text-sm text-[var(--text-1)]">Wealth Velocity &amp; Net Worth Simulator</h3>
-              <p className="text-[10px] text-[var(--text-3)]">Project your future net worth based on monthly compounding savings (7% APY)</p>
+              <p className="text-[10px] text-[var(--text-3)]">Project your future net worth based on monthly compounding savings ({effectiveAPY.toFixed(1)}% APY)</p>
             </div>
           </div>
 
@@ -431,22 +499,22 @@ export const AccountsTab = () => {
           />
         </div>
 
-        {/* 1/3/5 Year Projections Stacked Vertically or Horizontally Swipe on mobile */}
+        {/* 1/3/5 Year Projections */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
           <div className="card-inner p-4 space-y-1 border border-[var(--border)]">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-4)]">1-Year Horizon</span>
             <div className="text-lg font-black font-mono text-emerald-400">{formatMoney(projected1Yr)}</div>
-            <p className="text-[10px] text-[var(--text-3)]">+7% compound projection</p>
+            <p className="text-[10px] text-[var(--text-3)]">+{effectiveAPY.toFixed(1)}% compound projection</p>
           </div>
           <div className="card-inner p-4 space-y-1 border border-[var(--border)]">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-4)]">3-Year Horizon</span>
             <div className="text-lg font-black font-mono text-emerald-400">{formatMoney(projected3Yr)}</div>
-            <p className="text-[10px] text-[var(--text-3)]">+7% compound projection</p>
+            <p className="text-[10px] text-[var(--text-3)]">+{effectiveAPY.toFixed(1)}% compound projection</p>
           </div>
           <div className="card-inner p-4 space-y-1 border border-[var(--border)]">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-4)]">5-Year Horizon</span>
             <div className="text-lg font-black font-mono text-emerald-400">{formatMoney(projected5Yr)}</div>
-            <p className="text-[10px] text-[var(--text-3)]">+7% compound projection</p>
+            <p className="text-[10px] text-[var(--text-3)]">+{effectiveAPY.toFixed(1)}% compound projection</p>
           </div>
         </div>
       </div>

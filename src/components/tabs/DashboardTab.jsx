@@ -92,7 +92,7 @@ export const DashboardTab = () => {
   };
 
   return (
-    <div className="space-y-6 pb-36 select-none">
+    <div className="space-y-6 sm:space-y-8 select-none">
       {/* Mobile Compact Welcome Banner */}
       <div className="card p-4 sm:p-8 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-transparent border border-emerald-500/30 flex flex-col xl:flex-row xl:items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center justify-between w-full xl:w-auto">

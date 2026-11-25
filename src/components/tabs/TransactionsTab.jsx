@@ -22,7 +22,8 @@ import {
   X,
   ChevronDown,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  SlidersHorizontal
 } from 'lucide-react';
 
 const MONTHS = [
@@ -49,6 +50,7 @@ export const TransactionsTab = () => {
   const [selectedCard, setSelectedCard] = useState('all');
   const [quickFilter, setQuickFilter] = useState('all'); // 'all', 'recurring', 'tax', 'flagged'
   const [kpiFilter, setKpiFilter] = useState('all'); // 'all', 'aboveAverage', 'recurringBurn'
+  const [showMobileFilterModal, setShowMobileFilterModal] = useState(false);
 
   // Date Range Filter State
   const [dateFilter, setDateFilter] = useState({
@@ -79,6 +81,11 @@ export const TransactionsTab = () => {
 
   const categories = expensesData?.categories || [];
   const cards = expensesData?.cards || [];
+
+  const activeFilterCount = (selectedCategory !== 'all' ? 1 : 0) +
+    (selectedCard !== 'all' ? 1 : 0) +
+    (dateFilter.mode !== 'all' ? 1 : 0) +
+    (quickFilter !== 'all' ? 1 : 0);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -205,82 +212,82 @@ export const TransactionsTab = () => {
 
   return (
     <div className="space-y-6 pb-32">
-      {/* 1. Interactive KPI Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 1. Interactive KPI Summary Cards (2x2 on mobile, 4-col on desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Filtered Volume */}
         <div
           onClick={() => setKpiFilter('all')}
-          className="card p-4 flex items-center justify-between cursor-pointer hover:border-[var(--border-hover)] transition-all bg-[var(--surface)]"
+          className="card p-3.5 sm:p-4 flex items-center justify-between cursor-pointer hover:border-[var(--border-hover)] transition-all bg-[var(--surface)]"
         >
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-extrabold tracking-wider uppercase text-[var(--text-4)]">Filtered Volume</span>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400">+4.2%</span>
+              <span className="text-[9px] sm:text-[10px] font-extrabold tracking-wider uppercase text-[var(--text-4)]">Filtered Volume</span>
+              <span className="hidden sm:inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400">+4.2%</span>
             </div>
-            <div className="text-xl font-black font-mono text-[var(--text-1)] mt-1">{formatMoney(totalFilteredVolume, 2)}</div>
+            <div className="text-base sm:text-xl font-black font-mono text-[var(--text-1)] mt-1">{formatMoney(totalFilteredVolume, 2)}</div>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
-            <Receipt className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold shrink-0">
+            <Receipt className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
 
         {/* Total Entries */}
         <div
           onClick={() => setKpiFilter('all')}
-          className="card p-4 flex items-center justify-between cursor-pointer hover:border-[var(--border-hover)] transition-all bg-[var(--surface)]"
+          className="card p-3.5 sm:p-4 flex items-center justify-between cursor-pointer hover:border-[var(--border-hover)] transition-all bg-[var(--surface)]"
         >
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-extrabold tracking-wider uppercase text-[var(--text-4)]">Total Entries</span>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400">Active</span>
+              <span className="text-[9px] sm:text-[10px] font-extrabold tracking-wider uppercase text-[var(--text-4)]">Total Entries</span>
+              <span className="hidden sm:inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400">Active</span>
             </div>
-            <div className="text-xl font-black font-mono text-[var(--text-1)] mt-1">{filtered.length}</div>
+            <div className="text-base sm:text-xl font-black font-mono text-[var(--text-1)] mt-1">{filtered.length}</div>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold">
-            <Filter className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold shrink-0">
+            <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
 
         {/* Average Ticket */}
         <div
           onClick={() => setKpiFilter(kpiFilter === 'aboveAverage' ? 'all' : 'aboveAverage')}
-          className={`card p-4 flex items-center justify-between cursor-pointer transition-all ${kpiFilter === 'aboveAverage' ? 'border-indigo-500 bg-indigo-500/10' : 'hover:border-[var(--border-hover)] bg-[var(--surface)]'}`}
+          className={`card p-3.5 sm:p-4 flex items-center justify-between cursor-pointer transition-all ${kpiFilter === 'aboveAverage' ? 'border-indigo-500 bg-indigo-500/10' : 'hover:border-[var(--border-hover)] bg-[var(--surface)]'}`}
         >
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-extrabold tracking-wider uppercase text-[var(--text-4)]">Average Ticket</span>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400">Filter &gt; Avg</span>
+              <span className="text-[9px] sm:text-[10px] font-extrabold tracking-wider uppercase text-[var(--text-4)]">Average Ticket</span>
+              <span className="hidden sm:inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400">&gt; Avg</span>
             </div>
-            <div className="text-xl font-black font-mono text-[var(--text-1)] mt-1">{formatMoney(avgTicket, 2)}</div>
+            <div className="text-base sm:text-xl font-black font-mono text-[var(--text-1)] mt-1">{formatMoney(avgTicket, 2)}</div>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold">
-            <ArrowUpDown className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold shrink-0">
+            <ArrowUpDown className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
 
         {/* Recurring Burn */}
         <div
           onClick={() => setKpiFilter(kpiFilter === 'recurringBurn' ? 'all' : 'recurringBurn')}
-          className={`card p-4 flex items-center justify-between cursor-pointer transition-all ${kpiFilter === 'recurringBurn' ? 'border-amber-500 bg-amber-500/10' : 'hover:border-[var(--border-hover)] bg-[var(--surface)]'}`}
+          className={`card p-3.5 sm:p-4 flex items-center justify-between cursor-pointer transition-all ${kpiFilter === 'recurringBurn' ? 'border-amber-500 bg-amber-500/10' : 'hover:border-[var(--border-hover)] bg-[var(--surface)]'}`}
         >
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-extrabold tracking-wider uppercase text-[var(--text-4)]">Recurring Burn</span>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400">SaaS</span>
+              <span className="text-[9px] sm:text-[10px] font-extrabold tracking-wider uppercase text-[var(--text-4)]">Recurring Burn</span>
+              <span className="hidden sm:inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400">SaaS</span>
             </div>
-            <div className="text-xl font-black font-mono text-[var(--text-1)] mt-1">{formatMoney(recurringBurn, 2)}/mo</div>
+            <div className="text-base sm:text-xl font-black font-mono text-[var(--text-1)] mt-1">{formatMoney(recurringBurn, 2)}/mo</div>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">
-            <ShieldCheck className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold shrink-0">
+            <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
       </div>
 
-      {/* UNIFIED MASTER CARD: Integrated Filter Bar + Transactions Table */}
+      {/* UNIFIED MASTER CARD: Integrated Filter Bar + Transactions Stream / Table */}
       <div className="card overflow-visible bg-[var(--surface)] shadow-xl">
         {/* Top Filter Toolbar Section inside Master Card */}
-        <div className="p-5 sm:p-6 border-b border-[var(--border)] space-y-4 bg-[var(--surface-2)]/40">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div className="p-4 sm:p-6 border-b border-[var(--border)] space-y-4 bg-[var(--surface-2)]/40">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <button onClick={toggleSelectAll} className="text-[var(--text-3)] hover:text-[var(--text-1)] cursor-pointer" title="Select All">
                 {selectedTxIds.length > 0 && selectedTxIds.length === filtered.length ? (
@@ -304,19 +311,37 @@ export const TransactionsTab = () => {
                   <button onClick={handleBulkDelete} className="btn-secondary text-[11px] !py-1 !px-2.5 text-rose-400 hover:text-rose-300 cursor-pointer">Delete</button>
                 </div>
               )}
-
-              {/* Record Transaction Button */}
-              <button
-                onClick={() => openModal('addTx')}
-                className="btn-primary text-xs px-3.5 py-1.5 cursor-pointer flex items-center gap-1.5 shadow-sm"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                <span>Record Transaction</span>
-              </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+          {/* Mobile Search + Filter Trigger row */}
+          <div className="flex items-center gap-2 sm:hidden">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-3 w-4 h-4 text-[var(--text-4)] pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search merchants or amounts..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="input-field text-xs pl-9 py-2.5 w-full"
+              />
+            </div>
+            <button
+              onClick={() => setShowMobileFilterModal(true)}
+              className="relative px-4 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text-1)] font-bold flex items-center gap-2 shrink-0 cursor-pointer hover:border-emerald-500/50 transition-colors"
+            >
+              <Filter className="w-4 h-4 text-emerald-400" />
+              <span>Filters</span>
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-black flex items-center justify-center shadow-md">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Desktop Filter Row */}
+          <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-4 gap-3 pt-1">
             {/* Search Input */}
             <div className="relative w-full">
               <Search className="absolute left-3 top-3 w-4 h-4 text-[var(--text-4)] pointer-events-none" />
@@ -458,8 +483,8 @@ export const TransactionsTab = () => {
             </select>
           </div>
 
-          {/* Quick-Toggle Pills */}
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[var(--border)]">
+          {/* Quick-Toggle Pills: Horizontally scrollable on mobile */}
+          <div className="flex overflow-x-auto whitespace-nowrap gap-2 pt-2 border-t border-[var(--border)] scrollbar-none items-center">
             {[
               { id: 'all', label: 'All Entries' },
               { id: 'recurring', label: 'Recurring Subscriptions' },
@@ -469,7 +494,7 @@ export const TransactionsTab = () => {
               <button
                 key={pill.id}
                 onClick={() => setQuickFilter(pill.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
                   quickFilter === pill.id
                     ? 'bg-[#8B5CF6] text-white shadow-sm'
                     : 'bg-[var(--surface)] border border-[var(--border)] text-[var(--text-3)] hover:text-[var(--text-1)]'
@@ -481,170 +506,325 @@ export const TransactionsTab = () => {
           </div>
         </div>
 
-        {/* Transactions Table */}
+        {/* Transactions List / Table */}
         {filtered.length === 0 ? (
           <div className="py-20 text-center text-xs text-[var(--text-3)]">
             <Receipt className="w-10 h-10 mx-auto mb-3 text-[var(--text-4)] opacity-60" />
             <p className="font-bold text-[var(--text-1)] text-sm">No transactions recorded</p>
             <p className="text-xs text-[var(--text-3)] mt-1 max-w-sm mx-auto leading-relaxed">
-              Record your first income, expense, or transfer transaction using the "Record Transaction" button above to populate your high-precision financial activity stream.
+              Record your first income, expense, or transfer transaction using the floating "+" button to populate your high-precision financial activity stream.
             </p>
           </div>
         ) : (
-          <div
-            onScroll={() => {
-              setOpenRowMenuId(null);
-              setMenuPos(null);
-              setPopoverTxId(null);
-              setPopoverPos(null);
-            }}
-            className="max-h-[600px] overflow-y-auto overflow-x-auto relative"
-          >
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-[var(--border)] text-[var(--text-4)] uppercase tracking-wider text-[10px] font-extrabold">
-                  <th className="py-3 px-4 w-10 sticky top-0 z-20 bg-[var(--surface)] shadow-sm"></th>
-                  <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Date</th>
-                  <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Merchant / Description</th>
-                  <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Category</th>
-                  <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Card / Account</th>
-                  <th className="py-3 px-4 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Amount</th>
-                  <th className="py-3 px-4 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border)]">
-                {filtered.map(tx => {
-                  const card = cards.find(c => c.id === tx.cardId);
-                  const cat = categories.find(c => c.id === tx.categoryId);
-                  const isSelected = selectedTxIds.includes(tx.id);
-                  const isExpense = tx.isExpense !== undefined ? tx.isExpense : (Number(tx.amount) >= 0);
-                  const merchantInitial = tx.description?.[0] || 'M';
+          <>
+            {/* DESKTOP TABLE VIEW (100% Original Desktop Table) */}
+            <div
+              onScroll={() => {
+                setOpenRowMenuId(null);
+                setMenuPos(null);
+                setPopoverTxId(null);
+                setPopoverPos(null);
+              }}
+              className="hidden sm:block max-h-[600px] overflow-y-auto overflow-x-auto relative"
+            >
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-[var(--border)] text-[var(--text-4)] uppercase tracking-wider text-[10px] font-extrabold">
+                    <th className="py-3 px-4 w-10 sticky top-0 z-20 bg-[var(--surface)] shadow-sm"></th>
+                    <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Date</th>
+                    <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Merchant / Description</th>
+                    <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Category</th>
+                    <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Card / Account</th>
+                    <th className="py-3 px-4 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Amount</th>
+                    <th className="py-3 px-4 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {filtered.map(tx => {
+                    const card = cards.find(c => c.id === tx.cardId);
+                    const cat = categories.find(c => c.id === tx.categoryId);
+                    const isSelected = selectedTxIds.includes(tx.id);
+                    const isExpense = tx.isExpense !== undefined ? tx.isExpense : (Number(tx.amount) >= 0);
+                    const merchantInitial = tx.description?.[0] || 'M';
 
-                  return (
-                    <tr
-                      key={tx.id}
-                      className={`hover:bg-[var(--surface-2)]/60 transition-colors group cursor-pointer ${isSelected ? 'bg-emerald-500/10' : ''}`}
-                      onClick={() => setDrawerTx(tx)}
-                    >
-                      <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
-                        <button onClick={() => toggleSelectTx(tx.id)} className="text-[var(--text-3)] hover:text-[var(--text-1)] cursor-pointer">
-                          {isSelected ? <CheckSquare className="w-4 h-4 text-emerald-400" /> : <Square className="w-4 h-4" />}
-                        </button>
-                      </td>
-                      <td className="py-3.5 px-4 font-mono text-[var(--text-3)] text-[11px]">{tx.date}</td>
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-slate-800 to-slate-700 border border-[var(--border)] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
-                            {merchantInitial}
-                          </div>
-                          <div>
-                            <div className="font-bold text-[var(--text-1)] flex items-center gap-2">
-                              <span className={tx.isExcluded ? 'line-through opacity-60' : ''}>{tx.description}</span>
-                              {tx.isTaxDeductible && (
-                                <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">TAX</span>
-                              )}
-                              {tx.isExcluded && (
-                                <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/30">EXCLUDED</span>
+                    return (
+                      <tr
+                        key={tx.id}
+                        className={`hover:bg-[var(--surface-2)]/60 transition-colors group cursor-pointer ${isSelected ? 'bg-emerald-500/10' : ''}`}
+                        onClick={() => setDrawerTx(tx)}
+                      >
+                        <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                          <button onClick={() => toggleSelectTx(tx.id)} className="text-[var(--text-3)] hover:text-[var(--text-1)] cursor-pointer">
+                            {isSelected ? <CheckSquare className="w-4 h-4 text-emerald-400" /> : <Square className="w-4 h-4" />}
+                          </button>
+                        </td>
+                        <td className="py-3.5 px-4 font-mono text-[var(--text-3)] text-[11px]">{tx.date}</td>
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-slate-800 to-slate-700 border border-[var(--border)] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
+                              {merchantInitial}
+                            </div>
+                            <div>
+                              <div className="font-bold text-[var(--text-1)] flex items-center gap-2">
+                                <span className={tx.isExcluded ? 'line-through opacity-60' : ''}>{tx.description}</span>
+                                {tx.isTaxDeductible && (
+                                  <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">TAX</span>
+                                )}
+                                {tx.isExcluded && (
+                                  <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/30">EXCLUDED</span>
+                                )}
+                              </div>
+                              {tx.isRecurring && (
+                                <span className="inline-flex items-center gap-1 text-[9px] text-amber-400 font-bold uppercase mt-0.5">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                                  Recurring
+                                </span>
                               )}
                             </div>
-                            {tx.isRecurring && (
-                              <span className="inline-flex items-center gap-1 text-[9px] text-amber-400 font-bold uppercase mt-0.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                                Recurring
-                              </span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                          <div className="relative category-popover-container">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (popoverTxId === tx.id) {
+                                  setPopoverTxId(null);
+                                  setPopoverPos(null);
+                                } else {
+                                  const rect = e.currentTarget.getBoundingClientRect();
+                                  setPopoverTxId(tx.id);
+                                  setPopoverPos({ top: rect.bottom + 4, left: rect.left });
+                                }
+                              }}
+                              className="px-2.5 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1.5 shadow-sm cursor-pointer hover:ring-2 hover:ring-[var(--accent)] transition-all"
+                              style={{
+                                backgroundColor: cat ? `${cat.color}18` : 'rgba(148,163,184,0.12)',
+                                color: cat?.color || '#94A3B8',
+                                border: `1px solid ${cat ? `${cat.color}40` : 'rgba(148,163,184,0.3)'}`
+                              }}
+                              title="Click to change category"
+                            >
+                              <span>{cat?.label || 'General'}</span>
+                              <ChevronDown className="w-3 h-3 opacity-90 stroke-[2.5]" />
+                            </button>
+
+                            {popoverTxId === tx.id && popoverPos && (
+                              <div
+                                style={{ position: 'fixed', top: popoverPos.top, left: popoverPos.left, zIndex: 99999 }}
+                                className="w-48 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1"
+                              >
+                                <div className="px-2 py-1 text-[9px] font-bold uppercase text-[var(--text-4)]">Change Category</div>
+                                {categories.map(c => (
+                                  <button
+                                    key={c.id}
+                                    onClick={() => {
+                                      setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, categoryId: c.id } : t));
+                                      setPopoverTxId(null);
+                                      setPopoverPos(null);
+                                    }}
+                                    className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-2 cursor-pointer"
+                                  >
+                                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.color }} />
+                                    <span>{c.label}</span>
+                                  </button>
+                                ))}
+                                <div className="border-t border-[var(--border)] pt-1 mt-1 space-y-1">
+                                  <button
+                                    onClick={() => {
+                                      setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isExpense: !isExpense } : t));
+                                      setPopoverTxId(null);
+                                      setPopoverPos(null);
+                                    }}
+                                    className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-bold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-1.5 cursor-pointer"
+                                  >
+                                    <span>{isExpense ? '🟢 Mark as Payment / Refund' : '🔴 Mark as Expense'}</span>
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isExcluded: !tx.isExcluded } : t));
+                                      setPopoverTxId(null);
+                                      setPopoverPos(null);
+                                    }}
+                                    className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-bold text-[var(--text-3)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-1.5 cursor-pointer"
+                                  >
+                                    <span>{tx.isExcluded ? '📥 Include in Budget & Tracking' : '📤 Exclude from Budget & Tracking'}</span>
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setPopoverTxId(null);
+                                      setSplitModalTx(tx);
+                                    }}
+                                    className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-bold text-indigo-400 hover:bg-indigo-500/10 flex items-center gap-1.5 cursor-pointer"
+                                  >
+                                    <Split className="w-3.5 h-3.5" />
+                                    <span>Split Transaction...</span>
+                                  </button>
+                                </div>
+                              </div>
                             )}
                           </div>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
-                        <div className="relative category-popover-container">
+                        </td>
+                        <td className="py-3.5 px-4 text-[var(--text-2)] font-medium">
+                          {card ? `${card.name} (•${card.masked})` : 'Manual Entry'}
+                        </td>
+                        <td className={`py-3.5 px-4 font-mono font-black text-right text-sm ${isExpense ? 'text-rose-400' : 'text-emerald-400'}`}>
+                          {isExpense ? `-${formatMoney(Math.abs(tx.amount), 2)}` : `+${formatMoney(Math.abs(tx.amount), 2)}`}
+                        </td>
+                        <td className="py-3.5 px-4 text-right relative row-menu-container" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (popoverTxId === tx.id) {
-                                setPopoverTxId(null);
-                                setPopoverPos(null);
+                              if (openRowMenuId === tx.id) {
+                                setOpenRowMenuId(null);
+                                setMenuPos(null);
                               } else {
                                 const rect = e.currentTarget.getBoundingClientRect();
-                                setPopoverTxId(tx.id);
-                                setPopoverPos({ top: rect.bottom + 4, left: rect.left });
+                                setOpenRowMenuId(tx.id);
+                                const menuWidth = 208;
+                                let left = rect.right - menuWidth;
+                                if (left < 12) left = 12;
+                                if (left + menuWidth > window.innerWidth - 12) left = window.innerWidth - menuWidth - 12;
+                                setMenuPos({ top: rect.bottom + 4, left: left });
                               }
                             }}
-                            className="px-2.5 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1.5 shadow-sm cursor-pointer hover:ring-2 hover:ring-[var(--accent)] transition-all"
+                            className="p-2 rounded-lg text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--surface-3)] transition-colors cursor-pointer"
+                            title="Transaction Options"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+
+                          {openRowMenuId === tx.id && menuPos && createPortal(
+                            <div
+                              style={{ position: 'fixed', top: menuPos.top, left: menuPos.left, zIndex: 999999 }}
+                              className="w-52 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                onClick={() => {
+                                  setOpenRowMenuId(null);
+                                  setMenuPos(null);
+                                  setSplitModalTx(tx);
+                                }}
+                                className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-3)] flex items-center gap-2 cursor-pointer transition-colors"
+                              >
+                                <Split className="w-3.5 h-3.5 text-indigo-400" />
+                                <span>Split Transaction...</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const tagTax = !tx.isTaxDeductible;
+                                  setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isTaxDeductible: tagTax } : t));
+                                  setOpenRowMenuId(null);
+                                  setMenuPos(null);
+                                }}
+                                className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-3)] flex items-center gap-2 cursor-pointer transition-colors"
+                              >
+                                <Tag className="w-3.5 h-3.5 text-purple-400" />
+                                <span>{tx.isTaxDeductible ? 'Untag Tax Deductible' : 'Tag Tax Deductible'}</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isExcluded: !tx.isExcluded } : t));
+                                  setOpenRowMenuId(null);
+                                  setMenuPos(null);
+                                }}
+                                className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-3)] flex items-center gap-2 cursor-pointer transition-colors"
+                              >
+                                <span>{tx.isExcluded ? '📥 Include in Tracking' : '📤 Exclude from Tracking'}</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  deleteTransaction(tx.id);
+                                  setOpenRowMenuId(null);
+                                  setMenuPos(null);
+                                }}
+                                className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-3)] hover:text-rose-400 hover:bg-rose-500/10 flex items-center gap-2 cursor-pointer transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Delete Transaction</span>
+                              </button>
+                            </div>,
+                            document.body
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* MOBILE VIEW: Fintech List Items with Actions Menu */}
+            <div className="sm:hidden p-3 space-y-3">
+              {filtered.map(tx => {
+                const card = cards.find(c => c.id === tx.cardId);
+                const cat = categories.find(c => c.id === tx.categoryId);
+                const isSelected = selectedTxIds.includes(tx.id);
+                const isExpense = tx.isExpense !== undefined ? tx.isExpense : (Number(tx.amount) >= 0);
+                const merchantInitial = tx.description?.[0] || 'M';
+
+                return (
+                  <div
+                    key={tx.id}
+                    onClick={() => setDrawerTx(tx)}
+                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer space-y-2.5 ${isSelected ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-[var(--surface-2)]/60 border-[var(--border)]'}`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div onClick={(e) => { e.stopPropagation(); toggleSelectTx(tx.id); }} className="shrink-0 text-[var(--text-3)]">
+                          {isSelected ? <CheckSquare className="w-4 h-4 text-emerald-400" /> : <Square className="w-4 h-4" />}
+                        </div>
+                        <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-slate-800 to-slate-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
+                          {merchantInitial}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold text-xs text-[var(--text-1)] truncate flex items-center gap-1.5">
+                            <span className={tx.isExcluded ? 'line-through opacity-60' : ''}>{tx.description}</span>
+                            {tx.isTaxDeductible && (
+                              <span className="px-1.5 py-0.5 rounded text-[7px] font-bold bg-indigo-500/20 text-indigo-400">TAX</span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-[var(--text-3)] truncate mt-0.5">
+                            {tx.date} • {card ? card.name : 'Manual Entry'}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <div className={`font-mono font-black text-xs ${isExpense ? 'text-rose-400' : 'text-emerald-400'}`}>
+                          {isExpense ? `-${formatMoney(Math.abs(tx.amount), 2)}` : `+${formatMoney(Math.abs(tx.amount), 2)}`}
+                        </div>
+                        <div className="mt-1">
+                          <span
+                            className="px-2 py-0.5 rounded text-[9px] font-bold inline-block"
                             style={{
                               backgroundColor: cat ? `${cat.color}18` : 'rgba(148,163,184,0.12)',
                               color: cat?.color || '#94A3B8',
                               border: `1px solid ${cat ? `${cat.color}40` : 'rgba(148,163,184,0.3)'}`
                             }}
-                            title="Click to change category"
                           >
-                            <span>{cat?.label || 'General'}</span>
-                            <ChevronDown className="w-3 h-3 opacity-90 stroke-[2.5]" />
-                          </button>
-
-                          {popoverTxId === tx.id && popoverPos && (
-                            <div
-                              style={{ position: 'fixed', top: popoverPos.top, left: popoverPos.left, zIndex: 99999 }}
-                              className="w-48 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1"
-                            >
-                              <div className="px-2 py-1 text-[9px] font-bold uppercase text-[var(--text-4)]">Change Category</div>
-                              {categories.map(c => (
-                                <button
-                                  key={c.id}
-                                  onClick={() => {
-                                    setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, categoryId: c.id } : t));
-                                    setPopoverTxId(null);
-                                    setPopoverPos(null);
-                                  }}
-                                  className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-2 cursor-pointer"
-                                >
-                                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.color }} />
-                                  <span>{c.label}</span>
-                                </button>
-                              ))}
-                              <div className="border-t border-[var(--border)] pt-1 mt-1 space-y-1">
-                                <button
-                                  onClick={() => {
-                                    setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isExpense: !isExpense } : t));
-                                    setPopoverTxId(null);
-                                    setPopoverPos(null);
-                                  }}
-                                  className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-bold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-1.5 cursor-pointer"
-                                >
-                                  <span>{isExpense ? '🟢 Mark as Payment / Refund' : '🔴 Mark as Expense'}</span>
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isExcluded: !tx.isExcluded } : t));
-                                    setPopoverTxId(null);
-                                    setPopoverPos(null);
-                                  }}
-                                  className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-bold text-[var(--text-3)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-1.5 cursor-pointer"
-                                >
-                                  <span>{tx.isExcluded ? '📥 Include in Budget & Tracking' : '📤 Exclude from Budget & Tracking'}</span>
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setPopoverTxId(null);
-                                    setSplitModalTx(tx);
-                                  }}
-                                  className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-bold text-indigo-400 hover:bg-indigo-500/10 flex items-center gap-1.5 cursor-pointer"
-                                >
-                                  <Split className="w-3.5 h-3.5" />
-                                  <span>Split Transaction...</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
+                            {cat?.label || 'General'}
+                          </span>
                         </div>
-                      </td>
-                      <td className="py-3.5 px-4 text-[var(--text-2)] font-medium">
-                        {card ? `${card.name} (•${card.masked})` : 'Manual Entry'}
-                      </td>
-                      <td className={`py-3.5 px-4 font-mono font-black text-right text-sm ${isExpense ? 'text-rose-400' : 'text-emerald-400'}`}>
-                        {isExpense ? `-${formatMoney(Math.abs(tx.amount), 2)}` : `+${formatMoney(Math.abs(tx.amount), 2)}`}
-                      </td>
-                      <td className="py-3.5 px-4 text-right relative row-menu-container" onClick={(e) => e.stopPropagation()}>
+                      </div>
+                    </div>
+
+                    {/* Mobile Footer with Tags and Actions Menu */}
+                    <div className="flex items-center justify-between pt-2 border-t border-[var(--border)] text-[10px]" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-2">
+                        {tx.isRecurring && (
+                          <span className="inline-flex items-center gap-1 text-amber-400 font-bold uppercase">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            Recurring
+                          </span>
+                        )}
+                        {tx.isExcluded && (
+                          <span className="text-slate-400 font-bold">Excluded</span>
+                        )}
+                      </div>
+
+                      <div className="relative row-menu-container">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -661,10 +841,10 @@ export const TransactionsTab = () => {
                               setMenuPos({ top: rect.bottom + 4, left: left });
                             }
                           }}
-                          className="p-2 rounded-lg text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--surface-3)] transition-colors cursor-pointer"
-                          title="Transaction Options"
+                          className="px-3 py-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-1)] hover:text-white font-bold flex items-center gap-1.5 cursor-pointer shadow-sm"
                         >
-                          <MoreVertical className="w-4 h-4" />
+                          <MoreVertical className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Actions</span>
                         </button>
 
                         {openRowMenuId === tx.id && menuPos && createPortal(
@@ -720,15 +900,152 @@ export const TransactionsTab = () => {
                           </div>,
                           document.body
                         )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
+
+      {/* Floating Action Button (FAB) for Mobile */}
+      <button
+        onClick={() => openModal('addTx')}
+        className="fixed right-5 bottom-24 z-30 sm:hidden w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-2xl flex items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95"
+        title="Record Transaction"
+      >
+        <Plus className="w-6 h-6 stroke-[3]" />
+      </button>
+
+      {/* Mobile Filter Bottom Sheet Modal */}
+      {showMobileFilterModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex flex-col justify-end animate-in fade-in duration-200 select-none sm:hidden">
+          <div
+            className="bg-[var(--app-bg-2)] border-t border-[var(--border-strong)] rounded-t-3xl max-h-[88vh] overflow-y-auto p-5 space-y-5 shadow-2xl animate-in slide-in-from-bottom duration-300"
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 2rem) + 4rem)' }}
+          >
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
+                <h3 className="font-black text-sm text-[var(--text-1)]">Filter Transactions</h3>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedCategory('all');
+                  setSelectedCard('all');
+                  setDateFilter({ mode: 'all', year: '2026', month: '09', startDate: '', endDate: '', label: 'All Time' });
+                  setQuickFilter('all');
+                }}
+                className="text-xs font-bold text-emerald-400 hover:underline cursor-pointer"
+              >
+                Reset All
+              </button>
+            </div>
+
+            {/* Quick Segmented Tabs */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-wider text-[var(--text-4)]">View Type</label>
+              <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-none">
+                {[
+                  { id: 'all', label: 'All Entries' },
+                  { id: 'recurring', label: 'Recurring' },
+                  { id: 'tax', label: 'Tax Deductible' },
+                  { id: 'flagged', label: 'Flagged' }
+                ].map(pill => (
+                  <button
+                    key={pill.id}
+                    onClick={() => setQuickFilter(pill.id)}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                      quickFilter === pill.id
+                        ? 'bg-[#8B5CF6] text-white shadow-sm'
+                        : 'bg-[var(--surface)] border border-[var(--border)] text-[var(--text-3)]'
+                    }`}
+                  >
+                    {pill.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Account / Card Select */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-wider text-[var(--text-4)]">Card & Account</label>
+              <select
+                value={selectedCard}
+                onChange={(e) => setSelectedCard(e.target.value)}
+                className="input-field text-xs py-3 w-full cursor-pointer"
+              >
+                <option value="all">All Cards & Accounts</option>
+                {cards.map(c => (
+                  <option key={c.id} value={c.id}>{c.name} (•{c.masked})</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Category Select */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-wider text-[var(--text-4)]">Category</label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="input-field text-xs py-3 w-full cursor-pointer"
+              >
+                <option value="all">All Categories</option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.id}>{c.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Date Range Section */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-wider text-[var(--text-4)]">Date Filter ({dateFilter.label})</label>
+              <div className="grid grid-cols-3 gap-1.5">
+                {['2024', '2025', '2026'].map(y => (
+                  <button
+                    key={y}
+                    onClick={() => {
+                      const currentMonthName = MONTHS.find(m => m.val === dateFilter.month)?.label.slice(0, 3) || 'Sep';
+                      setDateFilter({ mode: 'month', year: y, month: dateFilter.month, startDate: '', endDate: '', label: `${currentMonthName} ${y}` });
+                    }}
+                    className={`py-2 rounded-xl text-xs font-bold cursor-pointer ${
+                      dateFilter.year === y && dateFilter.mode !== 'custom' ? 'bg-[#8B5CF6] text-white' : 'bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)]'
+                    }`}
+                  >
+                    {y}
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 pt-1">
+                {MONTHS.map(m => (
+                  <button
+                    key={m.val}
+                    onClick={() => {
+                      setDateFilter({ mode: 'month', year: dateFilter.year, month: m.val, startDate: '', endDate: '', label: `${m.label.slice(0, 3)} ${dateFilter.year}` });
+                    }}
+                    className={`py-2 rounded-xl text-[11px] font-semibold cursor-pointer ${
+                      dateFilter.month === m.val && dateFilter.mode === 'month' ? 'bg-[#8B5CF6] text-white' : 'bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)]'
+                    }`}
+                  >
+                    {m.label.slice(0, 3)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-[var(--border)]">
+              <button
+                onClick={() => setShowMobileFilterModal(false)}
+                className="w-full py-3 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg cursor-pointer"
+              >
+                Apply Filters ({filtered.length} matches)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 5. Slide-Over Merchant & Receipt Detail Drawer */}
       {drawerTx && (
