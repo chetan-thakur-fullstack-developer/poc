@@ -288,6 +288,29 @@ export const GoalsTab = () => {
                 </div>
               );
             })}
+
+            {/* Placeholder Add Cards to fill out the 3-column desktop grid if fewer than 3 goals */}
+            {Array.from({ length: Math.max(0, 3 - filteredGoals.length) }).map((_, idx) => (
+              <div
+                key={`placeholder-${idx}`}
+                onClick={() => handleOpenCreate(goalTypeTab)}
+                className="hidden md:flex card p-6 border-2 border-dashed border-[var(--border)] hover:border-[#8B5CF6]/50 transition-all cursor-pointer flex-col items-center justify-center text-center space-y-3 min-h-[320px] bg-[var(--surface-2)]/30 group"
+              >
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${
+                  goalTypeTab === 'save' ? 'bg-purple-500/10 text-purple-400' : 'bg-rose-500/10 text-rose-400'
+                }`}>
+                  <Plus className="w-6 h-6 stroke-[2.5]" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm text-[var(--text-1)]">
+                    {goalTypeTab === 'save' ? 'Add New Goal' : 'Add Debt Liability'}
+                  </h4>
+                  <p className="text-xs text-[var(--text-3)] mt-1 max-w-[220px]">
+                    {goalTypeTab === 'save' ? 'Track another savings milestone or wealth target' : 'Add credit card, auto loan, or mortgage'}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
