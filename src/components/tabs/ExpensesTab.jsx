@@ -152,45 +152,56 @@ export const ExpensesTab = () => {
           Household Credit Cards ({cards.length})
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {cards.map(card => {
-            const spent = spentPerCard[card.id] || (card.balance || Math.round((card.limit || 10000) * 0.18));
-            const limit = Number(card.limit) || 10000;
-            const utilPct = Math.min(100, Math.round((spent / limit) * 100));
+        {cards.length === 0 ? (
+          <div className="py-12 text-center text-xs text-[var(--text-3)]">
+            <div className="max-w-xs mx-auto space-y-1">
+              <p className="font-bold text-[var(--text-1)] text-sm">No credit cards added</p>
+              <p className="text-xs text-[var(--text-3)] leading-relaxed">
+                Add household credit cards and credit lines to track credit utilization rates, spending limits, and payment pacing.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {cards.map(card => {
+              const spent = spentPerCard[card.id] || (card.balance || Math.round((card.limit || 10000) * 0.18));
+              const limit = Number(card.limit) || 10000;
+              const utilPct = Math.min(100, Math.round((spent / limit) * 100));
 
-            return (
-              <div
-                key={card.id}
-                className={`p-4 rounded-xl border border-[var(--border)] bg-gradient-to-br ${card.gradient || 'from-indigo-600 to-slate-900'} text-white shadow-lg space-y-3.5`}
-              >
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-bold tracking-widest uppercase opacity-80">
-                    {card.issuer}
-                  </span>
-                  <span className="text-xs">💳</span>
-                </div>
-
-                <div>
-                  <p className="font-bold text-sm tracking-tight">{card.name}</p>
-                  <p className="font-mono text-xs opacity-75 mt-0.5">•••• •••• •••• {card.masked}</p>
-                </div>
-
-                <div className="space-y-1.5 pt-2 border-t border-white/10 text-xs">
+              return (
+                <div
+                  key={card.id}
+                  className={`p-4 rounded-xl border border-[var(--border)] bg-gradient-to-br ${card.gradient || 'from-indigo-600 to-slate-900'} text-white shadow-lg space-y-3.5`}
+                >
                   <div className="flex justify-between items-center">
-                    <span className="text-[9px] uppercase opacity-75 font-bold">Utilization ({utilPct}%)</span>
-                    <span className="font-mono font-bold">{formatMoney(spent)} / {formatMoney(limit)}</span>
+                    <span className="text-[10px] font-bold tracking-widest uppercase opacity-80">
+                      {card.issuer}
+                    </span>
+                    <span className="text-xs">💳</span>
                   </div>
-                  <div className="w-full bg-black/30 h-2 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${utilPct > 85 ? 'bg-rose-400' : utilPct > 60 ? 'bg-amber-400' : 'bg-emerald-400'}`}
-                      style={{ width: `${utilPct}%` }}
-                    />
+
+                  <div>
+                    <p className="font-bold text-sm tracking-tight">{card.name}</p>
+                    <p className="font-mono text-xs opacity-75 mt-0.5">•••• •••• •••• {card.masked}</p>
+                  </div>
+
+                  <div className="space-y-1.5 pt-2 border-t border-white/10 text-xs">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[9px] uppercase opacity-75 font-bold">Utilization ({utilPct}%)</span>
+                      <span className="font-mono font-bold">{formatMoney(spent)} / {formatMoney(limit)}</span>
+                    </div>
+                    <div className="w-full bg-black/30 h-2 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${utilPct > 85 ? 'bg-rose-400' : utilPct > 60 ? 'bg-amber-400' : 'bg-emerald-400'}`}
+                        style={{ width: `${utilPct}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

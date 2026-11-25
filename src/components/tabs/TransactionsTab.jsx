@@ -483,10 +483,12 @@ export const TransactionsTab = () => {
 
         {/* Transactions Table */}
         {filtered.length === 0 ? (
-          <div className="py-16 text-center text-xs text-[var(--text-3)]">
-            <Receipt className="w-8 h-8 mx-auto mb-2 text-[var(--text-4)] opacity-50" />
-            <p className="font-bold text-[var(--text-1)]">No transactions found</p>
-            <p className="text-[11px] text-[var(--text-4)] mt-0.5">Try adjusting your date range, filters, or search terms.</p>
+          <div className="py-20 text-center text-xs text-[var(--text-3)]">
+            <Receipt className="w-10 h-10 mx-auto mb-3 text-[var(--text-4)] opacity-60" />
+            <p className="font-bold text-[var(--text-1)] text-sm">No transactions recorded</p>
+            <p className="text-xs text-[var(--text-3)] mt-1 max-w-sm mx-auto leading-relaxed">
+              Record your first income, expense, or transfer transaction using the "Record Transaction" button above to populate your high-precision financial activity stream.
+            </p>
           </div>
         ) : (
           <div

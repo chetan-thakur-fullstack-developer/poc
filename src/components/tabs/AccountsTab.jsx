@@ -191,8 +191,13 @@ export const AccountsTab = () => {
             <tbody className="divide-y divide-[var(--border)]">
               {filteredAccounts.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="py-12 text-center text-[var(--text-3)]">
-                    No accounts found matching this filter criteria.
+                  <td colSpan="6" className="py-16 text-center text-[var(--text-3)]">
+                    <div className="max-w-xs mx-auto space-y-1.5">
+                      <p className="font-bold text-[var(--text-1)] text-sm">No accounts linked yet</p>
+                      <p className="text-xs text-[var(--text-3)] leading-relaxed">
+                        Link your bank accounts, investment portfolios, or credit cards using the "Add Account" button above to automatically track net worth and asset allocations.
+                      </p>
+                    </div>
                   </td>
                 </tr>
               ) : (

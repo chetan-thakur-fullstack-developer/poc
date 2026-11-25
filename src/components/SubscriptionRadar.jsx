@@ -1,22 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { ShieldAlert, CheckCircle, RefreshCw } from 'lucide-react';
+import React, { useState } from 'react';
+import { useApp } from '../context/AppContext.jsx';
+import { ShieldAlert } from 'lucide-react';
 
 export const SubscriptionRadar = () => {
-  const [subscriptions, setSubscriptions] = useState([
-    { id: 'sub_1', merchant_name: 'Netflix', estimated_monthly_amount: 15.99, last_charged_date: '2026-11-10', status: 'active' },
-    { id: 'sub_2', merchant_name: 'Spotify Premium', estimated_monthly_amount: 11.99, last_charged_date: '2026-11-12', status: 'active' },
-    { id: 'sub_3', merchant_name: 'GitHub Copilot', estimated_monthly_amount: 10.00, last_charged_date: '2026-11-01', status: 'active' },
-    { id: 'sub_4', merchant_name: 'Amazon Prime', estimated_monthly_amount: 14.99, last_charged_date: '2026-11-05', status: 'active' }
-  ]);
-  const [loading, setLoading] = useState(false);
+  const { transactions } = useApp();
+  const [cancelledIds, setCancelledIds] = useState(new Set());
 
-  const handleMarkCancelled = (id) => {
-    setSubscriptions(prev => prev.map(s => s.id === id ? { ...s, status: s.status === 'active' ? 'cancelled' : 'active' } : s));
+  // Filter recurring transactions from user transactions
+  const recurringTxs = (transactions || []).filter(tx => tx.isRecurring);
+
+  const handleToggleCancel = (id) => {
+    setCancelledIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
+
+  const subscriptions = recurringTxs.map(tx => ({
+    id: tx.id,
+    merchant_name: tx.description,
+    estimated_monthly_amount: Math.abs(Number(tx.amount) || 0),
+    last_charged_date: tx.date,
+    status: cancelledIds.has(tx.id) ? 'cancelled' : 'active'
+  }));
 
   const totalMonthlyWaste = subscriptions
     .filter(s => s.status === 'active')
     .reduce((sum, s) => sum + s.estimated_monthly_amount, 0);
+
+  if (subscriptions.length === 0) {
+    return (
+      <div className="card p-5 space-y-3 border-[var(--border)] bg-[var(--surface)]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+            <ShieldAlert className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="font-bold text-sm text-[var(--text-1)]">Subscription Ghost Radar</h3>
+            <p className="text-[10px] text-[var(--text-3)]">No recurring subscriptions or SaaS items detected. Mark transactions as recurring to track them here.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="card p-5 space-y-4 border-amber-500/30 bg-gradient-to-br from-[var(--surface)] to-amber-500/5">
@@ -53,7 +81,7 @@ export const SubscriptionRadar = () => {
                   ${sub.estimated_monthly_amount}/mo
                 </span>
                 <button
-                  onClick={() => handleMarkCancelled(sub.id)}
+                  onClick={() => handleToggleCancel(sub.id)}
                   className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-colors cursor-pointer ${
                     isCancelled
                       ? 'bg-[var(--surface-3)] text-[var(--text-3)] hover:bg-[var(--surface)]'

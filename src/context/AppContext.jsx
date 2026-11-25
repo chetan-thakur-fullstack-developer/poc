@@ -1128,12 +1128,26 @@ export const AppProvider = ({ children }) => {
 
   // Reset to clean fresh workspace
   const resetToCleanWorkspace = () => {
-    setPortfolioData(getCleanPortfolio());
-    setAccountsData(getCleanAccounts());
-    setExpensesData(getCleanExpenses());
+    const cleanP = getCleanPortfolio();
+    const cleanA = getCleanAccounts();
+    const cleanE = getCleanExpenses();
+    setPortfolioData(cleanP);
+    setAccountsData(cleanA);
+    setExpensesData(cleanE);
     setTransactions([]);
     setGoals([]);
     try {
+      const prefix = getStoragePrefix();
+      localStorage.setItem(prefix + 'portfolio', JSON.stringify(cleanP));
+      localStorage.setItem(prefix + 'accounts', JSON.stringify(cleanA));
+      localStorage.setItem(prefix + 'expenses', JSON.stringify(cleanE));
+      localStorage.setItem(prefix + 'transactions', JSON.stringify([]));
+      localStorage.setItem(prefix + 'goals', JSON.stringify([]));
+
+      localStorage.removeItem('ew_demo_portfolio');
+      localStorage.removeItem('ew_demo_accounts');
+      localStorage.removeItem('ew_demo_expenses');
+      localStorage.removeItem('ew_demo_transactions');
       localStorage.removeItem('ew_portfolio');
       localStorage.removeItem('ew_accounts');
       localStorage.removeItem('ew_expenses');
