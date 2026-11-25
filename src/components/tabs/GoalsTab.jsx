@@ -53,7 +53,7 @@ export const GoalsTab = () => {
   const totalMonthly = filteredGoals.reduce((sum, g) => sum + (g.monthly || 0), 0);
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-32">
       {/* 1. Top Section: Clean Tabs [Save Up] [Debt Payoff] & Primary Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Sub-tabs: Save Up vs Pay Down (Active Goals vs Debt Payoff) */}

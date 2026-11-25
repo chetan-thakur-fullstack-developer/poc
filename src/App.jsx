@@ -91,7 +91,7 @@ export const App = () => {
         <Header />
 
         {/* Scrollable View Container */}
-        <main ref={mainScrollRef} className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-28 lg:pb-8">
+        <main ref={mainScrollRef} className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-40 lg:pb-12">
           <div className="max-w-7xl mx-auto space-y-12">
             {renderActiveTab()}
 

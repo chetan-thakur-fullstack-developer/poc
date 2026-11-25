@@ -70,7 +70,10 @@ export const MobileNav = () => {
   return (
     <>
       {/* Bottom Sticky Mobile Nav Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 h-16 border-t border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-md px-4 flex items-center justify-around shadow-lg">
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 h-20 border-t border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-md px-4 flex items-center justify-around shadow-lg"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 1rem)' }}
+      >
         <button
           onClick={() => setCurrentTab('tab-dashboard')}
           className={`flex flex-col items-center gap-1 text-[10px] font-medium transition-colors cursor-pointer ${
@@ -124,7 +127,10 @@ export const MobileNav = () => {
       {/* Full Menu Drawer for Mobile */}
       {showMenuDrawer && (
         <div className="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col justify-end animate-in fade-in duration-200">
-          <div className="bg-[var(--app-bg-2)] border-t border-[var(--border-strong)] rounded-t-3xl max-h-[85vh] overflow-y-auto p-5 space-y-6 shadow-2xl animate-in slide-in-from-bottom duration-300">
+          <div
+            className="bg-[var(--app-bg-2)] border-t border-[var(--border-strong)] rounded-t-3xl max-h-[85vh] overflow-y-auto p-5 pb-28 space-y-6 shadow-2xl animate-in slide-in-from-bottom duration-300"
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 1rem) + 4rem)' }}
+          >
             {/* Drawer Header */}
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-4">
               <div className="flex items-center gap-3">

@@ -19,7 +19,8 @@ export const SettingsTab = () => {
     lastSyncTime,
     showToast,
     loadDemoTemplate,
-    resetToCleanWorkspace
+    resetToCleanWorkspace,
+    showConfirmModal
   } = useApp();
 
   const { user, isDemoUser, signOut } = useAuth();
@@ -744,9 +745,15 @@ export const SettingsTab = () => {
                   </div>
                   <button
                     onClick={() => {
-                      if (confirm('Reset your entire workspace to a clean empty slate?')) {
-                        resetToCleanWorkspace();
-                      }
+                      showConfirmModal({
+                        title: 'Reset Workspace to Clean Slate',
+                        message: 'Are you sure you want to reset your entire workspace to a clean empty slate? All data will be permanently cleared.',
+                        confirmText: 'Reset Workspace',
+                        isDanger: true,
+                        onConfirm: () => {
+                          resetToCleanWorkspace();
+                        }
+                      });
                     }}
                     className="btn text-xs !py-2 !px-4 bg-rose-500/20 border-rose-500/40 text-rose-300 hover:bg-rose-500/30 cursor-pointer"
                   >

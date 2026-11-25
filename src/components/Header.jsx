@@ -15,7 +15,10 @@ export const Header = () => {
     setPrivacyMask,
     showToast,
     theme,
-    setTheme
+    setTheme,
+    loadDemoTemplate,
+    resetToCleanWorkspace,
+    showConfirmModal
   } = useApp();
 
   const { user, isDemoUser, signOut } = useAuth();
@@ -258,12 +261,12 @@ export const Header = () => {
           )}
         </div>
 
-        {/* Profile Avatar & Profile Popover Menu (with Theme Switcher) */}
+        {/* Profile Avatar & Profile Popover Menu (with Theme Switcher, Load Sample Data, Reset Workspace) */}
         <div className="relative" ref={profileRef}>
           <button
             onClick={() => setShowProfilePopover(!showProfilePopover)}
             className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm border border-white/20 hover:scale-105 transition-transform cursor-pointer"
-            title="Open Profile & Theme Menu"
+            title="Open Profile & Menu"
           >
             {isDemoUser ? 'D' : (user?.user_metadata?.full_name || user?.email || 'U')[0]}
           </button>
@@ -311,13 +314,42 @@ export const Header = () => {
                 </div>
               </div>
 
+              {/* Actions & Settings */}
               <div className="py-1 space-y-0.5">
+                <button
+                  onClick={() => {
+                    loadDemoTemplate();
+                    setShowProfilePopover(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer text-left"
+                >
+                  <span className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xs">📥</span>
+                  <span>Load Sample Data</span>
+                </button>
+                <button
+                  onClick={() => {
+                    showConfirmModal({
+                      title: 'Reset Workspace to Clean Slate',
+                      message: 'Are you sure you want to reset your workspace? All custom accounts, transactions, and data will be permanently cleared.',
+                      confirmText: 'Reset Workspace',
+                      isDanger: true,
+                      onConfirm: () => {
+                        resetToCleanWorkspace();
+                        setShowProfilePopover(false);
+                      }
+                    });
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-amber-400 hover:bg-amber-500/10 transition-colors cursor-pointer text-left"
+                >
+                  <span className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center text-xs">🔄</span>
+                  <span>Reset Workspace</span>
+                </button>
                 <button
                   onClick={() => {
                     setCurrentTab('tab-settings');
                     setShowProfilePopover(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left border-t border-[var(--border)] mt-1 pt-1.5"
                 >
                   <Settings className="w-3.5 h-3.5 text-[var(--text-3)]" />
                   <span>Settings & Preferences</span>
@@ -329,7 +361,7 @@ export const Header = () => {
                     }
                     setShowProfilePopover(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer text-left"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer text-left border-t border-[var(--border)] mt-1 pt-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out</span>

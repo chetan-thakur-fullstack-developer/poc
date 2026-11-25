@@ -90,7 +90,7 @@ export const DashboardTab = () => {
   };
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-32">
       {/* Top Banner / Welcome & Clean Action Toolbar */}
       <div className="card p-6 sm:p-8 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-transparent border border-emerald-500/30 flex flex-col xl:flex-row xl:items-center justify-between gap-6 shadow-xl">
         <div className="space-y-1.5 max-w-xl">
@@ -222,7 +222,7 @@ export const DashboardTab = () => {
                   <span className="text-emerald-400 font-bold text-sm">▲ 14.8% ({timeFrame.toUpperCase()})</span>
                 </div>
                 <div className="text-2xl sm:text-3xl font-black text-[var(--text-1)] font-mono">
-                  <AnimatedNumber value={netWorth > 0 ? netWorth : 421868} />
+                  <AnimatedNumber value={netWorth} />
                 </div>
                 <p className="text-xs text-[var(--text-2)] mt-2">
                   Aggregated across {accounts.length} linked accounts & assets
@@ -239,7 +239,7 @@ export const DashboardTab = () => {
                   <AnimatedNumber value={
                     latestYear?.balances
                       ? Object.values(latestYear.balances).reduce((a, b) => a + Number(b), 0)
-                      : 206000
+                      : 0
                   } />
                 </div>
                 <p className="text-xs text-[var(--text-2)] mt-2">
@@ -278,7 +278,7 @@ export const DashboardTab = () => {
                   <span className="text-emerald-400 font-bold text-sm">▼ 2.4% ({timeFrame.toUpperCase()})</span>
                 </div>
                 <div className="text-2xl sm:text-3xl font-black text-[var(--text-1)] font-mono">
-                  <AnimatedNumber value={totalDebts > 0 ? totalDebts : 2384} />
+                  <AnimatedNumber value={totalDebts} />
                 </div>
                 <p className="text-xs text-[var(--text-2)] mt-2.5 font-medium flex items-center justify-between">
                   <span>Credit Score: <strong className="text-emerald-400">782</strong></span>
@@ -334,25 +334,34 @@ export const DashboardTab = () => {
               </div>
 
               <div className="space-y-2.5">
-                {(transactions || []).slice(0, 4).map((tx, idx) => {
-                  const isPositive = Number(tx.amount) > 0 && (tx.description?.toLowerCase().includes('refund') || tx.description?.toLowerCase().includes('deposit'));
-                  return (
-                    <div key={tx.id || idx} className="p-3.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-between text-xs hover:border-[var(--border-hover)] transition-all">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-slate-800 to-slate-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
-                          {tx.description?.[0] || 'M'}
+                {(transactions || []).length === 0 ? (
+                  <div className="py-10 text-center text-xs text-[var(--text-3)]">
+                    <p className="font-bold text-[var(--text-1)] text-sm">No recent activity recorded</p>
+                    <p className="text-xs text-[var(--text-3)] mt-1 max-w-sm mx-auto leading-relaxed">
+                      Your recent transactions feed will appear here as soon as you record or sync transactions in the ledger.
+                    </p>
+                  </div>
+                ) : (
+                  (transactions || []).slice(0, 4).map((tx, idx) => {
+                    const isPositive = Number(tx.amount) > 0 && (tx.description?.toLowerCase().includes('refund') || tx.description?.toLowerCase().includes('deposit'));
+                    return (
+                      <div key={tx.id || idx} className="p-3.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-between text-xs hover:border-[var(--border-hover)] transition-all">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-slate-800 to-slate-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
+                            {tx.description?.[0] || 'M'}
+                          </div>
+                          <div>
+                            <p className="font-bold text-[var(--text-1)]">{tx.description}</p>
+                            <p className="text-[10px] text-[var(--text-3)]">{tx.date} • {isPositive ? 'Income / Deposit' : 'Expense / Purchase'}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-bold text-[var(--text-1)]">{tx.description}</p>
-                          <p className="text-[10px] text-[var(--text-3)]">{tx.date} • {isPositive ? 'Income / Deposit' : 'Expense / Purchase'}</p>
+                        <div className={`font-mono font-black ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          {isPositive ? `+${formatMoney(Math.abs(tx.amount), 2)}` : formatMoney(tx.amount, 2)}
                         </div>
                       </div>
-                      <div className={`font-mono font-black ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {isPositive ? `+${formatMoney(Math.abs(tx.amount), 2)}` : formatMoney(tx.amount, 2)}
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </div>
           );

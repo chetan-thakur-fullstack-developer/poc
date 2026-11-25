@@ -67,7 +67,7 @@ export const AccountsTab = () => {
   const projected5Yr = netWorth + monthlySavingsInput * 60 * 1.07;
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-32">
       {/* Header & Net Worth Overview Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Main Net Worth Card */}
