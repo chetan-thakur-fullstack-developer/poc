@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { AnimatedNumber } from '../AnimatedNumber.jsx';
 import { AreaChart } from '../charts/AreaChart.jsx';
 import { DonutChart } from '../charts/DonutChart.jsx';
 import { GettingStartedChecklist } from '../GettingStartedChecklist.jsx';
-import { SlidersHorizontal, RotateCcw, Check, EyeOff, Eye, ArrowUp, ArrowDown } from 'lucide-react';
+import { SlidersHorizontal, RotateCcw, Check, EyeOff, Eye, ArrowUp, ArrowDown, Calendar, Settings, ChevronDown } from 'lucide-react';
 
 export const DashboardTab = () => {
   const {
@@ -27,8 +27,23 @@ export const DashboardTab = () => {
   const [hiddenWidgets, setHiddenWidgets] = useState([]);
   const [widgetOrder, setWidgetOrder] = useState(['checklist', 'kpis', 'charts', 'accounts', 'scorecard', 'recent']);
 
+  // Global Time Frame Filter State
+  const [timeFrame, setTimeFrame] = useState('ytd');
+  const [showActionMenu, setShowActionMenu] = useState(false);
+  const actionMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (actionMenuRef.current && !actionMenuRef.current.contains(e.target)) {
+        setShowActionMenu(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   // Calculate Net Worth from accounts and latest portfolio year
-  const accounts = accountsData?.linked || [];
+  const accounts = (accountsData?.linked || []).filter(a => !a.isExcluded);
   const latestYear = portfolioData?.defaultAccountData?.[portfolioData.defaultAccountData.length - 1];
 
   const totalAssets = accounts
@@ -41,9 +56,13 @@ export const DashboardTab = () => {
 
   const netWorth = totalAssets - totalDebts;
 
-  // Monthly Budget & Spend
+  // Monthly Budget & Spend (excluding excluded transactions)
   const monthlyBudget = expensesData?.monthlyBudget || 3000;
-  const currentMonthSpent = (transactions || []).reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+  const activeTxs = (transactions || []).filter(t => !t.isExcluded);
+  const currentMonthSpent = activeTxs.reduce((sum, t) => {
+    const isExp = t.isExpense !== undefined ? t.isExpense : (Number(t.amount) >= 0);
+    return isExp ? sum + (Number(t.amount) || 0) : sum;
+  }, 0);
   const remainingBudget = Math.max(0, monthlyBudget - currentMonthSpent);
   const budgetPacePct = Math.min(100, Math.round((currentMonthSpent / monthlyBudget) * 100));
 
@@ -72,7 +91,7 @@ export const DashboardTab = () => {
 
   return (
     <div className="space-y-6 pb-20">
-      {/* Top Banner / Welcome & Customizer Toolbar */}
+      {/* Top Banner / Welcome & Clean Action Toolbar */}
       <div className="card p-6 sm:p-8 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-transparent border border-emerald-500/30 flex flex-col xl:flex-row xl:items-center justify-between gap-6 shadow-xl">
         <div className="space-y-1.5 max-w-xl">
           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
@@ -82,28 +101,64 @@ export const DashboardTab = () => {
             Welcome back, {userName}
           </h2>
           <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed">
-            Your net worth is up <strong className="text-emerald-400 font-bold">14.8% YTD</strong>. You are on track to hit your FIRE milestone by <strong className="text-purple-400 font-bold">2038</strong>.
+            Your net worth is up <strong className="text-emerald-400 font-bold">14.8% ({timeFrame.toUpperCase()})</strong>. You are on track to hit your FIRE milestone by <strong className="text-purple-400 font-bold">2038</strong>.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap shrink-0">
-          <button
-            onClick={() => setIsCustomizing(!isCustomizing)}
-            className={`btn-secondary text-xs px-3.5 py-2.5 cursor-pointer flex items-center gap-1.5 shadow-sm ${isCustomizing ? '!bg-emerald-500 !text-white' : ''}`}
-          >
-            {isCustomizing ? <Check className="w-3.5 h-3.5" /> : <SlidersHorizontal className="w-3.5 h-3.5" />}
-            <span>{isCustomizing ? 'Done Customizing' : 'Customize Dashboard'}</span>
-          </button>
-          <button
-            onClick={syncToCloud}
-            disabled={isSyncing}
-            className="btn-secondary text-xs px-3.5 py-2.5 cursor-pointer shadow-sm"
-          >
-            {isSyncing ? 'Syncing...' : '🔄 Cloud Sync'}
-          </button>
+        <div className="flex items-center gap-3 flex-wrap shrink-0">
+          {/* Global Time Filter Dropdown */}
+          <div className="flex items-center gap-2 bg-[var(--surface-2)] px-3.5 py-2 rounded-xl border border-[var(--border)] shadow-sm">
+            <Calendar className="w-4 h-4 text-emerald-400" />
+            <select
+              value={timeFrame}
+              onChange={(e) => setTimeFrame(e.target.value)}
+              className="bg-transparent text-xs font-bold text-[var(--text-1)] outline-none cursor-pointer"
+            >
+              <option value="month">This Month ▾</option>
+              <option value="30days">Last 30 Days</option>
+              <option value="ytd">Year to Date (YTD)</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+
+          {/* Secondary Actions Dropdown Menu */}
+          <div className="relative" ref={actionMenuRef}>
+            <button
+              onClick={() => setShowActionMenu(!showActionMenu)}
+              className="btn-secondary text-xs px-3.5 py-2.5 cursor-pointer flex items-center gap-1.5 shadow-sm"
+              title="Dashboard Options"
+            >
+              <Settings className="w-4 h-4 text-[var(--text-3)]" />
+              <span>Options</span>
+              <ChevronDown className="w-3 h-3 opacity-60" />
+            </button>
+
+            {showActionMenu && (
+              <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150">
+                <button
+                  onClick={() => { setIsCustomizing(!isCustomizing); setShowActionMenu(false); }}
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-2.5 cursor-pointer"
+                >
+                  <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
+                  <span>{isCustomizing ? 'Done Customizing' : 'Customize Layout'}</span>
+                </button>
+                <button
+                  onClick={() => { syncToCloud(); setShowActionMenu(false); }}
+                  disabled={isSyncing}
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-2.5 cursor-pointer"
+                >
+                  <span className="text-base">🔄</span>
+                  <span>{isSyncing ? 'Syncing...' : 'Cloud Sync'}</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Primary High-Contrast CTA */}
           <button
             onClick={() => openModal('quickAdd')}
-            className="btn-primary text-xs px-4 py-2.5 cursor-pointer shadow-md"
+            className="btn-primary text-xs px-5 py-2.5 cursor-pointer shadow-md"
+            style={{ backgroundColor: '#1D4ED8' }}
           >
             + Quick Entry
           </button>
@@ -164,7 +219,7 @@ export const DashboardTab = () => {
               <div className="card p-5">
                 <div className="flex items-center justify-between text-xs text-[var(--text-2)] mb-1">
                   <span className="font-semibold uppercase tracking-wider text-[var(--text-2)]">Total Net Worth</span>
-                  <span className="text-emerald-400 font-bold text-sm">▲ 14.8% YTD</span>
+                  <span className="text-emerald-400 font-bold text-sm">▲ 14.8% ({timeFrame.toUpperCase()})</span>
                 </div>
                 <div className="text-2xl sm:text-3xl font-black text-[var(--text-1)] font-mono">
                   <AnimatedNumber value={netWorth > 0 ? netWorth : 421868} />
@@ -220,7 +275,7 @@ export const DashboardTab = () => {
               <div className="card p-5">
                 <div className="flex items-center justify-between text-xs text-[var(--text-2)] mb-1">
                   <span className="font-semibold uppercase tracking-wider text-[var(--text-2)]">Total Liabilities</span>
-                  <span className="text-emerald-400 font-bold text-sm">▼ 2.4% YTD</span>
+                  <span className="text-emerald-400 font-bold text-sm">▼ 2.4% ({timeFrame.toUpperCase()})</span>
                 </div>
                 <div className="text-2xl sm:text-3xl font-black text-[var(--text-1)] font-mono">
                   <AnimatedNumber value={totalDebts > 0 ? totalDebts : 2384} />
@@ -257,6 +312,47 @@ export const DashboardTab = () => {
                     color: cat.color
                   }))}
                 />
+              </div>
+            </div>
+          );
+        }
+
+        if (key === 'recent') {
+          return (
+            <div key="recent" className="card p-6 space-y-4">
+              <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+                <h3 className="font-bold text-sm text-[var(--text-1)] flex items-center gap-2">
+                  <span>Recent Activity &amp; Live Insights</span>
+                  <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-400">Live Feed</span>
+                </h3>
+                <button
+                  onClick={() => setCurrentTab('tab-transactions')}
+                  className="text-xs font-bold text-emerald-400 hover:underline cursor-pointer"
+                >
+                  View All Ledger →
+                </button>
+              </div>
+
+              <div className="space-y-2.5">
+                {(transactions || []).slice(0, 4).map((tx, idx) => {
+                  const isPositive = Number(tx.amount) > 0 && (tx.description?.toLowerCase().includes('refund') || tx.description?.toLowerCase().includes('deposit'));
+                  return (
+                    <div key={tx.id || idx} className="p-3.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-between text-xs hover:border-[var(--border-hover)] transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-slate-800 to-slate-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
+                          {tx.description?.[0] || 'M'}
+                        </div>
+                        <div>
+                          <p className="font-bold text-[var(--text-1)]">{tx.description}</p>
+                          <p className="text-[10px] text-[var(--text-3)]">{tx.date} • {isPositive ? 'Income / Deposit' : 'Expense / Purchase'}</p>
+                        </div>
+                      </div>
+                      <div className={`font-mono font-black ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {isPositive ? `+${formatMoney(Math.abs(tx.amount), 2)}` : formatMoney(tx.amount, 2)}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );

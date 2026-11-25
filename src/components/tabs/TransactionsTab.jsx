@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useApp } from '../../context/AppContext.jsx';
 import {
   Search,
@@ -67,6 +68,9 @@ export const TransactionsTab = () => {
   // Drawers & Modals State
   const [drawerTx, setDrawerTx] = useState(null);
   const [popoverTxId, setPopoverTxId] = useState(null);
+  const [popoverPos, setPopoverPos] = useState(null);
+  const [openRowMenuId, setOpenRowMenuId] = useState(null);
+  const [menuPos, setMenuPos] = useState(null);
   const [splitModalTx, setSplitModalTx] = useState(null);
   const [splitRows, setSplitRows] = useState([
     { categoryId: '', amount: '' },
@@ -78,13 +82,34 @@ export const TransactionsTab = () => {
 
   useEffect(() => {
     const handleClickOutside = (e) => {
+      const target = e.target instanceof Element ? e.target : e.target?.parentElement;
       if (datePopoverRef.current && !datePopoverRef.current.contains(e.target)) {
         setShowDatePopover(false);
       }
+      if (popoverTxId && target && !target.closest('.category-popover-container')) {
+        setPopoverTxId(null);
+        setPopoverPos(null);
+      }
+      if (openRowMenuId && target && !target.closest('.row-menu-container')) {
+        setOpenRowMenuId(null);
+        setMenuPos(null);
+      }
+    };
+    const handleScroll = () => {
+      if (openRowMenuId || popoverTxId) {
+        setOpenRowMenuId(null);
+        setMenuPos(null);
+        setPopoverTxId(null);
+        setPopoverPos(null);
+      }
     };
     document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+    window.addEventListener('scroll', handleScroll, true);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [popoverTxId, openRowMenuId]);
 
   // Filter logic
   const filtered = useMemo(() => {
@@ -180,21 +205,6 @@ export const TransactionsTab = () => {
 
   return (
     <div className="space-y-6 pb-20">
-      {/* Top Action Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-black text-[var(--text-1)]">Transactions Ledger</h2>
-          <p className="text-xs text-[var(--text-3)]">High-precision financial activity stream & categorization</p>
-        </div>
-        <button
-          onClick={() => openModal('addTx')}
-          className="btn-primary text-xs px-4 py-2.5 cursor-pointer flex items-center gap-2 shadow-sm self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4 stroke-[3]" />
-          <span>Record Transaction</span>
-        </button>
-      </div>
-
       {/* 1. Interactive KPI Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Filtered Volume */}
@@ -267,7 +277,7 @@ export const TransactionsTab = () => {
       </div>
 
       {/* UNIFIED MASTER CARD: Integrated Filter Bar + Transactions Table */}
-      <div className="card overflow-hidden bg-[var(--surface)] shadow-xl">
+      <div className="card overflow-visible bg-[var(--surface)] shadow-xl">
         {/* Top Filter Toolbar Section inside Master Card */}
         <div className="p-5 sm:p-6 border-b border-[var(--border)] space-y-4 bg-[var(--surface-2)]/40">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
@@ -284,15 +294,26 @@ export const TransactionsTab = () => {
               </h3>
             </div>
 
-            {/* Bulk Action Bar (if items selected) */}
-            {selectedTxIds.length > 0 && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-xs animate-fadeIn">
-                <span className="font-bold text-emerald-400">{selectedTxIds.length} selected</span>
-                <button onClick={handleBulkTaxTag} className="btn-secondary text-[11px] !py-1 !px-2.5 cursor-pointer">Tag Tax</button>
-                <button onClick={handleBulkExportCSV} className="btn-secondary text-[11px] !py-1 !px-2.5 cursor-pointer">Export CSV</button>
-                <button onClick={handleBulkDelete} className="btn-secondary text-[11px] !py-1 !px-2.5 text-rose-400 hover:text-rose-300 cursor-pointer">Delete</button>
-              </div>
-            )}
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Bulk Action Bar (if items selected) */}
+              {selectedTxIds.length > 0 && (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-xs animate-fadeIn">
+                  <span className="font-bold text-emerald-400">{selectedTxIds.length} selected</span>
+                  <button onClick={handleBulkTaxTag} className="btn-secondary text-[11px] !py-1 !px-2.5 cursor-pointer">Tag Tax</button>
+                  <button onClick={handleBulkExportCSV} className="btn-secondary text-[11px] !py-1 !px-2.5 cursor-pointer">Export CSV</button>
+                  <button onClick={handleBulkDelete} className="btn-secondary text-[11px] !py-1 !px-2.5 text-rose-400 hover:text-rose-300 cursor-pointer">Delete</button>
+                </div>
+              )}
+
+              {/* Record Transaction Button */}
+              <button
+                onClick={() => openModal('addTx')}
+                className="btn-primary text-xs px-3.5 py-1.5 cursor-pointer flex items-center gap-1.5 shadow-sm"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                <span>Record Transaction</span>
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
@@ -345,7 +366,7 @@ export const TransactionsTab = () => {
                             setDateFilter({ mode: 'month', year: y, month: dateFilter.month, startDate: '', endDate: '', label: `${currentMonthName} ${y}` });
                           }}
                           className={`py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                            dateFilter.year === y && dateFilter.mode !== 'custom' ? 'bg-emerald-500 text-white shadow-sm' : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-white'
+                            dateFilter.year === y && dateFilter.mode !== 'custom' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-white'
                           }`}
                         >
                           {y}
@@ -368,7 +389,7 @@ export const TransactionsTab = () => {
                           }}
                           className={`py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                             dateFilter.month === m.val && dateFilter.mode === 'month'
-                              ? 'bg-emerald-500 text-white shadow-sm'
+                              ? 'bg-[#8B5CF6] text-white shadow-sm'
                               : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-white'
                           }`}
                         >
@@ -403,7 +424,7 @@ export const TransactionsTab = () => {
                     </div>
                     <button
                       onClick={() => setShowDatePopover(false)}
-                      className="w-full mt-2 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-white shadow-sm cursor-pointer"
+                      className="w-full mt-2 py-2 rounded-xl text-xs font-bold bg-[#8B5CF6] hover:bg-[#7C3AED] text-white shadow-sm cursor-pointer"
                     >
                       Apply Custom Range
                     </button>
@@ -450,7 +471,7 @@ export const TransactionsTab = () => {
                 onClick={() => setQuickFilter(pill.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   quickFilter === pill.id
-                    ? 'bg-emerald-500 text-white shadow-sm'
+                    ? 'bg-[#8B5CF6] text-white shadow-sm'
                     : 'bg-[var(--surface)] border border-[var(--border)] text-[var(--text-3)] hover:text-[var(--text-1)]'
                 }`}
               >
@@ -468,17 +489,25 @@ export const TransactionsTab = () => {
             <p className="text-[11px] text-[var(--text-4)] mt-0.5">Try adjusting your date range, filters, or search terms.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div
+            onScroll={() => {
+              setOpenRowMenuId(null);
+              setMenuPos(null);
+              setPopoverTxId(null);
+              setPopoverPos(null);
+            }}
+            className="max-h-[600px] overflow-y-auto overflow-x-auto relative"
+          >
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-[var(--border)] text-[var(--text-4)] bg-[var(--surface-2)]/20 uppercase tracking-wider text-[10px] font-extrabold">
-                  <th className="py-3 px-4 w-10"></th>
-                  <th className="py-3 px-4">Date</th>
-                  <th className="py-3 px-4">Merchant / Description</th>
-                  <th className="py-3 px-4">Category</th>
-                  <th className="py-3 px-4">Card / Account</th>
-                  <th className="py-3 px-4 text-right">Amount</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                <tr className="border-b border-[var(--border)] text-[var(--text-4)] uppercase tracking-wider text-[10px] font-extrabold">
+                  <th className="py-3 px-4 w-10 sticky top-0 z-20 bg-[var(--surface)] shadow-sm"></th>
+                  <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Date</th>
+                  <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Merchant / Description</th>
+                  <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Category</th>
+                  <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Card / Account</th>
+                  <th className="py-3 px-4 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Amount</th>
+                  <th className="py-3 px-4 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border)]">
@@ -486,7 +515,7 @@ export const TransactionsTab = () => {
                   const card = cards.find(c => c.id === tx.cardId);
                   const cat = categories.find(c => c.id === tx.categoryId);
                   const isSelected = selectedTxIds.includes(tx.id);
-                  const isPositive = Number(tx.amount) > 0 && (tx.description?.toLowerCase().includes('refund') || tx.description?.toLowerCase().includes('deposit') || tx.description?.toLowerCase().includes('balance'));
+                  const isExpense = tx.isExpense !== undefined ? tx.isExpense : (Number(tx.amount) >= 0);
                   const merchantInitial = tx.description?.[0] || 'M';
 
                   return (
@@ -508,9 +537,12 @@ export const TransactionsTab = () => {
                           </div>
                           <div>
                             <div className="font-bold text-[var(--text-1)] flex items-center gap-2">
-                              <span>{tx.description}</span>
+                              <span className={tx.isExcluded ? 'line-through opacity-60' : ''}>{tx.description}</span>
                               {tx.isTaxDeductible && (
                                 <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">TAX</span>
+                              )}
+                              {tx.isExcluded && (
+                                <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/30">EXCLUDED</span>
                               )}
                             </div>
                             {tx.isRecurring && (
@@ -523,22 +555,36 @@ export const TransactionsTab = () => {
                         </div>
                       </td>
                       <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
-                        <div className="relative">
+                        <div className="relative category-popover-container">
                           <button
-                            onClick={() => setPopoverTxId(popoverTxId === tx.id ? null : tx.id)}
-                            className="px-2.5 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1.5 shadow-sm cursor-pointer hover:brightness-110"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (popoverTxId === tx.id) {
+                                setPopoverTxId(null);
+                                setPopoverPos(null);
+                              } else {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setPopoverTxId(tx.id);
+                                setPopoverPos({ top: rect.bottom + 4, left: rect.left });
+                              }
+                            }}
+                            className="px-2.5 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1.5 shadow-sm cursor-pointer hover:ring-2 hover:ring-[var(--accent)] transition-all"
                             style={{
                               backgroundColor: cat ? `${cat.color}18` : 'rgba(148,163,184,0.12)',
                               color: cat?.color || '#94A3B8',
-                              border: `1px solid ${cat ? `${cat.color}30` : 'rgba(148,163,184,0.2)'}`
+                              border: `1px solid ${cat ? `${cat.color}40` : 'rgba(148,163,184,0.3)'}`
                             }}
+                            title="Click to change category"
                           >
-                            {cat?.label || 'General'}
-                            <ChevronDown className="w-3 h-3 opacity-70" />
+                            <span>{cat?.label || 'General'}</span>
+                            <ChevronDown className="w-3 h-3 opacity-90 stroke-[2.5]" />
                           </button>
 
-                          {popoverTxId === tx.id && (
-                            <div className="absolute left-0 mt-1 w-48 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-1.5 space-y-1">
+                          {popoverTxId === tx.id && popoverPos && (
+                            <div
+                              style={{ position: 'fixed', top: popoverPos.top, left: popoverPos.left, zIndex: 99999 }}
+                              className="w-48 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1"
+                            >
                               <div className="px-2 py-1 text-[9px] font-bold uppercase text-[var(--text-4)]">Change Category</div>
                               {categories.map(c => (
                                 <button
@@ -546,6 +592,7 @@ export const TransactionsTab = () => {
                                   onClick={() => {
                                     setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, categoryId: c.id } : t));
                                     setPopoverTxId(null);
+                                    setPopoverPos(null);
                                   }}
                                   className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-2 cursor-pointer"
                                 >
@@ -553,7 +600,27 @@ export const TransactionsTab = () => {
                                   <span>{c.label}</span>
                                 </button>
                               ))}
-                              <div className="border-t border-[var(--border)] pt-1 mt-1">
+                              <div className="border-t border-[var(--border)] pt-1 mt-1 space-y-1">
+                                <button
+                                  onClick={() => {
+                                    setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isExpense: !isExpense } : t));
+                                    setPopoverTxId(null);
+                                    setPopoverPos(null);
+                                  }}
+                                  className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-bold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-1.5 cursor-pointer"
+                                >
+                                  <span>{isExpense ? '🟢 Mark as Payment / Refund' : '🔴 Mark as Expense'}</span>
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isExcluded: !tx.isExcluded } : t));
+                                    setPopoverTxId(null);
+                                    setPopoverPos(null);
+                                  }}
+                                  className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-bold text-[var(--text-3)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-1.5 cursor-pointer"
+                                >
+                                  <span>{tx.isExcluded ? '📥 Include in Budget & Tracking' : '📤 Exclude from Budget & Tracking'}</span>
+                                </button>
                                 <button
                                   onClick={() => {
                                     setPopoverTxId(null);
@@ -570,38 +637,87 @@ export const TransactionsTab = () => {
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-[var(--text-2)] font-medium">
-                        {card ? `${card.name} (•{card.masked})` : 'Manual Entry'}
+                        {card ? `${card.name} (•${card.masked})` : 'Manual Entry'}
                       </td>
-                      <td className={`py-3.5 px-4 font-mono font-black text-right text-sm ${isPositive ? 'text-emerald-400' : 'text-[var(--text-1)]'}`}>
-                        {isPositive ? `+${formatMoney(Math.abs(tx.amount), 2)}` : formatMoney(tx.amount, 2)}
+                      <td className={`py-3.5 px-4 font-mono font-black text-right text-sm ${isExpense ? 'text-rose-400' : 'text-emerald-400'}`}>
+                        {isExpense ? `-${formatMoney(Math.abs(tx.amount), 2)}` : `+${formatMoney(Math.abs(tx.amount), 2)}`}
                       </td>
-                      <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => setSplitModalTx(tx)}
-                            className="p-1.5 rounded-lg text-[var(--text-3)] hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors cursor-pointer"
-                            title="Split Transaction"
+                      <td className="py-3.5 px-4 text-right relative row-menu-container" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (openRowMenuId === tx.id) {
+                              setOpenRowMenuId(null);
+                              setMenuPos(null);
+                            } else {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setOpenRowMenuId(tx.id);
+                              const menuWidth = 208;
+                              let left = rect.right - menuWidth;
+                              if (left < 12) left = 12;
+                              if (left + menuWidth > window.innerWidth - 12) left = window.innerWidth - menuWidth - 12;
+                              setMenuPos({ top: rect.bottom + 4, left: left });
+                            }
+                          }}
+                          className="p-2 rounded-lg text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--surface-3)] transition-colors cursor-pointer"
+                          title="Transaction Options"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+
+                        {openRowMenuId === tx.id && menuPos && createPortal(
+                          <div
+                            style={{ position: 'fixed', top: menuPos.top, left: menuPos.left, zIndex: 999999 }}
+                            className="w-52 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150"
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            <Split className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              const tagTax = !tx.isTaxDeductible;
-                              setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isTaxDeductible: tagTax } : t));
-                            }}
-                            className="p-1.5 rounded-lg text-[var(--text-3)] hover:text-purple-400 hover:bg-purple-500/10 transition-colors cursor-pointer"
-                            title="Tag Tax Deductible"
-                          >
-                            <Tag className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => deleteTransaction(tx.id)}
-                            className="p-1.5 rounded-lg text-[var(--text-3)] hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                            <button
+                              onClick={() => {
+                                setOpenRowMenuId(null);
+                                setMenuPos(null);
+                                setSplitModalTx(tx);
+                              }}
+                              className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-3)] flex items-center gap-2 cursor-pointer transition-colors"
+                            >
+                              <Split className="w-3.5 h-3.5 text-indigo-400" />
+                              <span>Split Transaction...</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                const tagTax = !tx.isTaxDeductible;
+                                setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isTaxDeductible: tagTax } : t));
+                                setOpenRowMenuId(null);
+                                setMenuPos(null);
+                              }}
+                              className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-3)] flex items-center gap-2 cursor-pointer transition-colors"
+                            >
+                              <Tag className="w-3.5 h-3.5 text-purple-400" />
+                              <span>{tx.isTaxDeductible ? 'Untag Tax Deductible' : 'Tag Tax Deductible'}</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, isExcluded: !tx.isExcluded } : t));
+                                setOpenRowMenuId(null);
+                                setMenuPos(null);
+                              }}
+                              className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-3)] flex items-center gap-2 cursor-pointer transition-colors"
+                            >
+                              <span>{tx.isExcluded ? '📥 Include in Tracking' : '📤 Exclude from Tracking'}</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                deleteTransaction(tx.id);
+                                setOpenRowMenuId(null);
+                                setMenuPos(null);
+                              }}
+                              className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-3)] hover:text-rose-400 hover:bg-rose-500/10 flex items-center gap-2 cursor-pointer transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>Delete Transaction</span>
+                            </button>
+                          </div>,
+                          document.body
+                        )}
                       </td>
                     </tr>
                   );

@@ -171,9 +171,9 @@ export const LoginView = () => {
                 aria-selected={mode === 'signin'}
                 type="button"
                 onClick={() => { setMode('signin'); setErrorMsg(''); }}
-                className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-500 ${
+                className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#8B5CF6] ${
                   mode === 'signin'
-                    ? 'bg-emerald-500 text-white shadow-md'
+                    ? 'bg-[#8B5CF6] text-white shadow-md'
                     : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
                 }`}
               >
@@ -184,9 +184,9 @@ export const LoginView = () => {
                 aria-selected={mode === 'signup'}
                 type="button"
                 onClick={() => { setMode('signup'); setErrorMsg(''); }}
-                className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-500 ${
+                className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#8B5CF6] ${
                   mode === 'signup'
-                    ? 'bg-emerald-500 text-white shadow-md'
+                    ? 'bg-[#8B5CF6] text-white shadow-md'
                     : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
                 }`}
               >
@@ -374,7 +374,7 @@ export const LoginView = () => {
                       onClick={() => setRole('owner')}
                       className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                         role === 'owner'
-                          ? 'bg-emerald-500/25 border-emerald-500 text-emerald-200'
+                          ? 'bg-[#8B5CF6]/25 border-[#8B5CF6] text-purple-200'
                           : 'bg-[var(--surface)] border-[var(--border)] text-[var(--text-2)] hover:text-white'
                       }`}
                     >
@@ -386,7 +386,7 @@ export const LoginView = () => {
                       onClick={() => setRole('coowner')}
                       className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                         role === 'coowner'
-                          ? 'bg-emerald-500/25 border-emerald-500 text-emerald-200'
+                          ? 'bg-[#8B5CF6]/25 border-[#8B5CF6] text-purple-200'
                           : 'bg-[var(--surface)] border-[var(--border)] text-[var(--text-2)] hover:text-white'
                       }`}
                     >

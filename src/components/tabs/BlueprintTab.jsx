@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef, useId } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, Landmark, Sigma, Car, Tag, TrendingUp, Calendar } from 'lucide-react';
 import { AreaChart } from '../charts/AreaChart.jsx';
 
 /* ═══════════════════════════════════════════════════════════
@@ -374,10 +374,17 @@ function Rule72Calc() {
         <div className="ps-controls">
           <div className="ps-block">
             <div className="ps-block-head"><span className="ps-block-label">Solve For</span></div>
-            <Seg value={mode} onChange={setMode} options={[
-              { value: 'rate', label: 'Years from Rate' },
-              { value: 'years', label: 'Rate from Years' },
-            ]} />
+      <div className="mort-subtabs">
+        {[
+          { key: 'rate', label: 'Years from Rate', icon: <TrendingUp className="w-3.5 h-3.5" /> },
+          { key: 'years', label: 'Rate from Years', icon: <Calendar className="w-3.5 h-3.5" /> }
+        ].map(({ key: k, label, icon }) => (
+          <button key={k} className={`mort-subtab${mode === k ? ' active' : ''}`} onClick={() => setMode(k)}>
+            {icon}
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
           </div>
           <div className="ps-block">
             <div className="ps-block-head"><span className="ps-block-label">Inputs</span>
@@ -500,9 +507,14 @@ function MortgageCalc() {
       </div>
 
       <div className="mort-subtabs">
-        {['amortization', 'tax', 'formula'].map((k) => (
+        {[
+          { key: 'amortization', label: 'Mortgage & Amortization', icon: <Home className="w-3.5 h-3.5" /> },
+          { key: 'tax', label: 'Property Tax Details', icon: <Landmark className="w-3.5 h-3.5" /> },
+          { key: 'formula', label: 'Step-by-Step Formula', icon: <Sigma className="w-3.5 h-3.5" /> }
+        ].map(({ key: k, label, icon }) => (
           <button key={k} className={`mort-subtab${subTab === k ? ' active' : ''}`} onClick={() => setSubTab(k)}>
-            {k === 'amortization' ? 'Mortgage & Amortization' : k === 'tax' ? 'Property Tax Details' : 'Step-by-Step Formula'}
+            {icon}
+            <span>{label}</span>
           </button>
         ))}
       </div>
@@ -662,15 +674,16 @@ function VehicleCalc() {
   const [mode, setMode] = useState('lease');
   return (
     <>
-      <div className="mb-5" style={{ maxWidth: 320 }}>
-        <Seg
-          value={mode}
-          onChange={setMode}
-          options={[
-            { value: 'lease', label: '🚗 Lease Check' },
-            { value: 'valuation', label: '🏷️ Buy / Sell Value' }
-          ]}
-        />
+      <div className="mort-subtabs">
+        {[
+          { key: 'lease', label: 'Lease Check', icon: <Car className="w-3.5 h-3.5" /> },
+          { key: 'valuation', label: 'Buy / Sell Valuation', icon: <Tag className="w-3.5 h-3.5" /> }
+        ].map(({ key: k, label, icon }) => (
+          <button key={k} className={`mort-subtab${mode === k ? ' active' : ''}`} onClick={() => setMode(k)}>
+            {icon}
+            <span>{label}</span>
+          </button>
+        ))}
       </div>
       {mode === 'lease' ? <LeaseCalc /> : <ValuationCalc />}
     </>
@@ -1251,21 +1264,6 @@ export function BlueprintTab() {
   return (
     <div id="tab-blueprint" className="main-tab-content space-y-6">
       <div className="main-content-blur space-y-6">
-        {/* Section Header Banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20">
-          <div>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
-              FINANCIAL BLUEPRINT
-            </span>
-            <h2 className="text-xl sm:text-2xl font-black text-[var(--text-1)] mt-1.5">
-              Advanced Calculators & Simulators
-            </h2>
-            <p className="text-xs text-[var(--text-3)] mt-0.5">
-              Model paychecks, compound growth, mortgages, FIRE targets, and tax impact with institutional precision.
-            </p>
-          </div>
-        </div>
-
         <div className="relative flex items-center">
           {/* Left Scroll Button */}
           <button

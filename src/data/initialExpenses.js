@@ -118,7 +118,7 @@ export const initialExpensesData = {
 
 // Clean expenses for a real user
 export const getCleanExpenses = () => ({
-  monthlyBudget: 3000,
+  monthlyBudget: 0,
   categories: [
     { id: "cat_housing", label: "Housing & Utilities", color: "#3b82f6", icon: "home", limit: 1200 },
     { id: "cat_grocery", label: "Grocery & Dining", color: "#10b981", icon: "shopping-bag", limit: 800 },

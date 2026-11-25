@@ -180,12 +180,12 @@ export const MobileNav = () => {
                           onClick={() => handleSelectTab(item.id)}
                           className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                             isActive
-                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm'
+                              ? 'bg-[#8B5CF6]/15 text-purple-400 border border-[#8B5CF6]/30 shadow-sm'
                               : 'text-[var(--text-2)] bg-[var(--surface)] hover:text-[var(--text-1)] hover:bg-[var(--surface-2)] border border-[var(--border)]'
                           }`}
                         >
                           <div className="flex items-center gap-3">
-                            <IconComponent className={`w-4 h-4 shrink-0 ${isActive ? 'text-emerald-400' : 'opacity-70'}`} />
+                            <IconComponent className={`w-4 h-4 shrink-0 ${isActive ? 'text-purple-400' : 'opacity-70'}`} />
                             <span>{item.label}</span>
                           </div>
                           {item.badge !== undefined && item.badge > 0 && (

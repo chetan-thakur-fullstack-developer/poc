@@ -2,6 +2,9 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { initialPortfolioData, getCleanPortfolio } from '../data/initialPortfolio.js';
 import { initialAccountsData, getCleanAccounts } from '../data/initialAccounts.js';
 import { initialExpensesData, getCleanExpenses } from '../data/initialExpenses.js';
+import portfolioJson from '../data/json/portfolio-data.json';
+import accountsJson from '../data/json/accounts_data.json';
+import expenseJson from '../data/json/expense_tracker_data.json';
 import { useAuth } from './AuthContext.jsx';
 import { api } from '../services/api.js';
 import { isSupabaseConfigured, supabase } from '../services/supabase.js';
@@ -182,6 +185,8 @@ export const AppProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : getCleanAccounts();
   });
 
+  const linkedAccounts = accountsData?.linked || [];
+
   // 6. Expenses State
   const [expensesData, setExpensesData] = useState(() => {
     if (isDemoUser) {
@@ -236,16 +241,16 @@ export const AppProvider = ({ children }) => {
   // Load user data on user switch (Demo vs Real User)
   useEffect(() => {
     if (isDemoUser) {
-      // Load sample test data for demo user
+      // Load sample test data for demo user from JSON files
       const p = localStorage.getItem('ew_demo_portfolio');
       const a = localStorage.getItem('ew_demo_accounts');
       const e = localStorage.getItem('ew_demo_expenses');
       const t = localStorage.getItem('ew_demo_transactions');
 
-      setPortfolioData(p ? JSON.parse(p) : initialPortfolioData);
-      setAccountsData(a ? JSON.parse(a) : initialAccountsData);
-      setExpensesData(e ? JSON.parse(e) : initialExpensesData);
-      setTransactions(t ? JSON.parse(t) : (initialExpensesData.transactions || []));
+      setPortfolioData(p ? JSON.parse(p) : portfolioJson);
+      setAccountsData(a ? JSON.parse(a) : accountsJson);
+      setExpensesData(e ? JSON.parse(e) : expenseJson);
+      setTransactions(t ? JSON.parse(t) : (expenseJson.transactions || []));
     } else if (user?.id) {
       // Real user: fetch their private data from Supabase
       if (isSupabaseConfigured() && supabase) {
@@ -382,7 +387,8 @@ export const AppProvider = ({ children }) => {
   const [goals, setGoals] = useState(() => {
     try {
       const saved = localStorage.getItem('ew_goals');
-      return saved ? JSON.parse(saved) : [
+      if (saved) return JSON.parse(saved);
+      return isDemoUser ? [
         {
           id: 'g_1',
           title: 'Emergency Reserve (6 Months)',
@@ -437,7 +443,7 @@ export const AppProvider = ({ children }) => {
             { id: 'tx_4', date: '2026-11-10', description: 'Credit Card Payment', amount: 800, type: 'payment', source: 'Checking' }
           ]
         }
-      ];
+      ] : [];
     } catch (_) {
       return [];
     }
@@ -1057,11 +1063,67 @@ export const AppProvider = ({ children }) => {
 
   // Optional: Real user can import sample demo template if desired
   const loadDemoTemplate = () => {
-    setPortfolioData(initialPortfolioData);
-    setAccountsData(initialAccountsData);
-    setExpensesData(initialExpensesData);
-    setTransactions(initialExpensesData.transactions || []);
-    showToast('Sample template data loaded into workspace', 'info');
+    setPortfolioData(portfolioJson);
+    setAccountsData(accountsJson);
+    setExpensesData(expenseJson);
+    setTransactions(expenseJson.transactions || []);
+    setGoals([
+      {
+        id: 'g_1',
+        title: 'Emergency Reserve (6 Months)',
+        category: 'Safety',
+        type: 'save',
+        target: 50000,
+        current: 45000,
+        monthly: 1200,
+        date: '2026-12-31',
+        color: '#10B981',
+        linkedAccountId: 'acc_1',
+        linkedAccountName: 'Ally High-Yield Savings',
+        allocatedPct: 60,
+        transactions: [
+          { id: 'tx_1', date: '2026-11-01', description: 'Monthly Auto-Deposit', amount: 1200, type: 'deposit', source: 'Ally Savings' },
+          { id: 'tx_2', date: '2026-10-01', description: 'Monthly Auto-Deposit', amount: 1200, type: 'deposit', source: 'Ally Savings' }
+        ]
+      },
+      {
+        id: 'g_2',
+        title: 'Real Estate / Vacation Home',
+        category: 'Property',
+        type: 'save',
+        target: 120000,
+        current: 78000,
+        monthly: 2500,
+        date: '2027-06-30',
+        color: '#3B82F6',
+        linkedAccountId: 'acc_2',
+        linkedAccountName: 'Marcus Invest Marcus',
+        allocatedPct: 40,
+        transactions: [
+          { id: 'tx_3', date: '2026-11-05', description: 'Bonus Deposit', amount: 2500, type: 'deposit', source: 'Manual Entry' }
+        ]
+      },
+      {
+        id: 'g_3',
+        title: 'Chase Sapphire Reserve Paydown',
+        category: 'Debt',
+        type: 'paydown',
+        target: 8500,
+        current: 2384,
+        monthly: 800,
+        date: '2026-08-30',
+        color: '#EF4444',
+        apr: 24.99,
+        minPayment: 250,
+        linkedAccountId: '',
+        linkedAccountName: 'None',
+        allocatedPct: 0,
+        transactions: [
+          { id: 'tx_4', date: '2026-11-10', description: 'Credit Card Payment', amount: 800, type: 'payment', source: 'Checking' }
+        ]
+      }
+    ]);
+    showToast('Demo data loaded from JSON files', 'info');
   };
 
   // Reset to clean fresh workspace
@@ -1070,7 +1132,15 @@ export const AppProvider = ({ children }) => {
     setAccountsData(getCleanAccounts());
     setExpensesData(getCleanExpenses());
     setTransactions([]);
-    showToast('Workspace reset to clean slate', 'info');
+    setGoals([]);
+    try {
+      localStorage.removeItem('ew_portfolio');
+      localStorage.removeItem('ew_accounts');
+      localStorage.removeItem('ew_expenses');
+      localStorage.removeItem('ew_transactions');
+      localStorage.removeItem('ew_goals');
+    } catch (e) {}
+    showToast('Workspace reset to clean slate', 'success');
   };
 
   return (
@@ -1090,6 +1160,7 @@ export const AppProvider = ({ children }) => {
         setPortfolioData,
         accountsData,
         setAccountsData,
+        linkedAccounts,
         addAccount,
         deleteAccount,
         expensesData,

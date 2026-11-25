@@ -31,13 +31,18 @@
   --accent-2: #0052CC;    /* Darker Blue State */
   --accent-glow: rgba(0, 102, 255, 0.25);
 
-  /* --- Semantic Financial States --- */
-  --success: #10B981;     /* Emerald 500 (Income / Growth) */
-  --success-bg: rgba(16, 185, 129, 0.1);
-  --warning: #F59E0B;     /* Amber 500 (Budget Threshold) */
+  /* --- Semantic Financial States & Tokens --- */
+  --btn-primary-bg: #7C3AED;
+  --btn-primary-hover: #6D28D9;
+  --amount-income: #059669;
+  --amount-expense: #DC2626;
+
+  --success: #059669;     /* Forest Green (Light Mode) */
+  --success-bg: rgba(5, 150, 105, 0.1);
+  --warning: #F59E0B;     /* Amber 500 */
   --warning-bg: rgba(245, 158, 11, 0.1);
-  --danger: #EF4444;      /* Red 500 (Overdraft / Loss) */
-  --danger-bg: rgba(239, 68, 68, 0.1);
+  --danger: #DC2626;      /* Deep Crimson (Light Mode) */
+  --danger-bg: rgba(220, 38, 38, 0.1);
 
   /* --- Shadows & Elevations --- */
   --shadow-soft: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
@@ -52,42 +57,48 @@
 
 html.dark {
   /* --- Foundation & Backgrounds (OLED Graphite Dark) --- */
-  --app-bg: #090D16;
-  --app-bg-2: #111827;
-  --surface: rgba(17, 24, 39, 0.92);
-  --surface-2: rgba(31, 41, 55, 0.95);
-  --surface-3: rgba(55, 65, 81, 0.98);
+  --app-bg: #0B1120;
+  --app-bg-2: #131C2E;
+  --surface: #131C2E;
+  --surface-2: #1E293B;
+  --surface-3: #334155;
 
   /* --- Borders & Specular Highlights --- */
-  --border: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.06);
   --border-strong: rgba(255, 255, 255, 0.15);
-  --border-hover: rgba(255, 255, 255, 0.28);
+  --border-hover: rgba(255, 255, 255, 0.3);
 
   /* --- Typography & Text Tokens --- */
   --text-1: #F9FAFB;
-  --text-2: #D1D5DB;
-  --text-3: #9CA3AF;
-  --text-4: #6B7280;
+  --text-2: #E2E8F0;
+  --text-3: #CBD5E1; /* WCAG AA accessible contrast */
+  --text-4: #94A3B8;
 
   --accent: #3B82F6;      /* Classic Tech Blue */
   --accent-2: #2563EB;
   --accent-glow: rgba(59, 130, 246, 0.3);
+
+  /* --- Semantic Financial States & Tokens --- */
+  --btn-primary-bg: #8B5CF6;
+  --btn-primary-hover: #A78BFA;
+  --amount-income: #10B981;
+  --amount-expense: #EF4444;
 
   --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.5);
   --shadow-lift: 0 16px 32px -8px rgba(0, 0, 0, 0.7);
 }
 
 html.glass-theme {
-  /* --- Foundation & Backgrounds (Cosmic Frosted Glass) --- */
+  /* --- Foundation & Backgrounds (Cosmic Frosted Glass with Teal/Purple blobs) --- */
   --app-bg: #030308;
   --app-bg-2: #0B0F19;
-  --surface: rgba(18, 24, 38, 0.38);
-  --surface-2: rgba(28, 38, 60, 0.48);
-  --surface-3: rgba(42, 56, 88, 0.58);
+  --surface: rgba(30, 41, 59, 0.42);
+  --surface-2: rgba(45, 55, 72, 0.52);
+  --surface-3: rgba(71, 85, 105, 0.62);
 
   /* --- Borders & Specular Highlights (Glowing Glass) --- */
-  --border: rgba(255, 255, 255, 0.18);
-  --border-strong: rgba(255, 255, 255, 0.32);
+  --border: rgba(255, 255, 255, 0.15);
+  --border-strong: rgba(255, 255, 255, 0.3);
   --border-hover: rgba(99, 102, 241, 0.65);
 
   --text-1: #FFFFFF;
@@ -99,8 +110,14 @@ html.glass-theme {
   --accent-2: #8B5CF6;    /* Violet */
   --accent-glow: rgba(99, 102, 241, 0.55);
 
+  /* --- Semantic Financial States & Tokens --- */
+  --btn-primary-bg: rgba(139, 92, 246, 0.85);
+  --btn-primary-hover: rgba(167, 139, 250, 0.95);
+  --amount-income: #34D399;
+  --amount-expense: #F87171;
+
   --shadow-soft: 0 16px 48px rgba(0, 0, 0, 0.85);
-  --shadow-lift: 0 32px 64px -16px rgba(0, 0, 0, 0.95), 0 0 45px rgba(99, 102, 241, 0.32), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+  --shadow-lift: 0 32px 64px -16px rgba(0, 0, 0, 0.95), 0 0 45px rgba(99, 102, 241, 0.32), inset 0 1px 1px rgba(255, 255, 255, 0.35);
 }
 
 *, *::before, *::after {
@@ -189,23 +206,30 @@ html.dark .card {
 
 /* Fintech Buttons */
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  background: var(--btn-primary-bg, #8B5CF6);
   color: #FFFFFF;
   font-weight: 600;
   padding: 0.6rem 1.25rem;
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5ns;
+  gap: 0.5rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px -3px var(--accent-glow);
+  box-shadow: 0 4px 20px -3px rgba(139, 92, 246, 0.4);
 }
 
 .btn-primary:hover {
-  filter: brightness(1.12);
+  background: var(--btn-primary-hover, #A78BFA);
   transform: translateY(-1.5px);
-  box-shadow: 0 6px 22px -3px var(--accent-glow);
+  box-shadow: 0 6px 24px -3px rgba(139, 92, 246, 0.6);
+}
+
+html.glass-theme .btn-primary {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
 }
 
 .btn-secondary {
@@ -390,25 +414,25 @@ select option {
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
 }
-.ps-block { margin-bottom: 1.15rem; }
+.ps-block { margin-bottom: 1.75rem; }
 .ps-block:last-child { margin-bottom: 0; }
 .ps-block-head {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 0.95rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--border);
+  margin-bottom: 1.15rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--border);
 }
 .ps-block-label { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.13em; text-transform: uppercase; color: var(--text-4); }
 
-.ps-field { margin-bottom: 1rem; }
+.ps-field { margin-bottom: 1.6rem; }
 .ps-field:last-child { margin-bottom: 0; }
 .ps-field-label {
   display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem;
-  font-size: 0.7rem; font-weight: 700; color: var(--text-2); margin-bottom: 0.45rem;
+  font-size: 0.7rem; font-weight: 700; color: var(--text-2); margin-bottom: 0.55rem;
 }
 .ps-field-hint {
   font-size: 0.6rem; font-weight: 600; color: var(--text-4); text-align: right;
   min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.ps-field-input { display: flex; flex-direction: column; gap: 0.55rem; }
+.ps-field-input { display: flex; flex-direction: column; gap: 0.7rem; }
 
 .ps-input {
   width: 100%; background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
@@ -652,6 +676,10 @@ html.dark .ps-receipt-table tr.ps-receipt-row.is-neg td:last-child { color: #FDA
 }
 .ledger-table th {
   background: var(--surface-2);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   color: var(--text-3);
   font-weight: 700;
   text-transform: uppercase;
@@ -712,6 +740,54 @@ html.dark .ps-receipt-table tr.ps-receipt-row.is-neg td:last-child { color: #FDA
   background: var(--surface-2);
 }
 .wb-tab.active {
+  color: var(--text-1);
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-soft), 0 0 15px var(--accent-glow);
+  font-weight: 800;
+}
+
+/* Mortgage Sub-Tabs (.mort-subtabs) — UI/UX Designer Polished */
+.mort-subtabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.35rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  scrollbar-width: none;
+  margin-bottom: 1.25rem;
+}
+.mort-subtabs::-webkit-scrollbar {
+  display: none;
+}
+.mort-subtab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-3);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.mort-subtab:hover {
+  color: var(--text-1);
+  background: var(--surface-2);
+}
+.mort-subtab.active {
   color: var(--text-1);
   background: var(--surface-2);
   border-color: var(--border-strong);

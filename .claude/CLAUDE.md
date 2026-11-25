@@ -9,6 +9,7 @@
   - `src/api/` — Route handlers, input validation, and transport-layer serialization
 - Do not update my build and deploy functionality as it should be same as it is wworking as expected 
 - Also apply best ui design in term of user interactive and user engamenet persecpective
+- instead of focusing fast result think deeply and provide soltuion after that
 
 ## Commands
 - **Dev server:** `pnpm dev`

@@ -47,6 +47,16 @@ export const PortfolioTab = () => {
   const growthAmount = totalBalances - prevTotalBalances;
   const growthPct = prevTotalBalances > 0 ? (growthAmount / prevTotalBalances) * 100 : 0;
 
+  const formatInputValue = (val) => {
+    const num = Number(val);
+    return isNaN(num) || val === '' || val === undefined ? '' : num.toLocaleString();
+  };
+
+  const parseInputValue = (str) => {
+    const cleaned = String(str).replace(/[^0-9.-]/g, '');
+    return cleaned === '' ? 0 : Number(cleaned);
+  };
+
   const handleAddYear = (e) => {
     e.preventDefault();
     const yr = newYearStr.trim();
@@ -167,10 +177,10 @@ export const PortfolioTab = () => {
               <button
                 type="submit"
                 disabled={years.some(y => y.year === newYearStr.trim())}
-                className={`px-3 py-1.5 text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1 cursor-pointer ${
                   years.some(y => y.year === newYearStr.trim())
                     ? 'bg-slate-700 text-slate-400 opacity-50 cursor-not-allowed'
-                    : 'bg-emerald-500 hover:bg-emerald-400 text-white'
+                    : 'btn-secondary !py-1.5 !px-3'
                 }`}
                 title={years.some(y => y.year === newYearStr.trim()) ? 'Year already added' : 'Add new portfolio year'}
               >
@@ -182,7 +192,7 @@ export const PortfolioTab = () => {
             <button
               onClick={syncToCloud}
               disabled={isSyncing}
-              className="btn-primary text-xs px-4 py-2.5 cursor-pointer shrink-0 shadow-lg"
+              className="btn-primary text-xs px-4 py-2.5 cursor-pointer shrink-0 shadow-lg bg-[#8B5CF6] hover:bg-[#7C3AED] text-white"
             >
               {isSyncing ? 'Saving...' : '🔄 Sync Portfolio'}
             </button>
@@ -334,16 +344,16 @@ export const PortfolioTab = () => {
           </form>
         )}
 
-        <div className="overflow-x-auto">
+        <div className="max-h-[600px] overflow-y-auto overflow-x-auto relative">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-[var(--border)] text-[var(--text-3)]">
-                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px]">Category</th>
-                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px]">Tax Treatment</th>
-                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right">Allocation</th>
-                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right">Balance</th>
-                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right">Invested</th>
-                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right">Contribution</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Category</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Tax Treatment</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Allocation</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Balance</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Invested</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Contribution</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
@@ -369,26 +379,26 @@ export const PortfolioTab = () => {
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <input
-                        type="number"
-                        value={bal}
-                        onChange={(e) => updatePortfolioYear(selectedYearIndex, 'balances', cat.key, e.target.value)}
-                        className="w-32 text-right font-mono font-bold px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-1)] text-xs focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                        type="text"
+                        value={formatInputValue(bal)}
+                        onChange={(e) => updatePortfolioYear(selectedYearIndex, 'balances', cat.key, parseInputValue(e.target.value))}
+                        className="w-32 text-right font-mono font-bold px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-1)] text-xs focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-glow)] outline-none transition-all"
                       />
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <input
-                        type="number"
-                        value={inv}
-                        onChange={(e) => updatePortfolioYear(selectedYearIndex, 'invested', cat.key, e.target.value)}
-                        className="w-32 text-right font-mono px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-2)] text-xs focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                        type="text"
+                        value={formatInputValue(inv)}
+                        onChange={(e) => updatePortfolioYear(selectedYearIndex, 'invested', cat.key, parseInputValue(e.target.value))}
+                        className="w-32 text-right font-mono px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-2)] text-xs focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-glow)] outline-none transition-all"
                       />
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <input
-                        type="number"
-                        value={con}
-                        onChange={(e) => updatePortfolioYear(selectedYearIndex, 'contri', cat.key, e.target.value)}
-                        className="w-32 text-right font-mono px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-emerald-400 font-semibold text-xs focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                        type="text"
+                        value={formatInputValue(con)}
+                        onChange={(e) => updatePortfolioYear(selectedYearIndex, 'contri', cat.key, parseInputValue(e.target.value))}
+                        className="w-32 text-right font-mono px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-1)] font-semibold text-xs focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-glow)] outline-none transition-all"
                       />
                     </td>
                   </tr>
@@ -477,15 +487,15 @@ export const PortfolioTab = () => {
                       </button>
                     </div>
                   </div>
-                  <div className="overflow-x-auto">
+                  <div className="max-h-[500px] overflow-y-auto overflow-x-auto relative">
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
                         <tr className="border-b border-[var(--border)] text-[var(--text-3)]">
-                          <th className="py-2.5 px-3 font-bold uppercase text-[10px]">Category</th>
-                          <th className="py-2.5 px-3 font-bold uppercase text-[10px]">Tax Treatment</th>
-                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] text-right">Balance</th>
-                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] text-right">Invested</th>
-                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] text-right">Contribution</th>
+                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Category</th>
+                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Tax Treatment</th>
+                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Balance</th>
+                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Invested</th>
+                          <th className="py-2.5 px-3 font-bold uppercase text-[10px] text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Contribution</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[var(--border)]">
@@ -507,26 +517,26 @@ export const PortfolioTab = () => {
                               </td>
                               <td className="py-2.5 px-3 text-right">
                                 <input
-                                  type="number"
-                                  value={bal}
-                                  onChange={(e) => updatePortfolioYear(y.originalIndex, 'balances', cat.key, e.target.value)}
+                                  type="text"
+                                  value={formatInputValue(bal)}
+                                  onChange={(e) => updatePortfolioYear(y.originalIndex, 'balances', cat.key, parseInputValue(e.target.value))}
                                   className="w-28 text-right font-mono font-bold px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] text-xs outline-none"
                                 />
                               </td>
                               <td className="py-2.5 px-3 text-right">
                                 <input
-                                  type="number"
-                                  value={inv}
-                                  onChange={(e) => updatePortfolioYear(y.originalIndex, 'invested', cat.key, e.target.value)}
+                                  type="text"
+                                  value={formatInputValue(inv)}
+                                  onChange={(e) => updatePortfolioYear(y.originalIndex, 'invested', cat.key, parseInputValue(e.target.value))}
                                   className="w-28 text-right font-mono px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] text-xs outline-none"
                                 />
                               </td>
                               <td className="py-2.5 px-3 text-right">
                                 <input
-                                  type="number"
-                                  value={con}
-                                  onChange={(e) => updatePortfolioYear(y.originalIndex, 'contri', cat.key, e.target.value)}
-                                  className="w-28 text-right font-mono px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-emerald-400 font-semibold text-xs outline-none"
+                                  type="text"
+                                  value={formatInputValue(con)}
+                                  onChange={(e) => updatePortfolioYear(y.originalIndex, 'contri', cat.key, parseInputValue(e.target.value))}
+                                  className="w-28 text-right font-mono px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] font-semibold text-xs outline-none"
                                 />
                               </td>
                             </tr>

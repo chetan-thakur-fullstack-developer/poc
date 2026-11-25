@@ -24,19 +24,20 @@ console.log('[Build] ✓ Created dist/.nojekyll');
 
 // Copy JSON data files to dist so fetch requests succeed
 const dataFiles = [
-  'accounts_data.json',
-  'expense_tracker_data.json',
-  'plaid_demo_data.json',
-  'portfolio-data.json',
+  'src/data/json/accounts_data.json',
+  'src/data/json/expense_tracker_data.json',
+  'src/data/json/plaid_demo_data.json',
+  'src/data/json/portfolio-data.json',
   '404.html'
 ];
 
 for (const file of dataFiles) {
   const src = path.join(__dirname, file);
-  const dest = path.join(distDir, file);
+  const destName = path.basename(file);
+  const dest = path.join(distDir, destName);
   if (fs.existsSync(src)) {
     fs.copyFileSync(src, dest);
-    console.log(`[Build] ✓ Copied ${file} -> dist/${file}`);
+    console.log(`[Build] ✓ Copied ${file} -> dist/${destName}`);
   }
 }
 

@@ -152,29 +152,6 @@ export const SettingsTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-black text-[var(--text-1)]">Settings & Preferences</h2>
-          <p className="text-xs text-[var(--text-3)]">
-            Manage your personal profile, household co-owners, income configuration, and backups.
-          </p>
-        </div>
-
-        {/* Sign Out Action */}
-        <button
-          onClick={() => {
-            if (confirm('Sign out of your session? Your local data will be preserved.')) {
-              signOut();
-            }
-          }}
-          className="btn text-xs !py-2 !px-3.5 border-rose-500/30 text-rose-400 hover:bg-rose-500/10 self-start sm:self-auto cursor-pointer flex items-center gap-2"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Sign Out</span>
-        </button>
-      </div>
-
       {/* Main Settings Grid: Sub-nav on Left, Content on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Sub-nav */}
@@ -190,7 +167,7 @@ export const SettingsTab = () => {
                 onClick={() => handleSetActiveSection(s.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all text-left cursor-pointer ${
                   isActive
-                    ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm'
+                    ? 'bg-[#8B5CF6]/15 text-purple-400 border border-[#8B5CF6]/30 shadow-sm'
                     : 'text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-2)]'
                 }`}
               >
@@ -202,6 +179,23 @@ export const SettingsTab = () => {
               </button>
             );
           })}
+
+          <div className="pt-2 mt-2 border-t border-[var(--border)]">
+            <button
+              onClick={() => {
+                if (confirm('Sign out of your session? Your local data will be preserved.')) {
+                  signOut();
+                }
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 transition-all text-left cursor-pointer"
+            >
+              <span className="text-base shrink-0">🚪</span>
+              <div className="min-w-0">
+                <div className="font-bold truncate">Sign Out</div>
+                <div className="text-[10px] text-rose-400/80 truncate">End active session</div>
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Right Content Panel */}

@@ -1,43 +1,46 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { Bell, Plus, Sun, Moon, Sparkles } from 'lucide-react';
+import { Bell, Plus, ChevronDown, Sparkles, Search, Sun, Moon, Settings, LogOut } from 'lucide-react';
 
 export const Header = () => {
   const {
     currentTab,
-    currentCurrency,
-    setCurrentCurrency,
-    theme,
-    setTheme,
     openModal,
+    setShowCreateModal,
     setCurrentTab,
     notifications,
     clearNotifications,
     privacyMask,
     setPrivacyMask,
-    showToast
+    showToast,
+    theme,
+    setTheme
   } = useApp();
 
   const { user, isDemoUser, signOut } = useAuth();
   const [showNotifPopover, setShowNotifPopover] = useState(false);
+  const [showNewDropdown, setShowNewDropdown] = useState(false);
+  const [showProfilePopover, setShowProfilePopover] = useState(false);
   const notifRef = useRef(null);
+  const newDropdownRef = useRef(null);
+  const profileRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (notifRef.current && !notifRef.current.contains(e.target)) {
         setShowNotifPopover(false);
       }
+      if (newDropdownRef.current && !newDropdownRef.current.contains(e.target)) {
+        setShowNewDropdown(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setShowProfilePopover(false);
+      }
     };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
-
-  const toggleTheme = () => {
-    if (theme === 'dark') setTheme('light');
-    else if (theme === 'light') setTheme('glass');
-    else setTheme('dark');
-  };
 
   const TAB_TITLES = {
     'tab-dashboard': 'Household Dashboard',
@@ -71,9 +74,9 @@ export const Header = () => {
   const activeSubtitle = TAB_SUBTITLES[currentTab] || 'Manage your financial life';
 
   return (
-    <header className="sticky top-0 z-40 h-16 w-full border-b border-[var(--border)] bg-[var(--surface)]/75 backdrop-blur-xl px-4 sm:px-8 flex items-center justify-between transition-all">
+    <header className="sticky top-0 z-40 h-16 w-full border-b border-[var(--border)] bg-[var(--surface)]/85 backdrop-blur-xl px-4 sm:px-8 flex items-center justify-between transition-all gap-4">
       {/* Left: Active Section Title & Subheading */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 shrink-0">
         <div className="flex items-center gap-2.5 lg:hidden font-black text-base tracking-tight">
           <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex items-center justify-center shadow-md">
             LJ
@@ -82,7 +85,7 @@ export const Header = () => {
         </div>
 
         <div className="hidden sm:flex flex-col">
-          <h2 className="text-xs sm:text-sm font-extrabold text-[var(--text-1)] tracking-tight leading-tight">
+          <h2 className="text-xs sm:text-sm font-black text-[var(--text-1)] tracking-tight leading-tight">
             {activeTitle}
           </h2>
           <p className="text-[10px] font-medium text-[var(--text-3)] leading-none mt-0.5">
@@ -91,8 +94,24 @@ export const Header = () => {
         </div>
       </div>
 
-      {/* Right Minimal Controls */}
-      <div className="flex items-center gap-2.5">
+      {/* Middle: SaaS Standard Search Bar / Cmd+K Trigger */}
+      <div className="flex-1 max-w-md hidden md:block">
+        <button
+          onClick={() => openModal('commandMenu')}
+          className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-3)] hover:text-[var(--text-1)] hover:border-[var(--border-strong)] transition-all cursor-pointer shadow-xs group"
+        >
+          <div className="flex items-center gap-2.5">
+            <Search className="w-4 h-4 text-[var(--text-4)] group-hover:text-[var(--accent)] transition-colors" />
+            <span className="text-xs font-medium">Search accounts, transactions, calculators...</span>
+          </div>
+          <kbd className="px-2 py-0.5 rounded-md bg-[var(--surface)] border border-[var(--border)] text-[10px] font-mono font-bold text-[var(--text-3)] shadow-xs">
+            ⌘K
+          </kbd>
+        </button>
+      </div>
+
+      {/* Right Minimal Controls & Global Actions */}
+      <div className="flex items-center gap-3 shrink-0">
         {/* Privacy Shield Active Badge */}
         {privacyMask && (
           <div className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 animate-pulse">
@@ -109,29 +128,83 @@ export const Header = () => {
           </div>
         )}
 
-        {/* Theme Switcher Button */}
-        <button
-          onClick={toggleTheme}
-          title={`Theme: ${theme.toUpperCase()}`}
-          className="p-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-hover)] transition-all cursor-pointer active:scale-95 shadow-sm flex items-center justify-center"
-        >
-          {theme === 'dark' ? <Moon className="w-4 h-4 text-blue-400" /> : theme === 'light' ? <Sun className="w-4 h-4 text-amber-400" /> : <Sparkles className="w-4 h-4 text-purple-400" />}
-        </button>
+        {/* Global Quick Add Dropdown Menu ("+ New ▾") */}
+        <div className="relative" ref={newDropdownRef}>
+          <button
+            onClick={() => setShowNewDropdown(!showNewDropdown)}
+            className="btn-primary text-xs px-3.5 py-2 shadow-sm cursor-pointer flex items-center gap-1.5 font-bold"
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[3]" />
+            <span className="hidden sm:inline">New</span>
+            <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${showNewDropdown ? 'rotate-180' : ''}`} />
+          </button>
 
-        {/* Quick Add Button */}
-        <button
-          onClick={() => openModal('quickAdd')}
-          className="btn-primary text-xs px-3.5 py-1.5 shadow-sm cursor-pointer flex items-center gap-1.5"
-        >
-          <Plus className="w-3.5 h-3.5 stroke-[3]" />
-          <span className="hidden sm:inline font-semibold">New</span>
-        </button>
+          {showNewDropdown && (
+            <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-1.5 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div className="px-3 py-2 text-[10px] font-black uppercase tracking-wider text-[var(--text-4)] border-b border-[var(--border)]">
+                Quick Actions
+              </div>
+              <div className="py-1 space-y-0.5">
+                <button
+                  onClick={() => {
+                    openModal('addTx');
+                    setShowNewDropdown(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
+                >
+                  <span className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xs">💸</span>
+                  <span>Record Transaction</span>
+                </button>
+                <button
+                  onClick={() => {
+                    openModal('addAccount');
+                    setShowNewDropdown(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
+                >
+                  <span className="w-6 h-6 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center text-xs">🏦</span>
+                  <span>Link Account</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCreateModal(true);
+                    setShowNewDropdown(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
+                >
+                  <span className="w-6 h-6 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center text-xs">🎯</span>
+                  <span>Create Goal</span>
+                </button>
+                <button
+                  onClick={() => {
+                    openModal('quickAdd');
+                    setShowNewDropdown(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
+                >
+                  <span className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center text-xs">⚡</span>
+                  <span>Quick Add Wizard</span>
+                </button>
+                <button
+                  onClick={() => {
+                    openModal('commandMenu');
+                    setShowNewDropdown(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left border-t border-[var(--border)] mt-1 pt-1.5"
+                >
+                  <span className="w-6 h-6 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center text-xs">🔍</span>
+                  <span>Command Search (Cmd+K)</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
-        {/* Notification Bell & Popover (Second Last) */}
+        {/* Notification Bell & Popover */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setShowNotifPopover(!showNotifPopover)}
-            className="p-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-hover)] transition-all cursor-pointer active:scale-95 shadow-sm relative"
+            className="p-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-[var(--border-hover)] transition-all cursor-pointer active:scale-95 shadow-sm relative"
             title="Notifications"
           >
             <Bell className="w-4 h-4" />
@@ -185,14 +258,86 @@ export const Header = () => {
           )}
         </div>
 
-        {/* Profile Avatar / Settings Shortcut (Last) */}
-        <button
-          onClick={() => setCurrentTab('tab-settings')}
-          className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm border border-white/20 hover:scale-105 transition-transform cursor-pointer"
-          title="Open Settings & Profile"
-        >
-          {isDemoUser ? 'D' : (user?.user_metadata?.full_name || user?.email || 'U')[0]}
-        </button>
+        {/* Profile Avatar & Profile Popover Menu (with Theme Switcher) */}
+        <div className="relative" ref={profileRef}>
+          <button
+            onClick={() => setShowProfilePopover(!showProfilePopover)}
+            className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold uppercase shadow-sm border border-white/20 hover:scale-105 transition-transform cursor-pointer"
+            title="Open Profile & Theme Menu"
+          >
+            {isDemoUser ? 'D' : (user?.user_metadata?.full_name || user?.email || 'U')[0]}
+          </button>
+
+          {showProfilePopover && (
+            <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div className="px-3 py-2.5 border-b border-[var(--border)]">
+                <p className="text-xs font-black text-[var(--text-1)]">{isDemoUser ? 'Demo Household' : (user?.user_metadata?.full_name || 'Household User')}</p>
+                <p className="text-[10px] text-[var(--text-3)] font-mono truncate mt-0.5">{user?.email || 'demo@ledgerjourney.app'}</p>
+              </div>
+
+              {/* Theme Switcher Section */}
+              <div className="p-2 border-b border-[var(--border)]">
+                <div className="text-[10px] font-black uppercase tracking-wider text-[var(--text-4)] mb-2 px-1">
+                  Appearance Theme
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  <button
+                    onClick={() => setTheme('light')}
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      theme === 'light' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-xs' : 'bg-[var(--surface-2)] text-[var(--text-3)] hover:text-[var(--text-1)]'
+                    }`}
+                  >
+                    <Sun className="w-4 h-4" />
+                    <span className="text-[10px]">Light</span>
+                  </button>
+                  <button
+                    onClick={() => setTheme('dark')}
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      theme === 'dark' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-xs' : 'bg-[var(--surface-2)] text-[var(--text-3)] hover:text-[var(--text-1)]'
+                    }`}
+                  >
+                    <Moon className="w-4 h-4" />
+                    <span className="text-[10px]">Dark</span>
+                  </button>
+                  <button
+                    onClick={() => setTheme('glass')}
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      theme === 'glass' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/40 shadow-xs' : 'bg-[var(--surface-2)] text-[var(--text-3)] hover:text-[var(--text-1)]'
+                    }`}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span className="text-[10px]">Glass</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="py-1 space-y-0.5">
+                <button
+                  onClick={() => {
+                    setCurrentTab('tab-settings');
+                    setShowProfilePopover(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
+                >
+                  <Settings className="w-3.5 h-3.5 text-[var(--text-3)]" />
+                  <span>Settings & Preferences</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirm('Sign out of your session?')) {
+                      signOut();
+                    }
+                    setShowProfilePopover(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer text-left"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

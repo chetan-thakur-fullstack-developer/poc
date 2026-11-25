@@ -54,108 +54,103 @@ export const GoalsTab = () => {
 
   return (
     <div className="space-y-6 pb-20">
-      {/* 1. Top Header & Navigation Controls */}
+      {/* 1. Top Section: Clean Tabs [Save Up] [Debt Payoff] & Primary Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-black text-[var(--text-1)]">Household Goals & Milestones</h2>
-          <p className="text-xs text-[var(--text-3)]">
-            {goalTypeTab === 'save' ? 'Build long-term wealth, emergency reserves, and major lifestyle assets' : 'Conquer credit cards, student loans, and mortgages with interest reduction pacing'}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Sub-tabs: Save Up vs Pay Down */}
-          <div role="tablist" className="flex rounded-xl bg-[var(--surface-2)] p-1 border border-[var(--border)] shrink-0">
-            <button
-              role="tab"
-              aria-selected={goalTypeTab === 'save'}
-              onClick={() => setGoalTypeTab('save')}
-              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap flex-nowrap ${
-                goalTypeTab === 'save' ? 'bg-emerald-500 text-white shadow-sm' : 'text-[var(--text-3)] hover:text-white'
-              }`}
-            >
-              <Target className="w-3.5 h-3.5 shrink-0" />
-              <span className="whitespace-nowrap">Save Up</span>
-            </button>
-            <button
-              role="tab"
-              aria-selected={goalTypeTab === 'paydown'}
-              onClick={() => setGoalTypeTab('paydown')}
-              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap flex-nowrap ${
-                goalTypeTab === 'paydown' ? 'bg-rose-600 text-white shadow-sm' : 'text-[var(--text-3)] hover:text-white'
-              }`}
-            >
-              <CreditCard className="w-3.5 h-3.5 shrink-0" />
-              <span className="whitespace-nowrap">Pay Down Debt</span>
-            </button>
-          </div>
-
+        {/* Sub-tabs: Save Up vs Pay Down (Active Goals vs Debt Payoff) */}
+        <div role="tablist" className="flex rounded-xl bg-[var(--surface-2)] p-1 border border-[var(--border)] shrink-0 w-fit">
           <button
-            onClick={() => useApp().setShowAllocateModal ? useApp().setShowAllocateModal(true) : null}
-            className="btn-secondary text-xs px-3.5 py-2.5 cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap"
-          >
-            <Layers className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>Allocate Funds</span>
-          </button>
-
-          <button
-            onClick={() => handleOpenCreate(goalTypeTab)}
-            className={`btn-primary text-xs px-4 py-2.5 cursor-pointer flex items-center gap-1.5 text-white shadow-sm shrink-0 whitespace-nowrap ${
-              goalTypeTab === 'save' ? 'bg-[#1D4ED8] hover:bg-blue-600' : 'bg-rose-600 hover:bg-rose-500'
+            role="tab"
+            aria-selected={goalTypeTab === 'save'}
+            onClick={() => setGoalTypeTab('save')}
+            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
+              goalTypeTab === 'save' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-[var(--text-3)] hover:text-white'
             }`}
           >
-            {goalTypeTab === 'save' ? <Target className="w-4 h-4 shrink-0" /> : <CreditCard className="w-4 h-4 shrink-0" />}
-            <span>{goalTypeTab === 'save' ? 'Create Goal' : 'Pay debt'}</span>
+            <Target className="w-3.5 h-3.5 shrink-0" />
+            <span>Active Goals (Save Up)</span>
+          </button>
+          <button
+            role="tab"
+            aria-selected={goalTypeTab === 'paydown'}
+            onClick={() => setGoalTypeTab('paydown')}
+            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
+              goalTypeTab === 'paydown' ? 'bg-rose-600 text-white shadow-sm' : 'text-[var(--text-3)] hover:text-white'
+            }`}
+          >
+            <CreditCard className="w-3.5 h-3.5 shrink-0" />
+            <span>Debt Payoff</span>
           </button>
         </div>
+
+        <button
+          onClick={() => handleOpenCreate(goalTypeTab)}
+          className={`btn-primary text-xs px-4 py-2.5 cursor-pointer flex items-center gap-1.5 text-white shadow-sm shrink-0 whitespace-nowrap ${
+            goalTypeTab === 'save' ? 'bg-[#8B5CF6] hover:bg-[#7c4dff]' : 'bg-rose-600 hover:bg-rose-500'
+          }`}
+        >
+          {goalTypeTab === 'save' ? <Target className="w-4 h-4 shrink-0" /> : <CreditCard className="w-4 h-4 shrink-0" />}
+          <span>{goalTypeTab === 'save' ? 'Create Goal' : 'Add Debt Liability'}</span>
+        </button>
       </div>
 
-      {/* KPI Summary Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card p-4">
-          <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-3)] mb-1">
-            {goalTypeTab === 'save' ? 'Total Goal Value' : 'Total Debt Owed'}
+      {/* KPI Summary Grid (Only rendered when goals exist so empty state is the hero) */}
+      {filteredGoals.length > 0 && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in duration-200">
+          <div className="card p-4">
+            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-3)] mb-1">
+              {goalTypeTab === 'save' ? 'Total Goal Value' : 'Total Debt Owed'}
+            </div>
+            <div className="text-lg font-black font-mono text-[var(--text-1)]">
+              <AnimatedNumber value={totalGoalValue} />
+            </div>
           </div>
-          <div className="text-lg font-black font-mono text-[var(--text-1)]">
-            <AnimatedNumber value={totalGoalValue} />
+          <div className="card p-4">
+            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-3)] mb-1">
+              {goalTypeTab === 'save' ? 'Total Saved' : 'Total Paid Off'}
+            </div>
+            <div className="text-lg font-black font-mono text-emerald-400">
+              <AnimatedNumber value={totalSaved} />
+            </div>
+          </div>
+          <div className="card p-4">
+            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-3)] mb-1">
+              Monthly Pacing
+            </div>
+            <div className="text-lg font-black font-mono text-purple-400">
+              <AnimatedNumber value={totalMonthly} />
+            </div>
+          </div>
+          <div className="card p-4 flex flex-col justify-between">
+            <div>
+              <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-3)] mb-1">
+                Active {goalTypeTab === 'save' ? 'Goals' : 'Liabilities'}
+              </div>
+              <div className="text-lg font-black font-mono text-[var(--text-1)]">
+                {filteredGoals.length} {filteredGoals.length === 1 ? (goalTypeTab === 'save' ? 'Goal' : 'Liability') : (goalTypeTab === 'save' ? 'Goals' : 'Liabilities')}
+              </div>
+            </div>
+            <button
+              onClick={() => showToast('Select a goal and link it to an account to allocate funds.', 'info')}
+              className="text-[11px] font-bold text-emerald-400 hover:underline flex items-center gap-1 mt-2 cursor-pointer"
+            >
+              <Layers className="w-3 h-3" />
+              <span>Allocate Funds ↗</span>
+            </button>
           </div>
         </div>
-        <div className="card p-4">
-          <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-3)] mb-1">
-            {goalTypeTab === 'save' ? 'Total Saved' : 'Total Paid Off'}
-          </div>
-          <div className="text-lg font-black font-mono text-emerald-400">
-            <AnimatedNumber value={totalSaved} />
-          </div>
-        </div>
-        <div className="card p-4">
-          <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-3)] mb-1">
-            Monthly Pacing
-          </div>
-          <div className="text-lg font-black font-mono text-purple-400">
-            <AnimatedNumber value={totalMonthly} />
-          </div>
-        </div>
-        <div className="card p-4">
-          <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-3)] mb-1">
-            Active {goalTypeTab === 'save' ? 'Goals' : 'Liabilities'}
-          </div>
-          <div className="text-lg font-black font-mono text-[var(--text-1)]">
-            {filteredGoals.length} {filteredGoals.length === 1 ? (goalTypeTab === 'save' ? 'Goal' : 'Liability') : (goalTypeTab === 'save' ? 'Goals' : 'Liabilities')}
-          </div>
-        </div>
-      </div>
+      )}
 
-      {/* 2. Interactive Empty State */}
+      {/* 2. Premium Interactive Empty State */}
       {filteredGoals.length === 0 ? (
-        <div className={`card p-10 text-center space-y-6 bg-[var(--surface)] border ${
+        <div className={`card p-12 text-center space-y-6 bg-gradient-to-br from-[var(--surface)] via-[var(--surface)] to-[var(--surface-2)] border relative overflow-hidden ${
           goalTypeTab === 'save' ? 'border-emerald-500/30' : 'border-rose-500/30'
         }`}>
-          <div className="max-w-md mx-auto space-y-2">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold ${
-              goalTypeTab === 'save' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
+          <div className="absolute inset-0 bg-[radial-gradient(#8B5CF6_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
+          <div className="max-w-md mx-auto space-y-3 relative z-10">
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold shadow-lg ${
+              goalTypeTab === 'save' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
             }`}>
-              {goalTypeTab === 'save' ? <Target className="w-6 h-6" /> : <CreditCard className="w-6 h-6" />}
+              {goalTypeTab === 'save' ? <Target className="w-7 h-7" /> : <CreditCard className="w-7 h-7" />}
             </div>
             <h3 className="text-lg font-black text-[var(--text-1)]">
               {goalTypeTab === 'save' ? 'Plan for your future wealth' : 'Conquer your existing debts'}
@@ -167,17 +162,17 @@ export const GoalsTab = () => {
             </p>
             <button
               onClick={() => handleOpenCreate(goalTypeTab)}
-              className={`btn-primary text-xs px-5 py-2.5 mt-3 cursor-pointer text-white shadow-sm flex items-center gap-2 mx-auto ${
-                goalTypeTab === 'save' ? 'bg-[#1D4ED8]' : 'bg-rose-600 hover:bg-rose-500'
+              className={`btn-primary text-xs px-6 py-3 mt-3 cursor-pointer text-white shadow-sm flex items-center gap-2 mx-auto font-bold ${
+                goalTypeTab === 'save' ? 'bg-[#8B5CF6] hover:bg-[#7c4dff]' : 'bg-rose-600 hover:bg-rose-500'
               }`}
             >
               {goalTypeTab === 'save' ? <Target className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
-              <span>{goalTypeTab === 'save' ? '+ Add Your First Goal' : 'Pay debt'}</span>
+              <span>{goalTypeTab === 'save' ? 'Add Your First Goal' : 'Add Debt Liability'}</span>
             </button>
           </div>
         </div>
       ) : (
-        /* 5. Active Cards Grid */
+        /* 5. Active Cards Grid + Ghost Cards */
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -260,13 +255,17 @@ export const GoalsTab = () => {
                       </div>
                     </div>
 
-                    {/* Progress bar */}
+                    {/* Progress bar with informative expected pacing marker tooltip */}
                     <div className="relative w-full bg-[var(--surface-3)] h-2.5 rounded-full mt-2.5 overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-700"
                         style={{ backgroundColor: goal.color, width: `${pct}%` }}
                       />
-                      <div className="absolute top-0 bottom-0 w-0.5 bg-white/80 shadow-sm" style={{ left: '50%' }} title="Expected Pace Marker" />
+                      <div
+                        className="absolute top-0 bottom-0 w-0.5 bg-white/90 shadow-sm cursor-help"
+                        style={{ left: '50%' }}
+                        title="Expected progress based on time-based timeline pacing (50% target)"
+                      />
                     </div>
                   </div>
 
@@ -286,12 +285,31 @@ export const GoalsTab = () => {
                       }`}
                     >
                       {isPaydown ? <CreditCard className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                      <span>{isPaydown ? 'Pay debt (-$500)' : '+ Deposit $500'}</span>
+                      <span>{isPaydown ? 'Pay debt (-$500)' : 'Deposit $500'}</span>
                     </button>
                   </div>
                 </div>
               );
             })}
+
+            {/* Ghost Add Cards to balance layout when fewer than 3 goals */}
+            {Array.from({ length: Math.max(0, 3 - filteredGoals.length) }).map((_, idx) => (
+              <div
+                key={`ghost-${idx}`}
+                onClick={() => handleOpenCreate(goalTypeTab)}
+                className="card p-6 border-2 border-dashed border-[var(--border-strong)] hover:border-[#8B5CF6] bg-[var(--surface-2)]/30 rounded-2xl flex flex-col items-center justify-center text-center space-y-3 cursor-pointer transition-all group min-h-[220px]"
+              >
+                <div className="w-10 h-10 rounded-xl bg-[var(--surface-3)] group-hover:bg-[#8B5CF6]/15 group-hover:text-[#8B5CF6] flex items-center justify-center text-[var(--text-3)] transition-colors">
+                  <Plus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs text-[var(--text-2)] group-hover:text-[var(--text-1)]">
+                    Add New {goalTypeTab === 'save' ? 'Goal' : 'Liability'}
+                  </h4>
+                  <p className="text-[10px] text-[var(--text-4)] mt-0.5">Fill empty slot with a custom objective</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -311,24 +329,32 @@ export const GoalsTab = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {(goalTypeTab === 'save' ? saveTemplates : paydownTemplates).map((tpl, i) => (
-            <div key={i} className="card-inner p-4 flex flex-col justify-between space-y-3">
-              <div>
-                <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--text-3)]">
-                  {tpl.category} {tpl.apr ? `• ${tpl.apr}% APR` : ''}
-                </span>
-                <h4 className="font-bold text-xs text-[var(--text-1)] mt-1.5">{tpl.title}</h4>
-                <p className="text-xs font-mono font-bold text-emerald-400 mt-1">{formatMoney(tpl.target)} {tpl.apr ? 'balance' : 'target'}</p>
+          {(goalTypeTab === 'save' ? saveTemplates : paydownTemplates).map((tpl, i) => {
+            const isAdded = goals.some(g => g.title === tpl.title);
+            return (
+              <div key={i} className="card-inner p-4 flex flex-col justify-between space-y-3">
+                <div>
+                  <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--text-3)]">
+                    {tpl.category} {tpl.apr ? `• ${tpl.apr}% APR` : ''}
+                  </span>
+                  <h4 className="font-bold text-xs text-[var(--text-1)] mt-1.5">{tpl.title}</h4>
+                  <p className="text-xs font-mono font-bold text-emerald-400 mt-1">{formatMoney(tpl.target)} {tpl.apr ? 'balance' : 'target'}</p>
+                </div>
+                <button
+                  onClick={() => !isAdded && applyTemplate(tpl)}
+                  disabled={isAdded}
+                  className={`text-xs !py-1.5 !px-3 w-full justify-center flex items-center gap-1.5 transition-all ${
+                    isAdded
+                      ? 'bg-[var(--surface-3)] text-[var(--text-4)] border border-[var(--border)] cursor-not-allowed opacity-60'
+                      : 'btn-secondary text-[#8B5CF6] hover:bg-[#8B5CF6]/20 border border-[#8B5CF6]/30 font-bold cursor-pointer'
+                  }`}
+                >
+                  {isAdded ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                  <span>{isAdded ? 'Added ✓' : 'Add Template'}</span>
+                </button>
               </div>
-              <button
-                onClick={() => applyTemplate(tpl)}
-                className="btn-secondary text-xs !py-1.5 !px-3 w-full justify-center cursor-pointer flex items-center gap-1.5"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add Template</span>
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

@@ -37,10 +37,6 @@ export const AreaChart = ({ data = [], height = 260, color = '#0066FF', title = 
         data: values,
         borderColor: color,
         borderWidth: 3,
-        borderDash: (context) => {
-          // Dash future projection years (e.g., >= 2026)
-          return context.p0 && labels[context.p0DataIndex]?.includes('2026') ? [6, 6] : undefined;
-        },
         backgroundColor: (context) => {
           const ctx = context.chart.ctx;
           const gradient = ctx.createLinearGradient(0, 0, 0, height);

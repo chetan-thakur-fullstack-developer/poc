@@ -1,13 +1,38 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useApp } from '../../context/AppContext.jsx';
 import { AnimatedNumber } from '../AnimatedNumber.jsx';
 import { DonutChart } from '../charts/DonutChart.jsx';
-import { Plus, Link2, Layers, TrendingUp, TrendingDown, Pencil, AlertCircle, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { Plus, Link2, Layers, TrendingUp, TrendingDown, Pencil, AlertCircle, ShieldCheck, Sparkles, Zap, Trash2, MoreVertical } from 'lucide-react';
 
 export const AccountsTab = () => {
-  const { accountsData, formatMoney, openModal, deleteAccount, syncToCloud, isSyncing } = useApp();
+  const { accountsData, setAccountsData, formatMoney, openModal, deleteAccount, syncToCloud, isSyncing } = useApp();
   const [filter, setFilter] = useState('all');
   const [monthlySavingsInput, setMonthlySavingsInput] = useState(1500);
+  const [openRowMenuId, setOpenRowMenuId] = useState(null);
+  const [menuPos, setMenuPos] = useState(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (e) => {
+      const target = e.target instanceof Element ? e.target : e.target?.parentElement;
+      if (openRowMenuId && target && !target.closest('.row-menu-container')) {
+        setOpenRowMenuId(null);
+        setMenuPos(null);
+      }
+    };
+    const handleScroll = () => {
+      if (openRowMenuId) {
+        setOpenRowMenuId(null);
+        setMenuPos(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    window.addEventListener('scroll', handleScroll, true);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [openRowMenuId]);
 
   const linked = accountsData?.linked || [];
 
@@ -25,11 +50,12 @@ export const AccountsTab = () => {
     return true; // 'all'
   });
 
-  const totalAssets = linked
+  const activeLinked = linked.filter(a => !a.isExcluded);
+  const totalAssets = activeLinked
     .filter(a => a.type !== 'credit')
     .reduce((s, a) => s + (Number(a.balance) || 0), 0);
 
-  const totalLiab = linked
+  const totalLiab = activeLinked
     .filter(a => a.type === 'credit')
     .reduce((s, a) => s + (Number(a.balance) || 0), 0);
 
@@ -75,11 +101,11 @@ export const AccountsTab = () => {
             <div className="h-3 rounded-full overflow-hidden flex bg-[var(--surface-3)]">
               <div
                 className="h-full bg-emerald-500 transition-all duration-700"
-                style={{ width: `${Math.min(100, (totalAssets / (totalAssets + Math.abs(totalLiab) || 1)) * 100)}%` }}
+                style={{ width: `${Math.max(4, Math.min(96, (totalAssets / (totalAssets + Math.abs(totalLiab) || 1)) * 100))}%` }}
               />
               <div
                 className="h-full bg-rose-500 transition-all duration-700"
-                style={{ width: `${Math.min(100, (Math.abs(totalLiab) / (totalAssets + Math.abs(totalLiab) || 1)) * 100)}%` }}
+                style={{ width: `${Math.max(4, Math.min(96, (Math.abs(totalLiab) / (totalAssets + Math.abs(totalLiab) || 1)) * 100))}%` }}
               />
             </div>
           </div>
@@ -94,48 +120,6 @@ export const AccountsTab = () => {
               { label: 'Total Liabilities', value: Math.abs(totalLiab), color: '#EF4444' }
             ]}
           />
-        </div>
-      </div>
-
-      {/* NEW FEATURE: Net Worth & Wealth Velocity Simulator */}
-      <div className="card p-6 space-y-4 bg-gradient-to-br from-[var(--surface)] to-indigo-500/10 border-indigo-500/30">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
-              <Zap className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="font-bold text-sm text-[var(--text-1)]">Wealth Velocity & Net Worth Simulator</h3>
-              <p className="text-[10px] text-[var(--text-3)]">Project your future net worth based on monthly compounding savings (7% APY)</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-[var(--text-2)]">Monthly Savings:</span>
-            <input
-              type="number"
-              value={monthlySavingsInput}
-              onChange={(e) => setMonthlySavingsInput(Number(e.target.value) || 0)}
-              className="w-28 px-2.5 py-1.5 text-xs font-bold font-mono rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-emerald-400 text-right outline-none"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-          <div className="card-inner p-4 space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-4)]">1-Year Horizon</span>
-            <div className="text-lg font-black font-mono text-emerald-400">{formatMoney(projected1Yr)}</div>
-            <p className="text-[10px] text-[var(--text-3)]">+7% compound projection</p>
-          </div>
-          <div className="card-inner p-4 space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-4)]">3-Year Horizon</span>
-            <div className="text-lg font-black font-mono text-emerald-400">{formatMoney(projected3Yr)}</div>
-            <p className="text-[10px] text-[var(--text-3)]">+7% compound projection</p>
-          </div>
-          <div className="card-inner p-4 space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-4)]">5-Year Horizon</span>
-            <div className="text-lg font-black font-mono text-emerald-400">{formatMoney(projected5Yr)}</div>
-            <p className="text-[10px] text-[var(--text-3)]">+7% compound projection</p>
-          </div>
         </div>
       </div>
 
@@ -158,7 +142,7 @@ export const AccountsTab = () => {
                 onClick={() => setFilter(tab.id)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-emerald-500 text-white shadow-sm'
+                    ? 'bg-[#8B5CF6] text-white shadow-sm font-bold'
                     : 'bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)]'
                 }`}
               >
@@ -178,24 +162,30 @@ export const AccountsTab = () => {
         </button>
       </div>
 
-      {/* Accounts Table / List */}
-      <div className="card overflow-hidden">
+      {/* Accounts Table / List (Placed higher for better user workflow) */}
+      <div className="card overflow-visible">
         <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-2)]/40">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--text-3)]">
             Linked Accounts & Assets ({filteredAccounts.length})
           </h3>
         </div>
 
-        <div className="overflow-x-auto">
+        <div
+          onScroll={() => {
+            setOpenRowMenuId(null);
+            setMenuPos(null);
+          }}
+          className="max-h-[600px] overflow-y-auto overflow-x-auto relative"
+        >
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-[var(--border)] text-[var(--text-4)] bg-[var(--surface-2)]/20 uppercase tracking-wider text-[10px] font-extrabold">
-                <th className="py-3.5 px-6">Account Name</th>
-                <th className="py-3.5 px-6">Institution</th>
-                <th className="py-3.5 px-6">Type</th>
-                <th className="py-3.5 px-6">Source</th>
-                <th className="py-3.5 px-6 text-right">Balance</th>
-                <th className="py-3.5 px-6 text-right">Action</th>
+              <tr className="border-b border-[var(--border)] text-[var(--text-4)] uppercase tracking-wider text-[10px] font-extrabold">
+                <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Account Name</th>
+                <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Institution</th>
+                <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Type</th>
+                <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Source</th>
+                <th className="py-3.5 px-6 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Balance</th>
+                <th className="py-3.5 px-6 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
@@ -208,8 +198,9 @@ export const AccountsTab = () => {
               ) : (
                 filteredAccounts.map(acc => {
                   const isNeg = Number(acc.balance) < 0 || acc.type === 'credit';
+                  const isMenuOpen = openRowMenuId === acc.id;
                   return (
-                    <tr key={acc.id} className="hover:bg-[var(--surface-2)]/60 transition-colors">
+                    <tr key={acc.id} className="odd:bg-[var(--surface)] even:bg-[var(--surface-2)]/40 hover:bg-[var(--surface-2)] transition-colors group relative">
                       <td className="py-4 px-6 font-bold text-[var(--text-1)] flex items-center gap-3">
                         <div
                           className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs text-white shrink-0 shadow-sm"
@@ -218,8 +209,11 @@ export const AccountsTab = () => {
                           {acc.institution?.[0] || 'A'}
                         </div>
                         <div>
-                          <span className="text-sm">{acc.name}</span>
-                          <div className="text-[10px] text-[var(--text-3)] font-normal">Updated live via API</div>
+                          <span className={`text-sm ${acc.isExcluded ? 'line-through opacity-60' : ''}`}>{acc.name}</span>
+                          <div className="text-[10px] text-[var(--text-3)] font-normal flex items-center gap-1.5">
+                            <span>Updated live via API</span>
+                            {acc.isExcluded && <span className="text-amber-400 font-bold">· (Excluded)</span>}
+                          </div>
                         </div>
                       </td>
                       <td className="py-4 px-6 text-[var(--text-2)] font-semibold">{acc.institution || 'Direct Bank'}</td>
@@ -236,13 +230,60 @@ export const AccountsTab = () => {
                       <td className={`py-4 px-6 text-right font-mono font-black text-sm ${isNeg ? 'text-rose-400' : 'text-emerald-400'}`}>
                         {formatMoney(acc.balance, 2)}
                       </td>
-                      <td className="py-4 px-6 text-right">
+                      <td className="py-4 px-6 text-right relative row-menu-container">
                         <button
-                          onClick={() => deleteAccount(acc.id)}
-                          className="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isMenuOpen) {
+                              setOpenRowMenuId(null);
+                              setMenuPos(null);
+                            } else {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setOpenRowMenuId(acc.id);
+                              const menuWidth = 208;
+                              let left = rect.right - menuWidth;
+                              if (left < 12) left = 12;
+                              if (left + menuWidth > window.innerWidth - 12) left = window.innerWidth - menuWidth - 12;
+                              setMenuPos({ top: rect.bottom + 4, left: left });
+                            }
+                          }}
+                          className="p-2 rounded-lg text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--surface-3)] transition-colors cursor-pointer"
+                          title="Account Options"
                         >
-                          Remove
+                          <MoreVertical className="w-4 h-4" />
                         </button>
+
+                        {isMenuOpen && menuPos && createPortal(
+                          <div
+                            style={{ position: 'fixed', top: menuPos.top, left: menuPos.left, zIndex: 999999 }}
+                            className="w-52 rounded-xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              onClick={() => {
+                                const updatedLinked = linked.map(a => a.id === acc.id ? { ...a, isExcluded: !a.isExcluded } : a);
+                                setAccountsData(prev => ({ ...prev, linked: updatedLinked }));
+                                setOpenRowMenuId(null);
+                                setMenuPos(null);
+                              }}
+                              className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-3)] flex items-center gap-2 cursor-pointer transition-colors"
+                            >
+                              <span>{acc.isExcluded ? '📥 Include in Net Worth' : '📤 Exclude from Net Worth'}</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                deleteAccount(acc.id);
+                                setOpenRowMenuId(null);
+                                setMenuPos(null);
+                              }}
+                              className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-[var(--text-3)] hover:text-rose-400 hover:bg-rose-500/10 flex items-center gap-2 cursor-pointer transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>Remove Account</span>
+                            </button>
+                          </div>,
+                          document.body
+                        )}
                       </td>
                     </tr>
                   );
@@ -250,6 +291,63 @@ export const AccountsTab = () => {
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Wealth Velocity & Net Worth Simulator (Positioned below accounts table) */}
+      <div className="card p-6 space-y-5 bg-gradient-to-br from-[var(--surface)] to-indigo-500/10 border-indigo-500/30">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[var(--border)] pb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
+              <Zap className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-[var(--text-1)]">Wealth Velocity & Net Worth Simulator</h3>
+              <p className="text-[10px] text-[var(--text-3)]">Project your future net worth based on monthly compounding savings (7% APY)</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-[var(--text-2)]">Monthly Savings:</span>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-[var(--accent)]">$</span>
+                <input
+                  type="number"
+                  value={monthlySavingsInput}
+                  onChange={(e) => setMonthlySavingsInput(Number(e.target.value) || 0)}
+                  className="w-32 pl-7 pr-3 py-1.5 text-xs font-bold font-mono rounded-xl bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--text-1)] text-right outline-none focus:border-[var(--accent)] transition-all"
+                />
+              </div>
+            </div>
+            <input
+              type="range"
+              min="100"
+              max="10000"
+              step="100"
+              value={monthlySavingsInput}
+              onChange={(e) => setMonthlySavingsInput(Number(e.target.value))}
+              className="w-full sm:w-40 h-2 bg-[var(--surface-3)] rounded-lg appearance-none cursor-pointer accent-[var(--accent)]"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+          <div className="card-inner p-4 space-y-1 border border-[var(--border)]">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-4)]">1-Year Horizon</span>
+            <div className="text-lg font-black font-mono text-emerald-400">{formatMoney(projected1Yr)}</div>
+            <p className="text-[10px] text-[var(--text-3)]">+7% compound projection</p>
+          </div>
+          <div className="card-inner p-4 space-y-1 border border-[var(--border)]">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-4)]">3-Year Horizon</span>
+            <div className="text-lg font-black font-mono text-emerald-400">{formatMoney(projected3Yr)}</div>
+            <p className="text-[10px] text-[var(--text-3)]">+7% compound projection</p>
+          </div>
+          <div className="card-inner p-4 space-y-1 border border-[var(--border)]">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-4)]">5-Year Horizon</span>
+            <div className="text-lg font-black font-mono text-emerald-400">{formatMoney(projected5Yr)}</div>
+            <p className="text-[10px] text-[var(--text-3)]">+7% compound projection</p>
+          </div>
         </div>
       </div>
     </div>
