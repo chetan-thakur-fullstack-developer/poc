@@ -16,6 +16,18 @@
       "mapping": { "portfolioKey": "cd", "year": "2026", "enabled": true }
     },
     {
+      "id": "plaid_chase_savings",
+      "name": "Premier Savings",
+      "institution": "Chase",
+      "type": "savings",
+      "mask": "3390",
+      "balance": 24500.00,
+      "color": "#10B981",
+      "source": "plaid",
+      "accountId": "plaid_acct_chase_sav_002",
+      "lastSynced": "2026-02-10T14:32:00.000Z"
+    },
+    {
       "id": "plaid_chase_sapphire",
       "name": "Sapphire Credit Card",
       "institution": "Chase",
@@ -24,34 +36,59 @@
       "balance": 2384.19,
       "color": "#FB7185",
       "source": "plaid",
-      "accountId": "plaid_acct_chase_sapphire_002",
+      "accountId": "plaid_acct_chase_sapphire_003",
       "lastSynced": "2026-02-10T14:32:00.000Z"
     },
     {
       "id": "plaid_fidelity_brokerage",
-      "name": "Brokerage",
+      "name": "Fidelity Brokerage",
       "institution": "Fidelity",
       "type": "investment",
       "mask": "4402",
       "balance": 127340.88,
-      "color": "#8B5CF6",
+      "color": "#3B82F6",
       "source": "plaid",
-      "accountId": "plaid_acct_fidelity_broker_003",
+      "accountId": "plaid_acct_fidelity_broker_004",
       "lastSynced": "2026-02-10T14:32:00.000Z",
       "mapping": { "portfolioKey": "espp", "year": "2026", "enabled": true }
     },
     {
+      "id": "plaid_fidelity_roth",
+      "name": "Roth IRA",
+      "institution": "Fidelity",
+      "type": "retirement",
+      "mask": "9901",
+      "balance": 58200.00,
+      "color": "#EC4899",
+      "source": "plaid",
+      "accountId": "plaid_acct_fidelity_roth_005",
+      "lastSynced": "2026-02-10T14:32:00.000Z",
+      "mapping": { "portfolioKey": "roth", "year": "2026", "enabled": true }
+    },
+    {
       "id": "plaid_vanguard_401k",
-      "name": "401(k)",
+      "name": "Vanguard 401(k)",
       "institution": "Vanguard",
       "type": "retirement",
       "mask": "2210",
       "balance": 136638.00,
-      "color": "#8B5CF6",
+      "color": "#6366F1",
       "source": "plaid",
-      "accountId": "plaid_acct_vanguard_401k_004",
+      "accountId": "plaid_acct_vanguard_401k_006",
       "lastSynced": "2026-02-10T14:32:00.000Z",
       "mapping": { "portfolioKey": "k401", "year": "2026", "enabled": true }
+    },
+    {
+      "id": "plaid_schwab_checking",
+      "name": "Schwab Investor Checking",
+      "institution": "Charles Schwab",
+      "type": "checking",
+      "mask": "1194",
+      "balance": 5120.00,
+      "color": "#06B6D4",
+      "source": "plaid",
+      "accountId": "plaid_acct_schwab_007",
+      "lastSynced": "2026-02-10T14:32:00.000Z"
     }
   ],
   "manual": [
@@ -76,6 +113,30 @@
       "balance": 312500,
       "color": "#FB7185",
       "notes": "30yr fixed @ 5.25%",
+      "source": "manual",
+      "createdAt": "2026-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "acct_manual_vehicle",
+      "name": "Tesla Model Y",
+      "institution": "Kelley Blue Book",
+      "type": "asset",
+      "mask": "",
+      "balance": 36500,
+      "color": "#14B8A6",
+      "notes": "Vehicle valuation",
+      "source": "manual",
+      "createdAt": "2026-01-02T10:00:00.000Z"
+    },
+    {
+      "id": "acct_manual_crypto",
+      "name": "Hardware Wallet (Cold Storage)",
+      "institution": "Ledger Nano X",
+      "type": "crypto",
+      "mask": "",
+      "balance": 18450,
+      "color": "#F59E0B",
+      "notes": "BTC & ETH holdings",
       "source": "manual",
       "createdAt": "2026-01-02T10:00:00.000Z"
     }
@@ -192,7 +253,7 @@
     {
       "id": "ptx_seed_007",
       "accountId": "plaid_fidelity_brokerage",
-      "accountName": "Brokerage",
+      "accountName": "Fidelity Brokerage",
       "accountMask": "4402",
       "accountInstitution": "Fidelity",
       "date": "2026-02-01",
@@ -210,7 +271,7 @@
     {
       "id": "ptx_seed_008",
       "accountId": "plaid_fidelity_brokerage",
-      "accountName": "Brokerage",
+      "accountName": "Fidelity Brokerage",
       "accountMask": "4402",
       "accountInstitution": "Fidelity",
       "date": "2026-02-01",
@@ -259,6 +320,42 @@
       "plaidCategory": { "primary": "TRANSPORTATION", "detailed": "TRANSPORTATION_RIDE_SHARE", "confidence": "HIGH" },
       "categoryId": null,
       "categorySource": null,
+      "notes": ""
+    },
+    {
+      "id": "ptx_seed_011",
+      "accountId": "plaid_chase_sapphire",
+      "accountName": "Sapphire Credit Card",
+      "accountMask": "7712",
+      "accountInstitution": "Chase",
+      "date": "2026-01-28",
+      "authorizedDate": "2026-01-28",
+      "name": "Delta Air Lines",
+      "merchantName": "Delta",
+      "amount": 345.00,
+      "isoCurrencyCode": "USD",
+      "pending": false,
+      "plaidCategory": { "primary": "TRAVEL", "detailed": "TRAVEL_FLIGHTS", "confidence": "HIGH" },
+      "categoryId": "cat_plaid_travel",
+      "categorySource": "auto",
+      "notes": ""
+    },
+    {
+      "id": "ptx_seed_012",
+      "accountId": "plaid_chase_checking",
+      "accountName": "Total Checking",
+      "accountMask": "4821",
+      "accountInstitution": "Chase",
+      "date": "2026-01-25",
+      "authorizedDate": "2026-01-25",
+      "name": "Verizon Wireless",
+      "merchantName": "Verizon",
+      "amount": 85.00,
+      "isoCurrencyCode": "USD",
+      "pending": false,
+      "plaidCategory": { "primary": "RENT_AND_UTILITIES", "detailed": "RENT_AND_UTILITIES_INTERNET_AND_CABLE", "confidence": "HIGH" },
+      "categoryId": "cat_plaid_housing",
+      "categorySource": "auto",
       "notes": ""
     }
   ],

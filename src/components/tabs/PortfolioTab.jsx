@@ -641,12 +641,12 @@ export const PortfolioTab = () => {
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="border-b border-[var(--border)] text-[var(--text-3)]">
-                  <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Category</th>
-                  <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Tax Treatment</th>
-                  <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Allocation</th>
-                  <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Balance</th>
-                  <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Invested</th>
-                  <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Contribution</th>
+                  <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] sticky-th">Category</th>
+                  <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] sticky-th">Tax Treatment</th>
+                  <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right sticky-th">Allocation</th>
+                  <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right sticky-th">Balance</th>
+                  <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right sticky-th">Invested</th>
+                  <th className="py-3 px-4 font-bold uppercase tracking-wider text-[11px] text-right sticky-th">Contribution</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border)]">
@@ -747,6 +747,78 @@ export const PortfolioTab = () => {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Portfolio Multi-Year Archive Section */}
+      <div className="card p-5 sm:p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+          <div>
+            <h3 className="font-bold text-sm text-[var(--text-1)]">
+              Multi-Year Portfolio Archive ({years.length} Years)
+            </h3>
+            <p className="text-xs text-[var(--text-3)]">
+              Historical snapshot of balances, invested capital, and salary across all archived years
+            </p>
+          </div>
+          <button
+            onClick={() => setIsAddYearOpen(true)}
+            className="btn-secondary text-xs px-3.5 py-2 cursor-pointer flex items-center gap-1.5"
+          >
+            <Plus className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Add Archive Year</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {sortedYearsDesc.map(y => {
+            const yrBalances = Object.values(y.balances || {}).reduce((sum, v) => sum + (Number(v) || 0), 0);
+            const yrInvested = Object.values(y.invested || {}).reduce((sum, v) => sum + (Number(v) || 0), 0);
+            const isActive = selectedYearIndex === y.originalIndex;
+
+            return (
+              <div
+                key={y.year}
+                onClick={() => setSelectedYearIndex(y.originalIndex)}
+                className={`card-inner p-4 space-y-3 cursor-pointer transition-all border ${
+                  isActive ? 'border-emerald-500 bg-emerald-500/10 shadow-md' : 'border-[var(--border)] hover:border-emerald-500/40 bg-[var(--surface-2)]'
+                }`}
+              >
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-black font-mono px-2.5 py-1 rounded-lg bg-[var(--surface)] text-[var(--text-1)] border border-[var(--border)]">
+                    Year {y.year}
+                  </span>
+                  {isActive ? (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      Active
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-[var(--text-3)] hover:text-white font-semibold">
+                      Select ↗
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-[var(--text-3)]">Total Portfolio Balance</span>
+                  <div className="text-xl font-black font-mono text-[var(--text-1)]">
+                    {formatMoney(yrBalances)}
+                  </div>
+                </div>
+
+                <div className="flex justify-between text-[11px] font-mono text-[var(--text-2)] pt-2 border-t border-[var(--border)]">
+                  <div>
+                    <span className="text-[9px] text-[var(--text-4)] block">Invested</span>
+                    <span className="font-bold text-emerald-400">{formatMoney(yrInvested)}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[9px] text-[var(--text-4)] block">Salary</span>
+                    <span className="font-bold text-[var(--text-1)]">{formatMoney(y.salary || 0)}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

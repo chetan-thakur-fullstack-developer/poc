@@ -54,15 +54,20 @@ export const TransactionsTab = () => {
 
   // Date Range Filter State
   const [dateFilter, setDateFilter] = useState({
-    mode: 'month', // 'all' | 'month' | 'year' | 'custom'
+    mode: 'all', // 'all' | 'month' | 'year' | 'custom'
     year: '2026',
-    month: '09',
+    month: '11',
     startDate: '',
     endDate: '',
-    label: 'Sep 2026'
+    label: 'All Time'
   });
   const [showDatePopover, setShowDatePopover] = useState(false);
+  const [showCardDropdown, setShowCardDropdown] = useState(false);
+  const [showCatDropdown, setShowCatDropdown] = useState(false);
+
   const datePopoverRef = useRef(null);
+  const cardDropdownRef = useRef(null);
+  const catDropdownRef = useRef(null);
 
   // Bulk Selection State
   const [selectedTxIds, setSelectedTxIds] = useState([]);
@@ -92,6 +97,12 @@ export const TransactionsTab = () => {
       const target = e.target instanceof Element ? e.target : e.target?.parentElement;
       if (datePopoverRef.current && !datePopoverRef.current.contains(e.target)) {
         setShowDatePopover(false);
+      }
+      if (cardDropdownRef.current && !cardDropdownRef.current.contains(e.target)) {
+        setShowCardDropdown(false);
+      }
+      if (catDropdownRef.current && !catDropdownRef.current.contains(e.target)) {
+        setShowCatDropdown(false);
       }
       if (popoverTxId && target && !target.closest('.category-popover-container')) {
         setPopoverTxId(null);
@@ -160,7 +171,7 @@ export const TransactionsTab = () => {
       }
 
       return matchesSearch && matchesCategory && matchesCard && matchesQuick && matchesKpi && matchesDate;
-    });
+    }).sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [transactions, search, selectedCategory, selectedCard, quickFilter, kpiFilter, dateFilter]);
 
   // KPI Calculations
@@ -311,6 +322,15 @@ export const TransactionsTab = () => {
                   <button onClick={handleBulkDelete} className="btn-secondary text-[11px] !py-1 !px-2.5 text-rose-400 hover:text-rose-300 cursor-pointer">Delete</button>
                 </div>
               )}
+
+              {/* Desktop Record Transaction Button */}
+              <button
+                onClick={() => openModal('addTx')}
+                className="hidden sm:flex btn-primary text-xs px-4 py-2.5 cursor-pointer items-center gap-1.5 text-white shadow-sm shrink-0 whitespace-nowrap min-h-[44px]"
+              >
+                <Plus className="w-4 h-4 shrink-0" />
+                <span>Record Transaction</span>
+              </button>
             </div>
           </div>
 
@@ -357,83 +377,90 @@ export const TransactionsTab = () => {
             {/* Date Range & Calendar Popover */}
             <div className="relative" ref={datePopoverRef}>
               <button
-                onClick={() => setShowDatePopover(!showDatePopover)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDatePopover(!showDatePopover);
+                  setShowCardDropdown(false);
+                  setShowCatDropdown(false);
+                }}
                 className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text-1)] font-semibold cursor-pointer hover:border-[var(--border-hover)]"
               >
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{dateFilter.mode === 'all' ? 'All Time' : dateFilter.label}</span>
+                  <span>{dateFilter.label}</span>
                 </div>
                 <ChevronDown className="w-3 h-3 opacity-60" />
               </button>
 
               {showDatePopover && (
-                <div className="absolute left-0 mt-2 w-80 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-4 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute left-0 mt-2 w-72 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-4 space-y-3 animate-in fade-in zoom-in-95 duration-150">
                   <div className="flex items-center justify-between border-b border-[var(--border)] pb-2.5">
-                    <span className="text-xs font-bold text-[var(--text-1)]">Calendar & Date Filter</span>
+                    <span className="text-xs font-bold text-[var(--text-1)]">Date Filter</span>
                     <button
-                      onClick={() => { setDateFilter({ mode: 'all', year: '2026', month: '09', startDate: '', endDate: '', label: 'All Time' }); setShowDatePopover(false); }}
+                      onClick={() => { setDateFilter({ mode: 'all', year: '2026', month: '11', startDate: '', endDate: '', label: 'All Time' }); setShowDatePopover(false); }}
                       className="text-[10px] font-bold text-emerald-400 hover:underline cursor-pointer"
                     >
-                      Reset All
+                      Reset
                     </button>
                   </div>
 
-                  {/* Year Selector */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-3)]">Year</span>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {['2024', '2025', '2026'].map(y => (
-                        <button
-                          key={y}
-                          onClick={() => {
-                            const currentMonthName = MONTHS.find(m => m.val === dateFilter.month)?.label.slice(0, 3) || 'Sep';
-                            setDateFilter({ mode: 'month', year: y, month: dateFilter.month, startDate: '', endDate: '', label: `${currentMonthName} ${y}` });
-                          }}
-                          className={`py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                            dateFilter.year === y && dateFilter.mode !== 'custom' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-white'
-                          }`}
-                        >
-                          {y}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                    <button
+                      onClick={() => {
+                        setDateFilter({ mode: 'all', year: '2026', month: '11', startDate: '', endDate: '', label: 'All Time' });
+                        setShowDatePopover(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
+                        dateFilter.mode === 'all' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-white'
+                      }`}
+                    >
+                      <span>All Time</span>
+                      {dateFilter.mode === 'all' && <Check className="w-3.5 h-3.5 text-white" />}
+                    </button>
 
-                  {/* Month Grid */}
-                  <div className="space-y-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-3)]">Month</span>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {MONTHS.map(m => (
-                        <button
-                          key={m.val}
-                          onClick={() => {
-                            const monthLabel = `${m.label.slice(0, 3)} ${dateFilter.year}`;
-                            setDateFilter({ mode: 'month', year: dateFilter.year, month: m.val, startDate: '', endDate: '', label: monthLabel });
-                            setShowDatePopover(false);
-                          }}
-                          className={`py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                            dateFilter.month === m.val && dateFilter.mode === 'month'
-                              ? 'bg-[#8B5CF6] text-white shadow-sm'
-                              : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-white'
-                          }`}
-                        >
-                          {m.label.slice(0, 3)}
-                        </button>
-                      ))}
-                    </div>
+                    <button
+                      onClick={() => {
+                        const now = new Date();
+                        const yr = String(now.getFullYear());
+                        const mo = String(now.getMonth() + 1).padStart(2, '0');
+                        setDateFilter({ mode: 'month', year: yr, month: mo, startDate: '', endDate: '', label: 'Current Month' });
+                        setShowDatePopover(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
+                        dateFilter.mode === 'month' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-white'
+                      }`}
+                    >
+                      <span>Current Month</span>
+                      {dateFilter.mode === 'month' && <Check className="w-3.5 h-3.5 text-white" />}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        const now = new Date();
+                        const yr = String(now.getFullYear());
+                        const mo = String(now.getMonth() + 1).padStart(2, '0');
+                        setDateFilter({ mode: 'year', year: yr, month: mo, startDate: '', endDate: '', label: 'Current Year' });
+                        setShowDatePopover(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
+                        dateFilter.mode === 'year' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-white'
+                      }`}
+                    >
+                      <span>Current Year</span>
+                      {dateFilter.mode === 'year' && <Check className="w-3.5 h-3.5 text-white" />}
+                    </button>
                   </div>
 
                   {/* Custom Date Range Picker */}
                   <div className="space-y-2 pt-2 border-t border-[var(--border)]">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-3)]">Custom Date Range</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-3)]">Custom Range</span>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="text-[9px] text-[var(--text-4)] block mb-1">Start Date</label>
                         <input
                           type="date"
                           value={dateFilter.startDate}
-                          onChange={(e) => setDateFilter(prev => ({ ...prev, startDate: e.target.value, mode: 'custom', label: `${e.target.value} to ${prev.endDate || 'Now'}` }))}
+                          onChange={(e) => setDateFilter(prev => ({ ...prev, startDate: e.target.value }))}
                           className="input-field text-[11px] py-1.5"
                         />
                       </div>
@@ -442,14 +469,23 @@ export const TransactionsTab = () => {
                         <input
                           type="date"
                           value={dateFilter.endDate}
-                          onChange={(e) => setDateFilter(prev => ({ ...prev, endDate: e.target.value, mode: 'custom', label: `${prev.startDate || 'Start'} to ${e.target.value}` }))}
+                          onChange={(e) => setDateFilter(prev => ({ ...prev, endDate: e.target.value }))}
                           className="input-field text-[11px] py-1.5"
                         />
                       </div>
                     </div>
                     <button
-                      onClick={() => setShowDatePopover(false)}
-                      className="w-full mt-2 py-2 rounded-xl text-xs font-bold bg-[#8B5CF6] hover:bg-[#7C3AED] text-white shadow-sm cursor-pointer"
+                      onClick={() => {
+                        if (dateFilter.startDate || dateFilter.endDate) {
+                          setDateFilter(prev => ({
+                            ...prev,
+                            mode: 'custom',
+                            label: `${prev.startDate || 'Start'} to ${prev.endDate || 'Now'}`
+                          }));
+                        }
+                        setShowDatePopover(false);
+                      }}
+                      className="w-full mt-1 py-2 rounded-xl text-xs font-bold bg-[#8B5CF6] hover:bg-[#7C3AED] text-white shadow-sm cursor-pointer"
                     >
                       Apply Custom Range
                     </button>
@@ -458,29 +494,105 @@ export const TransactionsTab = () => {
               )}
             </div>
 
-            {/* Account / Card Filter */}
-            <select
-              value={selectedCard}
-              onChange={(e) => setSelectedCard(e.target.value)}
-              className="input-field text-xs py-2.5 cursor-pointer w-full"
-            >
-              <option value="all">All Cards & Accounts</option>
-              {cards.map(c => (
-                <option key={c.id} value={c.id}>{c.name} (•{c.masked})</option>
-              ))}
-            </select>
+            {/* Account / Card Custom Popup Dropdown */}
+            <div className="relative" ref={cardDropdownRef}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowCardDropdown(!showCardDropdown);
+                  setShowCatDropdown(false);
+                  setShowDatePopover(false);
+                }}
+                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text-1)] font-semibold cursor-pointer hover:border-[var(--border-hover)]"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <CreditCard className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                  <span className="truncate">{selectedCard === 'all' ? 'All Cards & Accounts' : `${cards.find(c => c.id === selectedCard)?.name || selectedCard}`}</span>
+                </div>
+                <ChevronDown className="w-3 h-3 opacity-60 shrink-0" />
+              </button>
 
-            {/* Category Dropdown */}
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="input-field text-xs py-2.5 cursor-pointer w-full"
-            >
-              <option value="all">All Categories</option>
-              {categories.map(c => (
-                <option key={c.id} value={c.id}>{c.label}</option>
-              ))}
-            </select>
+              {showCardDropdown && (
+                <div className="absolute left-0 mt-2 w-64 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-[var(--text-4)] border-b border-[var(--border)]">
+                    Filter by Card / Account
+                  </div>
+                  <div className="max-h-56 overflow-y-auto space-y-0.5 py-1">
+                    <button
+                      onClick={() => { setSelectedCard('all'); setShowCardDropdown(false); }}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
+                        selectedCard === 'all' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-[var(--text-2)] hover:bg-[var(--surface-2)] hover:text-white'
+                      }`}
+                    >
+                      <span>All Cards &amp; Accounts</span>
+                      {selectedCard === 'all' && <Check className="w-3.5 h-3.5 text-white" />}
+                    </button>
+                    {cards.map(c => (
+                      <button
+                        key={c.id}
+                        onClick={() => { setSelectedCard(c.id); setShowCardDropdown(false); }}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
+                          selectedCard === c.id ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-[var(--text-2)] hover:bg-[var(--surface-2)] hover:text-white'
+                        }`}
+                      >
+                        <span className="truncate">{c.name} (•{c.masked})</span>
+                        {selectedCard === c.id && <Check className="w-3.5 h-3.5 text-white" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Category Custom Popup Dropdown */}
+            <div className="relative" ref={catDropdownRef}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowCatDropdown(!showCatDropdown);
+                  setShowCardDropdown(false);
+                  setShowDatePopover(false);
+                }}
+                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text-1)] font-semibold cursor-pointer hover:border-[var(--border-hover)]"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Tag className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                  <span className="truncate">{selectedCategory === 'all' ? 'All Categories' : categories.find(c => c.id === selectedCategory)?.label || 'Category'}</span>
+                </div>
+                <ChevronDown className="w-3 h-3 opacity-60 shrink-0" />
+              </button>
+
+              {showCatDropdown && (
+                <div className="absolute left-0 mt-2 w-64 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-1.5 space-y-1 text-left animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-[var(--text-4)] border-b border-[var(--border)]">
+                    Filter by Category
+                  </div>
+                  <div className="max-h-56 overflow-y-auto space-y-0.5 py-1">
+                    <button
+                      onClick={() => { setSelectedCategory('all'); setShowCatDropdown(false); }}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
+                        selectedCategory === 'all' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-[var(--text-2)] hover:bg-[var(--surface-2)] hover:text-white'
+                      }`}
+                    >
+                      <span>All Categories</span>
+                      {selectedCategory === 'all' && <Check className="w-3.5 h-3.5 text-white" />}
+                    </button>
+                    {categories.map(c => (
+                      <button
+                        key={c.id}
+                        onClick={() => { setSelectedCategory(c.id); setShowCatDropdown(false); }}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
+                          selectedCategory === c.id ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-[var(--text-2)] hover:bg-[var(--surface-2)] hover:text-white'
+                        }`}
+                      >
+                        <span className="truncate">{c.label}</span>
+                        {selectedCategory === c.id && <Check className="w-3.5 h-3.5 text-white" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Quick-Toggle Pills: Horizontally scrollable on mobile */}
@@ -530,13 +642,13 @@ export const TransactionsTab = () => {
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-[var(--border)] text-[var(--text-4)] uppercase tracking-wider text-[10px] font-extrabold">
-                    <th className="py-3 px-4 w-10 sticky top-0 z-20 bg-[var(--surface)] shadow-sm"></th>
-                    <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Date</th>
-                    <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Merchant / Description</th>
-                    <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Category</th>
-                    <th className="py-3 px-4 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Card / Account</th>
-                    <th className="py-3 px-4 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Amount</th>
-                    <th className="py-3 px-4 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Actions</th>
+                    <th className="py-3 px-4 w-10 sticky-th"></th>
+                    <th className="py-3 px-4 sticky-th">Date</th>
+                    <th className="py-3 px-4 sticky-th">Merchant / Description</th>
+                    <th className="py-3 px-4 sticky-th">Category</th>
+                    <th className="py-3 px-4 sticky-th">Card / Account</th>
+                    <th className="py-3 px-4 text-right sticky-th">Amount</th>
+                    <th className="py-3 px-4 text-right sticky-th">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border)]">

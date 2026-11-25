@@ -206,10 +206,12 @@ export const AppProvider = ({ children }) => {
     if (isResetWorkspace) return [];
     if (isDemoUser) {
       const saved = localStorage.getItem('ew_demo_transactions');
-      return saved ? JSON.parse(saved) : (initialExpensesData.transactions || []);
+      const list = saved ? JSON.parse(saved) : (initialExpensesData.transactions || []);
+      return [...list].sort((a, b) => new Date(b.date) - new Date(a.date));
     }
     const saved = localStorage.getItem(`ew_user_${user?.id}_transactions`);
-    return saved ? JSON.parse(saved) : [];
+    const list = saved ? JSON.parse(saved) : [];
+    return [...list].sort((a, b) => new Date(b.date) - new Date(a.date));
   });
 
   // 8. Notifications State
@@ -255,7 +257,7 @@ export const AppProvider = ({ children }) => {
       setPortfolioData(p ? JSON.parse(p) : portfolioJson);
       setAccountsData(a ? JSON.parse(a) : accountsJson);
       setExpensesData(e ? JSON.parse(e) : expenseJson);
-      setTransactions(t ? JSON.parse(t) : (expenseJson.transactions || []));
+      setTransactions(t ? JSON.parse(t) : [...(expenseJson.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date)));
     } else if (user?.id) {
       // Real user: fetch their private data from Supabase
       if (isSupabaseConfigured() && supabase) {

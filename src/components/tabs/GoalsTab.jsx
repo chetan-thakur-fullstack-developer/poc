@@ -82,10 +82,10 @@ export const GoalsTab = () => {
           </button>
         </div>
 
-        {/* Desktop Create Button (Hidden on mobile, visible on desktop) */}
+        {/* Desktop Create Button (Hidden on mobile and tablets, visible on desktop) */}
         <button
           onClick={() => handleOpenCreate(goalTypeTab)}
-          className={`hidden sm:flex btn-primary text-xs px-4 py-2.5 cursor-pointer items-center gap-1.5 text-white shadow-sm shrink-0 whitespace-nowrap min-h-[44px] ${
+          className={`hidden md:flex btn-primary text-xs px-4 py-2.5 cursor-pointer items-center gap-1.5 text-white shadow-sm shrink-0 whitespace-nowrap min-h-[44px] ${
             goalTypeTab === 'save' ? 'bg-[#8B5CF6] hover:bg-[#7c4dff]' : 'bg-rose-600 hover:bg-rose-500'
           }`}
         >

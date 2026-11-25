@@ -344,12 +344,12 @@ export const AccountsTab = () => {
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-[var(--border)] text-[var(--text-4)] uppercase tracking-wider text-[10px] font-extrabold">
-                    <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Account Name</th>
-                    <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Institution</th>
-                    <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Type</th>
-                    <th className="py-3.5 px-6 sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Source</th>
-                    <th className="py-3.5 px-6 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Balance</th>
-                    <th className="py-3.5 px-6 text-right sticky top-0 z-20 bg-[var(--surface)] shadow-sm">Action</th>
+                    <th className="py-3.5 px-6 sticky-th">Account Name</th>
+                    <th className="py-3.5 px-6 sticky-th">Institution</th>
+                    <th className="py-3.5 px-6 sticky-th">Type</th>
+                    <th className="py-3.5 px-6 sticky-th">Source</th>
+                    <th className="py-3.5 px-6 text-right sticky-th">Balance</th>
+                    <th className="py-3.5 px-6 text-right sticky-th">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border)]">

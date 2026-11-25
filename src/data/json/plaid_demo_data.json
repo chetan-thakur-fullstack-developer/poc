@@ -4,7 +4,7 @@
       "name": "Chase",
       "accounts": [
         { "name": "Total Checking",         "type": "checking",   "mask": "4821", "balance": 8420.55 },
-        { "name": "Premier Savings",        "type": "savings",    "mask": "3390", "balance": 21500.00 },
+        { "name": "Premier Savings",        "type": "savings",    "mask": "3390", "balance": 24500.00 },
         { "name": "Sapphire Credit Card",   "type": "credit",     "mask": "7712", "balance": 2384.19 }
       ]
     },
@@ -19,6 +19,20 @@
       "name": "Vanguard",
       "accounts": [
         { "name": "401(k)",                 "type": "retirement", "mask": "2210", "balance": 136638.00 }
+      ]
+    },
+    {
+      "name": "Charles Schwab",
+      "accounts": [
+        { "name": "Investor Checking",      "type": "checking",   "mask": "1194", "balance": 5120.00 },
+        { "name": "Schwab Broking",         "type": "investment", "mask": "8831", "balance": 44100.00 }
+      ]
+    },
+    {
+      "name": "Bank of America",
+      "accounts": [
+        { "name": "Advantage Banking",      "type": "checking",   "mask": "6102", "balance": 3150.00 },
+        { "name": "Travel Rewards CC",      "type": "credit",     "mask": "4419", "balance": 940.50 }
       ]
     }
   ],
