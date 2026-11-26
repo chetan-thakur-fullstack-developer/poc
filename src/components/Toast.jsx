@@ -7,7 +7,7 @@ export const Toast = () => {
   if (!toasts || toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4">
+    <div className="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4">
       {toasts.map(t => {
         let borderClass = 'border-slate-700 bg-slate-900/95 text-slate-100';
         let icon = 'ℹ️';

@@ -312,7 +312,7 @@ export const AppProvider = ({ children }) => {
           // Expenses
           if (eRes.data) {
             setExpensesData({
-              monthlyBudget: Number(eRes.data.monthly_budget) || 3000,
+              monthlyBudget: Number(eRes.data.monthly_budget) || 0,
               categories: eRes.data.categories || getCleanExpenses().categories,
               cards: eRes.data.cards || [],
               selectedCurrency: eRes.data.selected_currency || currentCurrency
@@ -485,6 +485,28 @@ export const AppProvider = ({ children }) => {
   const [txDesc, setTxDesc] = useState('');
   const [txAmount, setTxAmount] = useState('');
   const [txType, setTxType] = useState('deposit');
+
+  const [depositModalGoal, setDepositModalGoal] = useState(null);
+  const [depositAmount, setDepositAmount] = useState('500');
+
+  const openDepositModal = (goal) => {
+    setDepositModalGoal(goal);
+    setDepositAmount('500');
+  };
+
+  const submitDepositModal = () => {
+    if (!depositModalGoal) return;
+    const amt = parseFloat(depositAmount);
+    if (!amt || amt <= 0) {
+      showToast('Please enter a valid amount', 'error');
+      return;
+    }
+    handleDeposit(depositModalGoal.id, amt);
+    const isPaydown = depositModalGoal.type === 'paydown';
+    showToast(isPaydown ? `Paid down -$${amt} principal on ${depositModalGoal.title}!` : `Added +${formatMoney(amt)} to ${depositModalGoal.title}!`, 'success');
+    setDepositModalGoal(null);
+    setDepositAmount('');
+  };
 
   const getAccountCapacity = (accountId, currentGoalId = null) => {
     const linkedAccounts = accountsData?.linked || [];
@@ -1155,6 +1177,7 @@ export const AppProvider = ({ children }) => {
       localStorage.setItem(prefix + 'expenses', JSON.stringify(cleanE));
       localStorage.setItem(prefix + 'transactions', JSON.stringify([]));
       localStorage.setItem(prefix + 'goals', JSON.stringify([]));
+      localStorage.setItem('ew_annual_salary', '0');
 
       localStorage.removeItem('ew_demo_portfolio');
       localStorage.removeItem('ew_demo_accounts');
@@ -1227,6 +1250,12 @@ export const AppProvider = ({ children }) => {
         handleDeposit,
         handleAddManualTx,
         getGoalStatus,
+        depositModalGoal,
+        setDepositModalGoal,
+        depositAmount,
+        setDepositAmount,
+        openDepositModal,
+        submitDepositModal,
         formTitle,
         setFormTitle,
         formCategory,

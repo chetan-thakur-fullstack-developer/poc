@@ -10,7 +10,7 @@ import { Doughnut } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, DoughnutController, Tooltip, Legend);
 
-export const DonutChart = ({ data = [], title = '' }) => {
+export const DonutChart = ({ data = [], title = '', height = 280 }) => {
   const [activeCategory, setActiveCategory] = useState(null);
 
   // Filter out 0% assets to remove clutter
@@ -77,7 +77,7 @@ export const DonutChart = ({ data = [], title = '' }) => {
   };
 
   return (
-    <div className="card p-5 sm:p-6 space-y-4" style={{ backgroundColor: 'var(--app-bg-2)', backdropFilter: 'none', WebkitBackdropFilter: 'none' }}>
+    <div className="card p-6 space-y-4 h-full flex flex-col justify-between" style={{ backgroundColor: 'var(--app-bg-2)', backdropFilter: 'none', WebkitBackdropFilter: 'none' }}>
       {title && (
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-sm text-[var(--text-1)]">{title}</h3>
@@ -91,8 +91,8 @@ export const DonutChart = ({ data = [], title = '' }) => {
           )}
         </div>
       )}
-      <div className="flex flex-col sm:flex-row items-center gap-6">
-        <div className="relative w-36 h-36 sm:w-40 sm:h-40 shrink-0 flex items-center justify-center mx-auto sm:mx-0">
+      <div className="flex flex-col sm:flex-row items-center gap-6 my-auto" style={{ minHeight: `${height}px` }}>
+        <div className="relative w-36 h-36 sm:w-44 sm:h-44 shrink-0 flex items-center justify-center mx-auto sm:mx-0">
           <div className="absolute inset-0 w-full h-full">
             <Doughnut data={chartData} options={options} />
           </div>

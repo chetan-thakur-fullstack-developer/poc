@@ -8,45 +8,45 @@
    ═════════════════════════════════════════════════════════════════════ */
 
 :root, html.light {
-  /* --- Foundation & Backgrounds (Refined Light Mode) --- */
-  --app-bg: #F4F5F7;
-  --app-bg-2: #EAECEF;
-  --surface: rgba(255, 255, 255, 0.88);
-  --surface-2: rgba(240, 242, 245, 0.92);
-  --surface-3: rgba(230, 233, 238, 0.96);
+  /* --- Foundation & Backgrounds (Soothing, Low-Glare Off-White) --- */
+  --app-bg: #F4F7F9;
+  --app-bg-2: #E2E8F0;
+  --surface: #FFFFFF;
+  --surface-2: #F1F5F9;
+  --surface-3: #E2E8F0;
 
   /* --- Borders & Specular Highlights --- */
-  --border: rgba(15, 23, 42, 0.08);
-  --border-strong: rgba(15, 23, 42, 0.15);
-  --border-hover: rgba(15, 23, 42, 0.28);
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --border-hover: #94A3B8;
 
   /* --- Typography & Text Tokens --- */
-  --text-1: #0F172A; /* Slate 900 */
+  --text-1: #1E293B; /* Slate Gray */
   --text-2: #334155; /* Slate 700 */
-  --text-3: #64748B; /* Slate 500 */
+  --text-3: #64748B; /* Muted Slate */
   --text-4: #94A3B8; /* Slate 400 */
 
   /* --- Brand & Institutional Accents --- */
-  --accent: #0066FF;      /* Stripe / Mercury Blue */
-  --accent-2: #0052CC;    /* Darker Blue State */
-  --accent-glow: rgba(0, 102, 255, 0.25);
+  --accent: #6366F1;      /* Soft Indigo */
+  --accent-2: #4F46E5;
+  --accent-glow: rgba(99, 102, 241, 0.2);
 
   /* --- Semantic Financial States & Tokens --- */
-  --btn-primary-bg: #7C3AED;
-  --btn-primary-hover: #6D28D9;
-  --amount-income: #059669;
-  --amount-expense: #DC2626;
+  --btn-primary-bg: #6366F1;
+  --btn-primary-hover: #4F46E5;
+  --amount-income: #10B981;
+  --amount-expense: #E11D48;
 
-  --success: #059669;     /* Forest Green (Light Mode) */
-  --success-bg: rgba(5, 150, 105, 0.1);
+  --success: #10B981;     /* Emerald Green */
+  --success-bg: rgba(16, 185, 129, 0.1);
   --warning: #F59E0B;     /* Amber 500 */
   --warning-bg: rgba(245, 158, 11, 0.1);
-  --danger: #DC2626;      /* Deep Crimson (Light Mode) */
-  --danger-bg: rgba(220, 38, 38, 0.1);
+  --danger: #E11D48;      /* Soft Rose Red */
+  --danger-bg: rgba(225, 29, 72, 0.1);
 
   /* --- Shadows & Elevations --- */
-  --shadow-soft: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
-  --shadow-lift: 0 16px 32px -12px rgba(15, 23, 42, 0.12), 0 0 1px 1px rgba(255, 255, 255, 0.8) inset;
+  --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+  --shadow-lift: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
 
   /* --- Radii --- */
   --radius-lg: 20px;

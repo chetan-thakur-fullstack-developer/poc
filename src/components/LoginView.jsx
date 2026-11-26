@@ -140,7 +140,7 @@ export const LoginView = () => {
         <div className="absolute inset-0 bg-[radial-gradient(#1E293B_1px,transparent_1px)] [background-size:24px_24px] opacity-25" />
       </div>
 
-      {/* Top Header with Theme Switcher */}
+      {/* Top Header */}
       <header className="relative z-10 w-full max-w-5xl mx-auto p-4 sm:p-6 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
           <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white font-black text-sm shadow-md">
@@ -148,14 +148,6 @@ export const LoginView = () => {
           </span>
           <span className="font-extrabold text-sm tracking-tight text-[var(--text-1)]">LedgerJourney</span>
         </div>
-        <button
-          onClick={toggleTheme}
-          title={`Theme: ${theme.toUpperCase()}`}
-          className="p-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] transition-all cursor-pointer shadow-sm flex items-center gap-1.5 text-xs font-semibold"
-        >
-          {theme === 'dark' ? <Moon className="w-4 h-4 text-blue-400" /> : theme === 'light' ? <Sun className="w-4 h-4 text-amber-400" /> : <Sparkles className="w-4 h-4 text-purple-400" />}
-          <span className="capitalize">{theme}</span>
-        </button>
       </header>
 
       {/* Main Login Card Container */}

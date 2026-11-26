@@ -90,7 +90,7 @@ export const AreaChart = ({ data = [], height = 260, color = '#0066FF', title = 
   };
 
   return (
-    <div className="card p-6 space-y-4">
+    <div className="card p-6 space-y-4 h-full flex flex-col justify-between">
       {title && (
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-sm text-[var(--text-1)]">{title}</h3>
@@ -99,7 +99,7 @@ export const AreaChart = ({ data = [], height = 260, color = '#0066FF', title = 
           </span>
         </div>
       )}
-      <div className="relative w-full" style={{ height: `${height}px` }}>
+      <div className="relative w-full my-auto" style={{ height: `${height}px` }}>
         <Line data={chartData} options={options} />
       </div>
     </div>

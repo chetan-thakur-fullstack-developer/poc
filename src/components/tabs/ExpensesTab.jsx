@@ -7,7 +7,7 @@ import { Pencil, Check, X, Target } from 'lucide-react';
 export const ExpensesTab = () => {
   const { expensesData, setExpensesData, transactions, formatMoney, syncToCloud, showToast } = useApp();
 
-  const monthlyBudget = expensesData?.monthlyBudget || 3000;
+  const monthlyBudget = expensesData?.monthlyBudget || 0;
   const categories = expensesData?.categories || [];
   const cards = expensesData?.cards || [];
 

@@ -5,6 +5,7 @@ import { AnimatedNumber } from '../AnimatedNumber.jsx';
 import { AreaChart } from '../charts/AreaChart.jsx';
 import { DonutChart } from '../charts/DonutChart.jsx';
 import { GettingStartedChecklist } from '../GettingStartedChecklist.jsx';
+import { DashboardGoalsWidget } from '../DashboardGoalsWidget.jsx';
 import { SlidersHorizontal, RotateCcw, Check, EyeOff, Eye, ArrowUp, ArrowDown, Calendar, Settings, ChevronDown, Filter, X } from 'lucide-react';
 
 export const DashboardTab = () => {
@@ -25,24 +26,13 @@ export const DashboardTab = () => {
 
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [hiddenWidgets, setHiddenWidgets] = useState([]);
-  const [widgetOrder, setWidgetOrder] = useState(['checklist', 'kpis', 'charts', 'accounts', 'scorecard', 'recent']);
+  const [widgetOrder, setWidgetOrder] = useState(['checklist', 'kpis', 'charts', 'accounts', 'goals', 'scorecard', 'recent']);
 
   // Global Time Frame Filter State
   const [timeFrame, setTimeFrame] = useState('ytd');
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [showMobileFilterModal, setShowMobileFilterModal] = useState(false);
   const [showAllTxModal, setShowAllTxModal] = useState(false);
-  const actionMenuRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (actionMenuRef.current && !actionMenuRef.current.contains(e.target)) {
-        setShowActionMenu(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
 
   // Calculate Net Worth from accounts and latest portfolio year
   const accounts = (accountsData?.linked || []).filter(a => !a.isExcluded);
@@ -59,7 +49,7 @@ export const DashboardTab = () => {
   const netWorth = totalAssets - totalDebts;
 
   // Monthly Budget & Spend (excluding excluded transactions)
-  const monthlyBudget = expensesData?.monthlyBudget || 3000;
+  const monthlyBudget = expensesData?.monthlyBudget || 0;
   const activeTxs = (transactions || []).filter(t => !t.isExcluded);
   const currentMonthSpent = activeTxs.reduce((sum, t) => {
     const isExp = t.isExpense !== undefined ? t.isExpense : (Number(t.amount) >= 0);
@@ -85,6 +75,7 @@ export const DashboardTab = () => {
   const widgetMeta = {
     checklist: 'Getting Started Checklist',
     kpis: 'Net Worth & KPI Cards',
+    goals: 'Active Goals Snapshot',
     charts: 'Interactive Growth & Allocation Charts',
     accounts: 'Linked Accounts & Portfolio Mix',
     scorecard: 'Financial Health Scorecard',
@@ -93,34 +84,42 @@ export const DashboardTab = () => {
 
   return (
     <div className="space-y-6 sm:space-y-8 select-none">
-      {/* Mobile Compact Welcome Banner */}
-      <div className="card p-4 sm:p-8 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-transparent border border-emerald-500/30 flex flex-col xl:flex-row xl:items-center justify-between gap-4 shadow-xl">
-        <div className="flex items-center justify-between w-full xl:w-auto">
-          <div className="space-y-1">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-              DASHBOARD
-            </span>
+      {/* Modern Redesigned Dashboard Top Welcome & Action Banner */}
+      <div className="card p-5 sm:p-7 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-[var(--surface)] border border-emerald-500/30 flex flex-col xl:flex-row xl:items-center justify-between gap-5 shadow-xl relative overflow-visible">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex items-start justify-between w-full xl:w-auto relative z-10">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-sm">
+                Financial Command Center
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                FIRE Target: 2038 🎯
+              </span>
+            </div>
             <h2 className="text-xl sm:text-3xl font-black text-[var(--text-1)] tracking-tight">
-              Welcome, {userName}
+              Welcome back, {userName} 👋
             </h2>
-            <p className="text-xs text-[var(--text-2)] leading-relaxed">
-              Net worth up <strong className="text-emerald-400 font-bold">14.8% ({timeFrame.toUpperCase()})</strong>. FIRE milestone: <strong className="text-purple-400 font-bold">2038</strong>.
+            <p className="text-xs text-[var(--text-2)] font-medium leading-relaxed max-w-xl">
+              Your net worth is up <strong className="text-emerald-400 font-bold">14.8% ({timeFrame.toUpperCase()})</strong>. All synced accounts and active milestones are up to date.
             </p>
           </div>
 
-          {/* Mobile Filter Icon Button */}
+          {/* Mobile Filter & Options Button */}
           <button
             onClick={() => setShowMobileFilterModal(true)}
-            className="lg:hidden min-w-[44px] min-h-[44px] p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-emerald-400 flex items-center justify-center shadow-sm cursor-pointer active:scale-95"
+            className="lg:hidden min-w-[44px] min-h-[44px] p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-emerald-400 flex items-center justify-center shadow-sm cursor-pointer active:scale-95 shrink-0"
             title="Filter & Options"
           >
             <Filter className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Desktop Controls (Hidden on Mobile) */}
-        <div className="hidden lg:flex items-center gap-3 shrink-0">
-          <div className="flex items-center gap-2 bg-[var(--surface-2)] px-3.5 py-2 rounded-xl border border-[var(--border)] shadow-sm">
+        {/* Controls Bar (Desktop & Tablet) */}
+        <div className="flex flex-wrap items-center gap-3 relative z-20 shrink-0">
+          {/* Timeframe selector */}
+          <div className="flex items-center gap-2 bg-[var(--surface-2)] px-3.5 py-2.5 rounded-xl border border-[var(--border)] shadow-sm">
             <Calendar className="w-4 h-4 text-emerald-400" />
             <select
               value={timeFrame}
@@ -134,44 +133,15 @@ export const DashboardTab = () => {
             </select>
           </div>
 
-          <div className="relative" ref={actionMenuRef}>
-            <button
-              onClick={() => setShowActionMenu(!showActionMenu)}
-              className="btn-secondary text-xs px-3.5 py-2.5 cursor-pointer flex items-center gap-1.5 shadow-sm"
-              title="Dashboard Options"
-            >
-              <Settings className="w-4 h-4 text-[var(--text-3)]" />
-              <span>Options</span>
-              <ChevronDown className="w-3 h-3 opacity-60" />
-            </button>
-
-            {showActionMenu && (
-              <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-[var(--app-bg-2)] border border-[var(--border-strong)] shadow-2xl z-50 p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150">
-                <button
-                  onClick={() => { setIsCustomizing(!isCustomizing); setShowActionMenu(false); }}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-2.5 cursor-pointer"
-                >
-                  <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
-                  <span>{isCustomizing ? 'Done Customizing' : 'Customize Layout'}</span>
-                </button>
-                <button
-                  onClick={() => { syncToCloud(); setShowActionMenu(false); }}
-                  disabled={isSyncing}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-[var(--text-2)] hover:text-white hover:bg-[var(--surface-2)] flex items-center gap-2.5 cursor-pointer"
-                >
-                  <span className="text-base">🔄</span>
-                  <span>{isSyncing ? 'Syncing...' : 'Cloud Sync'}</span>
-                </button>
-              </div>
-            )}
-          </div>
-
+          {/* Customize Layout Icon Button */}
           <button
-            onClick={() => openModal('quickAdd')}
-            className="btn-primary text-xs px-5 py-2.5 cursor-pointer shadow-md"
-            style={{ backgroundColor: '#1D4ED8' }}
+            onClick={() => setIsCustomizing(!isCustomizing)}
+            className={`btn-secondary p-2.5 rounded-xl cursor-pointer flex items-center justify-center shadow-sm min-h-[44px] min-w-[44px] transition-colors ${
+              isCustomizing ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'text-[var(--text-3)] hover:text-white'
+            }`}
+            title={isCustomizing ? 'Done Customizing Layout' : 'Customize Dashboard Layout'}
           >
-            + Quick Entry
+            <SlidersHorizontal className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -285,6 +255,8 @@ export const DashboardTab = () => {
           return <GettingStartedChecklist key="checklist" />;
         }
 
+       
+
         if (key === 'kpis') {
           return (
             <div key="kpis" className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -363,9 +335,8 @@ export const DashboardTab = () => {
 
         if (key === 'charts') {
           return (
-            <div key="charts" className="flex flex-col lg:grid lg:grid-cols-3 gap-6">
-              {/* Stack Net Worth Growth and Asset Allocation vertically on mobile */}
-              <div className="lg:col-span-2">
+            <div key="charts" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
                 <AreaChart
                   title="Multi-Year Net Worth Growth Trajectory"
                   color="#10B981"
@@ -379,6 +350,7 @@ export const DashboardTab = () => {
               <div>
                 <DonutChart
                   title="Asset Allocation Mix"
+                  height={260}
                   data={(portfolioData?.categories || []).map(cat => ({
                     label: cat.label,
                     value: latestYear?.balances?.[cat.key] || 0,
@@ -440,7 +412,10 @@ export const DashboardTab = () => {
             </div>
           );
         }
-
+        
+        if (key === 'goals') {
+          return <DashboardGoalsWidget key="goals" />;
+        }
         return null;
       })}
 

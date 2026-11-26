@@ -84,7 +84,21 @@ export const SettingsTab = () => {
   ]);
 
   // 3. Salary & Income State
-  const [annualSalary, setAnnualSalary] = useState(150000);
+  const [annualSalary, setAnnualSalary] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ew_annual_salary');
+      if (saved !== null) return Number(saved) || 0;
+      return isDemoUser ? 150000 : 0;
+    } catch {
+      return isDemoUser ? 150000 : 0;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('ew_annual_salary', String(annualSalary));
+    } catch {}
+  }, [annualSalary]);
   const [payFreq, setPayFreq] = useState(26);
   const [filingStatus, setFilingStatus] = useState('mfj');
   const [k401Pct, setK401Pct] = useState(10);

@@ -28,7 +28,8 @@ export const GoalsTab = () => {
     applyTemplate,
     handleDeletePrompt,
     handleDeposit,
-    getGoalStatus
+    getGoalStatus,
+    openDepositModal
   } = useApp();
 
   // Goal Type Sub-tabs: 'save' vs 'paydown'
@@ -274,15 +275,24 @@ export const GoalsTab = () => {
                         {status.label}
                       </span>
                     </div>
-                    {/* Deposit button full-width within the card */}
+                    {/* Quick Deposit / Pay Debt CTA */}
                     <button
-                      onClick={() => handleDeposit(goal.id, 500)}
-                      className={`btn-secondary text-xs py-3 px-4 w-full justify-center font-bold cursor-pointer flex items-center gap-1.5 min-h-[44px] shadow-sm ${
-                        isPaydown ? 'text-rose-400 hover:text-rose-300 bg-rose-500/10 border-rose-500/30' : 'text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 border-emerald-500/30'
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        openDepositModal(goal);
+                      }}
+                      className={`flex items-center gap-1.5 text-xs font-bold transition-colors cursor-pointer group/btn pt-1 ${
+                        isPaydown ? 'text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300' : 'text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300'
                       }`}
                     >
-                      {isPaydown ? <CreditCard className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                      <span>{isPaydown ? 'Pay debt (-$500)' : 'Deposit $500'}</span>
+                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors shadow-sm ${
+                        isPaydown ? 'bg-rose-500/15 group-hover/btn:bg-rose-500/25' : 'bg-emerald-500/15 group-hover/btn:bg-emerald-500/25'
+                      }`}>
+                        {isPaydown ? <CreditCard className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                      </div>
+                      <span>{isPaydown ? 'Pay Principal / Debt' : 'Quick Deposit'}</span>
                     </button>
                   </div>
                 </div>

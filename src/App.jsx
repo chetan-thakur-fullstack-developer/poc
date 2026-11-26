@@ -29,6 +29,7 @@ import { TourModal } from './components/TourModal.jsx';
 import { ConfirmModal } from './components/modals/ConfirmModal.jsx';
 import { CreateGoalModal } from './components/modals/CreateGoalModal.jsx';
 import { GoalDetailModal } from './components/modals/GoalDetailModal.jsx';
+import { AddDepositModal } from './components/AddDepositModal.jsx';
 
 export const App = () => {
   const { currentTab, modals, closeModal } = useApp();
@@ -135,6 +136,7 @@ export const App = () => {
       <ConfirmModal />
       <CreateGoalModal />
       <GoalDetailModal />
+      <AddDepositModal />
     </div>
   );
 };
