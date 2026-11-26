@@ -1,40 +1,61 @@
 export const initialExpensesData = {
-  monthlyBudget: 3000,
+  monthlyBudget: 4500,
   categories: [
     {
-      id: "cat_housing",
-      label: "Housing & Utilities",
-      color: "#3b82f6",
-      icon: "home",
-      limit: 1200
-    },
-    {
-      id: "cat_grocery",
-      label: "Grocery & Dining",
-      color: "#10b981",
-      icon: "shopping-bag",
+      id: "cat_groceries",
+      label: "Groceries",
+      color: "#10B981",
+      icon: "shopping-cart",
       limit: 800
     },
     {
+      id: "cat_dining",
+      label: "Dining & Restaurants",
+      color: "#F59E0B",
+      icon: "utensils",
+      limit: 500
+    },
+    {
+      id: "cat_subs",
+      label: "Subscriptions & SaaS",
+      color: "#8B5CF6",
+      icon: "repeat",
+      limit: 150
+    },
+    {
+      id: "cat_shopping",
+      label: "Shopping & Retail",
+      color: "#3B82F6",
+      icon: "shopping-bag",
+      limit: 600
+    },
+    {
       id: "cat_transport",
-      label: "Transportation",
-      color: "#f59e0b",
+      label: "Transport & Gas",
+      color: "#EC4899",
       icon: "car",
-      limit: 400
+      limit: 300
     },
     {
-      id: "cat_entertainment",
-      label: "Entertainment & Leisure",
-      color: "#ec4899",
+      id: "cat_travel",
+      label: "Travel & Lodging",
+      color: "#6366F1",
+      icon: "plane",
+      limit: 1000
+    },
+    {
+      id: "cat_bills",
+      label: "Utilities & Bills",
+      color: "#14B8A6",
+      icon: "zap",
+      limit: 700
+    },
+    {
+      id: "cat_ent",
+      label: "Entertainment",
+      color: "#F43F5E",
       icon: "film",
-      limit: 350
-    },
-    {
-      id: "cat_healthcare",
-      label: "Healthcare & Wellness",
-      color: "#8b5cf6",
-      icon: "heart-pulse",
-      limit: 250
+      limit: 450
     }
   ],
   cards: [
@@ -81,7 +102,7 @@ export const initialExpensesData = {
       amount: 75.00,
       description: "Balance 1st week",
       cardId: "card_1788699872709",
-      categoryId: "cat_grocery",
+      categoryId: "cat_groceries",
       date: "2026-09-06",
       isRecurring: false
     },
@@ -90,7 +111,7 @@ export const initialExpensesData = {
       amount: 142.50,
       description: "Whole Foods Market",
       cardId: "card_1788699872709",
-      categoryId: "cat_grocery",
+      categoryId: "cat_groceries",
       date: "2026-09-12",
       isRecurring: false
     },
@@ -108,7 +129,7 @@ export const initialExpensesData = {
       amount: 15.99,
       description: "Netflix Subscription",
       cardId: "card_1788788234637",
-      categoryId: "cat_entertainment",
+      categoryId: "cat_subs",
       date: "2026-09-18",
       isRecurring: true
     }
@@ -120,11 +141,11 @@ export const initialExpensesData = {
 export const getCleanExpenses = () => ({
   monthlyBudget: 0,
   categories: [
-    { id: "cat_housing", label: "Housing & Utilities", color: "#3b82f6", icon: "home", limit: 1200 },
-    { id: "cat_grocery", label: "Grocery & Dining", color: "#10b981", icon: "shopping-bag", limit: 800 },
-    { id: "cat_transport", label: "Transportation", color: "#f59e0b", icon: "car", limit: 400 },
-    { id: "cat_entertainment", label: "Entertainment", color: "#ec4899", icon: "film", limit: 350 },
-    { id: "cat_healthcare", label: "Healthcare", color: "#8b5cf6", icon: "heart-pulse", limit: 250 }
+    { id: "cat_groceries", label: "Groceries", color: "#10B981", icon: "shopping-cart", limit: 800 },
+    { id: "cat_dining", label: "Dining & Restaurants", color: "#F59E0B", icon: "utensils", limit: 500 },
+    { id: "cat_subs", label: "Subscriptions & SaaS", color: "#8B5CF6", icon: "repeat", limit: 150 },
+    { id: "cat_shopping", label: "Shopping & Retail", color: "#3B82F6", icon: "shopping-bag", limit: 600 },
+    { id: "cat_transport", label: "Transport & Gas", color: "#EC4899", icon: "car", limit: 300 }
   ],
   cards: [],
   transactions: [],
