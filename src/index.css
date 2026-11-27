@@ -8,45 +8,45 @@
    ═════════════════════════════════════════════════════════════════════ */
 
 :root, html.light {
-  /* --- Foundation & Backgrounds (Soothing, Low-Glare Off-White) --- */
-  --app-bg: #F4F7F9;
-  --app-bg-2: #E2E8F0;
+  /* --- Foundation & Backgrounds (High Contrast Clean Light Theme) --- */
+  --app-bg: #EDF2F7;
+  --app-bg-2: #CBD5E1;
   --surface: #FFFFFF;
-  --surface-2: #F1F5F9;
+  --surface-2: #F8FAFC;
   --surface-3: #E2E8F0;
 
-  /* --- Borders & Specular Highlights --- */
-  --border: #E2E8F0;
-  --border-strong: #CBD5E1;
-  --border-hover: #94A3B8;
+  /* --- Borders & Specular Highlights (High Contrast) --- */
+  --border: #CBD5E1;
+  --border-strong: #94A3B8;
+  --border-hover: #475569;
 
-  /* --- Typography & Text Tokens --- */
-  --text-1: #1E293B; /* Slate Gray */
-  --text-2: #334155; /* Slate 700 */
-  --text-3: #64748B; /* Muted Slate */
-  --text-4: #94A3B8; /* Slate 400 */
+  /* --- Typography & Text Tokens (WCAG AAA High Contrast) --- */
+  --text-1: #0F172A; /* Slate 900 — Maximum readability */
+  --text-2: #1E293B; /* Slate 800 */
+  --text-3: #475569; /* Slate 600 — High contrast muted text */
+  --text-4: #64748B; /* Slate 500 */
 
   /* --- Brand & Institutional Accents --- */
-  --accent: #6366F1;      /* Soft Indigo */
-  --accent-2: #4F46E5;
-  --accent-glow: rgba(99, 102, 241, 0.2);
+  --accent: #4F46E5;      /* Indigo 600 */
+  --accent-2: #4338CA;    /* Indigo 700 */
+  --accent-glow: rgba(79, 70, 229, 0.25);
 
   /* --- Semantic Financial States & Tokens --- */
-  --btn-primary-bg: #6366F1;
-  --btn-primary-hover: #4F46E5;
-  --amount-income: #10B981;
-  --amount-expense: #E11D48;
+  --btn-primary-bg: #4F46E5;
+  --btn-primary-hover: #4338CA;
+  --amount-income: #059669;  /* Emerald 600 */
+  --amount-expense: #DC2626; /* Red 600 */
 
-  --success: #10B981;     /* Emerald Green */
-  --success-bg: rgba(16, 185, 129, 0.1);
-  --warning: #F59E0B;     /* Amber 500 */
-  --warning-bg: rgba(245, 158, 11, 0.1);
-  --danger: #E11D48;      /* Soft Rose Red */
-  --danger-bg: rgba(225, 29, 72, 0.1);
+  --success: #059669;     /* Emerald 600 */
+  --success-bg: rgba(5, 150, 105, 0.12);
+  --warning: #D97706;     /* Amber 600 */
+  --warning-bg: rgba(217, 119, 6, 0.12);
+  --danger: #DC2626;      /* Red 600 */
+  --danger-bg: rgba(220, 38, 38, 0.12);
 
   /* --- Shadows & Elevations --- */
-  --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
-  --shadow-lift: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  --shadow-soft: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lift: 0 10px 25px -5px rgba(15, 23, 42, 0.12);
 
   /* --- Radii --- */
   --radius-lg: 20px;

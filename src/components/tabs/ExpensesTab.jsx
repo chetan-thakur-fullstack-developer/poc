@@ -59,6 +59,8 @@ export const ExpensesTab = () => {
 
   // Categories & Caps
   const categories = expensesData?.categories || [];
+  const monthlyBudget = expensesData?.monthlyBudget || 0;
+
   const setCategories = (updater) => {
     setExpensesData(prev => {
       const nextCats = typeof updater === 'function' ? updater(prev?.categories || []) : updater;
@@ -66,10 +68,16 @@ export const ExpensesTab = () => {
     });
   };
 
+  const setMonthlyBudget = (val) => {
+    const num = Number(val) || 0;
+    setExpensesData(prev => ({ ...prev, monthlyBudget: num }));
+    showToast(`Monthly budget updated to $${num.toLocaleString()}`, 'success');
+  };
+
   // Compute metrics in single pass (BR-9)
   const metrics = useMemo(() => {
-    return computePeriodMetrics(period, transactions, categories);
-  }, [period, transactions, categories]);
+    return computePeriodMetrics(period, transactions, categories, monthlyBudget);
+  }, [period, transactions, categories, monthlyBudget]);
 
   // Compute insights
   const insights = useMemo(() => {
@@ -91,6 +99,8 @@ export const ExpensesTab = () => {
         metrics={metrics}
         cappedCount={categories.length}
         onManageClick={() => setIsManageModalOpen(true)}
+        monthlyBudget={monthlyBudget}
+        setMonthlyBudget={setMonthlyBudget}
       />
 
       {/* Smart Insights & Pacing Alerts */}
@@ -126,6 +136,8 @@ export const ExpensesTab = () => {
         onClose={() => setIsManageModalOpen(false)}
         categories={categories}
         setCategories={setCategories}
+        monthlyBudget={monthlyBudget}
+        setMonthlyBudget={setMonthlyBudget}
       />
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '../../context/AppContext.jsx';
 import { AnimatedNumber } from '../AnimatedNumber.jsx';
+import { EmptyState, Badge } from '../ui';
 import { Plus, Link2, Layers, TrendingUp, TrendingDown, Pencil, AlertCircle, ShieldCheck, Sparkles, Zap, Trash2, MoreVertical, X, Check } from 'lucide-react';
 
 export const AccountsTab = () => {
@@ -262,14 +263,12 @@ export const AccountsTab = () => {
         </div>
 
         {filteredAccounts.length === 0 ? (
-          <div className="py-16 text-center text-[var(--text-3)]">
-            <div className="max-w-xs mx-auto space-y-1.5 px-4">
-              <p className="font-bold text-[var(--text-1)] text-sm">No accounts linked yet</p>
-              <p className="text-xs text-[var(--text-3)] leading-relaxed">
-                Link your bank accounts, investment portfolios, or credit cards using the "+ Add Account" button below.
-              </p>
-            </div>
-          </div>
+          <EmptyState
+            title="No accounts linked yet"
+            description="Link your bank accounts, investment portfolios, or credit cards using the '+ Add Account' button below."
+            actionLabel="Add Account"
+            onAction={() => openModal('addAccount')}
+          />
         ) : (
           <>
             {/* Mobile View: Stacked Card List Items (Tap to open Edit Bottom Sheet) */}

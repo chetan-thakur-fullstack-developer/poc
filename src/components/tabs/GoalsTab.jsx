@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext.jsx';
 import { Target, Flag, Plus, Sparkles, ShieldCheck, Trophy, Pencil, Trash2, Check, X, Calendar, ArrowUpRight, ArrowDownRight, Layers, CreditCard, AlertCircle } from 'lucide-react';
 import { AnimatedNumber } from '../AnimatedNumber.jsx';
 import { AreaChart } from '../charts/AreaChart.jsx';
+import { StatCard, EmptyState, Badge } from '../ui';
 
 export const GoalsTab = () => {
   const {
@@ -98,81 +99,41 @@ export const GoalsTab = () => {
       {/* KPI Summary Grid: 2x2 grid on mobile */}
       {filteredGoals.length > 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 animate-in fade-in duration-200">
-          <div className="card p-4">
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-3)] mb-1 truncate">
-              {goalTypeTab === 'save' ? 'Total Goal Value' : 'Total Debt Owed'}
-            </div>
-            <div className="text-base sm:text-lg font-black font-mono text-[var(--text-1)] truncate">
-              <AnimatedNumber value={totalGoalValue} />
-            </div>
-          </div>
-          <div className="card p-4">
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-3)] mb-1 truncate">
-              {goalTypeTab === 'save' ? 'Total Saved' : 'Total Paid Off'}
-            </div>
-            <div className="text-base sm:text-lg font-black font-mono text-emerald-400 truncate">
-              <AnimatedNumber value={totalSaved} />
-            </div>
-          </div>
-          <div className="card p-4">
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-3)] mb-1 truncate">
-              Monthly Pacing
-            </div>
-            <div className="text-base sm:text-lg font-black font-mono text-purple-400 truncate">
-              <AnimatedNumber value={totalMonthly} />
-            </div>
-          </div>
-          <div className="card p-4 flex flex-col justify-between">
-            <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-3)] mb-1 truncate">
-                Active {goalTypeTab === 'save' ? 'Goals' : 'Liabilities'}
-              </div>
-              <div className="text-base sm:text-lg font-black font-mono text-[var(--text-1)] truncate">
-                {filteredGoals.length} {filteredGoals.length === 1 ? (goalTypeTab === 'save' ? 'Goal' : 'Liability') : (goalTypeTab === 'save' ? 'Goals' : 'Liabilities')}
-              </div>
-            </div>
-            <button
-              onClick={() => showToast('Select a goal and link it to an account to allocate funds.', 'info')}
-              className="text-[11px] font-bold text-emerald-400 hover:underline flex items-center gap-1 mt-2 cursor-pointer"
-            >
-              <Layers className="w-3 h-3" />
-              <span>Allocate Funds ↗</span>
-            </button>
-          </div>
+          <StatCard
+            title={goalTypeTab === 'save' ? 'Total Goal Value' : 'Total Debt Owed'}
+            value={totalGoalValue}
+            formatter={(val) => formatMoney(val)}
+          />
+          <StatCard
+            title={goalTypeTab === 'save' ? 'Total Saved' : 'Total Paid Off'}
+            value={totalSaved}
+            formatter={(val) => formatMoney(val)}
+          />
+          <StatCard
+            title="Monthly Pacing"
+            value={totalMonthly}
+            formatter={(val) => formatMoney(val)}
+          />
+          <StatCard
+            title={`Active ${goalTypeTab === 'save' ? 'Goals' : 'Liabilities'}`}
+            value={`${filteredGoals.length} ${filteredGoals.length === 1 ? (goalTypeTab === 'save' ? 'Goal' : 'Liability') : (goalTypeTab === 'save' ? 'Goals' : 'Liabilities')}`}
+            subtitle="Allocate Funds ↗"
+            onClick={() => showToast('Select a goal and link it to an account to allocate funds.', 'info')}
+          />
         </div>
       )}
 
       {/* 2. Premium Interactive Empty State */}
       {filteredGoals.length === 0 ? (
-        <div className={`card p-12 text-center space-y-6 bg-gradient-to-br from-[var(--surface)] via-[var(--surface)] to-[var(--surface-2)] border relative overflow-hidden ${
-          goalTypeTab === 'save' ? 'border-emerald-500/30' : 'border-rose-500/30'
-        }`}>
-          <div className="absolute inset-0 bg-[radial-gradient(#8B5CF6_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
-          <div className="max-w-md mx-auto space-y-3 relative z-10">
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold shadow-lg ${
-              goalTypeTab === 'save' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-            }`}>
-              {goalTypeTab === 'save' ? <Target className="w-7 h-7" /> : <CreditCard className="w-7 h-7" />}
-            </div>
-            <h3 className="text-lg font-black text-[var(--text-1)]">
-              {goalTypeTab === 'save' ? 'Plan for your future wealth' : 'Conquer your existing debts'}
-            </h3>
-            <p className="text-xs text-[var(--text-3)] leading-relaxed">
-              {goalTypeTab === 'save'
-                ? 'Set automated monthly pacing, link synced accounts, and watch your net worth milestones compound effortlessly.'
-                : 'Add existing credit cards, auto loans, or mortgages to calculate interest reduction and optimal payoff dates.'}
-            </p>
-            <button
-              onClick={() => handleOpenCreate(goalTypeTab)}
-              className={`btn-primary text-xs px-6 py-3 mt-3 cursor-pointer text-white shadow-sm flex items-center gap-2 mx-auto font-bold min-h-[44px] ${
-                goalTypeTab === 'save' ? 'bg-[#8B5CF6] hover:bg-[#7c4dff]' : 'bg-rose-600 hover:bg-rose-500'
-              }`}
-            >
-              {goalTypeTab === 'save' ? <Target className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
-              <span>{goalTypeTab === 'save' ? 'Add Your First Goal' : 'Add Debt Liability'}</span>
-            </button>
-          </div>
-        </div>
+        <EmptyState
+          icon={goalTypeTab === 'save' ? <Target className="w-8 h-8 text-[#8B5CF6]" /> : <CreditCard className="w-8 h-8 text-rose-500" />}
+          title={goalTypeTab === 'save' ? 'Plan for your future wealth' : 'Conquer your existing debts'}
+          description={goalTypeTab === 'save'
+            ? 'Set automated monthly pacing, link synced accounts, and watch your net worth milestones compound effortlessly.'
+            : 'Add existing credit cards, auto loans, or mortgages to calculate interest reduction and optimal payoff dates.'}
+          actionLabel={goalTypeTab === 'save' ? 'Add Your First Goal' : 'Add Debt Liability'}
+          onAction={() => handleOpenCreate(goalTypeTab)}
+        />
       ) : (
         /* Active Cards Grid: 3-column grid structure on desktop, 1-col on mobile */
         <div className="space-y-4">

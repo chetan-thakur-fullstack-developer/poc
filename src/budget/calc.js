@@ -137,7 +137,7 @@ export const resolvePeriod = (mode = 'month', monthInput = null, rangeInput = nu
 };
 
 // --- 2. computePeriodMetrics ---
-export const computePeriodMetrics = (period, transactions = [], caps = [], nowInput = new Date()) => {
+export const computePeriodMetrics = (period, transactions = [], caps = [], monthlyBudget = 0, nowInput = new Date()) => {
   if (!period || !period.isValid || !period.start || !period.end) {
     return {
       totalDays: 0,
@@ -189,11 +189,13 @@ export const computePeriodMetrics = (period, transactions = [], caps = [], nowIn
     }
   });
 
-  let budget = 0;
+  let sumCaps = 0;
   (caps || []).forEach(c => {
     const limit = Number(c.limit !== undefined ? c.limit : c.amount) || 0;
-    budget += limit;
+    sumCaps += limit;
   });
+
+  const budget = (monthlyBudget !== undefined && Number(monthlyBudget) > 0) ? Number(monthlyBudget) : sumCaps;
 
   const remaining = budget - spent;
   const safeToSpend = daysLeft > 0 ? remaining / daysLeft : remaining;

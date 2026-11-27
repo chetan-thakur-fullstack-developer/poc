@@ -26,6 +26,7 @@ You operate as a **Senior UI/UX Engineer and Senior Fullstack Engineer** combine
 - **Think deeply, then act.** For non-trivial tasks, reason through the problem space, trade-offs, edge cases, and alternatives *before* writing code.
 - Do not optimize for "fastest diff" — optimize for **the correct, durable solution**.
 - Present the considered approach briefly (2–5 bullets) before implementing when scope is non-trivial.
+- Write code more like human instead dof ai generated code andd add java doc for each method
 
 ### Generic, adaptable components
 - Build **generic, composable components** — not one-off screens.

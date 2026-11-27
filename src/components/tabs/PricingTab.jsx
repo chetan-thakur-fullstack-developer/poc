@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext.jsx';
+import { Button, Card, Badge } from '../ui';
 
 export const PricingTab = () => {
   const { showToast } = useApp();
@@ -63,9 +64,7 @@ export const PricingTab = () => {
     <div className="space-y-6 sm:space-y-8 select-none">
       {/* Header */}
       <div className="text-center max-w-xl mx-auto space-y-2">
-        <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-          PLANS & BILLING
-        </span>
+        <Badge variant="success">PLANS & BILLING</Badge>
         <h2 className="text-2xl font-black text-[var(--text-1)]">
           Track your wealth without spreadsheets.
         </h2>
@@ -77,9 +76,9 @@ export const PricingTab = () => {
       {/* Pricing Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
         {plans.map(p => (
-          <div
+          <Card
             key={p.name}
-            className={`card p-6 flex flex-col justify-between relative transition-all ${
+            className={`p-6 flex flex-col justify-between relative transition-all ${
               p.popular
                 ? 'border-emerald-500/50 shadow-xl shadow-emerald-500/10 ring-1 ring-emerald-500/30'
                 : ''
@@ -118,18 +117,15 @@ export const PricingTab = () => {
             </div>
 
             <div className="pt-6 mt-6 border-t border-[var(--border)]">
-              <button
+              <Button
+                variant={p.current ? 'secondary' : 'primary'}
+                className="w-full"
                 onClick={() => handleSelectPlan(p.name)}
-                className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  p.popular
-                    ? 'btn-primary'
-                    : 'btn-secondary'
-                }`}
               >
                 {p.cta}
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>

@@ -52,14 +52,32 @@ export const TransactionsTab = () => {
   const [kpiFilter, setKpiFilter] = useState('all'); // 'all', 'aboveAverage', 'recurringBurn'
   const [showMobileFilterModal, setShowMobileFilterModal] = useState(false);
 
-  // Date Range Filter State
-  const [dateFilter, setDateFilter] = useState({
-    mode: 'all', // 'all' | 'month' | 'year' | 'custom'
-    year: '2026',
-    month: '11',
-    startDate: '',
-    endDate: '',
-    label: 'All Time'
+  // Date Range Filter State (Default to Current Month)
+  const now = new Date();
+  const currentYear = String(now.getFullYear());
+  const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+
+  const [dateFilter, setDateFilter] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ew_transactions_date_filter');
+      return saved ? JSON.parse(saved) : {
+        mode: 'month',
+        year: currentYear,
+        month: currentMonth,
+        startDate: '',
+        endDate: '',
+        label: 'Current Month'
+      };
+    } catch {
+      return {
+        mode: 'month',
+        year: currentYear,
+        month: currentMonth,
+        startDate: '',
+        endDate: '',
+        label: 'Current Month'
+      };
+    }
   });
   const [showDatePopover, setShowDatePopover] = useState(false);
   const [showCardDropdown, setShowCardDropdown] = useState(false);

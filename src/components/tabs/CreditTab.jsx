@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext.jsx';
+import { StatCard, Badge } from '../ui';
 
 export const CreditTab = () => {
   const { expensesData, formatMoney } = useApp();
@@ -16,51 +17,31 @@ export const CreditTab = () => {
 
       {/* Credit Score Top Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Credit Score Card */}
-        <div className="card p-5 space-y-3">
-          <div className="flex justify-between items-center text-xs text-[var(--text-3)]">
-            <span className="font-semibold uppercase tracking-wider">VantageScore 3.0</span>
-            <span className="text-emerald-400 font-bold">Excellent</span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-black text-emerald-400 font-mono">{score}</span>
-            <span className="text-xs text-[var(--text-3)]">/ 850</span>
-          </div>
-          <p className="text-[11px] text-[var(--text-3)]">
-            Updated today from TransUnion & Equifax bureaus
-          </p>
-        </div>
-
-        {/* Utilization Ratio Card */}
-        <div className="card p-5 space-y-3">
-          <div className="flex justify-between items-center text-xs text-[var(--text-3)]">
-            <span className="font-semibold uppercase tracking-wider">Credit Utilization</span>
-            <span className="text-emerald-400 font-bold">Optimal (&lt; 10%)</span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-black text-[var(--text-1)] font-mono">{utilizationPct}%</span>
-          </div>
-          <div className="w-full bg-[var(--surface-3)] h-1.5 rounded-full overflow-hidden">
+        <StatCard
+          title="VantageScore 3.0"
+          value={score}
+          subtitle="Updated today from TransUnion & Equifax bureaus"
+          trendValue="Excellent"
+          trend="up"
+        />
+        <StatCard
+          title="Credit Utilization"
+          value={`${utilizationPct}%`}
+          subtitle={`${formatMoney(totalBalance)} used of ${formatMoney(totalLimit)} total limits`}
+          trendValue="Optimal (< 10%)"
+          trend="up"
+        >
+          <div className="w-full bg-[var(--surface-3)] h-1.5 rounded-full overflow-hidden mt-2">
             <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${utilizationPct}%` }} />
           </div>
-          <p className="text-[11px] text-[var(--text-3)]">
-            {formatMoney(totalBalance)} used of {formatMoney(totalLimit)} total limits
-          </p>
-        </div>
-
-        {/* On-Time Payment History */}
-        <div className="card p-5 space-y-3">
-          <div className="flex justify-between items-center text-xs text-[var(--text-3)]">
-            <span className="font-semibold uppercase tracking-wider">Payment History</span>
-            <span className="text-emerald-400 font-bold">Flawless</span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-black text-[var(--text-1)] font-mono">100%</span>
-          </div>
-          <p className="text-[11px] text-[var(--text-3)]">
-            48 consecutive on-time payments across all accounts
-          </p>
-        </div>
+        </StatCard>
+        <StatCard
+          title="Payment History"
+          value="100%"
+          subtitle="48 consecutive on-time payments across all accounts"
+          trendValue="Flawless"
+          trend="up"
+        />
       </div>
 
       {/* Credit Factors Breakdown */}
